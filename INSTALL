@@ -1,0 +1,38 @@
+Needs Python. Only 2.5 or 2.6 is supported because of pyWHATauto.
+
+Depends on the following Python packages:
+	- poster: http://atlee.ca/software/poster/
+	- PyroScope: http://code.google.com/p/pyroscope/
+	- simplejson: http://undefined.org/python/#simplejson
+		- Because Python 2.5 doesn't have the json module.
+
+If you don't have root acces, use virtualenv ( http://pypi.python.org/pypi/virtualenv ) to install the required Python packages.
+		
+Required applications:
+	- ffmpeg: http://www.ffmpeg.org/
+	- MediaInfo: http://mediainfo.sourceforge.net/
+	- mktorrent: http://mktorrent.sourceforge.net/
+	- pyWHATauto: http://whatscripts.com/
+	- unrar: http://www.rarlab.com/rar_add.htm
+
+1. Extract PtpUploader and pyWHATauto
+	
+Recommended directory structure:
+	- PTP
+		- PtpUploader
+		- pyWHATauto
+		- WorkingDirectory
+
+2. Configure pyWHATauto.
+
+3. Configure PyroScope.
+
+4. Start PtpUploader  in the background
+screen -S PtpUploader python /path to PtpUploader/Main.py
+
+Use Ctrl+A, D to disconnect from screen. You can use "screen -r PtpUploader" to reconnect.
+
+5. Start pyWHATauto in the background
+screen -S pywa python /path to pyWHATauto/PtpUploaderIrcBot.py /path to WorkingDirectory/
+
+Disconnect from screen.

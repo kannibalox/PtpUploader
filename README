@@ -1,0 +1,36 @@
+﻿PtpUploader v0.1 by TnS
+
+The program does three things: watches for release announcements, downloads them and uploads them to PTP.
+
+This is my first Python program ever, so sorry for the C-ish code and for the semicolons. :)
+
+Supported sources:
+	- GFT
+
+How it works:
+	1. Announcement watching
+		- it uses a wrapper for pyWHATauto to watch release announcements on IRC
+		- checks release name and filters out the unwanted releases
+			- manual announcements are not checked
+		- gets IMDb id from NFO
+			- NFO is read from the source site
+			- in case of manual downloads, NFO is read from the downloaded release
+		- release type is figured out from release name (DVD rip, X264, ...)
+		- checks if the release exists on PTP
+			- manual announcements are not checked
+			- uses IMDb id and release type to check against the existing releases on PTP
+	2. Downloading
+		- in case of manual downloads it does nothing
+		- downloads the torrent file from the source
+		- torrent file is added to rTorrent and the bot waits till it finishes
+	3. Uploading
+		- the releases is extracted (including the subtitles) to a separate directory
+		- makes media info for all videos
+		- takes screenshots from the first (sorted by name) video and uploads to an image hoster (ptpimg or imgur)
+		- makes the torrent
+		- checks (again) if the release exists on PTP
+		- if there is no movie page for this movie on PTP, it uses PTP's IMDb info getter to fill out the required details
+			- rehosts the poster if it presents
+		- adds the torrent to rTorrent without hash checking
+		- fills out PTP's upload or add format form
+		- refreshes the movie page (needed to refresh the IMDb info)

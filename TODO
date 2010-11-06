@@ -1,0 +1,17 @@
+﻿- per release log files
+- refactor Main.py
+- concurrent downloads (because of slower sources)
+- add timeout when waiting till the download to finish
+	- announcement rescheduling while torrent is not visible on GFT (needed only when we will support more than one sources?)
+- support of relogging, timeouts and retrying in all HTTP requests
+- limit ratio (and seeding time) on source
+- mininmal web interface
+- replace pyWHATauto
+	- or at least make it capable of rejoining
+	- and handling custom commands
+- add poster download support for http://www.movieposterdb.com/  
+- manual upload mode: extract, create media info, screenshots and release description
+- check available space before downloading 
+- automatically switching to imgur if ptpimg is down
+- replace file based communication between irc bot and the uploader (or keep it and add an alternative)
+- store Settings.ini elsewhere
