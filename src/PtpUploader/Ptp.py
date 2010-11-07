@@ -96,6 +96,9 @@ class Ptp:
 		if match is None:
 			movieResult.PtpId = None;
 			Globals.Logger.info( "Movie with IMDb id '%s' doesn't exists on PTP." % imdbId );
+		elif response.find( "<h2>Error 404</h2>" ) != -1: # For some deleted movies PTP return with this error.
+			movieResult.PtpId = None;
+			Globals.Logger.info( "Movie with IMDb id '%s' doesn't exists on PTP. (Got error 404.)" % imdbId );
 		else:
 			movieResult.PtpId = match.group( 1 );
 			Globals.Logger.info( "Movie with IMDb id '%s' exists on PTP at '%s'." % ( imdbId, result.url ) );
