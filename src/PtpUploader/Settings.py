@@ -37,7 +37,14 @@ class Settings(object):
 	@staticmethod
 	def GetProcessedAnnouncementPath():
 		return os.path.join( Settings.WorkingPath, "announcement/processed" );
-		
+
+	@staticmethod
+	def __GetDefault(configParser, section, option, default):
+		try:
+			return configParser.get( section, option )
+  		except ConfigParser.NoOptionError:
+  			return default
+
 	@staticmethod
 	def LoadSettings():
 		configParser = ConfigParser.ConfigParser();
@@ -55,9 +62,11 @@ class Settings(object):
 		Settings.PtpAnnounceUrl = configParser.get( "Settings", "PtpAnnounceUrl" );
 		Settings.PtpUserName = configParser.get( "Settings", "PtpUserName" );
 		Settings.PtpPassword = configParser.get( "Settings", "PtpPassword" );
-		Settings.GftUserName = configParser.get( "Settings", "GftUserName" );
-		Settings.GftPassword = configParser.get( "Settings", "GftPassword" );
-		Settings.ImgurApiKey = configParser.get( "Settings", "ImgurApiKey" );
+		Settings.GftUserName = Settings.__GetDefault( configParser, "Settings", "GftUserName", "" );
+		Settings.GftPassword = Settings.__GetDefault( configParser, "Settings", "GftPassword", "" );
+		Settings.CinemageddonUserName = Settings.__GetDefault( configParser, "Settings", "CinemageddonUserName", "" );
+		Settings.CinemageddonPassword = Settings.__GetDefault( configParser, "Settings", "CinemageddonPassword", "" );
+		Settings.ImgurApiKey = Settings.__GetDefault( configParser, "Settings", "ImgurApiKey", "" );
 
 		Settings.ChtorPath = configParser.get( "Settings", "ChtorPath" );
 		Settings.FfmpegPath = configParser.get( "Settings", "FfmpegPath" );

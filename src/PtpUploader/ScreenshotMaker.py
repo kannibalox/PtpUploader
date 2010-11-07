@@ -22,14 +22,11 @@ class ScreenshotMaker:
 	# Sorting is needed to ensure that the screenshot is taken from the first video when a release contains multiple videos.
 	# We don't want to post screenshots that contains spoilers. :)
 	@staticmethod
-	def GetVideoFilesSorted(path):
-		entries = os.listdir( path );
+	def SortVideoFiles(files):
 		filesToSort = [];
-		for entry in entries:
-			filePath = os.path.join( path, entry );
-			if os.path.isfile( filePath ) and Settings.HasValidVideoExtensionToUpload( filePath ):
-				item = filePath.lower(), filePath; # Add as a tuple.
-				filesToSort.append( item );
+		for file in files:
+			item = file.lower(), file; # Add as a tuple.
+			filesToSort.append( item );
 
 		files = [];
 		filesToSort.sort();

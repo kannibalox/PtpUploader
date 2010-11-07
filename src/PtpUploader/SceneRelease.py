@@ -12,6 +12,30 @@ class SceneRelease:
 		self.Path = path;
 		self.Nfo = "";
 
+	@staticmethod
+	def GetSourceAndFormatFromSceneReleaseName(ptpUploadInfo, releaseName):
+		lowerReleaseName = releaseName.lower();
+		if lowerReleaseName.find( "dvdrip.xvid" ) != -1:
+			ptpUploadInfo.Quality = "Standard Definition";
+			ptpUploadInfo.Source = "DVD";
+			ptpUploadInfo.ResolutionType = "Other";
+		elif lowerReleaseName.find( "bdrip.xvid" ) != -1:
+			ptpUploadInfo.Quality = "Standard Definition";
+			ptpUploadInfo.Source = "Blu-Ray";
+			ptpUploadInfo.ResolutionType = "Other";
+		elif lowerReleaseName.find( "720p.bluray.x264" ) != -1:
+			ptpUploadInfo.Quality = "High Definition";
+			ptpUploadInfo.Source = "Blu-Ray";
+			ptpUploadInfo.ResolutionType = "720p";
+		elif lowerReleaseName.find( "1080p.bluray.x264" ) != -1:
+			ptpUploadInfo.Quality = "High Definition";
+			ptpUploadInfo.Source = "Blu-Ray";
+			ptpUploadInfo.ResolutionType = "1080p";
+		else:
+			raise PtpUploaderException( "Can't figure out release source and quality from release name '%s'." % releaseName );
+
+		ptpUploadInfo.Scene = "on";
+
 	# return: value[ "cds" ] = CD1, CD2, ... if presents
 	# value[ "subtitle" ] = subtitle directory if presents
 	# value[ "nfo" ] = nfo path
@@ -84,22 +108,7 @@ class SceneRelease:
 		if nfoPath is None:
 			raise PtpUploaderException( "Can't find NFO in directory '%s'." % self.Path );
 		
-		self.Nfo = NfoParser.ReadNfoFileToUnicode( nfoPath ); 
-
+		self.Nfo = NfoParser.ReadNfoFileToUnicode( nfoPath );
+		 
 		self.ExtractVideos( cds, destination );
 		self.ExtractSubtitle( subtitleDirectory, destination );
-
-		# Make sure it only contains video and subtitle files with supported extensions and no directories.
-		videos = [];
-		subtitles = [];
-		files = os.listdir( destination );
-		for file in files:
-			filePath = os.path.join( destination, file );
-			if os.path.isdir( filePath ):
-				raise PtpUploaderException( "Directory '%s' contains a directory '%s'." % ( destination, file ) );
-			elif Settings.HasValidVideoExtensionToUpload( filePath ):
-				videos.append( filePath );
-			elif Settings.HasValidSubtitleExtensionToUpload( filePath ):
-				subtitles.append( filePath );
-			else:
-				raise PtpUploaderException( "File '%s' has unsupported extension." % filePath );

@@ -4,6 +4,8 @@
 - add timeout when waiting till the download to finish
 	- announcement rescheduling while torrent is not visible on GFT (needed only when we will support more than one sources?)
 - support of relogging, timeouts and retrying in all HTTP requests
+- per source filtering settings
+- if there is no pretime fall back to a list of scene groups
 - limit ratio (and seeding time) on source
 - mininmal web interface
 - replace pyWHATauto

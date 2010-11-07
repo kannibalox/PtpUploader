@@ -1,3 +1,4 @@
+from PtpUploadInfo import PtpUploadInfo;
 from PtpUploaderException import PtpUploaderException;
 from Settings import Settings;
 
@@ -6,30 +7,14 @@ import os;
 class ReleaseInfo:
 	def __init__(self, announcement, imdbId):
 		self.Announcement = announcement;
-		self.ImdbId = imdbId;
+		self.PtpUploadInfo = PtpUploadInfo();
+		self.PtpUploadInfo.ImdbId = imdbId;
+		self.Source = None; # A class from the Source namespace.
+		self.Nfo = u"";
 
-		# No enum = FAIL.		
-		self.IsDvdRip = False;
-		self.IsBdRip = False;
-		self.IsX264_720p = False;
-		self.IsX264_1080p = False;
-		
-		# If you add a supported format here, make sure to add it to:
-		# - Ptp.MovieOnPtpResult.IsReleaseExists
-		# - PtpUploadInfo.GetQualityAndSourceFromReleaseInfo
-		# - ReleaseInfo.__init__
-		releaseName = announcement.ReleaseName.lower();
-		if releaseName.find( "dvdrip.xvid" ) != -1:
-			self.IsDvdRip = True;
-		elif releaseName.find( "bdrip.xvid" ) != -1:
-			self.IsBdRip = True;
-		elif releaseName.find( "720p.bluray.x264" ) != -1:
-			self.IsX264_720p = True;
-		elif releaseName.find( "1080p.bluray.x264" ) != -1:
-			self.IsX264_1080p = True;
-		else:
-			raise PtpUploaderException( "Can't figure out release type from release name '%s'." % announcement.ReleaseName );
-		
+	def GetImdbId(self):
+		return self.PtpUploadInfo.ImdbId;
+
 	# Eg.: "working directory/release/Dark.City.1998.Directors.Cut.720p.BluRay.x264-SiNNERS/"
 	@staticmethod
 	def GetReleaseRootPathFromRelaseName(releaseName):

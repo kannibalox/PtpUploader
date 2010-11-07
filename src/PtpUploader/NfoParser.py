@@ -24,7 +24,7 @@ class NfoParser:
 		if matches:
 			return matches.group( 1 );
 		else:
-			return None;
+			return "";
 	
 	@staticmethod
 	def __StripNonAscii(string):

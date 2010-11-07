@@ -25,24 +25,17 @@ class Ptp:
 			if self.PtpId is None:
 				return False;
 
-			# If you add a supported format here, make sure to add it to:
-			# - Ptp.MovieOnPtpResult.IsReleaseExists
-			# - PtpUploadInfo.GetQualityAndSourceFromReleaseInfo
-			# - ReleaseInfo.__init__
-
-			# BD rip trumps DVD rip.
-			if releaseInfo.IsDvdRip:
-				return self.Xvid_DVDrip_OnSite or self.Xvid_BDrip_OnSite; 
-			
-			if releaseInfo.IsBdRip:
-				return self.Xvid_BDrip_OnSite; 
+			if releaseInfo.PtpUploadInfo.Quality == "High Definition":
+				if releaseInfo.PtpUploadInfo.Codec == "x264" and releaseInfo.ResolutionType == "720p":
+					return self.X264_720p_OnSite;
+				elif releaseInfo.PtpUploadInfo.Codec == "x264" and releaseInfo.ResolutionType == "1080p":
+					return self.X264_1080p_OnSite;
+			elif releaseInfo.PtpUploadInfo.Quality == "Standard Definition":
+				if releaseInfo.PtpUploadInfo.Source == "DVD":
+					return self.Xvid_DVDrip_OnSite or self.Xvid_BDrip_OnSite; # BD rip trumps DVD rip.
+				elif releaseInfo.PtpUploadInfo.Source == "Blu-Ray":
+					return self.Xvid_BDrip_OnSite;
 				
-			if releaseInfo.IsX264_720p:
-				return self.X264_720p_OnSite; 
-
-			if releaseInfo.IsX264_1080p:
-				return self.X264_1080p_OnSite;
-
 			# This can't possible.			
 			raise PtpUploaderException( "MovieOnPtpResult got unsupported release type from ReleaseInfo for release '%s'." % releaseInfo.Announcement.ReleaseName ); 
 
@@ -143,8 +136,8 @@ class Ptp:
 			raise PtpUploaderException( "Bad PTP movie info JSON response: year is empty." );
 
 		ptpUploadInfo.MovieDescription = movie[ "plot" ];
-		if ptpUploadInfo.MovieDescription is None: 
-			raise PtpUploaderException( "Bad PTP movie info JSON response: plot key doesn't exists." );
+		if ptpUploadInfo.MovieDescription is None:
+			ptpUploadInfo.MovieDescription = ""; 
 
 		ptpUploadInfo.Tags = movie[ "tags" ];
 		if ptpUploadInfo.Tags is None: 
@@ -175,7 +168,6 @@ class Ptp:
 				"type": ptpUploadInfo.Type,
 				"remaster_year": "",
 				"remaster_title": "",
-				"scene": ptpUploadInfo.Scene,
 				"quality": ptpUploadInfo.Quality,
 				"codec": ptpUploadInfo.Codec,
 				"other_codec": "",
@@ -187,8 +179,14 @@ class Ptp:
 				"other_source": "",
 				"release_desc": ptpUploadInfo.ReleaseDescription
 				};
-				
-		return commonParams.items();
+
+		paramList = commonParams.items()
+
+		# scene only needed if it is specified
+		if len( ptpUploadInfo.Scene ) > 0:
+			paramList.append( poster.encode.MultipartParam( "scene", "on" ) )
+
+		return paramList;
 	
 	@staticmethod
 	def __UploadMovieGetParamsForAddFormat(ptpId):
@@ -282,7 +280,7 @@ class Ptp:
 
 		# We don't care if this fails. This should be built-in on server side. Our upload is complete anyway. :) 
 		try:
-			# Searching for: <a href="torrents.php?action=imdb&amp;groupid=3704&amp;auth=00ac2a67ae34c7d2ba978dbfbc8abf46">[Refresh Data]</a>
+			# Searching for: <a href="torrents.php?action=imdb&amp;groupid=3704&amp;auth=...">[Refresh Data]</a>
 			matches = re.search( r'<a href="torrents.php\?action=imdb&amp;groupid=\d+&amp;auth=(.+)">\[Refresh Data\]</a>', page );
 			if not matches:
 				Globals.Logger.info( "Couldn't refresh data for 'http://passthepopcorn.me/torrents.php?id=%s'. Authorization key couldn't be found." % ptpId );

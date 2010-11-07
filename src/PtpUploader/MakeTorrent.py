@@ -5,17 +5,18 @@ from Settings import Settings;
 import os;
 import subprocess;
 
-# mktorrent is not working under Windows.
+# mktorrent is not working properly under Windows.
 class MakeTorrent:
 	@staticmethod
 	def Make(path, torrentPath):
 		Globals.Logger.info( "Making torrent from '%s' to '%s'." % ( path, torrentPath ) );
-		directorySize = MakeTorrent.GetDirectorySize( path );
-			
+		sourceSize = MakeTorrent.GetSourceSize( path );
+
+		# Optimal piece size should be automatically calculated by mktorrent...			
 		# Use 512 KB piece size as default.
 		# Use 4 MB piece size for torrents that are longer than 4 GB.
 		pieceSize = "-l 19";
-		if directorySize > ( 4 * 1024 * 1024 * 1024 ):
+		if sourceSize > ( 4 * 1024 * 1024 * 1024 ):
 			pieceSize = "-l 22";
 		
 		args = [ Settings.MktorrentPath, '-a', Settings.PtpAnnounceUrl, '-p', pieceSize, '-o', torrentPath, path ];
@@ -24,7 +25,10 @@ class MakeTorrent:
 			raise PtpUploaderException( "Process execution '%s' returned with error code '%s'." % ( args, errorCode ) );			
 
 	@staticmethod
-	def GetDirectorySize(path):
+	def GetSourceSize(path):
+		if os.path.isfile( path ):
+			return os.path.getsize( path );
+		
 		totalSize = 0;
 		for ( dirPath, dirNames, fileNames ) in os.walk( path ):
 			for file in fileNames:

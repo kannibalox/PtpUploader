@@ -1,17 +1,18 @@
+from Source.Cinemageddon import Cinemageddon;
+from Source.Gft import Gft;
+from Source.SourceFactory import SourceFactory;
+
 from AnnouncementWatcher import *;
 from Globals import Globals;
-from Gft import Gft;
 from ImageUploader import ImageUploader;
 from MakeTorrent import MakeTorrent;
 from MediaInfo import MediaInfo;
-from NfoParser import NfoParser;
 from Ptp import Ptp;
 from PtpUploaderException import PtpUploaderException;
 from PtpUploadInfo import PtpUploadInfo;
-from ReleaseFilter import ReleaseFilter;
+from ReleaseExtractor import ReleaseExtractor;
 from ReleaseInfo import ReleaseInfo;
 from Rtorrent import Rtorrent;
-from SceneRelease import SceneRelease;
 from ScreenshotMaker import ScreenshotMaker;
 from Settings import Settings;
 
@@ -32,36 +33,21 @@ def WaitForAnnouncement():
 def CheckAnnouncement(announcement):
 	Globals.Logger.info( "Working on announcement from '%s' with id '%s' and name '%s'." % ( announcement.AnnouncementSourceName, announcement.AnnouncementId, announcement.ReleaseName ) );
 
-	if announcement.AnnouncementSourceName != "gft" and announcement.AnnouncementSourceName != "manual":
+	source = SourceFactory.GetSource( announcement );
+	if source is None:
 		Globals.Logger.error( "Unknown announcement source: '%s'." % announcement.AnnouncementSourceName );
-		return None; 
-
-	nfoText = None;
-	
-	if announcement.IsManualAnnouncement:
-		if announcement.IsManualDownload:
-			# If this is a manual download then we have to read the NFO from the directory of the already downloaded release.
-			nfoText = NfoParser.GetNfoFile( ReleaseInfo.GetReleaseDownloadPathFromRelaseName( announcement.ReleaseName ) );
-		else:
-			# Download the NFO and get the release name.
-			nfoText = Gft.DownloadNfo( announcement, getReleaseName = True, checkPretime = False );
-	else:
-		# In case of automatic announcement we have to check the release name if it is valid.
-		# We know the release name from the announcement, so we can filter it without downloading anything (yet) from the source. 
-		if not ReleaseFilter.IsValidReleaseName( announcement.ReleaseName ):
-			Globals.Logger.info( "Ignoring release '%s' because of its name." % announcement.ReleaseName );
-			return None;
-
-		# Download the NFO.
-		nfoText = Gft.DownloadNfo( announcement );
-	
-	# Check if the NFO contains an IMDb id.
-	imdbId = NfoParser.GetImdbId( nfoText );
-	if imdbId is None:
-		Globals.Logger.error( "IMDb id can't be found in NFO." );
 		return None;
 
-	releaseInfo = ReleaseInfo( announcement, imdbId );
+	# We need the IMDb id.
+	releaseInfo = source.PrepareDownload( announcement );
+	if len( releaseInfo.GetImdbId() ) < 1:
+		Globals.Logger.error( "IMDb id can't be found." );
+		return None;
+
+	# Make sure the source is providing a name.
+	if len( releaseInfo.Announcement.ReleaseName ) < 1:
+		Globals.Logger.error( "Release name is empty." );
+		return None;		
 
 	# TODO: this is temporary here. We should support it everywhere.
 	# If we are not logged in here that could mean that nothing interesting has been announcened for a while. 
@@ -69,11 +55,12 @@ def CheckAnnouncement(announcement):
 
 	# If this is an automatic announcement then we have to check if is it already on PtP.
 	if not announcement.IsManualAnnouncement:
-		movieOnPtpResult = Ptp.GetMoviePageOnPtp( imdbId );
+		movieOnPtpResult = Ptp.GetMoviePageOnPtp( releaseInfo.GetImdbId() );
 		if movieOnPtpResult.IsReleaseExists( releaseInfo ):
 			Globals.Logger.info( "Release '%s' already exists on PTP." % announcement.ReleaseName );
 			return None;
 
+	releaseInfo.Source = source;
 	return releaseInfo;
 	
 def Download(rtorrent, releaseInfo):
@@ -93,7 +80,7 @@ def Download(rtorrent, releaseInfo):
 	# Download the torrent file.
 	torrentName = releaseInfo.Announcement.AnnouncementSourceName + " " + releaseInfo.Announcement.ReleaseName + ".torrent";
 	torrentPath = os.path.join( releaseRootPath, torrentName );
-	Gft.DownloadTorrent( releaseInfo, torrentPath );
+	releaseInfo.Source.DownloadTorrent( releaseInfo, torrentPath );
 
 	# Download the torrent.
 	rtorrent.AddTorrentAndWaitTillDownloadFinishes( torrentPath, releaseInfo.GetReleaseDownloadPath() );
@@ -103,52 +90,52 @@ def Upload(rtorrent, releaseInfo):
 	uploadPath = releaseInfo.GetReleaseUploadPath();
 	Globals.Logger.info( "Creating upload path at '%s'." % uploadPath );	
 	os.makedirs( uploadPath );
-	
+
 	# Extract the release.
-	sceneRelease = SceneRelease( releaseInfo.GetReleaseDownloadPath() );
-	sceneRelease.Extract( uploadPath );
-
-	ptpUploadInfo = PtpUploadInfo( releaseInfo );
-
-	# Get the list of videos.
-	videoFiles = ScreenshotMaker.GetVideoFilesSorted( uploadPath );
-	if len( videoFiles ) == 0:
+	releaseInfo.Source.ExtractRelease( releaseInfo )
+	videoFiles, totalFileCount = ReleaseExtractor.ValidateDirectory( uploadPath )
+	if len( videoFiles ) < 1:
 		raise PtpUploaderException( "Upload path '%s' doesn't contains any video files." % uploadPath );
 	
 	# Get the media info.
+	videoFiles = ScreenshotMaker.SortVideoFiles( videoFiles );
 	mediaInfos = MediaInfo.ReadAndParseMediaInfos( videoFiles );
-	ptpUploadInfo.GetDataFromMediaInfo( mediaInfos[ 0 ] );
+	releaseInfo.PtpUploadInfo.GetDataFromMediaInfo( mediaInfos[ 0 ] );
 
 	# Take and upload screenshots.
 	screenshotPath = os.path.join( releaseInfo.GetReleaseRootPath(), "screenshot.png" );
 	uploadedScreenshots = ScreenshotMaker.TakeAndUploadScreenshots( videoFiles[ 0 ], screenshotPath, mediaInfos[ 0 ].DurationInSec );
 
-	ptpUploadInfo.FormatReleaseDescription( releaseInfo, sceneRelease.Nfo, uploadedScreenshots, mediaInfos );
+	releaseInfo.PtpUploadInfo.FormatReleaseDescription( releaseInfo, uploadedScreenshots, mediaInfos );
 
 	# Make the torrent.
 	# We save it into a separate folder to make sure it won't end up in the upload somehow. :)
 	uploadTorrentName = "PTP " + releaseInfo.Announcement.ReleaseName + ".torrent";
 	uploadTorrentPath = os.path.join( releaseInfo.GetReleaseRootPath(), uploadTorrentName );
-	MakeTorrent.Make( uploadPath, uploadTorrentPath );
+	# Make torrent with the parent directory's name included if there is more than one file or requested by the source (it is a scene release).
+	if totalFileCount > 1 or releaseInfo.Source.IsSingleFileTorrentNeedsDirectory():
+		MakeTorrent.Make( uploadPath, uploadTorrentPath );
+	else: # Create the torrent including only the single video file.
+		MakeTorrent.Make( videoFiles[ 0 ], uploadTorrentPath );
 
-	movieOnPtpResult = Ptp.GetMoviePageOnPtp( releaseInfo.ImdbId );
+	movieOnPtpResult = Ptp.GetMoviePageOnPtp( releaseInfo.GetImdbId() );
 
 	# If this is an automatic announcement then we have to check (again) if is it already on PTP.
 	if ( not releaseInfo.Announcement.IsManualAnnouncement ) and movieOnPtpResult.IsReleaseExists( releaseInfo ):
 		Globals.Logger.info( "Somebody has already uploaded the release '%s' to PTP while we were working on it. Skipping upload." % releaseInfo.Announcement.ReleaseName );
 		return;
 
-	# If this move has no page yet on PTP then fill out the required info (title, year, etc.).
+	# If this movie has no page yet on PTP then fill out the required info (title, year, etc.).
 	if movieOnPtpResult.PtpId is None:
-		Ptp.FillImdbInfo( ptpUploadInfo );
+		Ptp.FillImdbInfo( releaseInfo.PtpUploadInfo );
 		# Rehost image from IMDb to an image hoster.
-		if len( ptpUploadInfo.CoverArtUrl ) > 0:
-			ptpUploadInfo.CoverArtUrl = ImageUploader.Upload( imageUrl = ptpUploadInfo.CoverArtUrl );
+		if len( releaseInfo.PtpUploadInfo.CoverArtUrl ) > 0:
+			releaseInfo.PtpUploadInfo.CoverArtUrl = ImageUploader.Upload( imageUrl = releaseInfo.PtpUploadInfo.CoverArtUrl );
 
 	# Add torrent without hash checking.
 	rtorrent.AddTorrentSkipHashCheck( uploadTorrentPath, uploadPath );
 
-	Ptp.UploadMovie( ptpUploadInfo, uploadTorrentPath, movieOnPtpResult.PtpId );
+	Ptp.UploadMovie( releaseInfo.PtpUploadInfo, uploadTorrentPath, movieOnPtpResult.PtpId );
 	
 	Globals.Logger.info( "'%s' has been successfully uploaded to PTP." % releaseInfo.Announcement.ReleaseName );
 
@@ -172,10 +159,15 @@ def Main():
 	Settings.LoadSettings();
 	Globals.InitializeGlobals( Settings.WorkingPath );
 	Globals.Logger.info( "PtpUploader v0.1 by TnS" );
-	Gft.Login();
+	
+	if len( Settings.CinemageddonUserName ) > 0 and len( Settings.CinemageddonPassword ) > 0:
+		Cinemageddon.Login();
+	
+	if len( Settings.GftUserName ) > 0 and len( Settings.GftPassword ) > 0:
+		Gft.Login();
+		
 	Ptp.Login();
 	rtorrent = Rtorrent();
-
 	Work( rtorrent );
 	
 if __name__ == '__main__':

@@ -1,5 +1,9 @@
 from Globals import Globals;
+from NfoParser import NfoParser;
 from PtpUploaderException import PtpUploaderException;
+from ReleaseFilter import ReleaseFilter;
+from ReleaseInfo import ReleaseInfo;
+from SceneRelease import SceneRelease;
 from Settings import Settings;
 
 import re;
@@ -20,10 +24,10 @@ class Gft:
 	@staticmethod
 	def CheckIfLoggedInFromResponse(response):
 		if response.find( 'action="takelogin.php"' ) != -1:
-			raise PtpUploaderException( "Looks like you are not logged in to Gft. Probably due to the bad cookie in settings." )
+			raise PtpUploaderException( "Looks like you are not logged in to GFT. Probably due to the bad user name or password in settings." )
 	
 	@staticmethod
-	def DownloadNfo(announcement, getReleaseName = False, checkPretime = True):
+	def __DownloadNfo(announcement, getReleaseName = False, checkPretime = True):
 		url = "http://www.thegft.org/details.php?id=%s" % announcement.AnnouncementId;
 		Globals.Logger.info( "Downloading NFO from page '%s'." % url );
 		
@@ -65,6 +69,28 @@ class Gft:
 		return nfo;
 	
 	@staticmethod
+	def PrepareDownload(announcement):
+		nfoText = "";
+		
+		if announcement.IsManualAnnouncement:
+			# Download the NFO and get the release name.
+			nfoText = Gft.__DownloadNfo( announcement, getReleaseName = True, checkPretime = False );
+		else:
+			# In case of automatic announcement we have to check the release name if it is valid.
+			# We know the release name from the announcement, so we can filter it without downloading anything (yet) from the source. 
+			if not ReleaseFilter.IsValidReleaseName( announcement.ReleaseName ):
+				Globals.Logger.info( "Ignoring release '%s' because of its name." % announcement.ReleaseName );
+				return None;
+
+			# Download the NFO.
+			nfoText = Gft.__DownloadNfo( announcement )
+		
+		imdbId = NfoParser.GetImdbId( nfoText )
+		releaseInfo = ReleaseInfo( announcement, imdbId )
+		SceneRelease.GetSourceAndFormatFromSceneReleaseName( releaseInfo.PtpUploadInfo, announcement.ReleaseName )
+		return releaseInfo;
+	
+	@staticmethod
 	def DownloadTorrent(releaseInfo, path):
 		url = "http://www.thegft.org/download.php?id=%s" % releaseInfo.Announcement.AnnouncementId;
 		Globals.Logger.info( "Downloading torrent file from '%s' to '%s'." % ( url, path ) );
@@ -78,3 +104,14 @@ class Gft:
 		file = open( path, "wb" );
 		file.write( response );
 		file.close();
+
+	@staticmethod
+	def ExtractRelease(releaseInfo):
+		# Extract the release.
+		sceneRelease = SceneRelease( releaseInfo.GetReleaseDownloadPath() )
+		sceneRelease.Extract( releaseInfo.GetReleaseUploadPath() )
+		releaseInfo.Nfo = sceneRelease.Nfo
+		
+	@staticmethod
+	def IsSingleFileTorrentNeedsDirectory():
+		return True
