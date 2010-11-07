@@ -49,7 +49,7 @@ class Gft:
 			raise PtpUploaderException( "Ignoring release '%s' at '%s' because it is set to not visible." % ( releaseName, url ) ); 
 	
 		# Check for pretime to ignore non scene releases.
-		if checkPretime and response.find( '<tr><td class="heading" align="right" valign="top">Pretime</td><td align="left" valign="top">Too quick, bitches!!</td></tr>' ) != -1:
+		if checkPretime and response.find( ">Too quick, bitches!!<" ) != -1:
 			raise PtpUploaderException( "Pretime can't be found on page '%s'. Possibly a P2P release." % url ); 
 
 		# Get the NFO.
