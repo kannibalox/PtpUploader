@@ -106,8 +106,14 @@ class Ptp:
 				movieResult.X264_1080p_OnSite = True;
 
 		return movieResult;
+
+	# PTP doesn't decodes properly the text.
+	@staticmethod
+	def __FixFillImdbText(text):
+		text = text.replace( "&#x26;", "&" )
+		text = text.replace( "&#x27;", "'" )
+		return text;
 		
-	# imdbId: IMDb id. Eg.: 0137363 for http://www.imdb.com/title/tt0137363/
 	@staticmethod
 	def FillImdbInfo(ptpUploadInfo):
 		Globals.Logger.info( "Downloading movie info from PTP for IMDb id '%s'." % ptpUploadInfo.ImdbId );
@@ -130,6 +136,7 @@ class Ptp:
 		ptpUploadInfo.Title = movie[ "title" ];
 		if ( ptpUploadInfo.Title is None ) or len( ptpUploadInfo.Title ) == 0: 
 			raise PtpUploaderException( "Bad PTP movie info JSON response: title is empty." );
+		ptpUploadInfo.Title = Ptp.__FixFillImdbText( ptpUploadInfo.Title ) 
 
 		ptpUploadInfo.Year = movie[ "year" ];
 		if ( ptpUploadInfo.Year is None ) or len( ptpUploadInfo.Year ) == 0: 
