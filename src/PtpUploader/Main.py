@@ -38,8 +38,11 @@ def CheckAnnouncement(announcement):
 		Globals.Logger.error( "Unknown announcement source: '%s'." % announcement.AnnouncementSourceName );
 		return None;
 
-	# We need the IMDb id.
 	releaseInfo = source.PrepareDownload( announcement );
+	if releaseInfo is None:
+		return None; 
+	
+	# Make sure we have the IMDb id.
 	if len( releaseInfo.GetImdbId() ) < 1:
 		Globals.Logger.error( "IMDb id can't be found." );
 		return None;
