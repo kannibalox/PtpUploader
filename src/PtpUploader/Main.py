@@ -40,7 +40,7 @@ def CheckAnnouncement(announcement):
 
 	releaseInfo = source.PrepareDownload( announcement );
 	if releaseInfo is None:
-		return None; 
+		return None;
 	
 	# Make sure we have the IMDb id.
 	if len( releaseInfo.GetImdbId() ) < 1:
