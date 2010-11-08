@@ -13,7 +13,7 @@ class PtpUploadInfo:
 		self.Title = "";
 		self.Year = "";
 		self.Tags = "";
-		self.MovieDescription = "";
+		self.MovieDescription = u"";
 		self.CoverArtUrl = "";
 		self.Scene = ""; # Empty string or "on" (wihout the quotes).
 		self.Quality = ""; # High Definition, Standard Definition, Other
@@ -22,7 +22,7 @@ class PtpUploadInfo:
 		self.ResolutionType = ""; # NTSC, PAL, 480p, 576p, 720p, 1080i, 1080p, Other
 		self.Resolution = ""; # Exact resolution when ResolutionType is Other. 
 		self.Source = ""; # CAM, TC, TS, R5, DVD-Screener, VHS, DVD, TV, HDTV, HD-DVD, Blu-Ray, Other
-		self.ReleaseDescription = "";
+		self.ReleaseDescription = u"";
 
 	def IsStandardDefintion(self):
 		return self.Quality == "Standard Definition";		

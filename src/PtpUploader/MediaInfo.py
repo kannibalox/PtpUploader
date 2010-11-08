@@ -29,7 +29,7 @@ class MediaInfo:
 		if errorCode != 0:
 			raise PtpUploaderException( "Process execution '%s' returned with error code '%s'." % ( args, errorCode ) );			
 		
-		return stdout;
+		return stdout.decode( "utf-8", "ignore" );
 	
 	# Returns with the media infos.
 	@staticmethod
