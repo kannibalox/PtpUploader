@@ -26,9 +26,9 @@ class Ptp:
 				return False;
 
 			if releaseInfo.PtpUploadInfo.Quality == "High Definition":
-				if ( releaseInfo.PtpUploadInfo.Source == "Blu-Ray" or releaseInfo.PtpUploadInfo.Source == "HD-DVD" ) and releaseInfo.ResolutionType == "720p":
+				if ( releaseInfo.PtpUploadInfo.Source == "Blu-Ray" or releaseInfo.PtpUploadInfo.Source == "HD-DVD" ) and releaseInfo.PtpUploadInfo.ResolutionType == "720p":
 					return self.X264_720p_OnSite;
-				elif ( releaseInfo.PtpUploadInfo.Source == "Blu-Ray" or releaseInfo.PtpUploadInfo.Source == "HD-DVD" ) and releaseInfo.ResolutionType == "1080p":
+				elif ( releaseInfo.PtpUploadInfo.Source == "Blu-Ray" or releaseInfo.PtpUploadInfo.Source == "HD-DVD" ) and releaseInfo.PtpUploadInfo.ResolutionType == "1080p":
 					return self.X264_1080p_OnSite;
 			elif releaseInfo.PtpUploadInfo.Quality == "Standard Definition":
 				if releaseInfo.PtpUploadInfo.Source == "DVD":
