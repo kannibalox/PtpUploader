@@ -1,4 +1,4 @@
-from Globals import Globals;
+﻿from Globals import Globals;
 from PtpUploaderException import PtpUploaderException;
 from Settings import Settings;
 
@@ -112,6 +112,7 @@ class Ptp:
 	def __FixFillImdbText(text):
 		text = text.replace( "&#x26;", "&" )
 		text = text.replace( "&#x27;", "'" )
+		text = text.replace( "&#xE2;", u"â" )
 		return text;
 		
 	@staticmethod
@@ -130,17 +131,17 @@ class Ptp:
 
 		jsonResult = json.loads( response );
 		if len( jsonResult ) != 1:
-			raise PtpUploaderException( "Bad PTP movie info JSON response: array length is not one." );
+			raise PtpUploaderException( "Bad PTP movie info JSON response: array length is not one.\nResponse:\n%s" % response );
 	
 		movie = jsonResult[ 0 ];
 		ptpUploadInfo.Title = movie[ "title" ];
 		if ( ptpUploadInfo.Title is None ) or len( ptpUploadInfo.Title ) == 0: 
-			raise PtpUploaderException( "Bad PTP movie info JSON response: title is empty." );
+			raise PtpUploaderException( "Bad PTP movie info JSON response: title is empty.\nResponse:\n%s" % response );
 		ptpUploadInfo.Title = Ptp.__FixFillImdbText( ptpUploadInfo.Title ) 
 
 		ptpUploadInfo.Year = movie[ "year" ];
 		if ( ptpUploadInfo.Year is None ) or len( ptpUploadInfo.Year ) == 0: 
-			raise PtpUploaderException( "Bad PTP movie info JSON response: year is empty." );
+			raise PtpUploaderException( "Bad PTP movie info JSON response: year is empty.\nReponse:\n%s" % response );
 
 		ptpUploadInfo.MovieDescription = movie[ "plot" ];
 		if ptpUploadInfo.MovieDescription is None:
@@ -148,11 +149,11 @@ class Ptp:
 
 		ptpUploadInfo.Tags = movie[ "tags" ];
 		if ptpUploadInfo.Tags is None: 
-			raise PtpUploaderException( "Bad PTP movie info JSON response: tags key doesn't exists." );
+			raise PtpUploaderException( "Bad PTP movie info JSON response: tags key doesn't exists.\nReponse:\n%s" % response );
 
 		ptpUploadInfo.CoverArtUrl = movie[ "art" ];
 		if ptpUploadInfo.CoverArtUrl is None: 
-			raise PtpUploaderException( "Bad PTP movie info JSON response: art key doesn't exists." );
+			raise PtpUploaderException( "Bad PTP movie info JSON response: art key doesn't exists.\nReponse:\n%s" % response );
 	
 		# It may be false... Eg.: "art": false
 		if not ptpUploadInfo.CoverArtUrl:
@@ -160,12 +161,12 @@ class Ptp:
 
 		jsonDirectors = movie[ "director" ];
 		if ( jsonDirectors is None ) or len( jsonDirectors ) < 1: 
-			raise PtpUploaderException( "Bad PTP movie info JSON response: no directors." );
+			raise PtpUploaderException( "Bad PTP movie info JSON response: no directors.\nReponse:\n%s" % response );
 
 		for jsonDirector in jsonDirectors:
 			directorName = jsonDirector[ "name" ];
 			if ( directorName is None ) or len( directorName ) == 0: 
-				raise PtpUploaderException( "Bad PTP movie info JSON response: director name is empty." );
+				raise PtpUploaderException( "Bad PTP movie info JSON response: director name is empty.\nReponse:\n%s" % response );
 			ptpUploadInfo.Directors.append( directorName );
 
 	@staticmethod
