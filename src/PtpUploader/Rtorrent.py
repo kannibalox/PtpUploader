@@ -36,23 +36,11 @@ class Rtorrent:
 		self.proxy.d.start( infoHash );
 		
 		return infoHash;
-					
-	# downloadPath is the final path. Suggested directory name from torrent won't be added to it.
-	def AddTorrentAndWaitTillDownloadFinishes(self, torrentPath, downloadPath):
-		infoHash = self.AddTorrent( torrentPath, downloadPath );
-		
-		# TODO: not the most sophisticated way.
-		# Even a watch dir with Pyinotify would be better probably. rTorrent could write the info hash to a directory watched by us. 
-		Globals.Logger.info( "Waiting till rTorrent finishes downloading torrent with info hash '%s'." % infoHash );
-		while True:
-			time.sleep( 30 ); # Sleep 30 seconds between polls.
-			completed = self.proxy.d.get_complete( infoHash );
-			if completed == 1:
-				break;
-			
+
 	# Fast resume file is created beside the source torrent with "fast resume " prefix.
 	# downloadPath must already contain the data.
 	# downloadPath is the final path. Suggested directory name from torrent won't be added to it.
+	# Returns with the info hash of the torrent.
 	def AddTorrentSkipHashCheck(self, torrentPath, downloadPath):
 		Globals.Logger.info( "Adding torrent '%s' without hash checking to rTorrent to '%s'." % ( torrentPath, downloadPath ) );		
 		
@@ -66,4 +54,10 @@ class Rtorrent:
 		if errorCode != 0:
 			raise PtpUploaderException( "Process execution '%s' returned with error code '%s'." % ( args, errorCode ) );			
 		
-		self.AddTorrent( destinationTorrentPath, downloadPath );
+		return self.AddTorrent( destinationTorrentPath, downloadPath );
+		
+	def IsTorrentFinished(self, infoHash):
+		# TODO: not the most sophisticated way.
+		# Even a watch dir with Pyinotify would be better probably. rTorrent could write the info hash to a directory watched by us. 
+		completed = self.proxy.d.get_complete( infoHash );
+		return completed == 1

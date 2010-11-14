@@ -1,17 +1,27 @@
-from Cinemageddon import Cinemageddon;
-from Gft import Gft;
-from Manual import Manual;
+from Cinemageddon import Cinemageddon
+from Gft import Gft
+from Manual import Manual
+from Settings import Settings
 
 # A source have to support the following methods:
 # Login, PrepareDownload, DownloadTorrent, ExtractRelease and IsSingleFileTorrentNeedsDirectory.
 class SourceFactory:
-	@staticmethod
-	def GetSource(announcement):
-		if announcement.AnnouncementSourceName == "cg":
-			return Cinemageddon;
-		elif announcement.AnnouncementSourceName == "gft":
-			return Gft;
-		elif announcement.AnnouncementSourceName == "manual":
-			return Manual;
+	def __init__(self):
+		self.Sources = {}
 		
-		return None;
+		if len( Settings.CinemageddonUserName ) > 0 and len( Settings.CinemageddonPassword ) > 0:
+			Cinemageddon.Login()
+			self.__AddSource( Cinemageddon() )
+
+		if len( Settings.GftUserName ) > 0 and len( Settings.GftPassword ) > 0:
+			Gft.Login()
+			self.__AddSource( Gft() )
+
+		self.__AddSource( Manual() )
+
+	def __AddSource(self, source):
+		self.Sources[ source.Name ] = source
+			
+	def GetSource(self, sourceName):
+		# We don't want to throw KeyError exception, so we use get.
+		return self.Sources.get( sourceName ) 

@@ -21,6 +21,9 @@ class NfoParser:
 	@staticmethod
 	def GetImdbId(nfoText):
 		matches = re.search( "imdb.com/title/tt(\d+)", nfoText )
+		if not matches:
+			matches = re.search( "imdb.com/Title\?(\d+)", nfoText )
+		
 		if matches:
 			return matches.group( 1 );
 		else:

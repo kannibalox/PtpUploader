@@ -9,6 +9,10 @@ import urllib
 import urllib2
 
 class Cinemageddon:
+	def __init__(self):
+		self.Name = "cg"
+		self.MaximumParallelDownloads = Settings.CinemageddonMaximumParallelDownloads
+	
 	@staticmethod
 	def Login():
 		Globals.Logger.info( "Loggin in to Cinemageddon." )
@@ -73,7 +77,7 @@ class Cinemageddon:
 		formatType = formatType.lower()
 
 		# Adding BDrip support would be problematic because there is no easy way to decide if it is HD or SD.
-		# Maybe we could use the resolution and file size. But what about the oversize and upscaled releases? 
+		# Maybe we could use the resolution and file size. But what about the oversized and upscaled releases? 
 		
 		if formatType != "xvid" and formatType != "divx" and formatType != "x264":
 			raise PtpUploaderException( "Got unsupported format type '%s' from Cinemageddon." % formatType )

@@ -5,9 +5,14 @@ from ReleaseInfo import ReleaseInfo;
 from SceneRelease import SceneRelease;
 from Settings import Settings;
 
-# TODO: add support for non scene releases. How will we get the IMDb id? Probably only with a custom irc message if there is no NFO.
+# TODO: add support for non scene releases.
+# How will we get the IMDb id and the info gained from GetSourceAndFormatFromSceneReleaseName? Probably only with a custom irc message if there is no NFO.
 
 class Manual:
+	def __init__(self):
+		self.Name = "manual"
+		self.MaximumParallelDownloads = 1
+	
 	@staticmethod
 	def Login():
 		pass;

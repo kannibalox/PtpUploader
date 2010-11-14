@@ -11,6 +11,10 @@ import urllib;
 import urllib2;
 
 class Gft:
+	def __init__(self):
+		self.Name = "gft"
+		self.MaximumParallelDownloads = Settings.GftMaximumParallelDownloads
+	
 	@staticmethod
 	def Login():
 		Globals.Logger.info( "Loggin in to GFT." );

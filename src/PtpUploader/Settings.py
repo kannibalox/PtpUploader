@@ -35,6 +35,10 @@ class Settings(object):
 		return os.path.join( Settings.WorkingPath, "announcement" );
 
 	@staticmethod
+	def GetPendingAnnouncementPath():
+		return os.path.join( Settings.WorkingPath, "announcement/pending" );
+
+	@staticmethod
 	def GetProcessedAnnouncementPath():
 		return os.path.join( Settings.WorkingPath, "announcement/processed" );
 
@@ -64,8 +68,10 @@ class Settings(object):
 		Settings.PtpPassword = configParser.get( "Settings", "PtpPassword" );
 		Settings.GftUserName = Settings.__GetDefault( configParser, "Settings", "GftUserName", "" );
 		Settings.GftPassword = Settings.__GetDefault( configParser, "Settings", "GftPassword", "" );
+		Settings.GftMaximumParallelDownloads = int( configParser.get( "Settings", "GftMaximumParallelDownloads" ) );
 		Settings.CinemageddonUserName = Settings.__GetDefault( configParser, "Settings", "CinemageddonUserName", "" );
 		Settings.CinemageddonPassword = Settings.__GetDefault( configParser, "Settings", "CinemageddonPassword", "" );
+		Settings.CinemageddonMaximumParallelDownloads = int( configParser.get( "Settings", "CinemageddonMaximumParallelDownloads" ) );
 		Settings.ImgurApiKey = Settings.__GetDefault( configParser, "Settings", "ImgurApiKey", "" );
 
 		Settings.ChtorPath = configParser.get( "Settings", "ChtorPath" );
@@ -86,3 +92,8 @@ class Settings(object):
 		processedAnnouncementPath = Settings.GetProcessedAnnouncementPath();
 		if not os.path.exists( processedAnnouncementPath ):
 			os.makedirs( processedAnnouncementPath );
+
+		# Create the pending announcement directory.
+		pendingAnnouncementPath = Settings.GetPendingAnnouncementPath();
+		if not os.path.exists( pendingAnnouncementPath ):
+			os.makedirs( pendingAnnouncementPath );
