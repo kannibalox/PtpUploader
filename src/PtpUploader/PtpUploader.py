@@ -28,7 +28,7 @@ class PtpUploader:
 		runningDownloads = 0
 		for releaseInfo in self.PendingDownloads:
 			if releaseInfo.Announcement.Source.Name == source.Name:
-				++runningDownloads
+				runningDownloads += 1
 		
 		return runningDownloads < source.MaximumParallelDownloads
 
