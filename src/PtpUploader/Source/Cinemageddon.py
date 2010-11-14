@@ -55,7 +55,7 @@ class Cinemageddon:
 		formatType = matches.group( 4 )
 
 		# Get IMDb id
-		matches = re.search( r'>IMDB</td><td valign="top" align=left><a href="http://www.imdb.com/title/tt(\d+)/">', response )
+		matches = re.search( r'<a href="http://www.imdb.com/title/tt(\d+)/"', response )
 		if matches is None:
 			raise PtpUploaderException( "Ignoring release '%s' at '%s' because IMDb id can't be found." % ( announcement.ReleaseName, url ) )
 
