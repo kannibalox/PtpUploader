@@ -53,7 +53,8 @@ class Gft:
 			raise PtpUploaderException( "Announcement release name '%s' and release name '%s' on page '%s' are different." % ( announcement.ReleaseName, releaseName, url ) );
 
 		# For some reason there are announced, but non visible releases on GFT that never start seeding. Ignore them.
-		if response.find( '<td class="heading" align="right" valign="top">Visible</td><td align="left" valign="top"><b>no</b>' ) != -1:
+		# <td class="heading" valign="top" align="right">Visible</td><td valign="top" align=left><b>no</b> (dead)</td></tr>
+		if re.search( r'">Visible</td><td.+><b>no</b> \(dead\)', response ):
 			raise PtpUploaderException( "Ignoring release '%s' at '%s' because it is set to not visible." % ( releaseName, url ) ); 
 	
 		# Check for pretime to ignore non scene releases.
