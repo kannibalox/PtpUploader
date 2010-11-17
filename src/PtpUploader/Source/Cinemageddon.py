@@ -39,15 +39,22 @@ class Cinemageddon:
 		response = result.read()
 		Cinemageddon.__CheckIfLoggedInFromResponse( response )
 
+		# Make sure we only get information from the description and not from the comments.
+		descriptionEndIndex = response.find( '<p><a name="startcomments"></a></p>' )
+		if descriptionEndIndex == -1:
+			raise PtpUploaderException( "Description can't found on page '%s'. Probably the layout of the site has changed." % url )
+		
+		description = response[ :descriptionEndIndex ]			
+
 		# We will use the torrent's name as release name.
-		matches = re.search( r'href="download.php\?id=(\d+)&name=.+">(.+)\.torrent</a>', response )
+		matches = re.search( r'href="download.php\?id=(\d+)&name=.+">(.+)\.torrent</a>', description )
 		if matches is None:
 			raise PtpUploaderException( "Can't get release name from page '%s'." % url )
 		
 		announcement.ReleaseName = matches.group( 2 )
 
 		# Get source and format type
-		matches = re.search( r"torrent details for &quot;(.+) \[(\d+)/(.+)/(.+)\]&quot;", response )
+		matches = re.search( r"torrent details for &quot;(.+) \[(\d+)/(.+)/(.+)\]&quot;", description )
 		if matches is None:
 			raise PtpUploaderException( "Can't get release source and format type from page '%s'." % url )
 		
@@ -55,18 +62,18 @@ class Cinemageddon:
 		formatType = matches.group( 4 )
 
 		# Get IMDb id
-		matches = re.search( r'imdb\.com/title/tt(\d+)', response )
+		matches = re.search( r'imdb\.com/title/tt(\d+)', description )
 		if matches is None:
 			raise PtpUploaderException( "Ignoring release '%s' at '%s' because IMDb id can't be found." % ( announcement.ReleaseName, url ) )
 
 		imdbId = matches.group( 1 )
 
 		# Ignore XXX releases.
-		if response.find( '>Type</td><td valign="top" align=left>XXX<' ) != -1:
+		if description.find( '>Type</td><td valign="top" align=left>XXX<' ) != -1:
 			raise PtpUploaderException( "Ignoring release '%s' at '%s' because it is XXX." % ( announcement.ReleaseName, url ) )
 		
 		# Make sure that this is not a wrongly categorized DVDR.
-		if re.search( ".vob</td>", response, re.IGNORECASE ) or re.search( ".iso</td>", response, re.IGNORECASE ):
+		if re.search( ".vob</td>", description, re.IGNORECASE ) or re.search( ".iso</td>", description, re.IGNORECASE ):
 			raise PtpUploaderException( "Ignoring release '%s' at '%s' because it is a wrongly categorized DVDR." % ( announcement.ReleaseName, url ) )
 		
 		return imdbId, sourceType, formatType
