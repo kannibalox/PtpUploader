@@ -47,7 +47,8 @@ class PtpUploadInfo:
 		if self.IsStandardDefintion():
 			self.Resolution = "%sx%s" % ( mediaInfo.Width, mediaInfo.Height );
 		
-	def FormatReleaseDescription(self, releaseInfo, screenshots, mediaInfos):
+	# releaseDescriptionFilePath: optional. If given the description is written to file.
+	def FormatReleaseDescription(self, releaseInfo, screenshots, mediaInfos, releaseDescriptionFilePath = None):
 		Globals.Logger.info( "Making release description for release '%s' with screenshots at %s." % ( releaseInfo.Announcement.ReleaseName, screenshots ) );
 		
 		self.ReleaseDescription = u"[size=4][b]%s[/b][/size]\n\n" % releaseInfo.Announcement.ReleaseName;
@@ -65,7 +66,7 @@ class PtpUploadInfo:
 			self.ReleaseDescription += u"[size=3][u]NFO[/u][/size]:[pre]\n%s\n[/pre]" % releaseInfo.Nfo;
 		
 		# We don't use this file for anything, we just save it for convenience.
-		releaseDescriptionPath = os.path.join( releaseInfo.GetReleaseRootPath(), "release description.txt" );
-		releaseDescriptionFile = codecs.open( releaseDescriptionPath, encoding = "utf-8", mode = "w" );
-		releaseDescriptionFile.write( self.ReleaseDescription );
-		releaseDescriptionFile.close();
+		if releaseDescriptionFilePath is not None:
+			releaseDescriptionFile = codecs.open( releaseDescriptionFilePath, encoding = "utf-8", mode = "w" );
+			releaseDescriptionFile.write( self.ReleaseDescription );
+			releaseDescriptionFile.close();

@@ -141,8 +141,9 @@ class PtpUploader:
 		# Take and upload screenshots.
 		screenshotPath = os.path.join( releaseInfo.GetReleaseRootPath(), "screenshot.png" );
 		uploadedScreenshots = ScreenshotMaker.TakeAndUploadScreenshots( videoFiles[ 0 ], screenshotPath, mediaInfos[ 0 ].DurationInSec );
-	
-		releaseInfo.PtpUploadInfo.FormatReleaseDescription( releaseInfo, uploadedScreenshots, mediaInfos );
+
+		releaseDescriptionFilePath = os.path.join( releaseInfo.GetReleaseRootPath(), "release description.txt" )
+		releaseInfo.PtpUploadInfo.FormatReleaseDescription( releaseInfo, uploadedScreenshots, mediaInfos, releaseDescriptionFilePath )
 	
 		# Make the torrent.
 		# We save it into a separate folder to make sure it won't end up in the upload somehow. :)
