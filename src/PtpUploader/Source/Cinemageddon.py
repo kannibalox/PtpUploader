@@ -86,9 +86,6 @@ class Cinemageddon:
 		# Adding BDrip support would be problematic because there is no easy way to decide if it is HD or SD.
 		# Maybe we could use the resolution and file size. But what about the oversized and upscaled releases? 
 		
-		if formatType != "xvid" and formatType != "divx" and formatType != "x264":
-			raise PtpUploaderException( "Got unsupported format type '%s' from Cinemageddon." % formatType )
-			
 		ptpUploadInfo.Quality = "Standard Definition"
 		ptpUploadInfo.ResolutionType = "Other"
 
@@ -100,6 +97,15 @@ class Cinemageddon:
 			ptpUploadInfo.Source = "TV"
 		else:
 			raise PtpUploaderException( "Got unsupported source type '%s' from Cinemageddon." % sourceType );
+
+		if formatType == "x264":
+			ptpUploadInfo.Codec = "x264"
+		elif formatType == "xvid":
+			ptpUploadInfo.Codec = "XviD"
+		elif formatType == "divx":
+			ptpUploadInfo.Codec = "DivX"
+		else:
+			raise PtpUploaderException( "Got unsupported format type '%s' from Cinemageddon." % formatType )
 	
 	@staticmethod
 	def PrepareDownload(announcement):

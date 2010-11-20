@@ -1,9 +1,10 @@
-﻿from Globals import Globals;
-from PtpUploaderException import PtpUploaderException;
-from Settings import Settings;
+﻿from Globals import Globals
+from PtpMovieSearchResult import PtpMovieSearchResult
+from PtpUploaderException import PtpUploaderException
+from Settings import Settings
 
-import poster;
-import simplejson as json;
+import poster
+import simplejson as json
 
 import HTMLParser # For HTML entity reference decoding...
 import mimetypes
@@ -14,32 +15,6 @@ import urllib
 import urllib2
 
 class Ptp:
-	class MovieOnPtpResult:
-		def __init__(self):
-			self.PtpId = None;
-			self.Xvid_DVDrip_OnSite = False;
-			self.Xvid_BDrip_OnSite = False;
-			self.X264_720p_OnSite = False;
-			self.X264_1080p_OnSite = False;
-			
-		def IsReleaseExists(self, releaseInfo):
-			if self.PtpId is None:
-				return False;
-
-			if releaseInfo.PtpUploadInfo.Quality == "High Definition":
-				if ( releaseInfo.PtpUploadInfo.Source == "Blu-Ray" or releaseInfo.PtpUploadInfo.Source == "HD-DVD" ) and releaseInfo.PtpUploadInfo.ResolutionType == "720p":
-					return self.X264_720p_OnSite;
-				elif ( releaseInfo.PtpUploadInfo.Source == "Blu-Ray" or releaseInfo.PtpUploadInfo.Source == "HD-DVD" ) and releaseInfo.PtpUploadInfo.ResolutionType == "1080p":
-					return self.X264_1080p_OnSite;
-			elif releaseInfo.PtpUploadInfo.Quality == "Standard Definition":
-				if releaseInfo.PtpUploadInfo.Source == "DVD":
-					return self.Xvid_DVDrip_OnSite or self.Xvid_BDrip_OnSite; # BD rip trumps DVD rip.
-				elif releaseInfo.PtpUploadInfo.Source == "Blu-Ray":
-					return self.Xvid_BDrip_OnSite;
-				
-			# This can't possible.			
-			raise PtpUploaderException( "MovieOnPtpResult got unsupported release type from ReleaseInfo for release '%s'." % releaseInfo.Announcement.ReleaseName ); 
-
 	@staticmethod
 	def __LoginInternal():
 		Globals.Logger.info( "Loggin in to PTP." );
@@ -71,7 +46,7 @@ class Ptp:
 			raise PtpUploaderException( "Looks like you are not logged in to PTP. Probably due to the bad session key in settings." )
 				
 	# imdbId: IMDb id. Eg.: 0137363 for http://www.imdb.com/title/tt0137363/
-	# returns with MovieOnPtpResult
+	# returns with PtpMovieSearchResult
 	@staticmethod
 	def GetMoviePageOnPtp(imdbId):
 		Globals.Logger.info( "Trying to find movie with IMDb id '%s' on PTP." % imdbId );
@@ -82,31 +57,19 @@ class Ptp:
 		response = result.read();
 		Ptp.CheckIfLoggedInFromResponse( response );
 
-		movieResult = Ptp.MovieOnPtpResult();
-
 		# If there is a movie: result.url = http://passthepopcorn.me/torrents.php?id=28577
 		# If there is no movie: result.url = http://passthepopcorn.me/torrents.php?imdb=1535492
 		match = re.match( r"http://passthepopcorn.me/torrents.php\?id=(\d+)", result.url );
 		if match is None:
-			movieResult.PtpId = None;
 			Globals.Logger.info( "Movie with IMDb id '%s' doesn't exists on PTP." % imdbId );
+			return PtpMovieSearchResult( ptpId = None, moviePageHtml = None );
 		elif response.find( "<h2>Error 404</h2>" ) != -1: # For some deleted movies PTP return with this error.
-			movieResult.PtpId = None;
 			Globals.Logger.info( "Movie with IMDb id '%s' doesn't exists on PTP. (Got error 404.)" % imdbId );
+			return PtpMovieSearchResult( ptpId = None, moviePageHtml = None );
 		else:
-			movieResult.PtpId = match.group( 1 );
+			ptpId = match.group( 1 );
 			Globals.Logger.info( "Movie with IMDb id '%s' exists on PTP at '%s'." % ( imdbId, result.url ) );
-		
-			movieResult.Xvid_DVDrip_OnSite = response.find( "XviD / AVI / DVD" ) != -1;
-			movieResult.Xvid_BDrip_OnSite  = response.find( "XviD / AVI / Blu-Ray" ) != -1;
-
-			if response.find( "x264 / MKV / Blu-Ray / 720p" ) != -1 or response.find( "x264 / MKV / HD-DVD / 720p" ) != -1:
-				movieResult.X264_720p_OnSite = True;
-
-			if response.find( "x264 / MKV / Blu-Ray / 1080p" ) != -1 or response.find( "x264 / MKV / HD-DVD / 1080p" ) != -1:
-				movieResult.X264_1080p_OnSite = True;
-
-		return movieResult;
+			return PtpMovieSearchResult( ptpId, response );
 
 	@staticmethod
 	def FillImdbInfo(ptpUploadInfo):

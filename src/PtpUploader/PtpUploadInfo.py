@@ -8,7 +8,6 @@ class PtpUploadInfo:
 	def __init__(self):
 		self.Type = "Movies"; # Movies, Musicals, Standup Comedy, Concerts
 		self.ImdbId = ""; # Just the number. Eg.: 0111161 for http://www.imdb.com/title/tt0111161/
-		self.RottenTomatoesUrl = "";
 		self.Directors = [];
 		self.Title = "";
 		self.Year = "";
@@ -16,12 +15,12 @@ class PtpUploadInfo:
 		self.MovieDescription = u"";
 		self.CoverArtUrl = "";
 		self.Scene = ""; # Empty string or "on" (wihout the quotes).
-		self.Quality = ""; # High Definition, Standard Definition, Other
-		self.Codec = ""; # XviD, DivX, H.264, x264, DVD5, DVD9, BD25, BD50, Other
-		self.Container = ""; # AVI, MPG, MKV, MP4, VOB IFO, ISO, m2ts, Other
-		self.ResolutionType = ""; # NTSC, PAL, 480p, 576p, 720p, 1080i, 1080p, Other
+		self.Quality = ""; # Other, Standard Definition, High Definition
+		self.Codec = ""; # Other, DivX, XviD, H.264, x264, DVD5, DVD9, BD25, BD50
+		self.Container = ""; # Other, MPG, AVI, MP4, MKV, VOB IFO, ISO, m2ts
+		self.ResolutionType = ""; # Other, PAL, NTSC, 480p, 576p, 720p, 1080i, 1080p
 		self.Resolution = ""; # Exact resolution when ResolutionType is Other. 
-		self.Source = ""; # CAM, TC, TS, R5, DVD-Screener, VHS, DVD, TV, HDTV, HD-DVD, Blu-Ray, Other
+		self.Source = ""; # Other, CAM, TS, VHS, TV, DVD-Screener, TC, HDTV, R5, DVD, HD-DVD, Blu-Ray
 		self.ReleaseDescription = u"";
 
 	def IsStandardDefintion(self):
@@ -36,10 +35,13 @@ class PtpUploadInfo:
 		else:
 			raise PtpUploaderException( "Unsupported container: '%s'." % mediaInfo.Container );
 
-		if mediaInfo.IsXvid():
-			self.Codec = "XviD";
-		elif mediaInfo.IsX264():
+		# TODO: check if set already and make sure it remains the same if it set
+		if mediaInfo.IsX264():
 			self.Codec = "x264";
+		elif mediaInfo.IsXvid():
+			self.Codec = "XviD";
+		elif mediaInfo.IsDivx():
+			self.Codec = "DivX";
 		else:
 			raise PtpUploaderException( "Unsupported codec: '%s'." % mediaInfo.Codec );
 		

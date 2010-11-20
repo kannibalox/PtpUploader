@@ -72,18 +72,39 @@ class PtpUploader:
 	
 		# Make sure the source is providing a name.
 		if len( releaseInfo.Announcement.ReleaseName ) <= 0:
-			Globals.Logger.error( "Release name is empty." );
+			Globals.Logger.error( "Name of the release is not specified." );
+			return None;		
+
+		# Make sure the source is providing release quality information.
+		if len( releaseInfo.PtpUploadInfo.Quality ) <= 0:
+			Globals.Logger.error( "Quality of the release is not specified." );
+			return None;		
+
+		# Make sure the source is providing release source information.
+		if len( releaseInfo.PtpUploadInfo.Source ) <= 0:
+			Globals.Logger.error( "Source of the release is not specified." );
+			return None;		
+
+		# Make sure the source is providing release codec information.
+		if len( releaseInfo.PtpUploadInfo.Codec ) <= 0:
+			Globals.Logger.error( "Codec of the release is not specified." );
+			return None;		
+
+		# Make sure the source is providing release resolution type information.
+		if len( releaseInfo.PtpUploadInfo.ResolutionType ) <= 0:
+			Globals.Logger.error( "Resolution type of the release is not specified." );
 			return None;		
 	
 		# TODO: this is temporary here. We should support it everywhere.
 		# If we are not logged in here that could mean that nothing interesting has been announcened for a while. 
 		Ptp.Login();
 	
-		# If this is an automatic announcement then we have to check if is it already on PtP.
+		# If this is an automatic announcement then we have to check if is it already on PTP.
 		if not announcement.IsManualAnnouncement:
 			movieOnPtpResult = Ptp.GetMoviePageOnPtp( releaseInfo.GetImdbId() );
-			if movieOnPtpResult.IsReleaseExists( releaseInfo ):
-				Globals.Logger.info( "Release '%s' already exists on PTP." % announcement.ReleaseName );
+			existingRelease = movieOnPtpResult.IsReleaseExists( releaseInfo )
+			if existingRelease is not None:
+				Globals.Logger.info( "Release '%s' already exists on PTP. Skipping upload because of format '%s'." % ( announcement.ReleaseName, existingRelease ) );
 				return None;
 	
 		return releaseInfo;
@@ -158,9 +179,11 @@ class PtpUploader:
 		movieOnPtpResult = Ptp.GetMoviePageOnPtp( releaseInfo.GetImdbId() );
 	
 		# If this is an automatic announcement then we have to check (again) if is it already on PTP.
-		if ( not releaseInfo.Announcement.IsManualAnnouncement ) and movieOnPtpResult.IsReleaseExists( releaseInfo ):
-			Globals.Logger.info( "Somebody has already uploaded the release '%s' to PTP while we were working on it. Skipping upload." % releaseInfo.Announcement.ReleaseName );
-			return;
+		if not releaseInfo.Announcement.IsManualAnnouncement:
+			existingRelease = movieOnPtpResult.IsReleaseExists( releaseInfo )
+			if existingRelease is not None:
+				Globals.Logger.info( "Somebody has already uploaded the release '%s' to PTP while we were working on it. Skipping upload because of format '%s'." % ( releaseInfo.Announcement.ReleaseName, existingRelease ) )
+				return
 	
 		# If this movie has no page yet on PTP then fill out the required info (title, year, etc.).
 		if movieOnPtpResult.PtpId is None:

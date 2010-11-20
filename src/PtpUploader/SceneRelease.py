@@ -18,18 +18,22 @@ class SceneRelease:
 		if lowerReleaseName.find( "dvdrip.xvid" ) != -1:
 			ptpUploadInfo.Quality = "Standard Definition";
 			ptpUploadInfo.Source = "DVD";
+			ptpUploadInfo.Codec = "XviD"
 			ptpUploadInfo.ResolutionType = "Other";
 		elif lowerReleaseName.find( "bdrip.xvid" ) != -1:
 			ptpUploadInfo.Quality = "Standard Definition";
+			ptpUploadInfo.Codec = "XviD"
 			ptpUploadInfo.Source = "Blu-Ray";
 			ptpUploadInfo.ResolutionType = "Other";
 		elif lowerReleaseName.find( "720p.bluray.x264" ) != -1:
 			ptpUploadInfo.Quality = "High Definition";
 			ptpUploadInfo.Source = "Blu-Ray";
+			ptpUploadInfo.Codec = "x264"
 			ptpUploadInfo.ResolutionType = "720p";
 		elif lowerReleaseName.find( "1080p.bluray.x264" ) != -1:
 			ptpUploadInfo.Quality = "High Definition";
 			ptpUploadInfo.Source = "Blu-Ray";
+			ptpUploadInfo.Codec = "x264"
 			ptpUploadInfo.ResolutionType = "1080p";
 		else:
 			raise PtpUploaderException( "Can't figure out release source and quality from release name '%s'." % releaseName );

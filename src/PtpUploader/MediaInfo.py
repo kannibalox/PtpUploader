@@ -103,6 +103,9 @@ class MediaInfo:
 
 	def IsMkv(self):
 		return self.Container == "matroska";
+
+	def IsDivx(self):
+		return self.Codec == "dx50";
 	
 	def IsXvid(self):
 		return self.Codec == "xvid";
