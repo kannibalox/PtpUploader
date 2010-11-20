@@ -5,12 +5,13 @@ from Settings import Settings;
 import poster;
 import simplejson as json;
 
-import mimetypes;
-import os;
-import re;
-import time;
-import urllib;
-import urllib2;
+import HTMLParser # For HTML entity reference decoding...
+import mimetypes
+import os
+import re
+import time
+import urllib
+import urllib2
 
 class Ptp:
 	class MovieOnPtpResult:
@@ -107,18 +108,15 @@ class Ptp:
 
 		return movieResult;
 
-	# PTP doesn't decodes properly the text.
-	@staticmethod
-	def __FixFillImdbText(text):
-		text = text.replace( "&#x26;", "&" )
-		text = text.replace( "&#x27;", "'" )
-		text = text.replace( "&#xE2;", u"â" )
-		return text;
-		
 	@staticmethod
 	def FillImdbInfo(ptpUploadInfo):
 		Globals.Logger.info( "Downloading movie info from PTP for IMDb id '%s'." % ptpUploadInfo.ImdbId );
-		
+
+		# PTP doesn't decodes the HTML entity references (like "&#x26;" to "&") in the JSON response, so we have to.
+		# We are using an internal function of HTMLParser. 
+		# See this: http://fredericiana.com/2010/10/08/decoding-html-entities-to-text-in-python/
+		htmlParser = HTMLParser.HTMLParser()
+ 
 		# Get IMDb info through PTP's ajax API used by the site when the user presses the auto fill button.
 		opener = urllib2.build_opener( urllib2.HTTPCookieProcessor( Globals.CookieJar ) );
 		request = urllib2.Request( "http://passthepopcorn.me/ajax.php?action=torrent_info&imdb=%s" % ptpUploadInfo.ImdbId );
@@ -137,7 +135,7 @@ class Ptp:
 		ptpUploadInfo.Title = movie[ "title" ];
 		if ( ptpUploadInfo.Title is None ) or len( ptpUploadInfo.Title ) == 0: 
 			raise PtpUploaderException( "Bad PTP movie info JSON response: title is empty.\nResponse:\n%s" % response );
-		ptpUploadInfo.Title = Ptp.__FixFillImdbText( ptpUploadInfo.Title ) 
+		ptpUploadInfo.Title = htmlParser.unescape( ptpUploadInfo.Title ) # PTP doesn't decodes properly the text.
 
 		ptpUploadInfo.Year = movie[ "year" ];
 		if ( ptpUploadInfo.Year is None ) or len( ptpUploadInfo.Year ) == 0: 
@@ -167,7 +165,9 @@ class Ptp:
 			directorName = jsonDirector[ "name" ];
 			if ( directorName is None ) or len( directorName ) == 0: 
 				raise PtpUploaderException( "Bad PTP movie info JSON response: director name is empty.\nReponse:\n%s" % response );
-			ptpUploadInfo.Directors.append( directorName );
+
+			directorName = htmlParser.unescape( directorName ) # PTP doesn't decodes properly the text.
+			ptpUploadInfo.Directors.append( directorName )
 
 	@staticmethod
 	def __UploadMovieGetParamsCommon(ptpUploadInfo):
@@ -302,4 +302,3 @@ class Ptp:
 			response = result.read();
 		except Exception:
 			Globals.Logger.exception( "Couldn't refresh data for 'http://passthepopcorn.me/torrents.php?id=%s'. Got exception." % ptpId );
-			pass;			
