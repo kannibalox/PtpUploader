@@ -1,6 +1,7 @@
 from Source.Manual import Manual
 
 from AnnouncementWatcher import *
+from Globals import Globals
 from MakeTorrent import MakeTorrent
 from MediaInfo import MediaInfo
 from ReleaseInfo import ReleaseInfo
@@ -9,6 +10,7 @@ from ScreenshotMaker import ScreenshotMaker
 from Settings import Settings
 
 import os
+import sys;
 
 class ReleaseInfoMaker:
 	def __init__(self, path):
@@ -90,3 +92,20 @@ class ReleaseInfoMaker:
 			MakeTorrent.Make( self.Path, torrentPath )
 			rtorrent = Rtorrent()
 			rtorrent.AddTorrentSkipHashCheck( torrentPath, self.TorrentDataPath )
+
+if __name__ == '__main__':
+	print "PtpUploader Release Description Maker by TnS"
+	print "Usage:"
+	print "\"ReleaseInfoMaker.py <target directory or filename>\" creates the release description and starts seeding the torrent."
+	print "\"ReleaseInfoMaker.py --notorrent <target directory or filename>\" creates the release description."
+	print ""
+
+	Settings.LoadSettings()
+	Globals.InitializeGlobals( Settings.WorkingPath )
+
+	if len( sys.argv ) == 2:
+		releaseInfoMaker = ReleaseInfoMaker( sys.argv[ 1 ] )
+		releaseInfoMaker.MakeReleaseInfo( createTorrent = True )
+	elif len( sys.argv ) == 3 and sys.argv[ 1 ] == "--notorrent":
+		releaseInfoMaker = ReleaseInfoMaker( sys.argv[ 2 ] )
+		releaseInfoMaker.MakeReleaseInfo( createTorrent = False )
