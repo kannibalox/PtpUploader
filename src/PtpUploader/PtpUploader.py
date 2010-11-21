@@ -159,6 +159,9 @@ class PtpUploader:
 		self.PendingDownloads.append( releaseInfo )
 		
 	def GetFinishedDownloadToProcess(self):
+		if len( self.PendingDownloads ) > 0:
+			print "Pending downloads: %s" % len( self.PendingDownloads )
+		
 		# TODO: can we use a multicast RPC call get all the statuses in one call?
 		for downloadIndex in range( len( self.PendingDownloads ) ):
 			releaseInfo = self.PendingDownloads[ downloadIndex ]

@@ -57,7 +57,15 @@ class Rtorrent:
 		return self.AddTorrent( destinationTorrentPath, downloadPath );
 		
 	def IsTorrentFinished(self, infoHash):
-		# TODO: not the most sophisticated way.
-		# Even a watch dir with Pyinotify would be better probably. rTorrent could write the info hash to a directory watched by us. 
-		completed = self.proxy.d.get_complete( infoHash );
-		return completed == 1
+		# TODO: this try catch block is here because xmlrpclib throws an exception when it timeouts or when the torrent with the given info hash doesn't exists.
+		# The latter error most likely will cause stuck downloads so we should add some logic here to cancel an upload. For example: if it haven't download a single byte in ten minutes we can cancel it.
+
+		try:
+			# TODO: not the most sophisticated way.
+			# Even a watch dir with Pyinotify would be better probably. rTorrent could write the info hash to a directory watched by us. 
+			completed = self.proxy.d.get_complete( infoHash );
+			return completed == 1
+		except Exception:
+			Globals.Logger.exception( "Got exception while trying to check torrent's completion status. Info hash: '%s'." % infoHash );
+
+		return False
