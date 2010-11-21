@@ -1,0 +1,18 @@
+﻿feeds:
+  cinemageddon:
+    rss:
+      url: http://cinemageddon.net/rss.xml
+      # Force ASCII because the feed is not encoded properly.
+      ascii: yes
+    regexp:
+      from: title
+      reject:
+        - .+\(XXX\)
+        - .+\(OST\)
+    accept_all: yes
+    manipulate:
+      # Create TorrentId field by extracting the id from the URL.
+      - TorrentId:
+          from: url
+          extract: 'http://cinemageddon\.net/details\.php\?id=(\d+).+'
+    exec: echo >> "/path to WorkingDirectory/announcement/[source=cg][id=%(TorrentId)s][title=none]"

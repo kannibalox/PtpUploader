@@ -5,11 +5,13 @@ The program does three things: watches for release announcements, downloads them
 This is my first Python program ever, so sorry for the C-ish code and for the semicolons. :)
 
 Supported sources:
+	- Cinemageddon
 	- GFT
 
 How it works:
 	1. Announcement watching
 		- it uses a wrapper for pyWHATauto to watch release announcements on IRC
+		- it uses FlexGet to watch release announcements on RSS
 		- checks release name and filters out the unwanted releases
 			- manual announcements are not checked
 		- gets IMDb id from NFO

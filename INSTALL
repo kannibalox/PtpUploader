@@ -10,29 +10,38 @@ If you don't have root acces, use virtualenv ( http://pypi.python.org/pypi/virtu
 		
 Required applications:
 	- ffmpeg: http://www.ffmpeg.org/
+	- FlexGet (optional, needed for CG): http://flexget.com/
 	- MediaInfo: http://mediainfo.sourceforge.net/
 	- mktorrent: http://mktorrent.sourceforge.net/
-	- pyWHATauto: http://whatscripts.com/
+	- pyWHATauto (optional, needed for GFT): http://whatscripts.com/
 	- unrar: http://www.rarlab.com/rar_add.htm
 
 1. Extract PtpUploader and pyWHATauto
 	
 Recommended directory structure:
 	- PTP
+		- FlexGet
 		- PtpUploader
 		- pyWHATauto
 		- WorkingDirectory
 
-2. Configure pyWHATauto.
+2. Configure PyroScope.
 
-3. Configure PyroScope.
+3. Configure PtpUploader by renaming and editing PtpUploader/Settings.example.ini to Settings.ini.
 
-4. Start PtpUploader  in the background
+4. Configure pyWHATauto. This is optional and needed only for GFT.
+
+5. Configure FlexGet. This is optional and needed only for CG.
+
+You have to rename FlexGet/config.example.yml to config.example.yml. Make sure you change the path of the working directory in the config file.
+FlexGet needs to run peridically to update the RSS feeds. See FlexGet's documentation for details: http://flexget.com/wiki/InstallWizard/Linux/NoRoot/Virtualenv/Scheduling
+
+6. Start PtpUploader  in the background
 screen -S PtpUploader python /path to PtpUploader/Main.py
 
 Use Ctrl+A, D to disconnect from screen. You can use "screen -r PtpUploader" to reconnect.
 
-5. Start pyWHATauto in the background
+7. Start pyWHATauto in the background
 screen -S pywa python /path to pyWHATauto/PtpUploaderIrcBot.py /path to WorkingDirectory/
 
 Disconnect from screen.
