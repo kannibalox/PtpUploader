@@ -1,3 +1,5 @@
+from InformationSource.Imdb import Imdb
+from InformationSource.MoviePoster import MoviePoster
 from Source.SourceFactory import SourceFactory
 
 from AnnouncementWatcher import *
@@ -98,14 +100,33 @@ class PtpUploader:
 		# TODO: this is temporary here. We should support it everywhere.
 		# If we are not logged in here that could mean that nothing interesting has been announcened for a while. 
 		Ptp.Login();
-	
+
+		movieOnPtpResult = Ptp.GetMoviePageOnPtp( releaseInfo.GetImdbId() );
+
 		# If this is an automatic announcement then we have to check if is it already on PTP.
 		if not announcement.IsManualAnnouncement:
-			movieOnPtpResult = Ptp.GetMoviePageOnPtp( releaseInfo.GetImdbId() );
 			existingRelease = movieOnPtpResult.IsReleaseExists( releaseInfo )
 			if existingRelease is not None:
 				Globals.Logger.info( "Release '%s' already exists on PTP. Skipping upload because of format '%s'." % ( announcement.ReleaseName, existingRelease ) );
 				return None;
+
+		# If this movie has no page yet on PTP then fill out the required info (title, year, etc.).
+		if movieOnPtpResult.PtpId is None:
+			Ptp.FillImdbInfo( releaseInfo.PtpUploadInfo );
+			
+			imdbInfo = Imdb.GetInfo( releaseInfo.GetImdbId() )
+	
+			# PTP return with the original title, IMDb's iPhone API returns with the international English title.
+			if releaseInfo.PtpUploadInfo.Title != imdbInfo.Title:
+				releaseInfo.PtpUploadInfo.Title += " AKA " + imdbInfo.Title 		
+	
+			if len( releaseInfo.PtpUploadInfo.MovieDescription ) <= 0:
+				releaseInfo.PtpUploadInfo.MovieDescription = imdbInfo.Plot 
+
+			if len( releaseInfo.PtpUploadInfo.CoverArtUrl ) <= 0:
+				releaseInfo.PtpUploadInfo.CoverArtUrl = imdbInfo.PosterUrl 
+				if len( releaseInfo.PtpUploadInfo.CoverArtUrl ) <= 0:
+					releaseInfo.PtpUploadInfo.CoverArtUrl = MoviePoster.Get( releaseInfo.GetImdbId() ) 
 	
 		return releaseInfo;
 
@@ -184,14 +205,11 @@ class PtpUploader:
 			if existingRelease is not None:
 				Globals.Logger.info( "Somebody has already uploaded the release '%s' to PTP while we were working on it. Skipping upload because of format '%s'." % ( releaseInfo.Announcement.ReleaseName, existingRelease ) )
 				return
-	
-		# If this movie has no page yet on PTP then fill out the required info (title, year, etc.).
-		if movieOnPtpResult.PtpId is None:
-			Ptp.FillImdbInfo( releaseInfo.PtpUploadInfo );
-			# Rehost image from IMDb to an image hoster.
-			if len( releaseInfo.PtpUploadInfo.CoverArtUrl ) > 0:
-				releaseInfo.PtpUploadInfo.CoverArtUrl = ImageUploader.Upload( imageUrl = releaseInfo.PtpUploadInfo.CoverArtUrl );
-	
+			
+		# If this movie has no page yet on PTP then we will need the cover, so we rehost the image to an image hoster.
+		if ( movieOnPtpResult.PtpId is None ) and len( releaseInfo.PtpUploadInfo.CoverArtUrl ) > 0:
+			releaseInfo.PtpUploadInfo.CoverArtUrl = ImageUploader.Upload( imageUrl = releaseInfo.PtpUploadInfo.CoverArtUrl );
+
 		# Add torrent without hash checking.
 		self.Rtorrent.AddTorrentSkipHashCheck( uploadTorrentPath, uploadPath );
 	

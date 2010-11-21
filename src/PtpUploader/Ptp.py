@@ -112,6 +112,10 @@ class Ptp:
 		if ptpUploadInfo.Tags is None: 
 			raise PtpUploaderException( "Bad PTP movie info JSON response: tags key doesn't exists.\nReponse:\n%s" % response );
 
+		# PTP's upload page doesn't allows movies without tags. 
+		if len( ptpUploadInfo.Tags ) <= 0:
+			raise PtpUploaderException( "PTP movie info returned without any tags." );
+
 		ptpUploadInfo.CoverArtUrl = movie[ "art" ];
 		if ptpUploadInfo.CoverArtUrl is None: 
 			raise PtpUploaderException( "Bad PTP movie info JSON response: art key doesn't exists.\nReponse:\n%s" % response );
