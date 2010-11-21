@@ -81,7 +81,7 @@ class ReleaseInfoMaker:
 
 		# Make the release description.
 		manualSource = Manual()
-		announcement = Announcement( announcementFilePath = "", source = manualSource, id = "", self.ReleaseName )
+		announcement = Announcement( announcementFilePath = "", source = manualSource, id = "", releaseName = self.ReleaseName )
 		releaseInfo = ReleaseInfo( announcement, imdbId = "" )
 		releaseInfo.PtpUploadInfo.FormatReleaseDescription( releaseInfo, uploadedScreenshots, mediaInfos, releaseDescriptionFilePath )
 
