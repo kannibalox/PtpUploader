@@ -32,6 +32,10 @@ class Gft:
 			raise PtpUploaderException( "Looks like you are not logged in to GFT. Probably due to the bad user name or password in settings." )
 	
 	@staticmethod
+	def __IsPretimePresents(description):
+		return description.find( ">Too quick, bitches!!<" ) == -1 and description.find( ">Pre Offline<" ) == -1
+
+	@staticmethod
 	def __DownloadNfo(announcement, getReleaseName = False, checkPretime = True):
 		url = "http://www.thegft.org/details.php?id=%s" % announcement.AnnouncementId;
 		Globals.Logger.info( "Downloading NFO from page '%s'." % url );
@@ -42,8 +46,15 @@ class Gft:
 		response = result.read();
 		Gft.CheckIfLoggedInFromResponse( response );
 
+		# Make sure we only get information from the description and not from the comments.
+		descriptionEndIndex = response.find( '<p><a name="startcomments"></a></p>' )
+		if descriptionEndIndex == -1:
+			raise PtpUploaderException( "Description can't found on page '%s'. Probably the layout of the site has changed." % url )
+		
+		description = response[ :descriptionEndIndex ]			
+
 		# Get release name.
-		matches = re.search( r"<title>Details for torrent &quot;(.+)&quot; :: GFTracker </title>", response );
+		matches = re.search( r"<title>Details for torrent &quot;(.+)&quot; :: GFTracker </title>", description );
 		if matches is None:
 			raise PtpUploaderException( "Release name can't be found on page '%s'." % url );
 	
@@ -55,23 +66,23 @@ class Gft:
 
 		# For some reason there are announced, but non visible releases on GFT that never start seeding. Ignore them.
 		# <td class="heading" valign="top" align="right">Visible</td><td valign="top" align=left><b>no</b> (dead)</td></tr>
-		if re.search( r'">Visible</td><td.+><b>no</b> \(dead\)', response ):
+		if re.search( r'">Visible</td><td.+><b>no</b> \(dead\)', description ):
 			raise PtpUploaderException( "Ignoring release '%s' at '%s' because it is set to not visible." % ( releaseName, url ) ); 
 	
 		# Check for pretime to ignore non scene releases.
-		if checkPretime and response.find( ">Too quick, bitches!!<" ) != -1:
+		if checkPretime and not Gft.__IsPretimePresents( description ):
 			raise PtpUploaderException( "Pretime can't be found on page '%s'. Possibly a P2P release." % url ); 
 
 		# Get the NFO.
-		nfoStartIndex = response.find( '<tr><td class="heading" valign="top" align="right">Description</td><td valign="top" align=left>' );
+		nfoStartIndex = description.find( '<tr><td class="heading" valign="top" align="right">Description</td><td valign="top" align=left>' );
 		if nfoStartIndex == -1:
 			raise PtpUploaderException( "NFO can't be found on page '%s'." % url ); 
 		
-		nfoEndIndex = response.find( '<tr><td class=rowhead>NFO</td>' );
+		nfoEndIndex = description.find( '<tr><td class=rowhead>NFO</td>' );
 		if nfoStartIndex == -1:
 			raise PtpUploaderException( "NFO can't be found on page '%s'." % url ); 
 			
-		nfo = response[ nfoStartIndex : nfoEndIndex ];
+		nfo = description[ nfoStartIndex : nfoEndIndex ];
 		return nfo;
 	
 	@staticmethod
@@ -86,13 +97,18 @@ class Gft:
 			time.sleep( 30 ); # "Tactical delay" because of the not visible torrents. These should be rescheduled.
 		
 			# In case of automatic announcement we have to check the release name if it is valid.
-			# We know the release name from the announcement, so we can filter it without downloading anything (yet) from the source. 
-			if not ReleaseFilter.IsValidReleaseName( announcement.ReleaseName ):
+			# We know the release name from the announcement, so we can filter it without downloading anything (yet) from the source.
+			releaserGroup = ReleaseFilter.IsValidReleaseName( announcement.ReleaseName )
+			if releaserGroup is None:
 				Globals.Logger.info( "Ignoring release '%s' because of its name." % announcement.ReleaseName );
 				return None;
 
+			# If the release is from a known scene releaser group we skip the pretime checking.
+			# This is useful because the pretime sometime not presents on GFT.
+			isKnownSceneReleaserGroup = releaserGroup in Settings.SceneReleaserGroup
+
 			# Download the NFO.
-			nfoText = Gft.__DownloadNfo( announcement )
+			nfoText = Gft.__DownloadNfo( announcement, getReleaseName = False, checkPretime = not isKnownSceneReleaserGroup )
 		
 		imdbId = NfoParser.GetImdbId( nfoText )
 		releaseInfo = ReleaseInfo( announcement, imdbId )
