@@ -112,12 +112,16 @@ class PtpUploader:
 
 		# If this movie has no page yet on PTP then fill out the required info (title, year, etc.).
 		if movieOnPtpResult.PtpId is None:
-			Ptp.FillImdbInfo( releaseInfo.PtpUploadInfo );
+			Ptp.FillImdbInfo( releaseInfo.PtpUploadInfo )
 			
 			imdbInfo = Imdb.GetInfo( releaseInfo.GetImdbId() )
 	
+			if imdbInfo.IsSeries:
+				Globals.Logger.info( "Ignoring release '%s' because it is a series." % announcement.ReleaseName )
+				return None
+
 			# PTP return with the original title, IMDb's iPhone API returns with the international English title.
-			if releaseInfo.PtpUploadInfo.Title != imdbInfo.Title:
+			if releaseInfo.PtpUploadInfo.Title != imdbInfo.Title and len( imdbInfo.Title ) > 0:
 				releaseInfo.PtpUploadInfo.Title += " AKA " + imdbInfo.Title 		
 	
 			if len( releaseInfo.PtpUploadInfo.MovieDescription ) <= 0:

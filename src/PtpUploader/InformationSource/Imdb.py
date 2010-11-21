@@ -14,7 +14,6 @@ import urllib2
 class ImdbInfo:
 	def __init__(self):
 		self.Title = ""
-		self.Directors = [] # This can be empty. For example: "Band of Brothers" -- http://www.imdb.com/title/tt0185906/
 		self.PosterUrl = ""
 		self.Plot = ""
 		self.IsSeries = False
@@ -44,14 +43,7 @@ class Imdb:
 		seasons = data.get( "seasons" )
 		if seasons:
 			imdbInfo.IsSeries = True
-		
-		directors = data.get( "directors_summary" )
-		if directors:
-			for director in directors:
-				directorNameInfo = director[ "name" ]
-				directorName = directorNameInfo[ "name" ]
-				imdbInfo.Directors.append( directorName )
-				
+
 		return imdbInfo
 		
 	@staticmethod
@@ -65,4 +57,4 @@ class Imdb:
 		except Exception:
 			Globals.Logger.exception( "Got exception while trying to get IMDb info by IMDb id '%s'." % imdbId );
 			
-		return None
+		return ImdbInfo()
