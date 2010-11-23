@@ -10,7 +10,7 @@ from ScreenshotMaker import ScreenshotMaker
 from Settings import Settings
 
 import os
-import sys;
+import sys
 
 class ReleaseInfoMaker:
 	def __init__(self, path):
@@ -21,6 +21,8 @@ class ReleaseInfoMaker:
 		self.VideoFiles = []
 
 	def CollectVideoFiles(self):
+		self.Path = os.path.abspath( self.Path )
+		
 		if os.path.isdir( self.Path ):
 			# Make sure that path doesn't ends with a trailing slash or else os.path.split would return with wrong values.
 			self.Path = self.Path.rstrip( "\\/" )
@@ -35,6 +37,8 @@ class ReleaseInfoMaker:
 			if len( self.VideoFiles ) <= 0:
 				print "Path '%s' doesn't contains any videos!" % self.Path
 				return False
+
+			self.VideoFiles = ScreenshotMaker.SortVideoFiles( self.VideoFiles )
 
 			# We use the parent directory of the path as the working directory.
 			# Release name will be the directory's name. Eg. it will be "anything" for "/something/anything"
