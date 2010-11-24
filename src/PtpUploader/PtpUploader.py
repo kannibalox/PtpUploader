@@ -118,6 +118,7 @@ class PtpUploader:
 	
 			if imdbInfo.IsSeries:
 				Globals.Logger.info( "Ignoring release '%s' because it is a series." % announcement.ReleaseName )
+				return None
 			
 			if "adult" in releaseInfo.PtpUploadInfo.Tags:
 				Globals.Logger.info( "Ignoring release '%s' because its genre is adult." % announcement.ReleaseName )
