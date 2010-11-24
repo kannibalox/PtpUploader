@@ -118,8 +118,11 @@ class PtpUploader:
 	
 			if imdbInfo.IsSeries:
 				Globals.Logger.info( "Ignoring release '%s' because it is a series." % announcement.ReleaseName )
+			
+			if "adult" in releaseInfo.PtpUploadInfo.Tags:
+				Globals.Logger.info( "Ignoring release '%s' because its genre is adult." % announcement.ReleaseName )
 				return None
-
+				
 			# PTP return with the original title, IMDb's iPhone API returns with the international English title.
 			if releaseInfo.PtpUploadInfo.Title != imdbInfo.Title and len( imdbInfo.Title ) > 0:
 				releaseInfo.PtpUploadInfo.Title += " AKA " + imdbInfo.Title 		
