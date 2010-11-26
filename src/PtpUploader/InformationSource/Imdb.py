@@ -44,6 +44,10 @@ class Imdb:
 		if seasons:
 			imdbInfo.IsSeries = True
 
+		series = data.get( "series" )
+		if series:
+			imdbInfo.IsSeries = True
+
 		return imdbInfo
 		
 	@staticmethod
@@ -56,5 +60,5 @@ class Imdb:
 			return imdbInfo
 		except Exception:
 			Globals.Logger.exception( "Got exception while trying to get IMDb info by IMDb id '%s'." % imdbId );
-			
+
 		return ImdbInfo()
