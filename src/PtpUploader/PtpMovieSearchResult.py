@@ -29,10 +29,14 @@ class PtpMovieSearchResult:
 	@staticmethod
 	def __ParseMoviePageMakeItems(itemList, regexFindList):
 		for regexFind in regexFindList:
-			codec = regexFind[ 0 ]
-			container = regexFind[ 1 ]
-			source = regexFind[ 2 ]
-			resolution = regexFind[ 3 ]
+			elements = regexFind.split( " / " )
+			if len( elements ) < 4:
+				raise PtpUploaderException( "Error! Unknown torrent format on movie page: '%s'." % elements );
+
+			codec = elements[ 0 ]
+			container = elements[ 1 ]
+			source = elements[ 2 ]
+			resolution = elements[ 3 ]
 			itemList.append( PtpMovieSearchResultItem( codec, container, source, resolution ) )
 
 	def __ParseMoviePage(self, html):
@@ -58,8 +62,9 @@ class PtpMovieSearchResult:
 		sortedSections.sort()
 
 		# <a href="#" onclick="$('#torrent_37673').toggle(); return false;">XviD / AVI / DVD / 720x420</a>
-		regEx = re.compile( """<a href="#" onclick="\$\('#torrent_\d+'\)\.toggle\(\); return false;">(.+?) / (.+?) / (.+?) / (.+?)(?: / .+)?</a>""" )
-	
+		# <a href="#" onclick="$('#torrent_55714').toggle(); return false;"><span style="float:none;color:#E5B244;"><strong>XviD / AVI / DVD / 608x256 / Scene</strong></span></a>
+		regEx = re.compile( """<a href="#" onclick="\$\('#torrent_\d+'\)\.toggle\(\); return false;">(?:<span style=".+"><strong>)?(.+?)(?:</strong></span>)?</a>""" )
+
 		# Get the list of torrents for each section.
 		for i in range( len( sortedSections ) ):
 			section = sortedSections[ i ]
