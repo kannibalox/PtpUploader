@@ -36,9 +36,9 @@ class Gft:
 		return description.find( ">Too quick, bitches!!<" ) == -1 and description.find( ">Pre Offline<" ) == -1
 
 	@staticmethod
-	def __DownloadNfo(announcement, getReleaseName = False, checkPretime = True):
+	def __DownloadNfo(logger, announcement, getReleaseName = False, checkPretime = True):
 		url = "http://www.thegft.org/details.php?id=%s" % announcement.AnnouncementId;
-		Globals.Logger.info( "Downloading NFO from page '%s'." % url );
+		logger.info( "Downloading NFO from page '%s'." % url );
 		
 		opener = urllib2.build_opener( urllib2.HTTPCookieProcessor( Globals.CookieJar ) );
 		request = urllib2.Request( url );
@@ -86,12 +86,12 @@ class Gft:
 		return nfo;
 	
 	@staticmethod
-	def PrepareDownload(announcement):
+	def PrepareDownload(logger, announcement):
 		nfoText = "";
 		
 		if announcement.IsManualAnnouncement:
 			# Download the NFO and get the release name.
-			nfoText = Gft.__DownloadNfo( announcement, getReleaseName = True, checkPretime = False );
+			nfoText = Gft.__DownloadNfo( logger, announcement, getReleaseName = True, checkPretime = False );
 		else:
 			# TODO: temp
 			time.sleep( 30 ); # "Tactical delay" because of the not visible torrents. These should be rescheduled.
@@ -100,7 +100,7 @@ class Gft:
 			# We know the release name from the announcement, so we can filter it without downloading anything (yet) from the source.
 			releaserGroup = ReleaseFilter.IsValidReleaseName( announcement.ReleaseName )
 			if releaserGroup is None:
-				Globals.Logger.info( "Ignoring release '%s' because of its name." % announcement.ReleaseName );
+				logger.info( "Ignoring release '%s' because of its name." % announcement.ReleaseName );
 				return None;
 
 			# If the release is from a known scene releaser group we skip the pretime checking.
@@ -108,7 +108,7 @@ class Gft:
 			isKnownSceneReleaserGroup = releaserGroup in Settings.SceneReleaserGroup
 
 			# Download the NFO.
-			nfoText = Gft.__DownloadNfo( announcement, getReleaseName = False, checkPretime = not isKnownSceneReleaserGroup )
+			nfoText = Gft.__DownloadNfo( logger, announcement, getReleaseName = False, checkPretime = not isKnownSceneReleaserGroup )
 		
 		imdbId = NfoParser.GetImdbId( nfoText )
 		releaseInfo = ReleaseInfo( announcement, imdbId )
@@ -116,9 +116,9 @@ class Gft:
 		return releaseInfo;
 	
 	@staticmethod
-	def DownloadTorrent(releaseInfo, path):
+	def DownloadTorrent(logger, releaseInfo, path):
 		url = "http://www.thegft.org/download.php?id=%s" % releaseInfo.Announcement.AnnouncementId;
-		Globals.Logger.info( "Downloading torrent file from '%s' to '%s'." % ( url, path ) );
+		logger.info( "Downloading torrent file from '%s' to '%s'." % ( url, path ) );
 
 		opener = urllib2.build_opener( urllib2.HTTPCookieProcessor( Globals.CookieJar ) );		
 		request = urllib2.Request( url );
@@ -131,10 +131,10 @@ class Gft:
 		file.close();
 
 	@staticmethod
-	def ExtractRelease(releaseInfo):
+	def ExtractRelease(logger, releaseInfo):
 		# Extract the release.
 		sceneRelease = SceneRelease( releaseInfo.GetReleaseDownloadPath() )
-		sceneRelease.Extract( releaseInfo.GetReleaseUploadPath() )
+		sceneRelease.Extract( logger, releaseInfo.GetReleaseUploadPath() )
 		releaseInfo.Nfo = sceneRelease.Nfo
 		
 	@staticmethod

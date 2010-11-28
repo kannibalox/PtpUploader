@@ -1,5 +1,4 @@
-﻿from Globals import Globals;
-from PtpUploaderException import PtpUploaderException;
+﻿from PtpUploaderException import PtpUploaderException;
 from Settings import Settings;
 
 import os;
@@ -8,8 +7,8 @@ import subprocess;
 # mktorrent is not working properly under Windows.
 class MakeTorrent:
 	@staticmethod
-	def Make(path, torrentPath):
-		Globals.Logger.info( "Making torrent from '%s' to '%s'." % ( path, torrentPath ) );
+	def Make(logger, path, torrentPath):
+		logger.info( "Making torrent from '%s' to '%s'." % ( path, torrentPath ) );
 		sourceSize = MakeTorrent.GetSourceSize( path );
 
 		# Optimal piece size should be automatically calculated by mktorrent...			

@@ -1,17 +1,19 @@
 from Globals import Globals
+from Logger import Logger
 from PtpUploaderException import PtpUploaderException
 from Settings import Settings
 
-import os;
-import re;
+import os
+import re
 
 class Announcement:
 	# Example: [source=gft][id=44][title=Dark.City.1998.Directors.Cut.720p.BluRay.x264-SiNNERS]
-	def __init__(self, announcementFilePath, source, id, releaseName):
+	def __init__(self, announcementFilePath, source, id, releaseName, logger):
 		self.AnnouncementFilePath = announcementFilePath;
 		self.Source = source; # A class from the Source namespace.
 		self.AnnouncementId = id;
 		self.ReleaseName = releaseName;
+		self.Logger = logger
 		self.IsManualDownload = source.Name == "manual";
 		self.IsManualAnnouncement = self.IsManualDownload or self.ReleaseName == "ManualAnnouncement";
 
@@ -33,7 +35,9 @@ class Announcement:
 			Globals.Logger.error( "Unknown announcement source: '%s'." % announcementSourceName )
 			return None
 
-		return Announcement( announcementFilePath, source, announcementId, releaseName )
+		announcementLogFilePath = os.path.join( Settings.GetAnnouncementLogPath(), announcementFilename )
+		logger = Logger( announcementLogFilePath )
+		return Announcement( announcementFilePath, source, announcementId, releaseName, logger )
 
 	@staticmethod
 	def MoveAnnouncement(announcementFilePath, targetDirectory):

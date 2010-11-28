@@ -18,7 +18,7 @@ class Manual:
 		pass;
 	
 	@staticmethod
-	def PrepareDownload(announcement):
+	def PrepareDownload(logger, announcement):
 		nfo = NfoParser.GetNfoFile( ReleaseInfo.GetReleaseDownloadPathFromRelaseName( announcement.ReleaseName ) )
 		imdbId = NfoParser.GetImdbId( nfo )
 		
@@ -28,14 +28,14 @@ class Manual:
 		return releaseInfo
 		
 	@staticmethod
-	def DownloadTorrent(releaseInfo, path):
+	def DownloadTorrent(logger, releaseInfo, path):
 		pass;
 		
 	@staticmethod
-	def ExtractRelease(releaseInfo):
+	def ExtractRelease(logger, releaseInfo):
 		# Extract the release.
 		sceneRelease = SceneRelease( releaseInfo.GetReleaseDownloadPath() )
-		sceneRelease.Extract( releaseInfo.GetReleaseUploadPath() )
+		sceneRelease.Extract( logger, releaseInfo.GetReleaseUploadPath() )
 		
 	@staticmethod
 	def IsSingleFileTorrentNeedsDirectory():

@@ -1,4 +1,3 @@
-from Globals import Globals;
 from PtpUploaderException import PtpUploaderException;
 
 import codecs;
@@ -50,8 +49,8 @@ class PtpUploadInfo:
 			self.Resolution = "%sx%s" % ( mediaInfo.Width, mediaInfo.Height );
 		
 	# releaseDescriptionFilePath: optional. If given the description is written to file.
-	def FormatReleaseDescription(self, releaseInfo, screenshots, mediaInfos, releaseDescriptionFilePath = None):
-		Globals.Logger.info( "Making release description for release '%s' with screenshots at %s." % ( releaseInfo.Announcement.ReleaseName, screenshots ) );
+	def FormatReleaseDescription(self, logger, releaseInfo, screenshots, mediaInfos, releaseDescriptionFilePath = None):
+		logger.info( "Making release description for release '%s' with screenshots at %s." % ( releaseInfo.Announcement.ReleaseName, screenshots ) );
 		
 		self.ReleaseDescription = u"[size=4][b]%s[/b][/size]\n\n" % releaseInfo.Announcement.ReleaseName;
 

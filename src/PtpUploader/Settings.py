@@ -43,6 +43,10 @@ class Settings(object):
 		return os.path.join( Settings.WorkingPath, "announcement/processed" )
 
 	@staticmethod
+	def GetAnnouncementLogPath():
+		return os.path.join( Settings.WorkingPath, "log/announcement" )
+
+	@staticmethod
 	def __GetDefault(configParser, section, option, default):
 		try:
 			return configParser.get( section, option )

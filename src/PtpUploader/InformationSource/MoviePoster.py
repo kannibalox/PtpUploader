@@ -1,4 +1,3 @@
-from Globals import Globals
 from PtpUploaderException import PtpUploaderException
 
 import re
@@ -24,13 +23,13 @@ class MoviePoster:
 		return ""
 
 	@staticmethod
-	def Get(imdbId):
-		Globals.Logger.info( "Getting movie poster from The Internet Movie Poster DataBase for IMDb id '%s'." % imdbId );
+	def Get(logger, imdbId):
+		logger.info( "Getting movie poster from The Internet Movie Poster DataBase for IMDb id '%s'." % imdbId );
 		
 		# We don't care if this fails. It gives only extra information.
 		try:
 			return MoviePoster.__GetFromMoviePosterDb( imdbId )
 		except Exception:
-			Globals.Logger.exception( "Got exception while trying to get poster from The Internet Movie Poster DataBase by IMDb id '%s'." % imdbId );
+			logger.exception( "Got exception while trying to get poster from The Internet Movie Poster DataBase by IMDb id '%s'." % imdbId );
 
 		return ""

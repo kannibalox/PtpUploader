@@ -1,4 +1,3 @@
-from Globals import Globals;
 from ImageUploader import ImageUploader;
 from PtpUploaderException import PtpUploaderException;
 from Settings import Settings;
@@ -9,8 +8,8 @@ import subprocess;
 class ScreenshotMaker:
 	# time: string in hh:mm:ss format: "00:00:20"
 	@staticmethod
-	def Make(inputVideoPath, time, outputImagePath):
-		Globals.Logger.info( "Making screenshot from '%s' to '%s'." % ( inputVideoPath, outputImagePath ) );
+	def __Make(logger, inputVideoPath, time, outputImagePath):
+		logger.info( "Making screenshot from '%s' to '%s'." % ( inputVideoPath, outputImagePath ) );
 		
 		# -an: disable audio
 		# -sn: disable subtitle
@@ -38,8 +37,8 @@ class ScreenshotMaker:
 
 	# Returns with the URL of the uploaded image.
 	@staticmethod
-	def TakeAndUploadScreenshot(videoPath, time, screenshotPath):
-		ScreenshotMaker.Make( videoPath, time, screenshotPath );
+	def __TakeAndUploadScreenshot(logger, videoPath, time, screenshotPath):
+		ScreenshotMaker.__Make( logger, videoPath, time, screenshotPath );
 		imageUrl = ImageUploader.Upload( imagePath = screenshotPath );
 		os.remove( screenshotPath );
 		return imageUrl;
@@ -51,11 +50,11 @@ class ScreenshotMaker:
 	# Takes five screenshots from the first 30% of the video.
 	# Returns with the URLs of the uploaded images.
 	@staticmethod
-	def TakeAndUploadScreenshots(videoPath, screenshotPath, durationInSec):
+	def TakeAndUploadScreenshots(logger, videoPath, screenshotPath, durationInSec):
 		urls = [];
-		urls.append( ScreenshotMaker.TakeAndUploadScreenshot( videoPath, ScreenshotMaker.__SecondsToFfmpegTime( durationInSec * 0.10 ), screenshotPath ) );
-		urls.append( ScreenshotMaker.TakeAndUploadScreenshot( videoPath, ScreenshotMaker.__SecondsToFfmpegTime( durationInSec * 0.15 ), screenshotPath ) );
-		urls.append( ScreenshotMaker.TakeAndUploadScreenshot( videoPath, ScreenshotMaker.__SecondsToFfmpegTime( durationInSec * 0.20 ), screenshotPath ) );
-		urls.append( ScreenshotMaker.TakeAndUploadScreenshot( videoPath, ScreenshotMaker.__SecondsToFfmpegTime( durationInSec * 0.25 ), screenshotPath ) );
-		urls.append( ScreenshotMaker.TakeAndUploadScreenshot( videoPath, ScreenshotMaker.__SecondsToFfmpegTime( durationInSec * 0.30 ), screenshotPath ) );
+		urls.append( ScreenshotMaker.__TakeAndUploadScreenshot( logger, videoPath, ScreenshotMaker.__SecondsToFfmpegTime( durationInSec * 0.10 ), screenshotPath ) );
+		urls.append( ScreenshotMaker.__TakeAndUploadScreenshot( logger, videoPath, ScreenshotMaker.__SecondsToFfmpegTime( durationInSec * 0.15 ), screenshotPath ) );
+		urls.append( ScreenshotMaker.__TakeAndUploadScreenshot( logger, videoPath, ScreenshotMaker.__SecondsToFfmpegTime( durationInSec * 0.20 ), screenshotPath ) );
+		urls.append( ScreenshotMaker.__TakeAndUploadScreenshot( logger, videoPath, ScreenshotMaker.__SecondsToFfmpegTime( durationInSec * 0.25 ), screenshotPath ) );
+		urls.append( ScreenshotMaker.__TakeAndUploadScreenshot( logger, videoPath, ScreenshotMaker.__SecondsToFfmpegTime( durationInSec * 0.30 ), screenshotPath ) );
 		return urls;

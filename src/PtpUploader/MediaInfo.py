@@ -1,4 +1,3 @@
-from Globals import Globals;
 from PtpUploaderException import PtpUploaderException;
 from Settings import Settings;
 
@@ -6,7 +5,7 @@ import re;
 import subprocess;
 
 class MediaInfo:
-	def __init__(self, path):
+	def __init__(self, logger, path):
 		self.Path = path;
 		self.FormattedMediaInfo = "";
 		self.DurationInSec = 0;
@@ -15,12 +14,12 @@ class MediaInfo:
 		self.Width = 0;
 		self.Height = 0;
 		
-		self.__ParseMediaInfo();
+		self.__ParseMediaInfo( logger )
 
 	# Returns with the media info.
 	@staticmethod
-	def ReadMediaInfo(path):
-		Globals.Logger.info( "Reading media info from '%s'." % path );
+	def ReadMediaInfo(logger, path):
+		logger.info( "Reading media info from '%s'." % path );
 		
 		args = [ Settings.MediaInfoPath, path ];
 		proc = subprocess.Popen( args, stdout = subprocess.PIPE );
@@ -33,10 +32,10 @@ class MediaInfo:
 	
 	# Returns with the media infos.
 	@staticmethod
-	def ReadAndParseMediaInfos(videoFiles):
+	def ReadAndParseMediaInfos(logger, videoFiles):
 		mediaInfos = [];
 		for video in videoFiles:
-			mediaInfo = MediaInfo( video );
+			mediaInfo = MediaInfo( logger, video );
 			mediaInfos.append( mediaInfo );
 			
 		return mediaInfos;
@@ -68,8 +67,8 @@ class MediaInfo:
 		
 		return duration;		
 
-	def __ParseMediaInfo(self):
-		mediaInfoText = MediaInfo.ReadMediaInfo( self.Path );
+	def __ParseMediaInfo(self, logger):
+		mediaInfoText = MediaInfo.ReadMediaInfo( logger, self.Path );
 
 		section = "";
 		for line in mediaInfoText.splitlines():

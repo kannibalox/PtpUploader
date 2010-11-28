@@ -14,10 +14,13 @@ class Globals:
 	# workingPath from Settings.WorkingPath.
 	@staticmethod
 	def InitializeLogger(workingPath):
-		logDirPath = os.path.join( workingPath, "log" );
-		if not os.path.isdir( logDirPath ):
-			os.makedirs( logDirPath );
+		# This will create the log directory too.
+		announcementLogDirPath = os.path.join( workingPath, "log/announcement" );
+		if not os.path.isdir( announcementLogDirPath ):
+			os.makedirs( announcementLogDirPath );
 		
+		logDirPath = os.path.join( workingPath, "log" );
+
 		logDate = datetime.datetime.now().strftime( "%Y.%m.%d. - %H_%M_%S" );
 		logPath = os.path.join( logDirPath, logDate + ".txt" );
 		

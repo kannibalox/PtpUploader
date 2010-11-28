@@ -1,4 +1,3 @@
-from Globals import Globals;
 from NfoParser import NfoParser;
 from PtpUploaderException import PtpUploaderException;
 from Settings import Settings;
@@ -44,7 +43,7 @@ class SceneRelease:
 	# value[ "subtitle" ] = subtitle directory if presents
 	# value[ "nfo" ] = nfo path
 	@staticmethod
-	def GetImportantDirectories(path):
+	def __GetImportantDirectories(path):
 		cds = [];
 		subtitle = None;
 		nfoPath = None;
@@ -65,11 +64,11 @@ class SceneRelease:
 		
 		return { "cds": cds, "subtitle": subtitle, "nfo": nfoPath };
 	
-	def ExtractVideos(self, cds, destination):
+	def __ExtractVideos(self, logger, cds, destination):
 		if ( len( cds ) == 0 ):
 			cds.append( self.Path );
 		
-		Globals.Logger.info( "Extracting videos from %s to '%s'." % ( cds, destination ) );
+		logger.info( "Extracting videos from %s to '%s'." % ( cds, destination ) );
 		
 		for directory in cds:
 			rars = Unrar.GetRars( directory );
@@ -81,11 +80,11 @@ class SceneRelease:
 				raise PtpUploaderException( "Directory '%s' doesn't contains any RAR files." % directory );
 	
 	# Subtitles may contain the uncut version too.
-	def ExtractSubtitle(self, subtitlePath, destination):
+	def __ExtractSubtitle(self, logger, subtitlePath, destination):
 		if subtitlePath is None:
 			return;
 				
-		Globals.Logger.info( "Extracting subtitle from '%s' to '%s'." % ( subtitlePath, destination ) );
+		logger.info( "Extracting subtitle from '%s' to '%s'." % ( subtitlePath, destination ) );
 		
 		rars = Unrar.GetRars( subtitlePath );
 		if len( rars ) == 0:
@@ -99,11 +98,11 @@ class SceneRelease:
 			Unrar.Extract( rar, destination );
 			os.remove( rar );
 
-	def Extract(self, destination):
-		Globals.Logger.info( "Extracting release from '%s' to '%s'." % ( self.Path, destination ) );
+	def Extract(self, logger, destination):
+		logger.info( "Extracting release from '%s' to '%s'." % ( self.Path, destination ) );
 		
 		# Get the main files.
-		directories = self.GetImportantDirectories( self.Path );
+		directories = self.__GetImportantDirectories( self.Path );
 		cds = directories[ "cds" ];
 		subtitleDirectory = directories[ "subtitle" ];
 		nfoPath = directories[ "nfo" ];
@@ -114,5 +113,5 @@ class SceneRelease:
 		
 		self.Nfo = NfoParser.ReadNfoFileToUnicode( nfoPath );
 		 
-		self.ExtractVideos( cds, destination );
-		self.ExtractSubtitle( subtitleDirectory, destination );
+		self.__ExtractVideos( logger, cds, destination );
+		self.__ExtractSubtitle( logger, subtitleDirectory, destination );

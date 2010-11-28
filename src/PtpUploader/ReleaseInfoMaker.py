@@ -58,6 +58,8 @@ class ReleaseInfoMaker:
 		return True
 
 	def MakeReleaseInfo(self, createTorrent):
+		logger = Globals.Logger
+		
 		if not self.CollectVideoFiles():
 			return
 		
@@ -80,22 +82,22 @@ class ReleaseInfoMaker:
 			return
 
 		# Get the media info.
-		mediaInfos = MediaInfo.ReadAndParseMediaInfos( self.VideoFiles )
+		mediaInfos = MediaInfo.ReadAndParseMediaInfos( logger, self.VideoFiles )
 
 		# Take and upload screenshots.
-		uploadedScreenshots = ScreenshotMaker.TakeAndUploadScreenshots( self.VideoFiles[ 0 ], screenshotPath, mediaInfos[ 0 ].DurationInSec )
+		uploadedScreenshots = ScreenshotMaker.TakeAndUploadScreenshots( logger, self.VideoFiles[ 0 ], screenshotPath, mediaInfos[ 0 ].DurationInSec )
 
 		# Make the release description.
 		manualSource = Manual()
-		announcement = Announcement( announcementFilePath = "", source = manualSource, id = "", releaseName = self.ReleaseName )
+		announcement = Announcement( announcementFilePath = "", source = manualSource, id = "", releaseName = self.ReleaseName, logger = logger )
 		releaseInfo = ReleaseInfo( announcement, imdbId = "" )
-		releaseInfo.PtpUploadInfo.FormatReleaseDescription( releaseInfo, uploadedScreenshots, mediaInfos, releaseDescriptionFilePath )
+		releaseInfo.PtpUploadInfo.FormatReleaseDescription( logger, releaseInfo, uploadedScreenshots, mediaInfos, releaseDescriptionFilePath )
 
 		# Create the torrent
 		if createTorrent:
-			MakeTorrent.Make( self.Path, torrentPath )
+			MakeTorrent.Make( logger, self.Path, torrentPath )
 			rtorrent = Rtorrent()
-			rtorrent.AddTorrentSkipHashCheck( torrentPath, self.TorrentDataPath )
+			rtorrent.AddTorrentSkipHashCheck( logger, torrentPath, self.TorrentDataPath )
 
 if __name__ == '__main__':
 	print "PtpUploader Release Description Maker by TnS"

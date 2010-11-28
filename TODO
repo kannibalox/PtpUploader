@@ -1,5 +1,4 @@
-﻿- per release log files
-- add timeout when waiting till the download to finish
+﻿- add timeout when waiting till the download to finish
 	- announcement rescheduling while torrent is not visible on GFT (needed only when we will support more than one sources?)
 - support of relogging, timeouts and retrying in all HTTP requests
 - per source filtering settings

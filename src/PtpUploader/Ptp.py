@@ -48,8 +48,8 @@ class Ptp:
 	# imdbId: IMDb id. Eg.: 0137363 for http://www.imdb.com/title/tt0137363/
 	# returns with PtpMovieSearchResult
 	@staticmethod
-	def GetMoviePageOnPtp(imdbId):
-		Globals.Logger.info( "Trying to find movie with IMDb id '%s' on PTP." % imdbId );
+	def GetMoviePageOnPtp(logger, imdbId):
+		logger.info( "Trying to find movie with IMDb id '%s' on PTP." % imdbId );
 		
 		opener = urllib2.build_opener( urllib2.HTTPCookieProcessor( Globals.CookieJar ) );
 		request = urllib2.Request( "http://passthepopcorn.me/torrents.php?imdb=%s" % imdbId );
@@ -61,19 +61,19 @@ class Ptp:
 		# If there is no movie: result.url = http://passthepopcorn.me/torrents.php?imdb=1535492
 		match = re.match( r"http://passthepopcorn.me/torrents.php\?id=(\d+)", result.url );
 		if match is None:
-			Globals.Logger.info( "Movie with IMDb id '%s' doesn't exists on PTP." % imdbId );
+			logger.info( "Movie with IMDb id '%s' doesn't exists on PTP." % imdbId );
 			return PtpMovieSearchResult( ptpId = None, moviePageHtml = None );
 		elif response.find( "<h2>Error 404</h2>" ) != -1: # For some deleted movies PTP return with this error.
-			Globals.Logger.info( "Movie with IMDb id '%s' doesn't exists on PTP. (Got error 404.)" % imdbId );
+			logger.info( "Movie with IMDb id '%s' doesn't exists on PTP. (Got error 404.)" % imdbId );
 			return PtpMovieSearchResult( ptpId = None, moviePageHtml = None );
 		else:
 			ptpId = match.group( 1 );
-			Globals.Logger.info( "Movie with IMDb id '%s' exists on PTP at '%s'." % ( imdbId, result.url ) );
+			logger.info( "Movie with IMDb id '%s' exists on PTP at '%s'." % ( imdbId, result.url ) );
 			return PtpMovieSearchResult( ptpId, response );
 
 	@staticmethod
-	def FillImdbInfo(ptpUploadInfo):
-		Globals.Logger.info( "Downloading movie info from PTP for IMDb id '%s'." % ptpUploadInfo.ImdbId );
+	def FillImdbInfo(logger, ptpUploadInfo):
+		logger.info( "Downloading movie info from PTP for IMDb id '%s'." % ptpUploadInfo.ImdbId );
 
 		# PTP doesn't decodes the HTML entity references (like "&#x26;" to "&") in the JSON response, so we have to.
 		# We are using an internal function of HTMLParser. 
@@ -124,6 +124,7 @@ class Ptp:
 		if not ptpUploadInfo.CoverArtUrl:
 			ptpUploadInfo.CoverArtUrl = "";
 
+		# Director's name may not be present. For example: http://www.imdb.com/title/tt0864336/
 		jsonDirectors = movie[ "director" ];
 		if ( jsonDirectors is None ) or len( jsonDirectors ) < 1: 
 			raise PtpUploaderException( "Bad PTP movie info JSON response: no directors.\nReponse:\n%s" % response );
@@ -203,16 +204,16 @@ class Ptp:
 	# If ptpId is None then it will added as a new movie.
 	# If it is not None then it will be added as a new format to an existing movie.
 	@staticmethod
-	def UploadMovie(ptpUploadInfo, torrentPath, ptpId):
+	def UploadMovie(logger, ptpUploadInfo, torrentPath, ptpId):
 		url = "";
 		paramList = Ptp.__UploadMovieGetParamsCommon( ptpUploadInfo );
 		
 		if ptpId is None:
-			Globals.Logger.info( "Uploading torrent '%s' to PTP as a new movie." % torrentPath );
+			logger.info( "Uploading torrent '%s' to PTP as a new movie." % torrentPath );
 			url = "http://passthepopcorn.me/upload.php";
 			paramList.extend( Ptp.__UploadMovieGetParamsForNewMovie( ptpUploadInfo ) );
 		else:
-			Globals.Logger.info( "Uploading torrent '%s' to PTP as a new format for 'http://passthepopcorn.me/torrents.php?id=%s'." % ( torrentPath, ptpId ) );
+			logger.info( "Uploading torrent '%s' to PTP as a new format for 'http://passthepopcorn.me/torrents.php?id=%s'." % ( torrentPath, ptpId ) );
 			url = "http://passthepopcorn.me/upload.php?groupid=%s" % ptpId;
 			paramList.extend( Ptp.__UploadMovieGetParamsForAddFormat( ptpId ) ); 	
 		
@@ -243,22 +244,22 @@ class Ptp:
 		ptpId = match.group( 1 )
 		
 		# response contains the movie page of the uploaded movie.
-		Ptp.TryRefreshMoviePage( ptpId, response );
+		Ptp.TryRefreshMoviePage( logger, ptpId, response );
 		
 		return ptpId;
 
 	# ptpId: movie page id. For example: ptpId is 28622 for the movie with url: http://passthepopcorn.me/torrents.php?id=28622 	
 	# page: the html contents of the movie page.
 	@staticmethod
-	def TryRefreshMoviePage(ptpId, page):
-		Globals.Logger.info( "Trying to refresh data for 'http://passthepopcorn.me/torrents.php?id=%s'." % ptpId );
+	def TryRefreshMoviePage(logger, ptpId, page):
+		logger.info( "Trying to refresh data for 'http://passthepopcorn.me/torrents.php?id=%s'." % ptpId );
 
 		# We don't care if this fails. This should be built-in on server side. Our upload is complete anyway. :) 
 		try:
 			# Searching for: <a href="torrents.php?action=imdb&amp;groupid=3704&amp;auth=...">[Refresh Data]</a>
 			matches = re.search( r'<a href="torrents.php\?action=imdb&amp;groupid=\d+&amp;auth=(.+)">\[Refresh Data\]</a>', page );
 			if not matches:
-				Globals.Logger.info( "Couldn't refresh data for 'http://passthepopcorn.me/torrents.php?id=%s'. Authorization key couldn't be found." % ptpId );
+				logger.info( "Couldn't refresh data for 'http://passthepopcorn.me/torrents.php?id=%s'. Authorization key couldn't be found." % ptpId );
 				return;
 		
 			auth = matches.group( 1 );
@@ -268,4 +269,4 @@ class Ptp:
 			result = opener.open( request );
 			response = result.read();
 		except Exception:
-			Globals.Logger.exception( "Couldn't refresh data for 'http://passthepopcorn.me/torrents.php?id=%s'. Got exception." % ptpId );
+			logger.exception( "Couldn't refresh data for 'http://passthepopcorn.me/torrents.php?id=%s'. Got exception." % ptpId );

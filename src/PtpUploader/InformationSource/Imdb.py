@@ -1,4 +1,3 @@
-from Globals import Globals
 from PtpUploaderException import PtpUploaderException
 
 import simplejson as json
@@ -51,14 +50,14 @@ class Imdb:
 		return imdbInfo
 		
 	@staticmethod
-	def GetInfo(imdbId):
-		Globals.Logger.info( "Getting IMDb info for IMDb id '%s'." % imdbId );
+	def GetInfo(logger, imdbId):
+		logger.info( "Getting IMDb info for IMDb id '%s'." % imdbId );
 		
 		# We don't care if this fails. It gives only extra information.
 		try:
 			imdbInfo = Imdb.__GetInfoInternal( imdbId )
 			return imdbInfo
 		except Exception:
-			Globals.Logger.exception( "Got exception while trying to get IMDb info by IMDb id '%s'." % imdbId );
+			logger.exception( "Got exception while trying to get IMDb info by IMDb id '%s'." % imdbId );
 
 		return ImdbInfo()

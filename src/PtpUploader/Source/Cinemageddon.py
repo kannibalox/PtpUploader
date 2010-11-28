@@ -29,9 +29,9 @@ class Cinemageddon:
 			raise PtpUploaderException( "Looks like you are not logged in to Cinemageddon. Probably due to the bad user name or password in settings." )
 
 	@staticmethod
-	def __DownloadNfo(announcement):
+	def __DownloadNfo(logger, announcement):
 		url = "http://cinemageddon.net/details.php?id=%s&filelist=1" % announcement.AnnouncementId
-		Globals.Logger.info( "Collecting info from torrent page '%s'." % url )
+		logger.info( "Collecting info from torrent page '%s'." % url )
 		
 		opener = urllib2.build_opener( urllib2.HTTPCookieProcessor( Globals.CookieJar ) )
 		request = urllib2.Request( url )
@@ -108,30 +108,30 @@ class Cinemageddon:
 			raise PtpUploaderException( "Got unsupported format type '%s' from Cinemageddon." % formatType )
 	
 	@staticmethod
-	def PrepareDownload(announcement):
+	def PrepareDownload(logger, announcement):
 		imdbId = ""
 		sourceType = ""
 		formatType = ""
 		
 		if announcement.IsManualAnnouncement:
-			imdbId, sourceType, formatType = Cinemageddon.__DownloadNfo( announcement, getReleaseName = True )
+			imdbId, sourceType, formatType = Cinemageddon.__DownloadNfo( logger, announcement, getReleaseName = True )
 		else:
 			# TODO: add filterting support for Cinemageddon
 			# In case of automatic announcement we have to check the release name if it is valid.
 			# We know the release name from the announcement, so we can filter it without downloading anything (yet) from the source. 
 			#if not ReleaseFilter.IsValidReleaseName( announcement.ReleaseName ):
-			#	Globals.Logger.info( "Ignoring release '%s' because of its name." % announcement.ReleaseName )
+			#	logger.info( "Ignoring release '%s' because of its name." % announcement.ReleaseName )
 			#	return None
-			imdbId, sourceType, formatType = Cinemageddon.__DownloadNfo( announcement )
+			imdbId, sourceType, formatType = Cinemageddon.__DownloadNfo( logger, announcement )
 			
 		releaseInfo = ReleaseInfo( announcement, imdbId )
 		Cinemageddon.__MapSourceAndFormatToPtp( releaseInfo.PtpUploadInfo, sourceType, formatType )		
 		return releaseInfo
 		
 	@staticmethod
-	def DownloadTorrent(releaseInfo, path):
+	def DownloadTorrent(logger, releaseInfo, path):
 		url = "http://cinemageddon.net/download.php?id=%s" % releaseInfo.Announcement.AnnouncementId
-		Globals.Logger.info( "Downloading torrent file from '%s' to '%s'." % ( url, path ) )
+		logger.info( "Downloading torrent file from '%s' to '%s'." % ( url, path ) )
 
 		opener = urllib2.build_opener( urllib2.HTTPCookieProcessor( Globals.CookieJar ) )
 		request = urllib2.Request( url )
@@ -144,7 +144,7 @@ class Cinemageddon:
 		file.close()
 		
 	@staticmethod
-	def ExtractRelease(releaseInfo):
+	def ExtractRelease(logger, releaseInfo):
 		ReleaseExtractor.Extract( releaseInfo.GetReleaseDownloadPath(), releaseInfo.GetReleaseUploadPath() )
 		
 	@staticmethod
