@@ -180,14 +180,13 @@ class PtpUploader:
 			raise
 
 	def __GetFinishedDownloadToProcess(self):
-		logger = releaseInfo.Announcement.Logger
-		
 		if len( self.PendingDownloads ) > 0:
 			print "Pending downloads: %s" % len( self.PendingDownloads )
 		
 		# TODO: can we use a multicast RPC call get all the statuses in one call?
 		for downloadIndex in range( len( self.PendingDownloads ) ):
 			releaseInfo = self.PendingDownloads[ downloadIndex ]
+			logger = releaseInfo.Announcement.Logger
 			if releaseInfo.Announcement.IsManualDownload or self.Rtorrent.IsTorrentFinished( logger, releaseInfo.SourceTorrentInfoHash ):
 				return self.PendingDownloads.pop( downloadIndex )
 			
