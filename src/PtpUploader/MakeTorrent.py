@@ -27,7 +27,7 @@ class MakeTorrent:
 		# To make sure that our new torrent will have unique info hash we add a unused key to the info section of the metadata.
 		# Another way would be to use a different piece size, but this solution is much more elegant.
 		# See: http://wiki.theory.org/BitTorrentSpecification#Metainfo_File_Structure 
-		args = [ Settings.ChtorPath, "--set=info.source=PTP", destinationTorrentPath ]
+		args = [ Settings.ChtorPath, "--set=info.source=PTP", torrentPath ]
 		errorCode = subprocess.call( args )
 		if errorCode != 0:
 			raise PtpUploaderException( "Process execution '%s' returned with error code '%s'." % ( args, errorCode ) )			
