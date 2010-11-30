@@ -1,12 +1,12 @@
 from Source.Manual import Manual
+from Tool.MakeTorrent import MakeTorrent
+from Tool.MediaInfo import MediaInfo
+from Tool.Rtorrent import Rtorrent
+from Tool.ScreenshotMaker import ScreenshotMaker
 
 from AnnouncementWatcher import *
 from Globals import Globals
-from MakeTorrent import MakeTorrent
-from MediaInfo import MediaInfo
 from ReleaseInfo import ReleaseInfo
-from Rtorrent import Rtorrent
-from ScreenshotMaker import ScreenshotMaker
 from Settings import Settings
 
 import os
