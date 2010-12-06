@@ -1,6 +1,6 @@
 ﻿from Globals import Globals
 from PtpMovieSearchResult import PtpMovieSearchResult
-from PtpUploaderException import PtpUploaderException
+from PtpUploaderException import *
 from Settings import Settings
 
 import poster
@@ -27,23 +27,28 @@ class Ptp:
 
 	@staticmethod
 	def Login():
-		maximumRetries = 2;
-		
+		maximumRetries = 2
+
 		while True:
 			try:
-				Ptp.__LoginInternal();
-				return;
+				Ptp.__LoginInternal()
+				return
+			except PtpUploaderInvalidLoginException:
+				raise
 			except Exception:
 				if maximumRetries > 0:
-					maximumRetries -= 1;
-					time.sleep( 30 ); # Wait 30 seconds and retry.
+					maximumRetries -= 1
+					time.sleep( 30 ) # Wait 30 seconds and retry.
 				else:
-					raise;
+					raise
 	
 	@staticmethod
 	def CheckIfLoggedInFromResponse(response):
+		if response.find( """<a href="login.php?act=recover">""" ) != -1:
+			raise PtpUploaderInvalidLoginException( "Couldn't log in to PTP. Probably due to the bad user name or password." )
+		
 		if response.find( 'action="login.php"' ) != -1:
-			raise PtpUploaderException( "Looks like you are not logged in to PTP. Probably due to the bad session key in settings." )
+			raise PtpUploaderException( "Looks like you are not logged in to PTP. Probably due to the bad user name or password." )
 				
 	# imdbId: IMDb id. Eg.: 0137363 for http://www.imdb.com/title/tt0137363/
 	# returns with PtpMovieSearchResult

@@ -10,7 +10,7 @@ from AnnouncementWatcher import *
 from Globals import Globals
 from ImageUploader import ImageUploader
 from Ptp import Ptp
-from PtpUploaderException import PtpUploaderException
+from PtpUploaderException import *
 from PtpUploadInfo import PtpUploadInfo
 from ReleaseExtractor import ReleaseExtractor
 from ReleaseInfo import ReleaseInfo
@@ -281,6 +281,13 @@ class PtpUploader:
 			try:
 				if not self.__WorkInternal():
 					time.sleep( 30 ); # Sleep 30 seconds, if there was not any work to do in this run.
+			except PtpUploaderInvalidLoginException, e:
+				logger = Globals.Logger
+				if hasattr( e, "Logger" ):
+					logger = e.Logger
+
+				logger.exception( "Aborting." )
+				break					
 			except Exception, e:
 				logger = Globals.Logger
 				if hasattr( e, "Logger" ):
