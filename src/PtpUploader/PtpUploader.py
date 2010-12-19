@@ -201,7 +201,7 @@ class PtpUploader:
 		
 		uploadedTorrentUrl = "http://passthepopcorn.me/torrents.php?id=" + ptpId
 		command = Settings.OnSuccessfulUpload % { "releaseName": releaseName, "uploadedTorrentUrl": uploadedTorrentUrl } 
-		subprocess.Popen( command )
+		subprocess.Popen( command, shell = True )
 	
 	def __UploadInternal(self, releaseInfo):
 		logger = releaseInfo.Announcement.Logger
