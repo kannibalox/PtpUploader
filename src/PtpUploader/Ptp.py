@@ -47,6 +47,9 @@ class Ptp:
 		if response.find( """<a href="login.php?act=recover">""" ) != -1:
 			raise PtpUploaderInvalidLoginException( "Couldn't log in to PTP. Probably due to the bad user name or password." )
 		
+		if response.find( """<p>Your IP has been banned.</p>""" ) != -1:
+			raise PtpUploaderInvalidLoginException( "Couldn't log in to PTP. Your IP has been banned." )
+		
 		if response.find( 'action="login.php"' ) != -1:
 			raise PtpUploaderException( "Looks like you are not logged in to PTP. Probably due to the bad user name or password." )
 				
