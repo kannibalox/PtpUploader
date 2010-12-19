@@ -17,6 +17,7 @@ from ReleaseInfo import ReleaseInfo
 from Settings import Settings
 
 import os
+import subprocess
 import time
 
 class PtpUploader:
@@ -192,6 +193,16 @@ class PtpUploader:
 			
 		return None
 	
+	# Execute command on successful upload
+	@staticmethod 
+	def OnSuccessfulUpload(releaseName, ptpId):
+		if len( Settings.OnSuccessfulUpload ) <= 0:
+			return
+		
+		uploadedTorrentUrl = "http://passthepopcorn.me/torrents.php?id=" + ptpId
+		command = Settings.OnSuccessfulUpload % { "releaseName": releaseName, "uploadedTorrentUrl": uploadedTorrentUrl } 
+		subprocess.Popen( command )
+	
 	def __UploadInternal(self, releaseInfo):
 		logger = releaseInfo.Announcement.Logger
 		
@@ -244,9 +255,11 @@ class PtpUploader:
 		# Add torrent without hash checking.
 		self.Rtorrent.AddTorrentSkipHashCheck( logger, uploadTorrentPath, uploadPath );
 	
-		Ptp.UploadMovie( logger, releaseInfo.PtpUploadInfo, uploadTorrentPath, movieOnPtpResult.PtpId );
+		ptpId = Ptp.UploadMovie( logger, releaseInfo.PtpUploadInfo, uploadTorrentPath, movieOnPtpResult.PtpId );
 		
 		logger.info( "'%s' has been successfully uploaded to PTP." % releaseInfo.Announcement.ReleaseName );
+		
+		self.__OnSuccessfulUpload( releaseInfo.Announcement.ReleaseName, ptpId )
 
 	def __Upload(self, releaseInfo):
 		try:

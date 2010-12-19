@@ -47,9 +47,9 @@ class Settings(object):
 		return os.path.join( Settings.WorkingPath, "log/announcement" )
 
 	@staticmethod
-	def __GetDefault(configParser, section, option, default):
+	def __GetDefault(configParser, section, option, default, raw = False):
 		try:
-			return configParser.get( section, option )
+			return configParser.get( section, option, raw = raw )
   		except ConfigParser.NoOptionError:
   			return default
 
@@ -77,6 +77,7 @@ class Settings(object):
 		Settings.CinemageddonPassword = Settings.__GetDefault( configParser, "Settings", "CinemageddonPassword", "" )
 		Settings.CinemageddonMaximumParallelDownloads = int( configParser.get( "Settings", "CinemageddonMaximumParallelDownloads" ) )
 		Settings.ImgurApiKey = Settings.__GetDefault( configParser, "Settings", "ImgurApiKey", "" )
+		Settings.OnSuccessfulUpload = Settings.__GetDefault( configParser, "Settings", "OnSuccessfulUpload", "", raw = True )
 
 		Settings.ChtorPath = configParser.get( "Settings", "ChtorPath" )
 		Settings.FfmpegPath = configParser.get( "Settings", "FfmpegPath" )

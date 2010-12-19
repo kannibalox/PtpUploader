@@ -278,3 +278,28 @@ class Ptp:
 			response = result.read();
 		except Exception:
 			logger.exception( "Couldn't refresh data for 'http://passthepopcorn.me/torrents.php?id=%s'. Got exception." % ptpId );
+			
+	@staticmethod
+	def SendPrivateMessage(userId, subject, message):
+		Globals.Logger.info( "Sending private message on PTP." );
+		
+		# We need to load the send message page for the authentication key.
+		opener = urllib2.build_opener( urllib2.HTTPCookieProcessor( Globals.CookieJar ) )
+		request = urllib2.Request( "http://passthepopcorn.me/inbox.php?action=compose&to=%s" % userId )
+		result = opener.open( request )
+		response = result.read()
+		Ptp.CheckIfLoggedInFromResponse( response )
+		
+		matches = re.search( r"""<input type="hidden" name="auth" value="(.+)" />""", response )
+		if not matches:
+			logger.info( "Authorization key couldn't be found." )
+			return
+
+		auth = matches.group( 1 )
+		
+		# Send the message.
+		postData = urllib.urlencode( { "toid": userId, "subject": subject, "body": message, "auth": auth, "action": "takecompose" } )
+		request = urllib2.Request( "http://passthepopcorn.me/inbox.php", postData )
+		result = opener.open( request )
+		response = result.read()
+		Ptp.CheckIfLoggedInFromResponse( response )
