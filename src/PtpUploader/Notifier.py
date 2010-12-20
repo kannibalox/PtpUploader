@@ -37,5 +37,5 @@ if __name__ == "__main__":
 	Settings.LoadSettings()
 	Globals.InitializeGlobals( Settings.WorkingPath )
 
-	if len( sys.argv ) == 2:
+	if len( sys.argv ) == 3:
 		Notify( sys.argv[ 1 ], sys.argv[ 2 ] )
