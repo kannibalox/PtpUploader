@@ -195,7 +195,7 @@ class PtpUploader:
 	
 	# Execute command on successful upload
 	@staticmethod 
-	def OnSuccessfulUpload(releaseName, ptpId):
+	def __OnSuccessfulUpload(releaseName, ptpId):
 		if len( Settings.OnSuccessfulUpload ) <= 0:
 			return
 		
