@@ -50,24 +50,27 @@ class PtpUploadInfo:
 		
 	# releaseDescriptionFilePath: optional. If given the description is written to file.
 	def FormatReleaseDescription(self, logger, releaseInfo, screenshots, mediaInfos, releaseDescriptionFilePath = None):
-		logger.info( "Making release description for release '%s' with screenshots at %s." % ( releaseInfo.Announcement.ReleaseName, screenshots ) );
-		
-		self.ReleaseDescription = u"[size=4][b]%s[/b][/size]\n\n" % releaseInfo.Announcement.ReleaseName;
+		logger.info( "Making release description for release '%s' with screenshots at %s." % ( releaseInfo.Announcement.ReleaseName, screenshots ) )
+
+		self.ReleaseDescription = u"[size=4][b]%s[/b][/size]\n\n" % releaseInfo.Announcement.ReleaseName
 
 		for screenshot in screenshots:
-			self.ReleaseDescription += u"[img=%s]\n\n" % screenshot;
-		
+			self.ReleaseDescription += u"[img=%s]\n\n" % screenshot
+
 		for mediaInfo in mediaInfos:
-			fileName = os.path.basename( mediaInfo.Path );
-			self.ReleaseDescription += u"[size=3][u]%s[/u][/size]\n\n" % fileName;
-			self.ReleaseDescription += mediaInfo.FormattedMediaInfo; 
+			# Add file name before each media info if there are more than one videos in the release.
+			if len( mediaInfos ) > 1:
+				fileName = os.path.basename( mediaInfo.Path )
+				self.ReleaseDescription += u"[size=3][u]%s[/u][/size]\n\n" % fileName
+
+			self.ReleaseDescription += mediaInfo.FormattedMediaInfo
 
 		# Add NFO if presents
 		if len( releaseInfo.Nfo ) > 0:
-			self.ReleaseDescription += u"[size=3][u]NFO[/u][/size]:[pre]\n%s\n[/pre]" % releaseInfo.Nfo;
-		
+			self.ReleaseDescription += u"[size=3][u]NFO[/u][/size]:[pre]\n%s\n[/pre]" % releaseInfo.Nfo
+
 		# We don't use this file for anything, we just save it for convenience.
 		if releaseDescriptionFilePath is not None:
-			releaseDescriptionFile = codecs.open( releaseDescriptionFilePath, encoding = "utf-8", mode = "w" );
-			releaseDescriptionFile.write( self.ReleaseDescription );
-			releaseDescriptionFile.close();
+			releaseDescriptionFile = codecs.open( releaseDescriptionFilePath, encoding = "utf-8", mode = "w" )
+			releaseDescriptionFile.write( self.ReleaseDescription )
+			releaseDescriptionFile.close()
