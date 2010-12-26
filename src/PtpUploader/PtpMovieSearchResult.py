@@ -13,7 +13,8 @@ class PtpMovieSearchResultItem:
 		return "%s / %s / %s / %s" % ( self.Codec, self.Container, self.Source, self.Resolution )
 
 # Notes:
-# - We treat HD-DVD and Blu-Ray as same quality.
+# - We treat HD-DVD and Blu-ray as same quality.
+# - We treat DVD and Blu-ray rips equally in the standard defintion category.
 # - We treat H.264 and x264 equally because of the uploading rules: "MP4 can only be trumped by MKV if the use of that container causes problems with video or audio".
 # - We treat XviD as a superior codec to DivX.
 class PtpMovieSearchResult:
@@ -108,23 +109,15 @@ class PtpMovieSearchResult:
 		raise PtpUploaderException( "Can't check whether the release '%s' exist on PTP because its type is unsupported." % releaseInfo.Announcement.ReleaseName );
 
 	def __IsSdFineSourceReleaseExists(self, releaseInfo):
-		if releaseInfo.PtpUploadInfo.Source == "Blu-Ray" or releaseInfo.PtpUploadInfo.Source == "HD-DVD":
+		if releaseInfo.PtpUploadInfo.Source == "Blu-Ray" or releaseInfo.PtpUploadInfo.Source == "HD-DVD" or releaseInfo.PtpUploadInfo.Source == "DVD":
 			if releaseInfo.PtpUploadInfo.Codec == "x264" or releaseInfo.PtpUploadInfo.Codec == "H.264":
-				return PtpMovieSearchResult.__IsInList( self.SdList, [ "x264", "H.264" ], [ "Blu-Ray", "HD-DVD" ] )
+				return PtpMovieSearchResult.__IsInList( self.SdList, [ "x264", "H.264" ], [ "Blu-Ray", "HD-DVD", "DVD" ] )
 			elif releaseInfo.PtpUploadInfo.Codec == "XviD":
 				# We don't check for DivX because XviD trumps it.
-				return PtpMovieSearchResult.__IsInList( self.SdList, [ "XviD" ], [ "Blu-Ray", "HD-DVD" ] )
+				return PtpMovieSearchResult.__IsInList( self.SdList, [ "XviD" ], [ "Blu-Ray", "HD-DVD", "DVD" ] )
 			elif releaseInfo.PtpUploadInfo.Codec == "DivX":
-				return PtpMovieSearchResult.__IsInList( self.SdList, [ "XviD", "DivX" ], [ "Blu-Ray", "HD-DVD" ] )
-		elif releaseInfo.PtpUploadInfo.Source == "DVD":
-			if releaseInfo.PtpUploadInfo.Codec == "x264" or releaseInfo.PtpUploadInfo.Codec == "H.264":
-				return PtpMovieSearchResult.__IsInList( self.SdList, [ "x264", "H.264" ], [ "DVD", "Blu-Ray", "HD-DVD" ] )
-			elif releaseInfo.PtpUploadInfo.Codec == "XviD":
-				# We don't check for DivX because XviD trumps it.
-				return PtpMovieSearchResult.__IsInList( self.SdList, [ "XviD" ], [ "DVD", "Blu-Ray", "HD-DVD" ] )
-			elif releaseInfo.PtpUploadInfo.Codec == "DivX":
-				return PtpMovieSearchResult.__IsInList( self.SdList, [ "XviD", "DivX" ], [ "DVD", "Blu-Ray", "HD-DVD" ] )
-			
+				return PtpMovieSearchResult.__IsInList( self.SdList, [ "XviD", "DivX" ], [ "Blu-Ray", "HD-DVD", "DVD" ] )
+
 		raise PtpUploaderException( "Can't check whether the release '%s' exist on PTP because its type is unsupported." % releaseInfo.Announcement.ReleaseName );
 		
 	def __IsSdNonFineSourceReleaseExists(self, releaseInfo):
