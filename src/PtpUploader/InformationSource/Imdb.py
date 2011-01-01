@@ -34,6 +34,11 @@ class Imdb:
 		image = data.get( "image" )
 		if image:
 			imdbInfo.PosterUrl = image[ "url" ]
+
+			# Some posters are huge on IMDb but can be easily scaled to arbitrary size by changing the URL.			
+			height = image.get( "height" )
+			if ( height is not None ) and height > 768:
+				imdbInfo.PosterUrl = imdbInfo.PosterUrl.replace( "._V1_.jpg", "._V1_SY768_.jpg" )
 			
 		plot = data.get( "plot" )
 		if plot:
