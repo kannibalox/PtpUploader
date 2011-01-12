@@ -134,16 +134,16 @@ class Ptp:
 
 		# Director's name may not be present. For example: http://www.imdb.com/title/tt0864336/
 		jsonDirectors = movie[ "director" ];
-		if ( jsonDirectors is None ) or len( jsonDirectors ) < 1: 
-			raise PtpUploaderException( "Bad PTP movie info JSON response: no directors.\nReponse:\n%s" % response );
+		if ( jsonDirectors is None ) or len( jsonDirectors ) < 1:
+			ptpUploadInfo.Directors.append( "None Listed" )
+		else:
+			for jsonDirector in jsonDirectors:
+				directorName = jsonDirector[ "name" ];
+				if ( directorName is None ) or len( directorName ) == 0: 
+					raise PtpUploaderException( "Bad PTP movie info JSON response: director name is empty.\nReponse:\n%s" % response );
 
-		for jsonDirector in jsonDirectors:
-			directorName = jsonDirector[ "name" ];
-			if ( directorName is None ) or len( directorName ) == 0: 
-				raise PtpUploaderException( "Bad PTP movie info JSON response: director name is empty.\nReponse:\n%s" % response );
-
-			directorName = htmlParser.unescape( directorName ) # PTP doesn't decodes properly the text.
-			ptpUploadInfo.Directors.append( directorName )
+				directorName = htmlParser.unescape( directorName ) # PTP doesn't decodes properly the text.
+				ptpUploadInfo.Directors.append( directorName )
 
 	@staticmethod
 	def __UploadMovieGetParamsCommon(ptpUploadInfo):
