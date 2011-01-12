@@ -28,25 +28,31 @@ class PtpUploadInfo:
 	# Fills container, codec and resolution from media info.
 	def GetDataFromMediaInfo(self, mediaInfo):
 		if mediaInfo.IsAvi():
-			self.Container = "AVI";
+			self.Container = "AVI"
 		elif mediaInfo.IsMkv():
-			self.Container = "MKV";
+			self.Container = "MKV"
 		else:
-			raise PtpUploaderException( "Unsupported container: '%s'." % mediaInfo.Container );
+			raise PtpUploaderException( "Unsupported container: '%s'." % mediaInfo.Container )
 
 		# TODO: check if set already and make sure it remains the same if it set
 		if mediaInfo.IsX264():
-			self.Codec = "x264";
+			self.Codec = "x264"
+			if mediaInfo.IsAvi():
+				raise PtpUploaderException( "X264 in AVI is not allowed." )
 		elif mediaInfo.IsXvid():
-			self.Codec = "XviD";
+			self.Codec = "XviD"
+			if mediaInfo.IsMkv():
+				raise PtpUploaderException( "XviD in MKV is not allowed." )
 		elif mediaInfo.IsDivx():
-			self.Codec = "DivX";
+			self.Codec = "DivX"
+			if mediaInfo.IsMkv():
+				raise PtpUploaderException( "DivX in MKV is not allowed." )
 		else:
-			raise PtpUploaderException( "Unsupported codec: '%s'." % mediaInfo.Codec );
-		
+			raise PtpUploaderException( "Unsupported codec: '%s'." % mediaInfo.Codec )
+
 		# Indicate the exact resolution for standard definition releases.
 		if self.IsStandardDefintion():
-			self.Resolution = "%sx%s" % ( mediaInfo.Width, mediaInfo.Height );
+			self.Resolution = "%sx%s" % ( mediaInfo.Width, mediaInfo.Height )
 		
 	# releaseDescriptionFilePath: optional. If given the description is written to file.
 	def FormatReleaseDescription(self, logger, releaseInfo, screenshots, mediaInfos, releaseDescriptionFilePath = None):
