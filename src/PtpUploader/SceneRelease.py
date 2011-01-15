@@ -12,32 +12,32 @@ class SceneRelease:
 		self.Nfo = "";
 
 	@staticmethod
-	def GetSourceAndFormatFromSceneReleaseName(ptpUploadInfo, releaseName):
+	def GetSourceAndFormatFromSceneReleaseName(releaseInfo, releaseName):
 		lowerReleaseName = releaseName.lower();
 		if lowerReleaseName.find( "dvdrip.xvid" ) != -1:
-			ptpUploadInfo.Quality = "Standard Definition";
-			ptpUploadInfo.Source = "DVD";
-			ptpUploadInfo.Codec = "XviD"
-			ptpUploadInfo.ResolutionType = "Other";
+			releaseInfo.Quality = "Standard Definition";
+			releaseInfo.Source = "DVD";
+			releaseInfo.Codec = "XviD"
+			releaseInfo.ResolutionType = "Other";
 		elif lowerReleaseName.find( "bdrip.xvid" ) != -1:
-			ptpUploadInfo.Quality = "Standard Definition";
-			ptpUploadInfo.Codec = "XviD"
-			ptpUploadInfo.Source = "Blu-Ray";
-			ptpUploadInfo.ResolutionType = "Other";
+			releaseInfo.Quality = "Standard Definition";
+			releaseInfo.Codec = "XviD"
+			releaseInfo.Source = "Blu-Ray";
+			releaseInfo.ResolutionType = "Other";
 		elif lowerReleaseName.find( "720p.bluray.x264" ) != -1:
-			ptpUploadInfo.Quality = "High Definition";
-			ptpUploadInfo.Source = "Blu-Ray";
-			ptpUploadInfo.Codec = "x264"
-			ptpUploadInfo.ResolutionType = "720p";
+			releaseInfo.Quality = "High Definition";
+			releaseInfo.Source = "Blu-Ray";
+			releaseInfo.Codec = "x264"
+			releaseInfo.ResolutionType = "720p";
 		elif lowerReleaseName.find( "1080p.bluray.x264" ) != -1:
-			ptpUploadInfo.Quality = "High Definition";
-			ptpUploadInfo.Source = "Blu-Ray";
-			ptpUploadInfo.Codec = "x264"
-			ptpUploadInfo.ResolutionType = "1080p";
+			releaseInfo.Quality = "High Definition";
+			releaseInfo.Source = "Blu-Ray";
+			releaseInfo.Codec = "x264"
+			releaseInfo.ResolutionType = "1080p";
 		else:
 			raise PtpUploaderException( "Can't figure out release source and quality from release name '%s'." % releaseName );
 
-		ptpUploadInfo.Scene = "on";
+		releaseInfo.Scene = "on";
 
 	# return: value[ "cds" ] = CD1, CD2, ... if presents
 	# value[ "subtitle" ] = subtitle directory if presents

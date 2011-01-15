@@ -112,7 +112,7 @@ class Gft:
 		
 		imdbId = NfoParser.GetImdbId( nfoText )
 		releaseInfo = ReleaseInfo( announcement, imdbId )
-		SceneRelease.GetSourceAndFormatFromSceneReleaseName( releaseInfo.PtpUploadInfo, announcement.ReleaseName )
+		SceneRelease.GetSourceAndFormatFromSceneReleaseName( releaseInfo, announcement.ReleaseName )
 		return releaseInfo;
 	
 	@staticmethod

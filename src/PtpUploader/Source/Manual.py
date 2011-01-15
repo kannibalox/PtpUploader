@@ -24,7 +24,7 @@ class Manual:
 		
 		releaseInfo = ReleaseInfo( announcement, imdbId )
 		releaseInfo.Nfo = nfo;
-		SceneRelease.GetSourceAndFormatFromSceneReleaseName( releaseInfo.PtpUploadInfo, announcement.ReleaseName )
+		SceneRelease.GetSourceAndFormatFromSceneReleaseName( releaseInfo, announcement.ReleaseName )
 		return releaseInfo
 		
 	@staticmethod

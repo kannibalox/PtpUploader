@@ -80,8 +80,8 @@ class Ptp:
 			return PtpMovieSearchResult( ptpId, response );
 
 	@staticmethod
-	def FillImdbInfo(logger, ptpUploadInfo):
-		logger.info( "Downloading movie info from PTP for IMDb id '%s'." % ptpUploadInfo.ImdbId );
+	def FillImdbInfo(logger, releaseInfo):
+		logger.info( "Downloading movie info from PTP for IMDb id '%s'." % releaseInfo.ImdbId );
 
 		# PTP doesn't decodes the HTML entity references (like "&#x26;" to "&") in the JSON response, so we have to.
 		# We are using an internal function of HTMLParser. 
@@ -90,7 +90,7 @@ class Ptp:
  
 		# Get IMDb info through PTP's ajax API used by the site when the user presses the auto fill button.
 		opener = urllib2.build_opener( urllib2.HTTPCookieProcessor( Globals.CookieJar ) );
-		request = urllib2.Request( "http://passthepopcorn.me/ajax.php?action=torrent_info&imdb=%s" % ptpUploadInfo.ImdbId );
+		request = urllib2.Request( "http://passthepopcorn.me/ajax.php?action=torrent_info&imdb=%s" % releaseInfo.ImdbId );
 		result = opener.open( request );
 		response = result.read();
 		Ptp.CheckIfLoggedInFromResponse( response );
@@ -103,39 +103,39 @@ class Ptp:
 			raise PtpUploaderException( "Bad PTP movie info JSON response: array length is not one.\nResponse:\n%s" % response );
 	
 		movie = jsonResult[ 0 ];
-		ptpUploadInfo.Title = movie[ "title" ];
-		if ( ptpUploadInfo.Title is None ) or len( ptpUploadInfo.Title ) == 0: 
+		releaseInfo.Title = movie[ "title" ];
+		if ( releaseInfo.Title is None ) or len( releaseInfo.Title ) == 0: 
 			raise PtpUploaderException( "Bad PTP movie info JSON response: title is empty.\nResponse:\n%s" % response );
-		ptpUploadInfo.Title = htmlParser.unescape( ptpUploadInfo.Title ) # PTP doesn't decodes properly the text.
+		releaseInfo.Title = htmlParser.unescape( releaseInfo.Title ) # PTP doesn't decodes properly the text.
 
-		ptpUploadInfo.Year = movie[ "year" ];
-		if ( ptpUploadInfo.Year is None ) or len( ptpUploadInfo.Year ) == 0: 
+		releaseInfo.Year = movie[ "year" ];
+		if ( releaseInfo.Year is None ) or len( releaseInfo.Year ) == 0: 
 			raise PtpUploaderException( "Bad PTP movie info JSON response: year is empty.\nReponse:\n%s" % response );
 
-		ptpUploadInfo.MovieDescription = movie[ "plot" ];
-		if ptpUploadInfo.MovieDescription is None:
-			ptpUploadInfo.MovieDescription = ""; 
+		releaseInfo.MovieDescription = movie[ "plot" ];
+		if releaseInfo.MovieDescription is None:
+			releaseInfo.MovieDescription = ""; 
 
-		ptpUploadInfo.Tags = movie[ "tags" ];
-		if ptpUploadInfo.Tags is None: 
+		releaseInfo.Tags = movie[ "tags" ];
+		if releaseInfo.Tags is None: 
 			raise PtpUploaderException( "Bad PTP movie info JSON response: tags key doesn't exists.\nReponse:\n%s" % response );
 
 		# PTP's upload page doesn't allows movies without tags. 
-		if len( ptpUploadInfo.Tags ) <= 0:
+		if len( releaseInfo.Tags ) <= 0:
 			raise PtpUploaderException( "PTP movie info returned without any tags." );
 
-		ptpUploadInfo.CoverArtUrl = movie[ "art" ];
-		if ptpUploadInfo.CoverArtUrl is None: 
+		releaseInfo.CoverArtUrl = movie[ "art" ];
+		if releaseInfo.CoverArtUrl is None: 
 			raise PtpUploaderException( "Bad PTP movie info JSON response: art key doesn't exists.\nReponse:\n%s" % response );
 	
 		# It may be false... Eg.: "art": false
-		if not ptpUploadInfo.CoverArtUrl:
-			ptpUploadInfo.CoverArtUrl = "";
+		if not releaseInfo.CoverArtUrl:
+			releaseInfo.CoverArtUrl = "";
 
 		# Director's name may not be present. For example: http://www.imdb.com/title/tt0864336/
 		jsonDirectors = movie[ "director" ];
 		if ( jsonDirectors is None ) or len( jsonDirectors ) < 1:
-			ptpUploadInfo.Directors.append( "None Listed" )
+			releaseInfo.Directors.append( "None Listed" )
 		else:
 			for jsonDirector in jsonDirectors:
 				directorName = jsonDirector[ "name" ];
@@ -143,31 +143,31 @@ class Ptp:
 					raise PtpUploaderException( "Bad PTP movie info JSON response: director name is empty.\nReponse:\n%s" % response );
 
 				directorName = htmlParser.unescape( directorName ) # PTP doesn't decodes properly the text.
-				ptpUploadInfo.Directors.append( directorName )
+				releaseInfo.Directors.append( directorName )
 
 	@staticmethod
-	def __UploadMovieGetParamsCommon(ptpUploadInfo):
+	def __UploadMovieGetParamsCommon(releaseInfo):
 		commonParams = {
 				"submit": "true",
-				"type": ptpUploadInfo.Type,
+				"type": releaseInfo.Type,
 				"remaster_year": "",
 				"remaster_title": "",
-				"quality": ptpUploadInfo.Quality,
-				"codec": ptpUploadInfo.Codec,
+				"quality": releaseInfo.Quality,
+				"codec": releaseInfo.Codec,
 				"other_codec": "",
-				"container": ptpUploadInfo.Container,
+				"container": releaseInfo.Container,
 				"other_container": "",
-				"resolution": ptpUploadInfo.ResolutionType,
-				"other_resolution": ptpUploadInfo.Resolution,
-				"source": ptpUploadInfo.Source,
+				"resolution": releaseInfo.ResolutionType,
+				"other_resolution": releaseInfo.Resolution,
+				"source": releaseInfo.Source,
 				"other_source": "",
-				"release_desc": ptpUploadInfo.ReleaseDescription
+				"release_desc": releaseInfo.ReleaseDescription
 				};
 
 		paramList = commonParams.items()
 
 		# scene only needed if it is specified
-		if len( ptpUploadInfo.Scene ) > 0:
+		if len( releaseInfo.Scene ) > 0:
 			paramList.append( poster.encode.MultipartParam( "scene", "on" ) )
 
 		return paramList;
@@ -178,17 +178,17 @@ class Ptp:
 		return [ groupId ]; 
 
 	@staticmethod
-	def __UploadMovieGetParamsForNewMovie(ptpUploadInfo):
+	def __UploadMovieGetParamsForNewMovie(releaseInfo):
 		params = {
-			"imdb": ptpUploadInfo.ImdbId,
+			"imdb": releaseInfo.ImdbId,
 			"tomatoes": "",
 			"metacritic": "",
-			"title": ptpUploadInfo.Title,
-			"year": ptpUploadInfo.Year,
-			"image": ptpUploadInfo.CoverArtUrl,
+			"title": releaseInfo.Title,
+			"year": releaseInfo.Year,
+			"image": releaseInfo.CoverArtUrl,
 			"genre_tags": "---",
-			"tags": ptpUploadInfo.Tags,
-			"album_desc": ptpUploadInfo.MovieDescription,
+			"tags": releaseInfo.Tags,
+			"album_desc": releaseInfo.MovieDescription,
 			"trailer": "",
 			};
 			
@@ -196,8 +196,8 @@ class Ptp:
 
 		# Add the directors.
 		# These needs to be added in order because of the "importance" field follows them.
-		for i in range( len( ptpUploadInfo.Directors ) ):
-			multipartParam = poster.encode.MultipartParam( "artists[]", ptpUploadInfo.Directors[ i ] );
+		for i in range( len( releaseInfo.Directors ) ):
+			multipartParam = poster.encode.MultipartParam( "artists[]", releaseInfo.Directors[ i ] );
 			multipartParam.name = "artists[]"; # MultipartParam escapes the square brackets to "artists%5B%5D". Change it back. :)
 			paramList.append( multipartParam );
 
@@ -212,14 +212,14 @@ class Ptp:
 	# If ptpId is None then it will added as a new movie.
 	# If it is not None then it will be added as a new format to an existing movie.
 	@staticmethod
-	def UploadMovie(logger, ptpUploadInfo, torrentPath, ptpId):
+	def UploadMovie(logger, releaseInfo, torrentPath, ptpId):
 		url = "";
-		paramList = Ptp.__UploadMovieGetParamsCommon( ptpUploadInfo );
+		paramList = Ptp.__UploadMovieGetParamsCommon( releaseInfo );
 		
 		if ptpId is None:
 			logger.info( "Uploading torrent '%s' to PTP as a new movie." % torrentPath );
 			url = "http://passthepopcorn.me/upload.php";
-			paramList.extend( Ptp.__UploadMovieGetParamsForNewMovie( ptpUploadInfo ) );
+			paramList.extend( Ptp.__UploadMovieGetParamsForNewMovie( releaseInfo ) );
 		else:
 			logger.info( "Uploading torrent '%s' to PTP as a new format for 'http://passthepopcorn.me/torrents.php?id=%s'." % ( torrentPath, ptpId ) );
 			url = "http://passthepopcorn.me/upload.php?groupid=%s" % ptpId;

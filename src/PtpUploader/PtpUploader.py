@@ -11,7 +11,6 @@ from Globals import Globals
 from ImageUploader import ImageUploader
 from Ptp import Ptp
 from PtpUploaderException import *
-from PtpUploadInfo import PtpUploadInfo
 from ReleaseExtractor import ReleaseExtractor
 from ReleaseInfo import ReleaseInfo
 from Settings import Settings
@@ -80,22 +79,22 @@ class PtpUploader:
 			return None;		
 
 		# Make sure the source is providing release quality information.
-		if len( releaseInfo.PtpUploadInfo.Quality ) <= 0:
+		if len( releaseInfo.Quality ) <= 0:
 			logger.error( "Quality of the release is not specified." );
 			return None;		
 
 		# Make sure the source is providing release source information.
-		if len( releaseInfo.PtpUploadInfo.Source ) <= 0:
+		if len( releaseInfo.Source ) <= 0:
 			logger.error( "Source of the release is not specified." );
 			return None;		
 
 		# Make sure the source is providing release codec information.
-		if len( releaseInfo.PtpUploadInfo.Codec ) <= 0:
+		if len( releaseInfo.Codec ) <= 0:
 			logger.error( "Codec of the release is not specified." );
 			return None;		
 
 		# Make sure the source is providing release resolution type information.
-		if len( releaseInfo.PtpUploadInfo.ResolutionType ) <= 0:
+		if len( releaseInfo.ResolutionType ) <= 0:
 			logger.error( "Resolution type of the release is not specified." );
 			return None;		
 	
@@ -114,7 +113,7 @@ class PtpUploader:
 
 		# If this movie has no page yet on PTP then fill out the required info (title, year, etc.).
 		if movieOnPtpResult.PtpId is None:
-			Ptp.FillImdbInfo( logger, releaseInfo.PtpUploadInfo )
+			Ptp.FillImdbInfo( logger, releaseInfo )
 			
 			imdbInfo = Imdb.GetInfo( logger, releaseInfo.GetImdbId() )
 	
@@ -122,21 +121,21 @@ class PtpUploader:
 				logger.info( "Ignoring release '%s' because it is a series." % announcement.ReleaseName )
 				return None
 			
-			if "adult" in releaseInfo.PtpUploadInfo.Tags:
+			if "adult" in releaseInfo.Tags:
 				logger.info( "Ignoring release '%s' because its genre is adult." % announcement.ReleaseName )
 				return None
 				
 			# PTP return with the original title, IMDb's iPhone API returns with the international English title.
-			if releaseInfo.PtpUploadInfo.Title != imdbInfo.Title and len( imdbInfo.Title ) > 0:
-				releaseInfo.PtpUploadInfo.Title += " AKA " + imdbInfo.Title 		
+			if releaseInfo.Title != imdbInfo.Title and len( imdbInfo.Title ) > 0:
+				releaseInfo.Title += " AKA " + imdbInfo.Title 		
 	
-			if len( releaseInfo.PtpUploadInfo.MovieDescription ) <= 0:
-				releaseInfo.PtpUploadInfo.MovieDescription = imdbInfo.Plot 
+			if len( releaseInfo.MovieDescription ) <= 0:
+				releaseInfo.MovieDescription = imdbInfo.Plot 
 
-			if len( releaseInfo.PtpUploadInfo.CoverArtUrl ) <= 0:
-				releaseInfo.PtpUploadInfo.CoverArtUrl = imdbInfo.PosterUrl 
-				if len( releaseInfo.PtpUploadInfo.CoverArtUrl ) <= 0:
-					releaseInfo.PtpUploadInfo.CoverArtUrl = MoviePoster.Get( logger, releaseInfo.GetImdbId() ) 
+			if len( releaseInfo.CoverArtUrl ) <= 0:
+				releaseInfo.CoverArtUrl = imdbInfo.PosterUrl 
+				if len( releaseInfo.CoverArtUrl ) <= 0:
+					releaseInfo.CoverArtUrl = MoviePoster.Get( logger, releaseInfo.GetImdbId() ) 
 	
 		return releaseInfo;
 
@@ -220,14 +219,14 @@ class PtpUploader:
 		# Get the media info.
 		videoFiles = ScreenshotMaker.SortVideoFiles( videoFiles );
 		mediaInfos = MediaInfo.ReadAndParseMediaInfos( logger, videoFiles );
-		releaseInfo.PtpUploadInfo.GetDataFromMediaInfo( mediaInfos[ 0 ] );
+		releaseInfo.GetDataFromMediaInfo( mediaInfos[ 0 ] );
 	
 		# Take and upload screenshots.
 		screenshotPath = os.path.join( releaseInfo.GetReleaseRootPath(), "screenshot.png" );
 		uploadedScreenshots = ScreenshotMaker.TakeAndUploadScreenshots( logger, videoFiles[ 0 ], screenshotPath, mediaInfos[ 0 ].DurationInSec );
 
 		releaseDescriptionFilePath = os.path.join( releaseInfo.GetReleaseRootPath(), "release description.txt" )
-		releaseInfo.PtpUploadInfo.FormatReleaseDescription( logger, releaseInfo, uploadedScreenshots, mediaInfos, releaseDescriptionFilePath )
+		releaseInfo.FormatReleaseDescription( logger, releaseInfo, uploadedScreenshots, mediaInfos, releaseDescriptionFilePath )
 	
 		# Make the torrent.
 		# We save it into a separate folder to make sure it won't end up in the upload somehow. :)
@@ -249,13 +248,13 @@ class PtpUploader:
 				return
 			
 		# If this movie has no page yet on PTP then we will need the cover, so we rehost the image to an image hoster.
-		if ( movieOnPtpResult.PtpId is None ) and len( releaseInfo.PtpUploadInfo.CoverArtUrl ) > 0:
-			releaseInfo.PtpUploadInfo.CoverArtUrl = ImageUploader.Upload( imageUrl = releaseInfo.PtpUploadInfo.CoverArtUrl );
+		if ( movieOnPtpResult.PtpId is None ) and len( releaseInfo.CoverArtUrl ) > 0:
+			releaseInfo.CoverArtUrl = ImageUploader.Upload( imageUrl = releaseInfo.CoverArtUrl );
 
 		# Add torrent without hash checking.
 		self.Rtorrent.AddTorrentSkipHashCheck( logger, uploadTorrentPath, uploadPath );
 	
-		ptpId = Ptp.UploadMovie( logger, releaseInfo.PtpUploadInfo, uploadTorrentPath, movieOnPtpResult.PtpId );
+		ptpId = Ptp.UploadMovie( logger, releaseInfo, uploadTorrentPath, movieOnPtpResult.PtpId );
 		
 		logger.info( "'%s' has been successfully uploaded to PTP." % releaseInfo.Announcement.ReleaseName );
 		

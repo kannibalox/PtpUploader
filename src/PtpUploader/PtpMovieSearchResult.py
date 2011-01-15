@@ -101,21 +101,21 @@ class PtpMovieSearchResult:
 		return source == "DVD" or source == "Blu-Ray" or source == "HD-DVD"
 
 	def __IsHdFineSourceReleaseExists(self, releaseInfo):
-		if ( releaseInfo.PtpUploadInfo.Source == "Blu-Ray" or releaseInfo.PtpUploadInfo.Source == "HD-DVD" ) and releaseInfo.PtpUploadInfo.ResolutionType == "1080p":
+		if ( releaseInfo.Source == "Blu-Ray" or releaseInfo.Source == "HD-DVD" ) and releaseInfo.ResolutionType == "1080p":
 			return PtpMovieSearchResult.__IsInList( self.HdList, [ "x264", "H.264" ], [ "Blu-Ray", "HD-DVD" ], [ "1080p" ] )
-		elif ( releaseInfo.PtpUploadInfo.Source == "Blu-Ray" or releaseInfo.PtpUploadInfo.Source == "HD-DVD" ) and releaseInfo.PtpUploadInfo.ResolutionType == "720p":
+		elif ( releaseInfo.Source == "Blu-Ray" or releaseInfo.Source == "HD-DVD" ) and releaseInfo.ResolutionType == "720p":
 			return PtpMovieSearchResult.__IsInList( self.HdList, [ "x264", "H.264" ], [ "Blu-Ray", "HD-DVD" ], [ "720p" ] )
 		
 		raise PtpUploaderException( "Can't check whether the release '%s' exist on PTP because its type is unsupported." % releaseInfo.Announcement.ReleaseName );
 
 	def __IsSdFineSourceReleaseExists(self, releaseInfo):
-		if releaseInfo.PtpUploadInfo.Source == "Blu-Ray" or releaseInfo.PtpUploadInfo.Source == "HD-DVD" or releaseInfo.PtpUploadInfo.Source == "DVD":
-			if releaseInfo.PtpUploadInfo.Codec == "x264" or releaseInfo.PtpUploadInfo.Codec == "H.264":
+		if releaseInfo.Source == "Blu-Ray" or releaseInfo.Source == "HD-DVD" or releaseInfo.Source == "DVD":
+			if releaseInfo.Codec == "x264" or releaseInfo.Codec == "H.264":
 				return PtpMovieSearchResult.__IsInList( self.SdList, [ "x264", "H.264" ], [ "Blu-Ray", "HD-DVD", "DVD" ] )
-			elif releaseInfo.PtpUploadInfo.Codec == "XviD":
+			elif releaseInfo.Codec == "XviD":
 				# We don't check for DivX because XviD trumps it.
 				return PtpMovieSearchResult.__IsInList( self.SdList, [ "XviD" ], [ "Blu-Ray", "HD-DVD", "DVD" ] )
-			elif releaseInfo.PtpUploadInfo.Codec == "DivX":
+			elif releaseInfo.Codec == "DivX":
 				return PtpMovieSearchResult.__IsInList( self.SdList, [ "XviD", "DivX" ], [ "Blu-Ray", "HD-DVD", "DVD" ] )
 
 		raise PtpUploaderException( "Can't check whether the release '%s' exist on PTP because its type is unsupported." % releaseInfo.Announcement.ReleaseName );
@@ -124,11 +124,11 @@ class PtpMovieSearchResult:
 		# List is ordered by quality. DVD/HD-DVD/Blu-Ray is not needed in the list because these have been already checked in IsReleaseExists.
 		sourceByQuality = [ "CAM", "TS", "VHS", "TV", "DVD-Screener", "TC", "HDTV", "R5" ]
 		
-		if releaseInfo.PtpUploadInfo.Source not in sourceByQuality: 
-			raise PtpUploaderException( "Unsupported source '%s'." % releaseInfo.PtpUploadInfo.Source );
-		if releaseInfo.PtpUploadInfo.Codec == "DivX" or releaseInfo.PtpUploadInfo.Codec == "XviD" or releaseInfo.PtpUploadInfo.Codec == "H.264" or releaseInfo.PtpUploadInfo.Codec == "x264":
+		if releaseInfo.Source not in sourceByQuality: 
+			raise PtpUploaderException( "Unsupported source '%s'." % releaseInfo.Source );
+		if releaseInfo.Codec == "DivX" or releaseInfo.Codec == "XviD" or releaseInfo.Codec == "H.264" or releaseInfo.Codec == "x264":
 			# We check if there is anything with same or better quality.
-			sourceIndex = sourceByQuality.index( releaseInfo.PtpUploadInfo.Source )
+			sourceIndex = sourceByQuality.index( releaseInfo.Source )
 			checkAgainstSources = sourceByQuality[ sourceIndex: ]	
 			return PtpMovieSearchResult.__IsInList( self.SdList, [ "DivX", "XviD", "x264", "H.264" ], checkAgainstSources )
 
@@ -140,7 +140,7 @@ class PtpMovieSearchResult:
 
 		# If source is not DVD/HD-DVD/Blu-Ray then we check if there is a release with any proper quality sources.
 		# If there is, we won't add this lower quality release.
-		if not PtpMovieSearchResult.__IsFineSource( releaseInfo.PtpUploadInfo.Source ):
+		if not PtpMovieSearchResult.__IsFineSource( releaseInfo.Source ):
 			for item in self.SdList:
 				if PtpMovieSearchResult.__IsFineSource( item.Source ):
 					return item
@@ -149,11 +149,11 @@ class PtpMovieSearchResult:
 				if PtpMovieSearchResult.__IsFineSource( item.Source ):
 					return item
 
-		if releaseInfo.PtpUploadInfo.Quality == "High Definition":
-			if PtpMovieSearchResult.__IsFineSource( releaseInfo.PtpUploadInfo.Source ):
+		if releaseInfo.Quality == "High Definition":
+			if PtpMovieSearchResult.__IsFineSource( releaseInfo.Source ):
 				return self.__IsHdFineSourceReleaseExists( releaseInfo )
-		elif releaseInfo.PtpUploadInfo.Quality == "Standard Definition":
-			if PtpMovieSearchResult.__IsFineSource( releaseInfo.PtpUploadInfo.Source ):
+		elif releaseInfo.Quality == "Standard Definition":
+			if PtpMovieSearchResult.__IsFineSource( releaseInfo.Source ):
 				return self.__IsSdFineSourceReleaseExists( releaseInfo )
 			else:
 				return self.__IsSdNonFineSourceReleaseExists( releaseInfo )

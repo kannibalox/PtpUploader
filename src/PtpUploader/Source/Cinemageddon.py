@@ -79,31 +79,31 @@ class Cinemageddon:
 		return imdbId, sourceType, formatType
 
 	@staticmethod
-	def __MapSourceAndFormatToPtp(ptpUploadInfo, sourceType, formatType):
+	def __MapSourceAndFormatToPtp(releaseInfo, sourceType, formatType):
 		sourceType = sourceType.lower()
 		formatType = formatType.lower()
 
 		# Adding BDrip support would be problematic because there is no easy way to decide if it is HD or SD.
 		# Maybe we could use the resolution and file size. But what about the oversized and upscaled releases? 
 		
-		ptpUploadInfo.Quality = "Standard Definition"
-		ptpUploadInfo.ResolutionType = "Other"
+		releaseInfo.Quality = "Standard Definition"
+		releaseInfo.ResolutionType = "Other"
 
 		if sourceType == "dvdrip":
-			ptpUploadInfo.Source = "DVD"
+			releaseInfo.Source = "DVD"
 		elif sourceType == "vhsrip":
-			ptpUploadInfo.Source = "VHS"
+			releaseInfo.Source = "VHS"
 		elif sourceType == "tvrip":
-			ptpUploadInfo.Source = "TV"
+			releaseInfo.Source = "TV"
 		else:
 			raise PtpUploaderException( "Got unsupported source type '%s' from Cinemageddon." % sourceType );
 
 		if formatType == "x264":
-			ptpUploadInfo.Codec = "x264"
+			releaseInfo.Codec = "x264"
 		elif formatType == "xvid":
-			ptpUploadInfo.Codec = "XviD"
+			releaseInfo.Codec = "XviD"
 		elif formatType == "divx":
-			ptpUploadInfo.Codec = "DivX"
+			releaseInfo.Codec = "DivX"
 		else:
 			raise PtpUploaderException( "Got unsupported format type '%s' from Cinemageddon." % formatType )
 	
@@ -125,7 +125,7 @@ class Cinemageddon:
 			imdbId, sourceType, formatType = Cinemageddon.__DownloadNfo( logger, announcement )
 			
 		releaseInfo = ReleaseInfo( announcement, imdbId )
-		Cinemageddon.__MapSourceAndFormatToPtp( releaseInfo.PtpUploadInfo, sourceType, formatType )		
+		Cinemageddon.__MapSourceAndFormatToPtp( releaseInfo, sourceType, formatType )		
 		return releaseInfo
 		
 	@staticmethod

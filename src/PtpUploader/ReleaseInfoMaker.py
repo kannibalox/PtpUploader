@@ -91,7 +91,7 @@ class ReleaseInfoMaker:
 		manualSource = Manual()
 		announcement = Announcement( announcementFilePath = "", source = manualSource, id = "", releaseName = self.ReleaseName, logger = logger )
 		releaseInfo = ReleaseInfo( announcement, imdbId = "" )
-		releaseInfo.PtpUploadInfo.FormatReleaseDescription( logger, releaseInfo, uploadedScreenshots, mediaInfos, releaseDescriptionFilePath )
+		releaseInfo.FormatReleaseDescription( logger, releaseInfo, uploadedScreenshots, mediaInfos, releaseDescriptionFilePath )
 
 		# Create the torrent
 		if createTorrent:
