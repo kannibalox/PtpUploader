@@ -106,7 +106,7 @@ class PtpMovieSearchResult:
 		elif ( releaseInfo.Source == "Blu-Ray" or releaseInfo.Source == "HD-DVD" ) and releaseInfo.ResolutionType == "720p":
 			return PtpMovieSearchResult.__IsInList( self.HdList, [ "x264", "H.264" ], [ "Blu-Ray", "HD-DVD" ], [ "720p" ] )
 		
-		raise PtpUploaderException( "Can't check whether the release '%s' exist on PTP because its type is unsupported." % releaseInfo.Announcement.ReleaseName );
+		raise PtpUploaderException( "Can't check whether the release '%s' exist on PTP because its type is unsupported." % releaseInfo.ReleaseName );
 
 	def __IsSdFineSourceReleaseExists(self, releaseInfo):
 		if releaseInfo.Source == "Blu-Ray" or releaseInfo.Source == "HD-DVD" or releaseInfo.Source == "DVD":
@@ -118,7 +118,7 @@ class PtpMovieSearchResult:
 			elif releaseInfo.Codec == "DivX":
 				return PtpMovieSearchResult.__IsInList( self.SdList, [ "XviD", "DivX" ], [ "Blu-Ray", "HD-DVD", "DVD" ] )
 
-		raise PtpUploaderException( "Can't check whether the release '%s' exist on PTP because its type is unsupported." % releaseInfo.Announcement.ReleaseName );
+		raise PtpUploaderException( "Can't check whether the release '%s' exist on PTP because its type is unsupported." % releaseInfo.ReleaseName );
 		
 	def __IsSdNonFineSourceReleaseExists(self, releaseInfo):
 		# List is ordered by quality. DVD/HD-DVD/Blu-Ray is not needed in the list because these have been already checked in IsReleaseExists.
@@ -132,7 +132,7 @@ class PtpMovieSearchResult:
 			checkAgainstSources = sourceByQuality[ sourceIndex: ]	
 			return PtpMovieSearchResult.__IsInList( self.SdList, [ "DivX", "XviD", "x264", "H.264" ], checkAgainstSources )
 
-		raise PtpUploaderException( "Can't check whether the release '%s' exist on PTP because its type is unsupported." % releaseInfo.Announcement.ReleaseName );
+		raise PtpUploaderException( "Can't check whether the release '%s' exist on PTP because its type is unsupported." % releaseInfo.ReleaseName );
 	
 	def IsReleaseExists(self, releaseInfo):
 		if self.PtpId is None:
@@ -158,4 +158,4 @@ class PtpMovieSearchResult:
 			else:
 				return self.__IsSdNonFineSourceReleaseExists( releaseInfo )
 			
-		raise PtpUploaderException( "Can't check whether the release '%s' exists on PTP because its type is unsupported." % releaseInfo.Announcement.ReleaseName );
+		raise PtpUploaderException( "Can't check whether the release '%s' exists on PTP because its type is unsupported." % releaseInfo.ReleaseName );

@@ -5,12 +5,18 @@ import codecs
 import os
 
 class ReleaseInfo:
-	def __init__(self, announcement, imdbId):
-		self.Announcement = announcement
+	def __init__(self, announcementFilePath, announcementSource, announcementId, releaseName, logger):
+		self.AnnouncementFilePath = announcementFilePath
+		self.AnnouncementSource = announcementSource # A class from the Source namespace.
+		self.AnnouncementId = announcementId
+		self.ReleaseName = releaseName
+		self.Logger = logger
+		self.IsManualDownload = announcementSource.Name == "manual"
+		self.IsManualAnnouncement = self.IsManualDownload or self.ReleaseName == "ManualAnnouncement"
 
 		# These are the required fields needed for an upload to PTP.		
 		self.Type = "Movies" # Movies, Musicals, Standup Comedy, Concerts
-		self.ImdbId = imdbId # Just the number. Eg.: 0111161 for http://www.imdb.com/title/tt0111161/
+		self.ImdbId = "" # Just the number. Eg.: 0111161 for http://www.imdb.com/title/tt0111161/
 		self.Directors = []
 		self.Title = ""
 		self.Year = ""
@@ -41,7 +47,7 @@ class ReleaseInfo:
 		
 	# Eg.: "working directory/release/Dark.City.1998.Directors.Cut.720p.BluRay.x264-SiNNERS/"
 	def GetReleaseRootPath(self):
-		return ReleaseInfo.GetReleaseRootPathFromRelaseName( self.Announcement.ReleaseName )
+		return ReleaseInfo.GetReleaseRootPathFromRelaseName( self.ReleaseName )
 
 	# Eg.: "working directory/release/Dark.City.1998.Directors.Cut.720p.BluRay.x264-SiNNERS/download/"
 	@staticmethod
@@ -50,13 +56,13 @@ class ReleaseInfo:
 
 	# Eg.: "working directory/release/Dark.City.1998.Directors.Cut.720p.BluRay.x264-SiNNERS/download/"
 	def GetReleaseDownloadPath(self):
-		return ReleaseInfo.GetReleaseDownloadPathFromRelaseName( self.Announcement.ReleaseName )
+		return ReleaseInfo.GetReleaseDownloadPathFromRelaseName( self.ReleaseName )
 	
 	# Eg.: "working directory/release/Dark.City.1998.Directors.Cut.720p.BluRay.x264-SiNNERS/upload/Dark.City.1998.Directors.Cut.720p.BluRay.x264-SiNNERS/"
 	# It must contain the final release name because of mktorrent.
 	def GetReleaseUploadPath(self):
 		path = os.path.join( self.GetReleaseRootPath(), "upload" )
-		return os.path.join( path, self.Announcement.ReleaseName )
+		return os.path.join( path, self.ReleaseName )
 	
 	def IsStandardDefintion(self):
 		return self.Quality == "Standard Definition"		
@@ -92,9 +98,9 @@ class ReleaseInfo:
 		
 	# releaseDescriptionFilePath: optional. If given the description is written to file.
 	def FormatReleaseDescription(self, logger, releaseInfo, screenshots, mediaInfos, releaseDescriptionFilePath = None):
-		logger.info( "Making release description for release '%s' with screenshots at %s." % ( releaseInfo.Announcement.ReleaseName, screenshots ) )
+		logger.info( "Making release description for release '%s' with screenshots at %s." % ( releaseInfo.ReleaseName, screenshots ) )
 
-		self.ReleaseDescription = u"[size=4][b]%s[/b][/size]\n\n" % releaseInfo.Announcement.ReleaseName
+		self.ReleaseDescription = u"[size=4][b]%s[/b][/size]\n\n" % releaseInfo.ReleaseName
 
 		for screenshot in screenshots:
 			self.ReleaseDescription += u"[img=%s]\n\n" % screenshot
@@ -116,3 +122,19 @@ class ReleaseInfo:
 			releaseDescriptionFile = codecs.open( releaseDescriptionFilePath, encoding = "utf-8", mode = "w" )
 			releaseDescriptionFile.write( self.ReleaseDescription )
 			releaseDescriptionFile.close()
+
+	@staticmethod
+	def MoveAnnouncement(announcementFilePath, targetDirectory):
+		# Move the announcement file to the processed directory.
+		# "On Unix, if dst exists and is a file, it will be replaced silently if the user has permission." -- this can happen in case of manual downloads.
+		# TODO: what happens if the announcement file is not yet been closed? 
+		announcementFilename = os.path.basename( announcementFilePath ) # Get the filename.
+		targetAnnouncementFilePath = os.path.join( targetDirectory, announcementFilename )
+		os.rename( announcementFilePath, targetAnnouncementFilePath )
+		return targetAnnouncementFilePath
+
+	def MoveToPending(self):
+		self.AnnouncementFilePath = ReleaseInfo.MoveAnnouncement( self.AnnouncementFilePath, Settings.GetPendingAnnouncementPath() )
+
+	def MoveToProcessed(self):
+		self.AnnouncementFilePath = ReleaseInfo.MoveAnnouncement( self.AnnouncementFilePath, Settings.GetProcessedAnnouncementPath() )

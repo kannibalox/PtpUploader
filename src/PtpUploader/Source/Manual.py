@@ -18,13 +18,11 @@ class Manual:
 		pass;
 	
 	@staticmethod
-	def PrepareDownload(logger, announcement):
-		nfo = NfoParser.GetNfoFile( ReleaseInfo.GetReleaseDownloadPathFromRelaseName( announcement.ReleaseName ) )
-		imdbId = NfoParser.GetImdbId( nfo )
-		
-		releaseInfo = ReleaseInfo( announcement, imdbId )
+	def PrepareDownload(logger, releaseInfo):
+		nfo = NfoParser.GetNfoFile( ReleaseInfo.GetReleaseDownloadPathFromRelaseName( releaseInfo.ReleaseName ) )
+		releaseInfo.ImdbId = NfoParser.GetImdbId( nfo )
 		releaseInfo.Nfo = nfo;
-		SceneRelease.GetSourceAndFormatFromSceneReleaseName( releaseInfo, announcement.ReleaseName )
+		SceneRelease.GetSourceAndFormatFromSceneReleaseName( releaseInfo, releaseInfo.ReleaseName )
 		return releaseInfo
 		
 	@staticmethod

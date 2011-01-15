@@ -4,7 +4,6 @@ from Tool.MediaInfo import MediaInfo
 from Tool.Rtorrent import Rtorrent
 from Tool.ScreenshotMaker import ScreenshotMaker
 
-from AnnouncementWatcher import *
 from Globals import Globals
 from ReleaseInfo import ReleaseInfo
 from Settings import Settings
@@ -89,8 +88,7 @@ class ReleaseInfoMaker:
 
 		# Make the release description.
 		manualSource = Manual()
-		announcement = Announcement( announcementFilePath = "", source = manualSource, id = "", releaseName = self.ReleaseName, logger = logger )
-		releaseInfo = ReleaseInfo( announcement, imdbId = "" )
+		releaseInfo = ReleaseInfo( announcementFilePath = "", announcementSource = manualSource, announcementId = "", releaseName = self.ReleaseName, logger = logger )
 		releaseInfo.FormatReleaseDescription( logger, releaseInfo, uploadedScreenshots, mediaInfos, releaseDescriptionFilePath )
 
 		# Create the torrent

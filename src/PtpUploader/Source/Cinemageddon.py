@@ -29,8 +29,8 @@ class Cinemageddon:
 			raise PtpUploaderException( "Looks like you are not logged in to Cinemageddon. Probably due to the bad user name or password in settings." )
 
 	@staticmethod
-	def __DownloadNfo(logger, announcement):
-		url = "http://cinemageddon.net/details.php?id=%s&filelist=1" % announcement.AnnouncementId
+	def __DownloadNfo(logger, releaseInfo):
+		url = "http://cinemageddon.net/details.php?id=%s&filelist=1" % releaseInfo.AnnouncementId
 		logger.info( "Collecting info from torrent page '%s'." % url )
 		
 		opener = urllib2.build_opener( urllib2.HTTPCookieProcessor( Globals.CookieJar ) )
@@ -51,7 +51,7 @@ class Cinemageddon:
 		if matches is None:
 			raise PtpUploaderException( "Can't get release name from page '%s'." % url )
 		
-		announcement.ReleaseName = matches.group( 2 )
+		releaseInfo.ReleaseName = matches.group( 2 )
 
 		# Get source and format type
 		matches = re.search( r"torrent details for &quot;(.+) \[(\d+)/(.+)/(.+)\]&quot;", description )
@@ -64,17 +64,17 @@ class Cinemageddon:
 		# Get IMDb id
 		matches = re.search( r'imdb\.com/title/tt(\d+)', description )
 		if matches is None:
-			raise PtpUploaderException( "Ignoring release '%s' at '%s' because IMDb id can't be found." % ( announcement.ReleaseName, url ) )
+			raise PtpUploaderException( "Ignoring release '%s' at '%s' because IMDb id can't be found." % ( releaseInfo.ReleaseName, url ) )
 
 		imdbId = matches.group( 1 )
 
 		# Ignore XXX releases.
 		if description.find( '>Type</td><td valign="top" align=left>XXX<' ) != -1:
-			raise PtpUploaderException( "Ignoring release '%s' at '%s' because it is XXX." % ( announcement.ReleaseName, url ) )
+			raise PtpUploaderException( "Ignoring release '%s' at '%s' because it is XXX." % ( releaseInfo.ReleaseName, url ) )
 		
 		# Make sure that this is not a wrongly categorized DVDR.
 		if re.search( ".vob</td>", description, re.IGNORECASE ) or re.search( ".iso</td>", description, re.IGNORECASE ):
-			raise PtpUploaderException( "Ignoring release '%s' at '%s' because it is a wrongly categorized DVDR." % ( announcement.ReleaseName, url ) )
+			raise PtpUploaderException( "Ignoring release '%s' at '%s' because it is a wrongly categorized DVDR." % ( releaseInfo.ReleaseName, url ) )
 		
 		return imdbId, sourceType, formatType
 
@@ -108,29 +108,29 @@ class Cinemageddon:
 			raise PtpUploaderException( "Got unsupported format type '%s' from Cinemageddon." % formatType )
 	
 	@staticmethod
-	def PrepareDownload(logger, announcement):
+	def PrepareDownload(logger, releaseInfo):
 		imdbId = ""
 		sourceType = ""
 		formatType = ""
 		
-		if announcement.IsManualAnnouncement:
-			imdbId, sourceType, formatType = Cinemageddon.__DownloadNfo( logger, announcement, getReleaseName = True )
+		if releaseInfo.IsManualAnnouncement:
+			imdbId, sourceType, formatType = Cinemageddon.__DownloadNfo( logger, releaseInfo, getReleaseName = True )
 		else:
 			# TODO: add filterting support for Cinemageddon
 			# In case of automatic announcement we have to check the release name if it is valid.
 			# We know the release name from the announcement, so we can filter it without downloading anything (yet) from the source. 
-			#if not ReleaseFilter.IsValidReleaseName( announcement.ReleaseName ):
-			#	logger.info( "Ignoring release '%s' because of its name." % announcement.ReleaseName )
+			#if not ReleaseFilter.IsValidReleaseName( releaseInfo.ReleaseName ):
+			#	logger.info( "Ignoring release '%s' because of its name." % releaseInfo.ReleaseName )
 			#	return None
-			imdbId, sourceType, formatType = Cinemageddon.__DownloadNfo( logger, announcement )
-			
-		releaseInfo = ReleaseInfo( announcement, imdbId )
+			imdbId, sourceType, formatType = Cinemageddon.__DownloadNfo( logger, releaseInfo )
+
+		releaseInfo.ImdbId = imdbId
 		Cinemageddon.__MapSourceAndFormatToPtp( releaseInfo, sourceType, formatType )		
 		return releaseInfo
 		
 	@staticmethod
 	def DownloadTorrent(logger, releaseInfo, path):
-		url = "http://cinemageddon.net/download.php?id=%s" % releaseInfo.Announcement.AnnouncementId
+		url = "http://cinemageddon.net/download.php?id=%s" % releaseInfo.AnnouncementId
 		logger.info( "Downloading torrent file from '%s' to '%s'." % ( url, path ) )
 
 		opener = urllib2.build_opener( urllib2.HTTPCookieProcessor( Globals.CookieJar ) )

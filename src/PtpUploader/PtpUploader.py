@@ -22,14 +22,14 @@ import time
 class PtpUploader:
 	def __init__(self):
 		self.SourceFactory = SourceFactory()
-		self.PendingAnnouncements = AnnouncementWatcher.GetPendingAnnouncements( self.SourceFactory ) # Contains Announcement
+		self.PendingAnnouncements = AnnouncementWatcher.GetPendingAnnouncements( self.SourceFactory ) # Contains ReleaseInfo
 		self.PendingDownloads = [] # Contains ReleaseInfo
 		self.Rtorrent = Rtorrent()
 
 	def __IsSourceAvailable(self, source):
 		runningDownloads = 0
 		for releaseInfo in self.PendingDownloads:
-			if releaseInfo.Announcement.Source.Name == source.Name:
+			if releaseInfo.AnnouncementSource.Name == source.Name:
 				runningDownloads += 1
 		
 		return runningDownloads < source.MaximumParallelDownloads
@@ -39,7 +39,7 @@ class PtpUploader:
 		
 		# First check if we can process anything from the pending announcments.
 		for announcementIndex in range( len( self.PendingAnnouncements ) ):
-			if self.__IsSourceAvailable( self.PendingAnnouncements[ announcementIndex ].Source ):
+			if self.__IsSourceAvailable( self.PendingAnnouncements[ announcementIndex ].AnnouncementSource ):
 				announcementToHandle = self.PendingAnnouncements.pop( announcementIndex )
 				announcementToHandle.MoveToProcessed()
 				break
@@ -51,7 +51,7 @@ class PtpUploader:
 		newAnnouncements = AnnouncementWatcher.GetNewAnnouncements( self.SourceFactory )
 		for announcementIndex in range( len( newAnnouncements ) ):
 			announcement = newAnnouncements[ announcementIndex ]
-			if ( not announcementToHandle ) and self.__IsSourceAvailable( announcement.Source ):
+			if ( not announcementToHandle ) and self.__IsSourceAvailable( announcement.AnnouncementSource ):
 				announcementToHandle = announcement
 				announcementToHandle.MoveToProcessed()
 			else:
@@ -60,11 +60,11 @@ class PtpUploader:
 
 		return announcementToHandle 
 
-	def __CheckAnnouncementInternal(self, announcement):
-		logger = announcement.Logger
-		logger.info( "Working on announcement from '%s' with id '%s' and name '%s'." % ( announcement.Source.Name, announcement.AnnouncementId, announcement.ReleaseName ) );
+	def __CheckAnnouncementInternal(self, releaseInfo):
+		logger = releaseInfo.Logger
+		logger.info( "Working on announcement from '%s' with id '%s' and name '%s'." % ( releaseInfo.AnnouncementSource.Name, releaseInfo.AnnouncementId, releaseInfo.ReleaseName ) )
 
-		releaseInfo = announcement.Source.PrepareDownload( logger, announcement );
+		releaseInfo = releaseInfo.AnnouncementSource.PrepareDownload( logger, releaseInfo );
 		if releaseInfo is None:
 			return None;
 		
@@ -74,7 +74,7 @@ class PtpUploader:
 			return None;
 	
 		# Make sure the source is providing a name.
-		if len( releaseInfo.Announcement.ReleaseName ) <= 0:
+		if len( releaseInfo.ReleaseName ) <= 0:
 			logger.error( "Name of the release is not specified." );
 			return None;		
 
@@ -105,10 +105,10 @@ class PtpUploader:
 		movieOnPtpResult = Ptp.GetMoviePageOnPtp( logger, releaseInfo.GetImdbId() );
 
 		# If this is an automatic announcement then we have to check if is it already on PTP.
-		if not announcement.IsManualAnnouncement:
+		if not releaseInfo.IsManualAnnouncement:
 			existingRelease = movieOnPtpResult.IsReleaseExists( releaseInfo )
 			if existingRelease is not None:
-				logger.info( "Release '%s' already exists on PTP. Skipping upload because of format '%s'." % ( announcement.ReleaseName, existingRelease ) );
+				logger.info( "Release '%s' already exists on PTP. Skipping upload because of format '%s'." % ( releaseInfo.ReleaseName, existingRelease ) );
 				return None;
 
 		# If this movie has no page yet on PTP then fill out the required info (title, year, etc.).
@@ -118,11 +118,11 @@ class PtpUploader:
 			imdbInfo = Imdb.GetInfo( logger, releaseInfo.GetImdbId() )
 	
 			if imdbInfo.IsSeries:
-				logger.info( "Ignoring release '%s' because it is a series." % announcement.ReleaseName )
+				logger.info( "Ignoring release '%s' because it is a series." % releaseInfo.ReleaseName )
 				return None
 			
 			if "adult" in releaseInfo.Tags:
-				logger.info( "Ignoring release '%s' because its genre is adult." % announcement.ReleaseName )
+				logger.info( "Ignoring release '%s' because its genre is adult." % releaseInfo.ReleaseName )
 				return None
 				
 			# PTP return with the original title, IMDb's iPhone API returns with the international English title.
@@ -139,18 +139,18 @@ class PtpUploader:
 	
 		return releaseInfo;
 
-	def __CheckAnnouncement(self, announcement):
+	def __CheckAnnouncement(self, releaseInfo):
 		try:
-			return self.__CheckAnnouncementInternal( announcement )
+			return self.__CheckAnnouncementInternal( releaseInfo )
 		except Exception, e:
-			e.Logger = announcement.Logger
+			e.Logger = releaseInfo.Logger
 			raise
 
 	def __DownloadInternal(self, releaseInfo):
-		logger = releaseInfo.Announcement.Logger
+		logger = releaseInfo.Logger
 		
-		if releaseInfo.Announcement.IsManualDownload:
-			logger.info( "Manual download is specified for release '%s', download skipped, going to next phase." % releaseInfo.Announcement.ReleaseName )
+		if releaseInfo.IsManualDownload:
+			logger.info( "Manual download is specified for release '%s', download skipped, going to next phase." % releaseInfo.ReleaseName )
 			self.PendingDownloads.append( releaseInfo )
 			return
 		
@@ -164,9 +164,9 @@ class PtpUploader:
 		os.makedirs( releaseRootPath )
 		
 		# Download the torrent file.
-		torrentName = releaseInfo.Announcement.Source.Name + " " + releaseInfo.Announcement.ReleaseName + ".torrent"
+		torrentName = releaseInfo.AnnouncementSource.Name + " " + releaseInfo.ReleaseName + ".torrent"
 		torrentPath = os.path.join( releaseRootPath, torrentName )
-		releaseInfo.Announcement.Source.DownloadTorrent( logger, releaseInfo, torrentPath )
+		releaseInfo.AnnouncementSource.DownloadTorrent( logger, releaseInfo, torrentPath )
 	
 		# Start downloading the torrent.
 		releaseInfo.SourceTorrentInfoHash = self.Rtorrent.AddTorrent( logger, torrentPath, releaseInfo.GetReleaseDownloadPath() )
@@ -176,7 +176,7 @@ class PtpUploader:
 		try:
 			self.__DownloadInternal( releaseInfo )
 		except Exception, e:
-			e.Logger = releaseInfo.Announcement.Logger
+			e.Logger = releaseInfo.Logger
 			raise
 
 	def __GetFinishedDownloadToProcess(self):
@@ -186,8 +186,8 @@ class PtpUploader:
 		# TODO: can we use a multicast RPC call get all the statuses in one call?
 		for downloadIndex in range( len( self.PendingDownloads ) ):
 			releaseInfo = self.PendingDownloads[ downloadIndex ]
-			logger = releaseInfo.Announcement.Logger
-			if releaseInfo.Announcement.IsManualDownload or self.Rtorrent.IsTorrentFinished( logger, releaseInfo.SourceTorrentInfoHash ):
+			logger = releaseInfo.Logger
+			if releaseInfo.IsManualDownload or self.Rtorrent.IsTorrentFinished( logger, releaseInfo.SourceTorrentInfoHash ):
 				return self.PendingDownloads.pop( downloadIndex )
 			
 		return None
@@ -203,7 +203,7 @@ class PtpUploader:
 		subprocess.Popen( command, shell = True )
 	
 	def __UploadInternal(self, releaseInfo):
-		logger = releaseInfo.Announcement.Logger
+		logger = releaseInfo.Logger
 		
 		# Create the upload path.
 		uploadPath = releaseInfo.GetReleaseUploadPath();
@@ -211,7 +211,7 @@ class PtpUploader:
 		os.makedirs( uploadPath );
 	
 		# Extract the release.
-		releaseInfo.Announcement.Source.ExtractRelease( logger, releaseInfo )
+		releaseInfo.AnnouncementSource.ExtractRelease( logger, releaseInfo )
 		videoFiles, totalFileCount = ReleaseExtractor.ValidateDirectory( uploadPath )
 		if len( videoFiles ) < 1:
 			raise PtpUploaderException( "Upload path '%s' doesn't contains any video files." % uploadPath );
@@ -230,10 +230,10 @@ class PtpUploader:
 	
 		# Make the torrent.
 		# We save it into a separate folder to make sure it won't end up in the upload somehow. :)
-		uploadTorrentName = "PTP " + releaseInfo.Announcement.ReleaseName + ".torrent";
+		uploadTorrentName = "PTP " + releaseInfo.ReleaseName + ".torrent";
 		uploadTorrentPath = os.path.join( releaseInfo.GetReleaseRootPath(), uploadTorrentName );
 		# Make torrent with the parent directory's name included if there is more than one file or requested by the source (it is a scene release).
-		if totalFileCount > 1 or releaseInfo.Announcement.Source.IsSingleFileTorrentNeedsDirectory():
+		if totalFileCount > 1 or releaseInfo.AnnouncementSource.IsSingleFileTorrentNeedsDirectory():
 			MakeTorrent.Make( logger, uploadPath, uploadTorrentPath );
 		else: # Create the torrent including only the single video file.
 			MakeTorrent.Make( logger, videoFiles[ 0 ], uploadTorrentPath );
@@ -241,10 +241,10 @@ class PtpUploader:
 		movieOnPtpResult = Ptp.GetMoviePageOnPtp( logger, releaseInfo.GetImdbId() );
 	
 		# If this is an automatic announcement then we have to check (again) if is it already on PTP.
-		if not releaseInfo.Announcement.IsManualAnnouncement:
+		if not releaseInfo.IsManualAnnouncement:
 			existingRelease = movieOnPtpResult.IsReleaseExists( releaseInfo )
 			if existingRelease is not None:
-				logger.info( "Somebody has already uploaded the release '%s' to PTP while we were working on it. Skipping upload because of format '%s'." % ( releaseInfo.Announcement.ReleaseName, existingRelease ) )
+				logger.info( "Somebody has already uploaded the release '%s' to PTP while we were working on it. Skipping upload because of format '%s'." % ( releaseInfo.ReleaseName, existingRelease ) )
 				return
 			
 		# If this movie has no page yet on PTP then we will need the cover, so we rehost the image to an image hoster.
@@ -256,15 +256,15 @@ class PtpUploader:
 	
 		ptpId = Ptp.UploadMovie( logger, releaseInfo, uploadTorrentPath, movieOnPtpResult.PtpId );
 		
-		logger.info( "'%s' has been successfully uploaded to PTP." % releaseInfo.Announcement.ReleaseName );
+		logger.info( "'%s' has been successfully uploaded to PTP." % releaseInfo.ReleaseName );
 		
-		self.__OnSuccessfulUpload( releaseInfo.Announcement.ReleaseName, ptpId )
+		self.__OnSuccessfulUpload( releaseInfo.ReleaseName, ptpId )
 
 	def __Upload(self, releaseInfo):
 		try:
 			self.__UploadInternal( releaseInfo )
 		except Exception, e:
-			e.Logger = releaseInfo.Announcement.Logger
+			e.Logger = releaseInfo.Logger
 			raise
 
 	# Returns true, if an announcement or a download has been processed.
@@ -276,9 +276,9 @@ class PtpUploader:
 			return True
 
 		# If there is a new announcement, then check and start downloading it.
-		announcement = self.__GetAnnouncementToProcess()
-		if announcement:
-			releaseInfo = self.__CheckAnnouncement( announcement )
+		releaseInfo = self.__GetAnnouncementToProcess()
+		if releaseInfo:
+			releaseInfo = self.__CheckAnnouncement( releaseInfo )
 			if releaseInfo:
 				self.__Download( releaseInfo )
 			
