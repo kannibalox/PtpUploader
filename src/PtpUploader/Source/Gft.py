@@ -129,6 +129,12 @@ class Gft:
 		file.write( response );
 		file.close();
 
+		# If a torrent contains multiple NFO files then it is likely that the site also showed the wrong NFO and we have checked the existence of another movie on PTP.
+		# So we abort here. These errors happen rarely anyway.
+		# (We could also try read the NFO with the same name as the release or with the same name as the first RAR and reschedule for checking with the correct IMDb id.)
+		if NfoParser.IsTorrentContainsMultipleNfos( path ):
+			raise PtpUploaderException( "Torrent '%s' contains multiple NFO files." % path )  
+
 	@staticmethod
 	def ExtractRelease(logger, releaseInfo):
 		# Extract the release.
