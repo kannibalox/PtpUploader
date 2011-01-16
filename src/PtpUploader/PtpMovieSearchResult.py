@@ -62,9 +62,9 @@ class PtpMovieSearchResult:
 			
 		sortedSections.sort()
 
-		# <a href="#" onclick="$('#torrent_37673').toggle(); return false;">XviD / AVI / DVD / 720x420</a>
-		# <a href="#" onclick="$('#torrent_55714').toggle(); return false;"><span style="float:none;color:#E5B244;"><strong>XviD / AVI / DVD / 608x256 / Scene</strong></span></a>
-		regEx = re.compile( """<a href="#" onclick="\$\('#torrent_\d+'\)\.toggle\(\); return false;">(?:<span style=".+"><strong>)?(.+?)(?:</strong></span>)?</a>""" )
+		# <a href="#" onclick="$('#torrent_37673').toggle(); show_description('35555', '62113'); return false;">XviD / AVI / DVD / 720x420</a>
+		# <a href="#" onclick="$('#torrent_55714').toggle(); show_description('35555', '62113'); return false;"><span style="float:none;color:#E5B244;"><strong>XviD / AVI / DVD / 608x256 / Scene</strong></span></a>
+		regEx = re.compile( """<a href="#" onclick="\$\('#torrent_\d+'\)\.toggle\(\); show_description\('\d+', '\d+'\); return false;">(?:<span style=".+"><strong>)?(.+?)(?:</strong></span>)?</a>""" )
 
 		# Get the list of torrents for each section.
 		for i in range( len( sortedSections ) ):
