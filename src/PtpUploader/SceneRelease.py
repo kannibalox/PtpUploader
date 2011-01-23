@@ -22,16 +22,16 @@ class SceneRelease:
 		elif lowerReleaseName.find( "bdrip.xvid" ) != -1:
 			releaseInfo.Quality = "Standard Definition";
 			releaseInfo.Codec = "XviD"
-			releaseInfo.Source = "Blu-Ray";
+			releaseInfo.Source = "Blu-ray";
 			releaseInfo.ResolutionType = "Other";
 		elif lowerReleaseName.find( "720p.bluray.x264" ) != -1:
 			releaseInfo.Quality = "High Definition";
-			releaseInfo.Source = "Blu-Ray";
+			releaseInfo.Source = "Blu-ray";
 			releaseInfo.Codec = "x264"
 			releaseInfo.ResolutionType = "720p";
 		elif lowerReleaseName.find( "1080p.bluray.x264" ) != -1:
 			releaseInfo.Quality = "High Definition";
-			releaseInfo.Source = "Blu-Ray";
+			releaseInfo.Source = "Blu-ray";
 			releaseInfo.Codec = "x264"
 			releaseInfo.ResolutionType = "1080p";
 		else:

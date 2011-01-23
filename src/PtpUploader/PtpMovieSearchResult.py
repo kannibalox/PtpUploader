@@ -98,30 +98,30 @@ class PtpMovieSearchResult:
 	
 	@staticmethod
 	def __IsFineSource(source):
-		return source == "DVD" or source == "Blu-Ray" or source == "HD-DVD"
+		return source == "DVD" or source == "Blu-ray" or source == "HD-DVD"
 
 	def __IsHdFineSourceReleaseExists(self, releaseInfo):
-		if ( releaseInfo.Source == "Blu-Ray" or releaseInfo.Source == "HD-DVD" ) and releaseInfo.ResolutionType == "1080p":
-			return PtpMovieSearchResult.__IsInList( self.HdList, [ "x264", "H.264" ], [ "Blu-Ray", "HD-DVD" ], [ "1080p" ] )
-		elif ( releaseInfo.Source == "Blu-Ray" or releaseInfo.Source == "HD-DVD" ) and releaseInfo.ResolutionType == "720p":
-			return PtpMovieSearchResult.__IsInList( self.HdList, [ "x264", "H.264" ], [ "Blu-Ray", "HD-DVD" ], [ "720p" ] )
+		if ( releaseInfo.Source == "Blu-ray" or releaseInfo.Source == "HD-DVD" ) and releaseInfo.ResolutionType == "1080p":
+			return PtpMovieSearchResult.__IsInList( self.HdList, [ "x264", "H.264" ], [ "Blu-ray", "HD-DVD" ], [ "1080p" ] )
+		elif ( releaseInfo.Source == "Blu-ray" or releaseInfo.Source == "HD-DVD" ) and releaseInfo.ResolutionType == "720p":
+			return PtpMovieSearchResult.__IsInList( self.HdList, [ "x264", "H.264" ], [ "Blu-ray", "HD-DVD" ], [ "720p" ] )
 		
 		raise PtpUploaderException( "Can't check whether the release '%s' exist on PTP because its type is unsupported." % releaseInfo.ReleaseName );
 
 	def __IsSdFineSourceReleaseExists(self, releaseInfo):
-		if releaseInfo.Source == "Blu-Ray" or releaseInfo.Source == "HD-DVD" or releaseInfo.Source == "DVD":
+		if releaseInfo.Source == "Blu-ray" or releaseInfo.Source == "HD-DVD" or releaseInfo.Source == "DVD":
 			if releaseInfo.Codec == "x264" or releaseInfo.Codec == "H.264":
-				return PtpMovieSearchResult.__IsInList( self.SdList, [ "x264", "H.264" ], [ "Blu-Ray", "HD-DVD", "DVD" ] )
+				return PtpMovieSearchResult.__IsInList( self.SdList, [ "x264", "H.264" ], [ "Blu-ray", "HD-DVD", "DVD" ] )
 			elif releaseInfo.Codec == "XviD":
 				# We don't check for DivX because XviD trumps it.
-				return PtpMovieSearchResult.__IsInList( self.SdList, [ "XviD" ], [ "Blu-Ray", "HD-DVD", "DVD" ] )
+				return PtpMovieSearchResult.__IsInList( self.SdList, [ "XviD" ], [ "Blu-ray", "HD-DVD", "DVD" ] )
 			elif releaseInfo.Codec == "DivX":
-				return PtpMovieSearchResult.__IsInList( self.SdList, [ "XviD", "DivX" ], [ "Blu-Ray", "HD-DVD", "DVD" ] )
+				return PtpMovieSearchResult.__IsInList( self.SdList, [ "XviD", "DivX" ], [ "Blu-ray", "HD-DVD", "DVD" ] )
 
 		raise PtpUploaderException( "Can't check whether the release '%s' exist on PTP because its type is unsupported." % releaseInfo.ReleaseName );
 		
 	def __IsSdNonFineSourceReleaseExists(self, releaseInfo):
-		# List is ordered by quality. DVD/HD-DVD/Blu-Ray is not needed in the list because these have been already checked in IsReleaseExists.
+		# List is ordered by quality. DVD/HD-DVD/Blu-ray is not needed in the list because these have been already checked in IsReleaseExists.
 		sourceByQuality = [ "CAM", "TS", "VHS", "TV", "DVD-Screener", "TC", "HDTV", "R5" ]
 		
 		if releaseInfo.Source not in sourceByQuality: 
@@ -138,7 +138,7 @@ class PtpMovieSearchResult:
 		if self.PtpId is None:
 			return None;
 
-		# If source is not DVD/HD-DVD/Blu-Ray then we check if there is a release with any proper quality sources.
+		# If source is not DVD/HD-DVD/Blu-ray then we check if there is a release with any proper quality sources.
 		# If there is, we won't add this lower quality release.
 		if not PtpMovieSearchResult.__IsFineSource( releaseInfo.Source ):
 			for item in self.SdList:
