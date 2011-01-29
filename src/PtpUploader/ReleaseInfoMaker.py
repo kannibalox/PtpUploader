@@ -84,7 +84,8 @@ class ReleaseInfoMaker:
 		mediaInfos = MediaInfo.ReadAndParseMediaInfos( logger, self.VideoFiles )
 
 		# Take and upload screenshots.
-		uploadedScreenshots = ScreenshotMaker.TakeAndUploadScreenshots( logger, self.VideoFiles[ 0 ], screenshotPath, mediaInfos[ 0 ].DurationInSec )
+		screenshotMaker = ScreenshotMaker( logger, self.VideoFiles[ 0 ] )
+		uploadedScreenshots = screenshotMaker.TakeAndUploadScreenshots( screenshotPath, mediaInfos[ 0 ].DurationInSec )
 
 		# Make the release description.
 		manualSource = Manual()

@@ -217,13 +217,14 @@ class PtpUploader:
 			raise PtpUploaderException( "Upload path '%s' doesn't contains any video files." % uploadPath );
 		
 		# Get the media info.
-		videoFiles = ScreenshotMaker.SortVideoFiles( videoFiles );
-		mediaInfos = MediaInfo.ReadAndParseMediaInfos( logger, videoFiles );
-		releaseInfo.GetDataFromMediaInfo( mediaInfos[ 0 ] );
-	
+		videoFiles = ScreenshotMaker.SortVideoFiles( videoFiles )
+		mediaInfos = MediaInfo.ReadAndParseMediaInfos( logger, videoFiles )
+		releaseInfo.GetDataFromMediaInfo( mediaInfos[ 0 ] )
+
 		# Take and upload screenshots.
-		screenshotPath = os.path.join( releaseInfo.GetReleaseRootPath(), "screenshot.png" );
-		uploadedScreenshots = ScreenshotMaker.TakeAndUploadScreenshots( logger, videoFiles[ 0 ], screenshotPath, mediaInfos[ 0 ].DurationInSec );
+		screenshotPath = os.path.join( releaseInfo.GetReleaseRootPath(), "screenshot.png" )
+		screenshotMaker = ScreenshotMaker( logger, videoFiles[ 0 ] )
+		uploadedScreenshots = screenshotMaker.TakeAndUploadScreenshots( screenshotPath, mediaInfos[ 0 ].DurationInSec )
 
 		releaseDescriptionFilePath = os.path.join( releaseInfo.GetReleaseRootPath(), "release description.txt" )
 		releaseInfo.FormatReleaseDescription( logger, releaseInfo, uploadedScreenshots, mediaInfos, releaseDescriptionFilePath )
