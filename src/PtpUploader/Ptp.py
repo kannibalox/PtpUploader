@@ -68,16 +68,18 @@ class Ptp:
 		# If there is a movie: result.url = http://passthepopcorn.me/torrents.php?id=28577
 		# If there is no movie: result.url = http://passthepopcorn.me/torrents.php?imdb=1535492
 		match = re.match( r"http://passthepopcorn.me/torrents.php\?id=(\d+)", result.url );
-		if match is None:
-			logger.info( "Movie with IMDb id '%s' doesn't exists on PTP." % imdbId );
-			return PtpMovieSearchResult( ptpId = None, moviePageHtml = None );
-		elif response.find( "<h2>Error 404</h2>" ) != -1: # For some deleted movies PTP return with this error.
-			logger.info( "Movie with IMDb id '%s' doesn't exists on PTP. (Got error 404.)" % imdbId );
-			return PtpMovieSearchResult( ptpId = None, moviePageHtml = None );
-		else:
+		if match is not None:
 			ptpId = match.group( 1 );
 			logger.info( "Movie with IMDb id '%s' exists on PTP at '%s'." % ( imdbId, result.url ) );
 			return PtpMovieSearchResult( ptpId, response );
+		elif response.find( "<h2>Error 404</h2>" ) != -1: # For some deleted movies PTP return with this error.
+			logger.info( "Movie with IMDb id '%s' doesn't exists on PTP. (Got error 404.)" % imdbId );
+			return PtpMovieSearchResult( ptpId = None, moviePageHtml = None );
+		elif response.find( "<h2>Your search did not match anything.</h2>" ) == -1: # Multiple movies with the same IMDb id. 
+			raise PtpUploaderInvalidLoginException( "There are multiple movies on PTP with IMDb id '%s'." % imdbId )
+		else:
+			logger.info( "Movie with IMDb id '%s' doesn't exists on PTP." % imdbId );
+			return PtpMovieSearchResult( ptpId = None, moviePageHtml = None );
 
 	@staticmethod
 	def FillImdbInfo(logger, releaseInfo):
