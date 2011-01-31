@@ -103,7 +103,7 @@ class ReleaseInfo:
 		self.ReleaseDescription = u"[size=4][b]%s[/b][/size]\n\n" % releaseInfo.ReleaseName
 
 		if scaleSize is not None:
-			self.ReleaseDescription += "Screenshots are showning the display aspect ratio. Resolution: %s.\n" % scaleSize 
+			self.ReleaseDescription += "Screenshots are showing the display aspect ratio. Resolution: %s.\n\n" % scaleSize 
 
 		for screenshot in screenshots:
 			self.ReleaseDescription += u"[img=%s]\n\n" % screenshot
