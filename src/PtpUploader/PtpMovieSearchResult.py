@@ -16,7 +16,7 @@ class PtpMovieSearchResultItem:
 # - We treat HD-DVD and Blu-ray as same quality.
 # - We treat DVD and Blu-ray rips equally in the standard defintion category.
 # - We treat H.264 and x264 equally because of the uploading rules: "MP4 can only be trumped by MKV if the use of that container causes problems with video or audio".
-# - We treat XviD as a superior codec to DivX.
+# - We treat XviD and DivX equally because of the uploading rules: "DivX may be trumped by XviD, if the latter improves on the quality of the former. In cases where the DivX is well distributed and the XviD offers no significant improvement in quality, the staff may decide to keep the former in order to preserve the availability of the movie."
 class PtpMovieSearchResult:
 	def __init__(self, ptpId, moviePageHtml):
 		self.PtpId = ptpId;
@@ -112,10 +112,7 @@ class PtpMovieSearchResult:
 		if releaseInfo.Source == "Blu-ray" or releaseInfo.Source == "HD-DVD" or releaseInfo.Source == "DVD":
 			if releaseInfo.Codec == "x264" or releaseInfo.Codec == "H.264":
 				return PtpMovieSearchResult.__IsInList( self.SdList, [ "x264", "H.264" ], [ "Blu-ray", "HD-DVD", "DVD" ] )
-			elif releaseInfo.Codec == "XviD":
-				# We don't check for DivX because XviD trumps it.
-				return PtpMovieSearchResult.__IsInList( self.SdList, [ "XviD" ], [ "Blu-ray", "HD-DVD", "DVD" ] )
-			elif releaseInfo.Codec == "DivX":
+			elif releaseInfo.Codec == "XviD" or releaseInfo.Codec == "DivX":
 				return PtpMovieSearchResult.__IsInList( self.SdList, [ "XviD", "DivX" ], [ "Blu-ray", "HD-DVD", "DVD" ] )
 
 		raise PtpUploaderException( "Can't check whether the release '%s' exist on PTP because its type is unsupported." % releaseInfo.ReleaseName );
