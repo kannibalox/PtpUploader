@@ -115,15 +115,15 @@ class Gft:
 			# Download the NFO and get the release name.
 			nfoText = Gft.__DownloadNfo( logger, releaseInfo, getReleaseName = True, checkPretime = False );
 		else:
-			# TODO: temp
-			time.sleep( 30 ); # "Tactical delay" because of the not visible torrents. These should be rescheduled.
-		
 			# In case of automatic announcement we have to check the release name if it is valid.
 			# We know the release name from the announcement, so we can filter it without downloading anything (yet) from the source.
 			releaserGroup = ReleaseFilter.IsValidReleaseName( releaseInfo.ReleaseName )
 			if releaserGroup is None:
 				logger.info( "Ignoring release '%s' because of its name." % releaseInfo.ReleaseName );
 				return None;
+
+			# TODO: temp
+			time.sleep( 30 ); # "Tactical delay" because of the not visible torrents. These should be rescheduled.
 
 			# If the release is from a known scene releaser group we skip the pretime checking.
 			# This is useful because the pretime sometime not presents on GFT.
