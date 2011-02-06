@@ -181,12 +181,12 @@ class Cinemageddon:
 
 		title = Cinemageddon.__RemoveNonAllowedCharacters( releaseInfo.InternationalTitle )
 		name = "%s (%s)" % ( title, releaseInfo.Year )
+
+		logger.info( "Upload directory will be named '%s' instead of '%s'." % ( name, releaseInfo.ReleaseName ) )
 		
 		newUploadPath = releaseInfo.GetReleaseUploadPath()
 		newUploadPath = os.path.dirname( newUploadPath )
 		newUploadPath = os.path.join( newUploadPath, name )
-
-		logger.info( "Renaming upload directory '%s' to '%s'." % ( releaseInfo.GetReleaseUploadPath(), newUploadPath ) )
 		releaseInfo.SetReleaseUploadPath( newUploadPath )
 
 	@staticmethod
