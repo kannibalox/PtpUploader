@@ -165,5 +165,9 @@ class Gft:
 		releaseInfo.Nfo = sceneRelease.Nfo
 		
 	@staticmethod
+	def RenameRelease(logger, releaseInfo):
+		pass
+				
+	@staticmethod
 	def IsSingleFileTorrentNeedsDirectory():
 		return True

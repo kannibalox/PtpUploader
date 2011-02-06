@@ -126,8 +126,9 @@ class PtpUploader:
 				return None
 				
 			# PTP return with the original title, IMDb's iPhone API returns with the international English title.
-			if releaseInfo.Title != imdbInfo.Title and len( imdbInfo.Title ) > 0:
-				releaseInfo.Title += " AKA " + imdbInfo.Title 		
+			releaseInfo.InternationalTitle = imdbInfo.Title
+			if releaseInfo.Title != releaseInfo.InternationalTitle and len( releaseInfo.InternationalTitle ) > 0:
+				releaseInfo.Title += " AKA " + releaseInfo.InternationalTitle
 	
 			if len( releaseInfo.MovieDescription ) <= 0:
 				releaseInfo.MovieDescription = imdbInfo.Plot 
@@ -212,6 +213,10 @@ class PtpUploader:
 	
 		# Extract the release.
 		releaseInfo.AnnouncementSource.ExtractRelease( logger, releaseInfo )
+
+		releaseInfo.AnnouncementSource.RenameRelease( logger, releaseInfo )
+		uploadPath = releaseInfo.GetReleaseUploadPath()
+		
 		videoFiles, totalFileCount = ReleaseExtractor.ValidateDirectory( uploadPath )
 		if len( videoFiles ) < 1:
 			raise PtpUploaderException( "Upload path '%s' doesn't contains any video files." % uploadPath );

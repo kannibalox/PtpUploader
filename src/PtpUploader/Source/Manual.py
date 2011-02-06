@@ -34,7 +34,11 @@ class Manual:
 		# Extract the release.
 		sceneRelease = SceneRelease( releaseInfo.GetReleaseDownloadPath() )
 		sceneRelease.Extract( logger, releaseInfo.GetReleaseUploadPath() )
-		
+
+	@staticmethod
+	def RenameRelease(logger, releaseInfo):
+		pass
+
 	@staticmethod
 	def IsSingleFileTorrentNeedsDirectory():
 		return True

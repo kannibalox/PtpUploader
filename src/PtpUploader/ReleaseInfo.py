@@ -18,7 +18,7 @@ class ReleaseInfo:
 		self.Type = "Movies" # Movies, Musicals, Standup Comedy, Concerts
 		self.ImdbId = "" # Just the number. Eg.: 0111161 for http://www.imdb.com/title/tt0111161/
 		self.Directors = []
-		self.Title = ""
+		self.Title = "" # Eg.: El Secreto de Sus Ojos AKA The Secret in Their Eyes
 		self.Year = ""
 		self.Tags = ""
 		self.MovieDescription = u""
@@ -33,8 +33,10 @@ class ReleaseInfo:
 		self.ReleaseDescription = u""
 		# Till this.
 		
+		self.InternationalTitle = "" # International title of the movie. Eg.: The Secret in Their Eyes. Needed for renaming releases coming from Cinemageddon.
 		self.Nfo = u""
 		self.SourceTorrentInfoHash = ""
+		self.ReleaseUploadPath = "" # Empty if using the default path. See GetReleaseUploadPath.
 
 	def GetImdbId(self):
 		return self.ImdbId
@@ -61,8 +63,14 @@ class ReleaseInfo:
 	# Eg.: "working directory/release/Dark.City.1998.Directors.Cut.720p.BluRay.x264-SiNNERS/upload/Dark.City.1998.Directors.Cut.720p.BluRay.x264-SiNNERS/"
 	# It must contain the final release name because of mktorrent.
 	def GetReleaseUploadPath(self):
-		path = os.path.join( self.GetReleaseRootPath(), "upload" )
-		return os.path.join( path, self.ReleaseName )
+		if len( self.ReleaseUploadPath ) > 0:
+			return self.ReleaseUploadPath
+		else:
+			path = os.path.join( self.GetReleaseRootPath(), "upload" )
+			return os.path.join( path, self.ReleaseName )
+
+	def SetReleaseUploadPath(self, path):
+		self.ReleaseUploadPath = path
 	
 	def IsStandardDefintion(self):
 		return self.Quality == "Standard Definition"		

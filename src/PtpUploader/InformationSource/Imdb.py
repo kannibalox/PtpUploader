@@ -13,6 +13,7 @@ import urllib2
 class ImdbInfo:
 	def __init__(self):
 		self.Title = ""
+		self.Year = ""
 		self.PosterUrl = ""
 		self.Plot = ""
 		self.IsSeries = False
@@ -30,6 +31,7 @@ class Imdb:
 		jsonLoad = json.loads( response )
 		data = jsonLoad[ "data" ]
 		imdbInfo.Title = data[ "title" ]
+		imdbInfo.Year = data[ "year" ]
 
 		image = data.get( "image" )
 		if image:

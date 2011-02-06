@@ -1,9 +1,11 @@
+﻿from InformationSource.Imdb import Imdb
 from Globals import Globals
 from PtpUploaderException import PtpUploaderException
 from ReleaseExtractor import ReleaseExtractor;
 from ReleaseInfo import ReleaseInfo;
 from Settings import Settings
 
+import os
 import re
 import urllib
 import urllib2
@@ -146,7 +148,52 @@ class Cinemageddon:
 	@staticmethod
 	def ExtractRelease(logger, releaseInfo):
 		ReleaseExtractor.Extract( releaseInfo.GetReleaseDownloadPath(), releaseInfo.GetReleaseUploadPath() )
+
+	@staticmethod
+	def __RemoveNonAllowedCharacters(text):
+		newText = text
+
+		# This would butcher titles with non-English characters in it.
+		# Eg.: Indul a bakterház -> Indul a bakterhz
+		# Stripping accents would help a bit, but it still wouldn't perfect. 
+				
+		#newText = ""
+		#for c in text:
+		#	if ( c >= '0' and c <= '9' ) or ( c >= 'a' and c <= 'z' ) or ( c >= 'A' and c <= 'Z' ):
+		#		newText += c
+		#	elif c == ' ':
+		#		newText += '.' 
+
+		if len( newText ) > 0:
+			return newText
+		else:
+			raise PtpUploaderException( "New name for '%s' resulted in empty string." % text )
+
+	# Because some of the releases on CG do not contain the full name of the movie, we have to rename them because of the uploading rules on PTP.
+	# The new name will be formatted like this: Movie Name Year
+	@staticmethod
+	def RenameRelease(logger, releaseInfo):
+		# If the movie already exists on PTP then the IMDb info is not populated in ReleaseInfo.
+		if len( releaseInfo.InternationalTitle ) <= 0:
+			imdbInfo = Imdb.GetInfo( logger, releaseInfo.GetImdbId() )
+			releaseInfo.InternationalTitle = imdbInfo.Title
+			releaseInfo.Year = imdbInfo.Year
+
+		title = Cinemageddon.__RemoveNonAllowedCharacters( releaseInfo.InternationalTitle )
+		name = "%s (%s)" % ( title, releaseInfo.Year )
 		
+		newUploadPath = releaseInfo.GetReleaseUploadPath()
+		newUploadPath = os.path.dirname( newUploadPath )
+		newUploadPath = os.path.join( newUploadPath, name )
+
+		# If the new directory already exists that means that release name was the same our generated name.
+		if os.path.isdir( newUploadPath ):
+			logger.info( "Renamed upload directory '%s' already exists." % newUploadPath )
+		else:
+			logger.info( "Renaming upload directory '%s' to '%s'." % ( releaseInfo.GetReleaseUploadPath(), newUploadPath ) )
+			os.rename( releaseInfo.GetReleaseUploadPath(), newUploadPath )
+			releaseInfo.SetReleaseUploadPath( newUploadPath )
+
 	@staticmethod
 	def IsSingleFileTorrentNeedsDirectory():
-		return False
+		return True
