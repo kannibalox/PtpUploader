@@ -229,7 +229,8 @@ class PtpUploader:
 		uploadedScreenshots = screenshotMaker.TakeAndUploadScreenshots( screenshotPath, mediaInfos[ 0 ].DurationInSec )
 
 		releaseDescriptionFilePath = os.path.join( releaseInfo.GetReleaseRootPath(), "release description.txt" )
-		releaseInfo.FormatReleaseDescription( logger, releaseInfo, uploadedScreenshots, screenshotMaker.ScaleSize, mediaInfos, releaseDescriptionFilePath )
+		includeReleaseName = releaseInfo.AnnouncementSource.IncludeReleaseNameInReleaseDescription() 
+		releaseInfo.FormatReleaseDescription( logger, releaseInfo, uploadedScreenshots, screenshotMaker.ScaleSize, mediaInfos, includeReleaseName, releaseDescriptionFilePath )
 	
 		# Make the torrent.
 		# We save it into a separate folder to make sure it won't end up in the upload somehow. :)

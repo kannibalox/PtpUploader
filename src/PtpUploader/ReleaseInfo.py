@@ -105,13 +105,16 @@ class ReleaseInfo:
 			self.Resolution = "%sx%s" % ( mediaInfo.Width, mediaInfo.Height )
 		
 	# releaseDescriptionFilePath: optional. If given the description is written to file.
-	def FormatReleaseDescription(self, logger, releaseInfo, screenshots, scaleSize, mediaInfos, releaseDescriptionFilePath = None):
+	def FormatReleaseDescription(self, logger, releaseInfo, screenshots, scaleSize, mediaInfos, includeReleaseName = True, releaseDescriptionFilePath = None):
 		logger.info( "Making release description for release '%s' with screenshots at %s." % ( releaseInfo.ReleaseName, screenshots ) )
 
-		self.ReleaseDescription = u"[size=4][b]%s[/b][/size]\n\n" % releaseInfo.ReleaseName
+		if includeReleaseName:
+			self.ReleaseDescription = u"[size=4][b]%s[/b][/size]\n\n" % releaseInfo.ReleaseName
+		else:
+			self.ReleaseDescription = u""
 
 		if scaleSize is not None:
-			self.ReleaseDescription += "Screenshots are showing the display aspect ratio. Resolution: %s.\n\n" % scaleSize 
+			self.ReleaseDescription += u"Screenshots are showing the display aspect ratio. Resolution: %s.\n\n" % scaleSize 
 
 		for screenshot in screenshots:
 			self.ReleaseDescription += u"[img=%s]\n\n" % screenshot

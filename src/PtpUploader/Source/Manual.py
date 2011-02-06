@@ -42,3 +42,7 @@ class Manual:
 	@staticmethod
 	def IsSingleFileTorrentNeedsDirectory():
 		return True
+	
+	@staticmethod
+	def IncludeReleaseNameInReleaseDescription():
+		return True

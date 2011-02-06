@@ -192,3 +192,7 @@ class Cinemageddon:
 	@staticmethod
 	def IsSingleFileTorrentNeedsDirectory():
 		return True
+	
+	@staticmethod
+	def IncludeReleaseNameInReleaseDescription():
+		return False

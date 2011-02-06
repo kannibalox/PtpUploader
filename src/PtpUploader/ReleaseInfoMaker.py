@@ -90,7 +90,7 @@ class ReleaseInfoMaker:
 		# Make the release description.
 		manualSource = Manual()
 		releaseInfo = ReleaseInfo( announcementFilePath = "", announcementSource = manualSource, announcementId = "", releaseName = self.ReleaseName, logger = logger )
-		releaseInfo.FormatReleaseDescription( logger, releaseInfo, uploadedScreenshots, screenshotMaker.ScaleSize, mediaInfos, releaseDescriptionFilePath )
+		releaseInfo.FormatReleaseDescription( logger, releaseInfo, uploadedScreenshots, screenshotMaker.ScaleSize, mediaInfos, includeReleaseName = True, releaseDescriptionFilePath = releaseDescriptionFilePath )
 
 		# Create the torrent
 		if createTorrent:

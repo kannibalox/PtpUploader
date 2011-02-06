@@ -3,8 +3,6 @@ from Gft import Gft
 from Manual import Manual
 from Settings import Settings
 
-# A source have to support the following methods:
-# Login, PrepareDownload, DownloadTorrent, ExtractRelease and IsSingleFileTorrentNeedsDirectory.
 class SourceFactory:
 	def __init__(self):
 		self.Sources = {}
