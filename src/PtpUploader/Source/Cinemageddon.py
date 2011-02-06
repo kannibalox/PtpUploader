@@ -186,13 +186,8 @@ class Cinemageddon:
 		newUploadPath = os.path.dirname( newUploadPath )
 		newUploadPath = os.path.join( newUploadPath, name )
 
-		# If the new directory already exists that means that release name was the same our generated name.
-		if os.path.isdir( newUploadPath ):
-			logger.info( "Renamed upload directory '%s' already exists." % newUploadPath )
-		else:
-			logger.info( "Renaming upload directory '%s' to '%s'." % ( releaseInfo.GetReleaseUploadPath(), newUploadPath ) )
-			os.rename( releaseInfo.GetReleaseUploadPath(), newUploadPath )
-			releaseInfo.SetReleaseUploadPath( newUploadPath )
+		logger.info( "Renaming upload directory '%s' to '%s'." % ( releaseInfo.GetReleaseUploadPath(), newUploadPath ) )
+		releaseInfo.SetReleaseUploadPath( newUploadPath )
 
 	@staticmethod
 	def IsSingleFileTorrentNeedsDirectory():

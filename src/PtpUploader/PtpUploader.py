@@ -207,16 +207,13 @@ class PtpUploader:
 		logger = releaseInfo.Logger
 		
 		# Create the upload path.
+		releaseInfo.AnnouncementSource.RenameRelease( logger, releaseInfo )
 		uploadPath = releaseInfo.GetReleaseUploadPath();
 		logger.info( "Creating upload path at '%s'." % uploadPath );	
 		os.makedirs( uploadPath );
 	
 		# Extract the release.
 		releaseInfo.AnnouncementSource.ExtractRelease( logger, releaseInfo )
-
-		releaseInfo.AnnouncementSource.RenameRelease( logger, releaseInfo )
-		uploadPath = releaseInfo.GetReleaseUploadPath()
-		
 		videoFiles, totalFileCount = ReleaseExtractor.ValidateDirectory( uploadPath )
 		if len( videoFiles ) < 1:
 			raise PtpUploaderException( "Upload path '%s' doesn't contains any video files." % uploadPath );
