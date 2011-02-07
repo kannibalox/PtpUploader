@@ -76,7 +76,7 @@ class Ptp:
 			logger.info( "Movie with IMDb id '%s' doesn't exists on PTP. (Got error 404.)" % imdbId );
 			return PtpMovieSearchResult( ptpId = None, moviePageHtml = None );
 		elif response.find( "<h2>Your search did not match anything.</h2>" ) == -1: # Multiple movies with the same IMDb id. 
-			raise PtpUploaderInvalidLoginException( "There are multiple movies on PTP with IMDb id '%s'." % imdbId )
+			raise PtpUploaderException( "There are multiple movies on PTP with IMDb id '%s'." % imdbId )
 		else:
 			logger.info( "Movie with IMDb id '%s' doesn't exists on PTP." % imdbId );
 			return PtpMovieSearchResult( ptpId = None, moviePageHtml = None );
