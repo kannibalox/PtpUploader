@@ -162,7 +162,12 @@ class Cinemageddon:
 		#	if ( c >= '0' and c <= '9' ) or ( c >= 'a' and c <= 'z' ) or ( c >= 'A' and c <= 'Z' ):
 		#		newText += c
 		#	elif c == ' ':
-		#		newText += '.' 
+		#		newText += '.'
+		
+		# These characters can'be in filenames on Windows.
+		forbiddenCharacters = r"""\/:*?"<>|"""
+		for c in forbiddenCharacters:
+			newText = newText.replace( c, "" )
 
 		if len( newText ) > 0:
 			return newText
