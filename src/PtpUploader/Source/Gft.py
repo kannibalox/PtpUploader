@@ -1,15 +1,16 @@
-from Globals import Globals;
-from NfoParser import NfoParser;
-from PtpUploaderException import PtpUploaderException;
-from ReleaseFilter import ReleaseFilter;
-from ReleaseInfo import ReleaseInfo;
-from SceneRelease import SceneRelease;
-from Settings import Settings;
+from Globals import Globals
+from NfoParser import NfoParser
+from PtpUploaderException import PtpUploaderException
+from ReleaseExtractor import ReleaseExtractor
+from ReleaseFilter import ReleaseFilter
+from ReleaseInfo import ReleaseInfo
+from SceneRelease import SceneRelease
+from Settings import Settings
 
-import re;
+import re
 import time
-import urllib;
-import urllib2;
+import urllib
+import urllib2
 
 class Gft:
 	def __init__(self):
@@ -134,6 +135,7 @@ class Gft:
 		
 		releaseInfo.ImdbId = NfoParser.GetImdbId( nfoText )
 		SceneRelease.GetSourceAndFormatFromSceneReleaseName( releaseInfo, releaseInfo.ReleaseName )
+		releaseInfo.Scene = "on"
 		return releaseInfo;
 	
 	@staticmethod
@@ -160,10 +162,10 @@ class Gft:
 	@staticmethod
 	def ExtractRelease(logger, releaseInfo):
 		# Extract the release.
-		sceneRelease = SceneRelease( releaseInfo.GetReleaseDownloadPath() )
-		sceneRelease.Extract( logger, releaseInfo.GetReleaseUploadPath() )
-		releaseInfo.Nfo = sceneRelease.Nfo
-		
+		nfoPath = ReleaseExtractor.Extract( releaseInfo.GetReleaseDownloadPath(), releaseInfo.GetReleaseUploadPath() )
+		if nfoPath is not None:
+			releaseInfo.Nfo = NfoParser.ReadNfoFileToUnicode( nfoPath )
+
 	@staticmethod
 	def RenameRelease(logger, releaseInfo):
 		pass

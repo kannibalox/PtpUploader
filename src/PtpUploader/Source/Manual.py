@@ -1,9 +1,10 @@
-from Globals import Globals;
-from NfoParser import NfoParser;
-from PtpUploaderException import PtpUploaderException;
-from ReleaseInfo import ReleaseInfo;
-from SceneRelease import SceneRelease;
-from Settings import Settings;
+from Globals import Globals
+from NfoParser import NfoParser
+from PtpUploaderException import PtpUploaderException
+from ReleaseExtractor import ReleaseExtractor
+from ReleaseInfo import ReleaseInfo
+from SceneRelease import SceneRelease
+from Settings import Settings
 
 # TODO: add support for non scene releases.
 # How will we get the IMDb id and the info gained from GetSourceAndFormatFromSceneReleaseName? Probably only with a custom irc message if there is no NFO.
@@ -32,8 +33,9 @@ class Manual:
 	@staticmethod
 	def ExtractRelease(logger, releaseInfo):
 		# Extract the release.
-		sceneRelease = SceneRelease( releaseInfo.GetReleaseDownloadPath() )
-		sceneRelease.Extract( logger, releaseInfo.GetReleaseUploadPath() )
+		nfoPath = ReleaseExtractor.Extract( releaseInfo.GetReleaseDownloadPath(), releaseInfo.GetReleaseUploadPath() )
+		if nfoPath is not None:
+			releaseInfo.Nfo = NfoParser.ReadNfoFileToUnicode( nfoPath )
 
 	@staticmethod
 	def RenameRelease(logger, releaseInfo):

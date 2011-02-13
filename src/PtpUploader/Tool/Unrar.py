@@ -1,21 +1,42 @@
-﻿from PtpUploaderException import PtpUploaderException;
-from Settings import Settings;
+﻿from PtpUploaderException import PtpUploaderException
+from Settings import Settings
 
-import fnmatch;
-import os;
-import subprocess;
+import fnmatch
+import os
+import subprocess
+import uuid
 
 # Supported:
 # - .rar
 # - .001
 # - .part01.rar
 class Unrar:
+	# Because there is no easy way to tell if there will be an overwrite upon extraction, we make a temporary directory into the destination path then move the extracted files out of there.
 	@staticmethod
 	def Extract(rarPath, destinationPath):
-		args = [ Settings.UnrarPath, 'x', rarPath, destinationPath ];
-		errorCode = subprocess.call( args );
+		# Create the temporary folder.
+		tempPath = os.path.join( destinationPath, str( uuid.uuid1() ) )
+		if os.path.exists( tempPath ):
+			raise PtpUploaderException( "Temporary path '%s' already exists." % tempPath )
+		os.mkdir( tempPath )
+
+		# Extract RAR to the temporary folder.
+		args = [ Settings.UnrarPath, 'x', rarPath, tempPath ]
+		errorCode = subprocess.call( args )
 		if errorCode != 0:
-			raise PtpUploaderException( "CProcess execution '%s' returned with error code '%s'." % ( args, errorCode ) );			
+			raise PtpUploaderException( "CProcess execution '%s' returned with error code '%s'." % ( args, errorCode ) )
+
+		# Move everything out from the temporary folder to its destination.		
+		files = os.listdir( tempPath )
+		for file in files:
+			tempFilePath = os.path.join( tempPath, file )
+			destinationFilePath = os.path.join( destinationPath, file )
+			if os.path.exists( destinationFilePath ):
+				raise PtpUploaderException( "Can't move file '%s' to '%s' because destination already exists." % ( tempFilePath, destinationFilePath ) )				
+
+			os.rename( tempFilePath, destinationFilePath )
+
+		os.rmdir( tempPath )
 
 	@staticmethod
 	def IsFirstRar(path):

@@ -1,4 +1,5 @@
 ﻿from InformationSource.Imdb import Imdb
+from NfoParser import NfoParser
 from Globals import Globals
 from PtpUploaderException import PtpUploaderException
 from ReleaseExtractor import ReleaseExtractor;
@@ -147,7 +148,10 @@ class Cinemageddon:
 		
 	@staticmethod
 	def ExtractRelease(logger, releaseInfo):
-		ReleaseExtractor.Extract( releaseInfo.GetReleaseDownloadPath(), releaseInfo.GetReleaseUploadPath() )
+		# Extract the release.
+		nfoPath = ReleaseExtractor.Extract( releaseInfo.GetReleaseDownloadPath(), releaseInfo.GetReleaseUploadPath() )
+		if nfoPath is not None:
+			releaseInfo.Nfo = NfoParser.ReadNfoFileToUnicode( nfoPath )
 
 	@staticmethod
 	def __RemoveNonAllowedCharacters(text):
