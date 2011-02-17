@@ -137,15 +137,19 @@ class Ptp:
 		# Director's name may not be present. For example: http://www.imdb.com/title/tt0864336/
 		jsonDirectors = movie[ "director" ];
 		if ( jsonDirectors is None ) or len( jsonDirectors ) < 1:
-			releaseInfo.Directors.append( "None Listed" )
+			releaseInfo.Directors = "None Listed"
 		else:
+			directorNames = []
+
 			for jsonDirector in jsonDirectors:
 				directorName = jsonDirector[ "name" ];
 				if ( directorName is None ) or len( directorName ) == 0: 
 					raise PtpUploaderException( "Bad PTP movie info JSON response: director name is empty.\nReponse:\n%s" % response );
 
 				directorName = htmlParser.unescape( directorName ) # PTP doesn't decodes properly the text.
-				releaseInfo.Directors.append( directorName )
+				directorNames.append( directorName )
+
+			releaseInfo.SetDirectors( directorNames )
 
 	@staticmethod
 	def __UploadMovieGetParamsCommon(releaseInfo):
@@ -198,8 +202,9 @@ class Ptp:
 
 		# Add the directors.
 		# These needs to be added in order because of the "importance" field follows them.
-		for i in range( len( releaseInfo.Directors ) ):
-			multipartParam = poster.encode.MultipartParam( "artists[]", releaseInfo.Directors[ i ] );
+		directors = releaseInfo.GetDirectors()
+		for i in range( len( directors ) ):
+			multipartParam = poster.encode.MultipartParam( "artists[]", directors[ i ] );
 			multipartParam.name = "artists[]"; # MultipartParam escapes the square brackets to "artists%5B%5D". Change it back. :)
 			paramList.append( multipartParam );
 

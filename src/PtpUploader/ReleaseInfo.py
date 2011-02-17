@@ -17,7 +17,7 @@ class ReleaseInfo:
 		# These are the required fields needed for an upload to PTP.		
 		self.Type = "Movies" # Movies, Musicals, Standup Comedy, Concerts
 		self.ImdbId = "" # Just the number. Eg.: 0111161 for http://www.imdb.com/title/tt0111161/
-		self.Directors = []
+		self.Directors = "" # Stored as a comma separated list. PTP needs this as a list, use GetDirectors.
 		self.Title = "" # Eg.: El Secreto de Sus Ojos AKA The Secret in Their Eyes
 		self.Year = ""
 		self.Tags = ""
@@ -40,6 +40,16 @@ class ReleaseInfo:
 
 	def GetImdbId(self):
 		return self.ImdbId
+	
+	def GetDirectors(self):
+		return self.Directors.split( ", " )
+	
+	def SetDirectors(self, list):
+		for name in list:
+			if name.find( "," ) != -1:
+				raise PtpUploaderException( "Director name '%s' contains a comma." % name )
+		
+		self.Directors = ", ".join( list )
 
 	# Eg.: "working directory/release/Dark.City.1998.Directors.Cut.720p.BluRay.x264-SiNNERS/"
 	@staticmethod
