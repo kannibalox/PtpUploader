@@ -223,13 +223,14 @@ class Ptp:
 		url = "";
 		paramList = Ptp.__UploadMovieGetParamsCommon( releaseInfo );
 		
+		# We always use HTTPS for uploading because if "Force HTTPS" is enabled in the profile then the HTTP upload is not working.
 		if ptpId is None:
 			logger.info( "Uploading torrent '%s' to PTP as a new movie." % torrentPath );
-			url = "http://passthepopcorn.me/upload.php";
+			url = "https://passthepopcorn.me/upload.php";
 			paramList.extend( Ptp.__UploadMovieGetParamsForNewMovie( releaseInfo ) );
 		else:
 			logger.info( "Uploading torrent '%s' to PTP as a new format for 'http://passthepopcorn.me/torrents.php?id=%s'." % ( torrentPath, ptpId ) );
-			url = "http://passthepopcorn.me/upload.php?groupid=%s" % ptpId;
+			url = "https://passthepopcorn.me/upload.php?groupid=%s" % ptpId;
 			paramList.extend( Ptp.__UploadMovieGetParamsForAddFormat( ptpId ) ); 	
 		
 		# Add the torrent file.
