@@ -256,12 +256,14 @@ class Ptp:
 		if match is None:
 			raise PtpUploaderException( "Torrent upload to PTP failed: result url '%s' is not the expected one." % result.url )			
 
-		# Return with PTP id of the movie.
-		ptpId = match.group( 1 )
-		
-		# response contains the movie page of the uploaded movie.
-		Ptp.TryRefreshMoviePage( logger, ptpId, response );
-		
+		# Refresh data is not needed for new movies because PTP does this automatically.
+		# So we only do a refresh when adding as a new format.
+		if ptpId is None:
+			ptpId = match.group( 1 )
+		else:
+			# response contains the movie page of the uploaded movie.
+			Ptp.TryRefreshMoviePage( logger, ptpId, response );
+
 		return ptpId;
 
 	# ptpId: movie page id. For example: ptpId is 28622 for the movie with url: http://passthepopcorn.me/torrents.php?id=28622 	
@@ -270,7 +272,7 @@ class Ptp:
 	def TryRefreshMoviePage(logger, ptpId, page):
 		logger.info( "Trying to refresh data for 'http://passthepopcorn.me/torrents.php?id=%s'." % ptpId );
 
-		# We don't care if this fails. This should be built-in on server side. Our upload is complete anyway. :) 
+		# We don't care if this fails. Our upload is complete anyway. :) 
 		try:
 			# Searching for: <a href="torrents.php?action=imdb&amp;groupid=3704&amp;auth=...">[Refresh Data]</a>
 			matches = re.search( r'<a href="torrents.php\?action=imdb&amp;groupid=\d+&amp;auth=(.+)">\[Refresh Data\]</a>', page );
