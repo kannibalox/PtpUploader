@@ -116,9 +116,6 @@ class Gft:
 			nfoText = Gft.__DownloadNfo( logger, releaseInfo, getReleaseName = True, checkPretime = False )
 			releaseNameParser = ReleaseNameParser( releaseInfo.ReleaseName )
 			releaseNameParser.GetSourceAndFormat( releaseInfo )
-			if not releaseNameParser.IsAllowed():
-				logger.info( "Ignoring release '%s' because of its name." % releaseInfo.ReleaseName )
-				return None
 		else:
 			# In case of automatic announcement we have to check the release name if it is valid.
 			# We know the release name from the announcement, so we can filter it without downloading anything (yet) from the source.

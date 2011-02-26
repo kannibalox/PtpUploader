@@ -72,6 +72,10 @@ class TorrentLeech:
 
 	@staticmethod
 	def PrepareDownload(logger, releaseInfo):
+		# TODO: temp
+		# TorrentLeech has a bad habit of logging out, so we put this here.
+		TorrentLeech.Login()
+		
 		# In case of manual announcement we don't have the name, so get it.
 		if releaseInfo.IsManualAnnouncement:
 			releaseInfo.ReleaseName = TorrentLeech.__GetReleaseName( logger, releaseInfo )
@@ -80,7 +84,9 @@ class TorrentLeech:
 			
 		releaseNameParser = ReleaseNameParser( releaseInfo.ReleaseName )
 		releaseNameParser.GetSourceAndFormat( releaseInfo )
-		if not releaseNameParser.IsAllowed():
+
+		# We don't have to check the release name of manual announcements. 
+		if ( not releaseInfo.IsManualAnnouncement ) and ( not releaseNameParser.IsAllowed() ):
 			logger.info( "Ignoring release '%s' because of its name." % releaseInfo.ReleaseName )
 			return None
 
