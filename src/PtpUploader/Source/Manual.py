@@ -3,10 +3,9 @@ from NfoParser import NfoParser
 from PtpUploaderException import PtpUploaderException
 from ReleaseExtractor import ReleaseExtractor
 from ReleaseInfo import ReleaseInfo
-from SceneRelease import SceneRelease
+from ReleaseNameParser import ReleaseNameParser
 from Settings import Settings
 
-# TODO: add support for non scene releases.
 # How will we get the IMDb id and the info gained from GetSourceAndFormatFromSceneReleaseName? Probably only with a custom irc message if there is no NFO.
 
 class Manual:
@@ -23,7 +22,10 @@ class Manual:
 		nfo = NfoParser.GetNfoFile( ReleaseInfo.GetReleaseDownloadPathFromRelaseName( releaseInfo.ReleaseName ) )
 		releaseInfo.ImdbId = NfoParser.GetImdbId( nfo )
 		releaseInfo.Nfo = nfo;
-		SceneRelease.GetSourceAndFormatFromSceneReleaseName( releaseInfo, releaseInfo.ReleaseName )
+		releaseNameParser = ReleaseNameParser( releaseInfo.ReleaseName )
+		releaseNameParser.GetSourceAndFormat( releaseInfo )
+		if releaseNameParser.Scene: 
+			releaseInfo.Scene = "on" 
 		return releaseInfo
 		
 	@staticmethod

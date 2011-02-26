@@ -2,9 +2,8 @@ from Globals import Globals
 from NfoParser import NfoParser
 from PtpUploaderException import PtpUploaderException
 from ReleaseExtractor import ReleaseExtractor
-from ReleaseFilter import ReleaseFilter
 from ReleaseInfo import ReleaseInfo
-from SceneRelease import SceneRelease
+from ReleaseNameParser import ReleaseNameParser
 from Settings import Settings
 
 import re
@@ -110,33 +109,36 @@ class Gft:
 	
 	@staticmethod
 	def PrepareDownload(logger, releaseInfo):
-		nfoText = "";
+		nfoText = ""
 		
 		if releaseInfo.IsManualAnnouncement:
 			# Download the NFO and get the release name.
-			nfoText = Gft.__DownloadNfo( logger, releaseInfo, getReleaseName = True, checkPretime = False );
+			nfoText = Gft.__DownloadNfo( logger, releaseInfo, getReleaseName = True, checkPretime = False )
+			releaseNameParser = ReleaseNameParser( releaseInfo.ReleaseName )
+			releaseNameParser.GetSourceAndFormat( releaseInfo )
+			if not releaseNameParser.IsAllowed():
+				logger.info( "Ignoring release '%s' because of its name." % releaseInfo.ReleaseName )
+				return None
 		else:
 			# In case of automatic announcement we have to check the release name if it is valid.
 			# We know the release name from the announcement, so we can filter it without downloading anything (yet) from the source.
-			releaserGroup = ReleaseFilter.IsValidReleaseName( releaseInfo.ReleaseName )
-			if releaserGroup is None:
-				logger.info( "Ignoring release '%s' because of its name." % releaseInfo.ReleaseName );
-				return None;
+			releaseNameParser = ReleaseNameParser( releaseInfo.ReleaseName )
+			releaseNameParser.GetSourceAndFormat( releaseInfo )
+			if not releaseNameParser.IsAllowed():
+				logger.info( "Ignoring release '%s' because of its name." % releaseInfo.ReleaseName )
+				return None
 
 			# TODO: temp
-			time.sleep( 30 ); # "Tactical delay" because of the not visible torrents. These should be rescheduled.
-
-			# If the release is from a known scene releaser group we skip the pretime checking.
-			# This is useful because the pretime sometime not presents on GFT.
-			isKnownSceneReleaserGroup = releaserGroup in Settings.SceneReleaserGroup
+			time.sleep( 30 ) # "Tactical delay" because of the not visible torrents. These should be rescheduled.
 
 			# Download the NFO.
-			nfoText = Gft.__DownloadNfo( logger, releaseInfo, getReleaseName = False, checkPretime = not isKnownSceneReleaserGroup )
+			# If the release is from a known scene releaser group we skip the pretime checking.
+			# This is useful because the pretime sometime not presents on GFT.
+			nfoText = Gft.__DownloadNfo( logger, releaseInfo, getReleaseName = False, checkPretime = not releaseNameParser.Scene )
 		
 		releaseInfo.ImdbId = NfoParser.GetImdbId( nfoText )
-		SceneRelease.GetSourceAndFormatFromSceneReleaseName( releaseInfo, releaseInfo.ReleaseName )
 		releaseInfo.Scene = "on"
-		return releaseInfo;
+		return releaseInfo
 	
 	@staticmethod
 	def DownloadTorrent(logger, releaseInfo, path):

@@ -98,6 +98,10 @@ class PtpUploader:
 			logger.error( "Resolution type of the release is not specified." );
 			return None;		
 	
+		# HD XviDs are not allowed.
+		if releaseInfo.Quality == "High Definition" and ( releaseInfo.Codec == "XviD" or releaseInfo.Codec == "DivX" ):
+			raise PtpUploaderException( "Forbidden combination of quality '%s' and codec '%s'." % ( releaseInfo.Quality, releaseInfo.Codec ) )
+			
 		# TODO: this is temporary here. We should support it everywhere.
 		# If we are not logged in here that could mean that nothing interesting has been announcened for a while. 
 		Ptp.Login();

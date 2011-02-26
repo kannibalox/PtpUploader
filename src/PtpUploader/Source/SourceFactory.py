@@ -2,6 +2,7 @@ from Cinemageddon import Cinemageddon
 from Gft import Gft
 from Manual import Manual
 from Settings import Settings
+from TorrentLeech import TorrentLeech
 
 class SourceFactory:
 	def __init__(self):
@@ -14,6 +15,10 @@ class SourceFactory:
 		if len( Settings.GftUserName ) > 0 and len( Settings.GftPassword ) > 0:
 			Gft.Login()
 			self.__AddSource( Gft() )
+
+		if len( Settings.TorrentLeechUserName ) > 0 and len( Settings.TorrentLeechPassword ) > 0:
+			TorrentLeech.Login()
+			self.__AddSource( TorrentLeech() )
 
 		self.__AddSource( Manual() )
 

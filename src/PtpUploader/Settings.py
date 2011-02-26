@@ -1,4 +1,5 @@
 from Globals import Globals
+from TagList import TagList
 
 import ConfigParser
 import fnmatch
@@ -7,11 +8,21 @@ import os
 class Settings(object):
 	@staticmethod
 	def MakeListFromExtensionString(extensions):
-		if len( extensions ) == 0:
-			return []
-		
-		extensions = extensions.replace( " ", "" )
-		return extensions.split( "," )
+		list = extensions.split( "," )
+		for i in range( len( list ) ):
+			list[ i ] = list[ i ].strip()
+
+		return list
+
+	# This makes a list of TagList.
+	# Eg.: "A B, C, D E" will become [ [ "A", "B" ], [ "C" ], [ "D", "E" ] ]
+	@staticmethod
+	def MakeListOfListsFromString(extensions):
+		list = Settings.MakeListFromExtensionString( extensions )
+		for i in range( len( list ) ):
+			list[ i ] = TagList( list[ i ].split( " " ) ) 
+
+		return list 
 	
 	@staticmethod
 	def HasValidExtensionToUpload(path, extensions):
@@ -72,10 +83,14 @@ class Settings(object):
 		Settings.PtpPassword = configParser.get( "Settings", "PtpPassword" )
 		Settings.GftUserName = Settings.__GetDefault( configParser, "Settings", "GftUserName", "" )
 		Settings.GftPassword = Settings.__GetDefault( configParser, "Settings", "GftPassword", "" )
-		Settings.GftMaximumParallelDownloads = int( configParser.get( "Settings", "GftMaximumParallelDownloads" ) )
+		Settings.GftMaximumParallelDownloads = int( Settings.__GetDefault( configParser, "Settings", "GftMaximumParallelDownloads", "1" ) )
 		Settings.CinemageddonUserName = Settings.__GetDefault( configParser, "Settings", "CinemageddonUserName", "" )
 		Settings.CinemageddonPassword = Settings.__GetDefault( configParser, "Settings", "CinemageddonPassword", "" )
-		Settings.CinemageddonMaximumParallelDownloads = int( configParser.get( "Settings", "CinemageddonMaximumParallelDownloads" ) )
+		Settings.CinemageddonMaximumParallelDownloads = int( Settings.__GetDefault( configParser, "Settings", "CinemageddonMaximumParallelDownloads", "1" ) )
+		Settings.TorrentLeechUserName = Settings.__GetDefault( configParser, "Settings", "TorrentLeechUserName", "" )
+		Settings.TorrentLeechPassword = Settings.__GetDefault( configParser, "Settings", "TorrentLeechPassword", "" )
+		Settings.TorrentLeechMaximumParallelDownloads = int( Settings.__GetDefault( configParser, "Settings", "TorrentLeechMaximumParallelDownloads", "1" ) )
+		
 		Settings.ImgurApiKey = Settings.__GetDefault( configParser, "Settings", "ImgurApiKey", "" )
 		Settings.OnSuccessfulUpload = Settings.__GetDefault( configParser, "Settings", "OnSuccessfulUpload", "", raw = True )
 
@@ -87,10 +102,10 @@ class Settings(object):
 		
 		Settings.WorkingPath = configParser.get( "Settings", "WorkingPath" )
 		
-		Settings.AllowRelease = Settings.MakeListFromExtensionString( configParser.get( "Settings", "AllowRelease" ) )
-		Settings.IgnoreRelease = Settings.MakeListFromExtensionString( configParser.get( "Settings", "IgnoreRelease" ) )
-		Settings.IgnoreReleaseTag = Settings.MakeListFromExtensionString( configParser.get( "Settings", "IgnoreReleaseTag" ) )
-		Settings.IgnoreReleaserGroup = Settings.MakeListFromExtensionString( configParser.get( "Settings", "IgnoreReleaserGroup" ) )
+		Settings.AllowReleaseTag = Settings.MakeListOfListsFromString( Settings.__GetDefault( configParser, "Settings", "AllowReleaseTag", "" ) )
+		Settings.IgnoreReleaseTag = Settings.MakeListOfListsFromString( Settings.__GetDefault( configParser, "Settings", "IgnoreReleaseTag", "" ) )
+		Settings.IgnoreReleaseTagAfterYear = Settings.MakeListOfListsFromString( Settings.__GetDefault( configParser, "Settings", "IgnoreReleaseTagAfterYear", "" ) )
+		Settings.IgnoreReleaserGroup = Settings.MakeListFromExtensionString( Settings.__GetDefault( configParser, "Settings", "IgnoreReleaserGroup", "" ) )
 		Settings.SceneReleaserGroup = Settings.MakeListFromExtensionString( Settings.__GetDefault( configParser, "Settings", "SceneReleaserGroup", "" ) )
 
 		# Create the announcement directory.
