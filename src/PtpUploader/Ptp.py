@@ -302,7 +302,7 @@ class Ptp:
 		
 		matches = re.search( r"""<input type="hidden" name="auth" value="(.+)" />""", response )
 		if not matches:
-			logger.info( "Authorization key couldn't be found." )
+			Globals.Logger.info( "Authorization key couldn't be found." )
 			return
 
 		auth = matches.group( 1 )
