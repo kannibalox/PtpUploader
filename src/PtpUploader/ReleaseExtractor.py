@@ -29,13 +29,14 @@ class ReleaseExtractor:
 		# Extract RARs.
 		rars = Unrar.GetRars( sourcePath )
 		for rar in rars:
-			Unrar.Extract( rar, destinationPath )
+			if not Settings.IsFileOnIgnoreList( rar ):
+				Unrar.Extract( rar, destinationPath )
 
 		# Make hard link from supported files.
 		files = os.listdir( sourcePath )
 		for file in files:
 			filePath = os.path.join( sourcePath, file );
-			if os.path.isfile( filePath ) and ( Settings.HasValidVideoExtensionToUpload( filePath ) or Settings.HasValidSubtitleExtensionToUpload( filePath ) ):
+			if os.path.isfile( filePath ) and ( Settings.HasValidVideoExtensionToUpload( filePath ) or Settings.HasValidSubtitleExtensionToUpload( filePath ) ) and ( not Settings.IsFileOnIgnoreList( filePath ) ):
 				destinationFilePath = os.path.join( destinationPath, file )
 				if os.path.exists( destinationFilePath ):
 					raise PtpUploaderException( "Can't make link from file '%s' to '%s' because destination already exists." % ( filePath, destinationFilePath ) )

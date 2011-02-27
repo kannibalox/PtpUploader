@@ -4,6 +4,7 @@ from TagList import TagList
 import ConfigParser
 import fnmatch
 import os
+import re
 
 class Settings(object):
 	@staticmethod
@@ -32,7 +33,7 @@ class Settings(object):
 				return True
 			
 		return False
-	
+
 	@staticmethod
 	def HasValidVideoExtensionToUpload(path):
 		return Settings.HasValidExtensionToUpload( path, Settings.VideoExtensionsToUpload )
@@ -40,6 +41,15 @@ class Settings(object):
 	@staticmethod
 	def HasValidSubtitleExtensionToUpload(path):
 		return Settings.HasValidExtensionToUpload( path, Settings.SubtitleExtensionsToUpload )
+
+	@staticmethod
+	def IsFileOnIgnoreList(path):
+		path = os.path.basename( path ) # We only filter the filenames.
+		path = path.lower()
+		for ignoreFile in Settings.IgnoreFile:
+			if re.match( ignoreFile, path ) is not None:
+				return True;
+		return False
 
 	@staticmethod
 	def GetAnnouncementWatchPath():
@@ -78,6 +88,7 @@ class Settings(object):
 	
 		Settings.VideoExtensionsToUpload = Settings.MakeListFromExtensionString( configParser.get( "Settings", "VideoExtensionsToUpload" ) )
 		Settings.SubtitleExtensionsToUpload = Settings.MakeListFromExtensionString( configParser.get( "Settings", "SubtitleExtensionsToUpload" ) )
+		Settings.IgnoreFile = Settings.MakeListFromExtensionString( Settings.__GetDefault( configParser, "Settings", "IgnoreFile", "" ) )
 		Settings.PtpAnnounceUrl = configParser.get( "Settings", "PtpAnnounceUrl" )
 		Settings.PtpUserName = configParser.get( "Settings", "PtpUserName" )
 		Settings.PtpPassword = configParser.get( "Settings", "PtpPassword" )
