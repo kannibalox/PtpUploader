@@ -83,12 +83,13 @@ class TorrentLeech:
 		releaseInfo.ReleaseName = TorrentLeech.__RestoreReleaseName( releaseInfo.ReleaseName )
 			
 		releaseNameParser = ReleaseNameParser( releaseInfo.ReleaseName )
-		releaseNameParser.GetSourceAndFormat( releaseInfo )
 
 		# We don't have to check the release name of manual announcements. 
 		if ( not releaseInfo.IsManualAnnouncement ) and ( not releaseNameParser.IsAllowed() ):
 			logger.info( "Ignoring release '%s' because of its name." % releaseInfo.ReleaseName )
 			return None
+
+		releaseNameParser.GetSourceAndFormat( releaseInfo )
 
 		# Download the NFO.
 		nfoText = TorrentLeech.__GetNfo( logger, releaseInfo )

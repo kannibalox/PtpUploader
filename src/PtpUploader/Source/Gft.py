@@ -120,10 +120,11 @@ class Gft:
 			# In case of automatic announcement we have to check the release name if it is valid.
 			# We know the release name from the announcement, so we can filter it without downloading anything (yet) from the source.
 			releaseNameParser = ReleaseNameParser( releaseInfo.ReleaseName )
-			releaseNameParser.GetSourceAndFormat( releaseInfo )
 			if not releaseNameParser.IsAllowed():
 				logger.info( "Ignoring release '%s' because of its name." % releaseInfo.ReleaseName )
 				return None
+
+			releaseNameParser.GetSourceAndFormat( releaseInfo )
 
 			# TODO: temp
 			time.sleep( 30 ) # "Tactical delay" because of the not visible torrents. These should be rescheduled.
