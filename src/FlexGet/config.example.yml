@@ -1,5 +1,10 @@
-﻿feeds:
-  cinemageddon:
+﻿# Enable the feeds that you require by removing the underscore from their names.
+# You have to edit the exec line(s) to point to your working directory.
+# For TorrentLeech you have to copy your RSS link from your edit profile page to the url field.
+
+feeds:
+# Cinemageddon
+  _cinemageddon:
     rss:
       url: http://cinemageddon.net/rss.xml
       # Force ASCII because the feed is not encoded properly.
@@ -16,3 +21,25 @@
           from: url
           extract: 'http://cinemageddon\.net/details\.php\?id=(\d+).+'
     exec: echo >> "/path to WorkingDirectory/announcement/[source=cg][id=%(TorrentId)s][title=none]"
+
+# TorrentLeech
+  _torrentleech:
+    rss:
+      url: http://rss.torrentleech.org/AAAAAAAAAAAAAAAA
+      # Get the category field from the RSS.
+      other_fields: [category]
+    regexp:
+      from: category
+      accept:
+        - BDRip
+        - DVDRip/DVDScreener
+        - HD
+      # HD matches Epised HD too so Episoded HD is needed in the reject list. Other categories will remain undecided and won't be accepted, there is no need for adding them here.
+      reject:
+        - Episodes HD
+    manipulate:
+      # Create TorrentId field by extracting the ID from the URL.
+      - TorrentId:
+          from: url
+          extract: 'http://www\.torrentleech\.org/rss/download/(\d+)/.+'
+    exec: echo >> "/path to WorkingDirectory/announcement/[source=tl][id=%(TorrentId)s][title=%(title)s]"
