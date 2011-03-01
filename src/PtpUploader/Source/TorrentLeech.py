@@ -77,7 +77,8 @@ class TorrentLeech:
 		TorrentLeech.Login()
 		
 		# In case of manual announcement we don't have the name, so get it.
-		if releaseInfo.IsManualAnnouncement:
+		# TODO: none is a quick hack till announcement file reader doesn't handle empty titles
+		if releaseInfo.IsManualAnnouncement or len( releaseInfo.ReleaseName ) <= 0 or releaseInfo.ReleaseName == "none":
 			releaseInfo.ReleaseName = TorrentLeech.__GetReleaseName( logger, releaseInfo )
 
 		releaseInfo.ReleaseName = TorrentLeech.__RestoreReleaseName( releaseInfo.ReleaseName )
