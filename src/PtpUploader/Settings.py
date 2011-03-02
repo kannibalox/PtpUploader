@@ -9,11 +9,17 @@ import re
 class Settings(object):
 	@staticmethod
 	def MakeListFromExtensionString(extensions):
-		list = extensions.split( "," )
-		for i in range( len( list ) ):
-			list[ i ] = list[ i ].strip()
-
-		return list
+		# Looks like Python's split is not working as one would except (and as its documentation says). 
+		# "Splitting an empty string or a string consisting of just whitespace returns an empty list."
+		extensions = extensions.strip() 
+		if len( extensions ) > 0:
+			list = extensions.split( "," )
+			for i in range( len( list ) ):
+				list[ i ] = list[ i ].strip()
+				
+			return list
+		else:
+			return []
 
 	# This makes a list of TagList.
 	# Eg.: "A B, C, D E" will become [ [ "A", "B" ], [ "C" ], [ "D", "E" ] ]
