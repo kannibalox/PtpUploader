@@ -1,4 +1,4 @@
-from Globals import Globals
+﻿from Globals import Globals
 from TagList import TagList
 
 import ConfigParser
@@ -9,8 +9,7 @@ import re
 class Settings(object):
 	@staticmethod
 	def MakeListFromExtensionString(extensions):
-		# Looks like Python's split is not working as one would except (and as its documentation says). 
-		# "Splitting an empty string or a string consisting of just whitespace returns an empty list."
+		# If extensions is empty then we need an empty list. Splitting an empty string with a specified separator returns [''].
 		extensions = extensions.strip() 
 		if len( extensions ) > 0:
 			list = extensions.split( "," )
