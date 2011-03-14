@@ -91,17 +91,17 @@ class PtpUploader:
 		# Make sure the source is providing release codec information.
 		if len( releaseInfo.Codec ) <= 0:
 			logger.error( "Codec of the release is not specified." );
-			return None;		
+			return None;
 
 		# Make sure the source is providing release resolution type information.
 		if len( releaseInfo.ResolutionType ) <= 0:
 			logger.error( "Resolution type of the release is not specified." );
-			return None;		
-	
+			return None;
+
 		# HD XviDs are not allowed.
 		if releaseInfo.Quality == "High Definition" and ( releaseInfo.Codec == "XviD" or releaseInfo.Codec == "DivX" ):
 			raise PtpUploaderException( "Forbidden combination of quality '%s' and codec '%s'." % ( releaseInfo.Quality, releaseInfo.Codec ) )
-			
+
 		# TODO: this is temporary here. We should support it everywhere.
 		# If we are not logged in here that could mean that nothing interesting has been announcened for a while. 
 		Ptp.Login();
@@ -245,9 +245,13 @@ class PtpUploader:
 			MakeTorrent.Make( logger, uploadPath, uploadTorrentPath );
 		else: # Create the torrent including only the single video file.
 			MakeTorrent.Make( logger, videoFiles[ 0 ], uploadTorrentPath );
-	
+
+		# TODO: this is temporary here. We should support it everywhere.
+		# If we are not logged in here that could mean that the download took a lot of time and the user got logged out for some reason. 
+		Ptp.Login()
+
 		movieOnPtpResult = Ptp.GetMoviePageOnPtp( logger, releaseInfo.GetImdbId() );
-	
+
 		# If this is an automatic announcement then we have to check (again) if is it already on PTP.
 		if not releaseInfo.IsManualAnnouncement:
 			existingRelease = movieOnPtpResult.IsReleaseExists( releaseInfo )
