@@ -1,4 +1,3 @@
-from Source.Manual import Manual
 from Tool.MakeTorrent import MakeTorrent
 from Tool.MediaInfo import MediaInfo
 from Tool.Rtorrent import Rtorrent
@@ -88,8 +87,9 @@ class ReleaseInfoMaker:
 		uploadedScreenshots = screenshotMaker.TakeAndUploadScreenshots( screenshotPath, mediaInfos[ 0 ].DurationInSec )
 
 		# Make the release description.
-		manualSource = Manual()
-		releaseInfo = ReleaseInfo( announcementFilePath = "", announcementSource = manualSource, announcementId = "", releaseName = self.ReleaseName, logger = logger )
+		releaseInfo = ReleaseInfo()
+		releaseInfo.ReleaseName = self.ReleaseName
+		releaseInfo.Logger = logger
 		releaseInfo.FormatReleaseDescription( logger, releaseInfo, uploadedScreenshots, screenshotMaker.ScaleSize, mediaInfos, includeReleaseName = True, releaseDescriptionFilePath = releaseDescriptionFilePath )
 
 		# Create the torrent

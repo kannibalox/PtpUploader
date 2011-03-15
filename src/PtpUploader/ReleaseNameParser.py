@@ -67,6 +67,8 @@ class ReleaseNameParser:
         return False
 
     def IsAllowed(self):
+        # TODO: write to log what caused the return 
+        
         if self.Group in Settings.IgnoreReleaserGroup:
             return False
         

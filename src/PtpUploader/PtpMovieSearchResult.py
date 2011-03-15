@@ -130,10 +130,16 @@ class PtpMovieSearchResult:
 			return PtpMovieSearchResult.__IsInList( self.SdList, [ "DivX", "XviD", "x264", "H.264" ], checkAgainstSources )
 
 		raise PtpUploaderException( "Can't check whether the release '%s' exist on PTP because its type is unsupported." % releaseInfo.ReleaseName );
-	
+
+	def IsMoviePageExists(self):
+		if len( self.PtpId ) > 0:
+			return True
+		else:
+			return False
+
 	def IsReleaseExists(self, releaseInfo):
-		if self.PtpId is None:
-			return None;
+		if not self.IsMoviePageExists():
+			return None
 
 		# If source is not DVD/HD-DVD/Blu-ray then we check if there is a release with any proper quality sources.
 		# If there is, we won't add this lower quality release.

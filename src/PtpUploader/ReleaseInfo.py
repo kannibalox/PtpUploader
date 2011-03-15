@@ -1,18 +1,65 @@
+from Database import Base
 from PtpUploaderException import PtpUploaderException
 from Settings import Settings
+
+from sqlalchemy import Column, Integer, String
 
 import codecs
 import os
 
-class ReleaseInfo:
-	def __init__(self, announcementFilePath, announcementSource, announcementId, releaseName, logger):
-		self.AnnouncementFilePath = announcementFilePath
-		self.AnnouncementSource = announcementSource # A class from the Source namespace.
-		self.AnnouncementId = announcementId
-		self.ReleaseName = releaseName
-		self.Logger = logger
-		self.IsManualDownload = announcementSource.Name == "manual"
-		self.IsManualAnnouncement = self.IsManualDownload or self.ReleaseName == "ManualAnnouncement"
+class ReleaseInfo(Base):
+	__tablename__ = "release"
+
+	Id = Column( Integer, primary_key = True )
+	
+	# Announcement
+	AnnouncementSourceName = Column( String )
+	AnnouncementId = Column( String )
+	ReleaseName = Column( String )
+	
+	# For PTP
+	Type = Column( String )
+	ImdbId = Column( String )
+	Directors = Column( String )
+	Title = Column( String )
+	Year = Column( String )
+	Tags = Column( String )
+	MovieDescription = Column( String )
+	CoverArtUrl = Column( String )
+	YouTubeId = Column( String )
+	MetacriticUrl = Column( String )
+	RottenTomatoesUrl = Column( String )
+	Scene = Column( String )
+	Quality = Column( String )
+	Codec = Column( String )
+	CodecOther = Column( String )
+	Container = Column( String )
+	ContainerOther = Column( String )
+	ResolutionType = Column( String )
+	Resolution = Column( String )
+	Source = Column( String )
+	SourceOther = Column( String )
+	ReleaseDescription = Column( String )
+	RemasterTitle = Column( String )
+	RemasterYear = Column( String )
+
+	# Other
+	PtpId = Column( String )
+	InternationalTitle = Column( String )
+	Nfo = Column( String )
+	SourceTorrentPath = Column( String )
+	SourceTorrentInfoHash = Column( String )
+	ReleaseUploadPath = Column( String )
+	
+	def __init__(self):
+		self.AnnouncementFilePath = "" # TODO: NOT IN DB YET!
+		self.AnnouncementSource = None # TODO: NOT IN DB YET! # A class from the Source namespace.
+		self.AnnouncementSourceName = "" # TODO: announcementSource # A name of a class from the Source namespace.
+		self.AnnouncementId = ""
+		self.ReleaseName = ""
+		self.Logger = None # TODO: logger
+		self.IsManualDownload = False # TODO: NOT IN DB YET! announcementSource.Name == "manual"
+		self.IsManualAnnouncement = False # TODO: NOT IN DB YET! self.IsManualDownload or self.ReleaseName == "ManualAnnouncement"
 
 		# These are the required fields needed for an upload to PTP.		
 		self.Type = "Movies" # Movies, Musicals, Standup Comedy, Concerts
@@ -23,18 +70,28 @@ class ReleaseInfo:
 		self.Tags = ""
 		self.MovieDescription = u""
 		self.CoverArtUrl = ""
+		self.YouTubeId = "" # Eg.: FbdOnGNBMAo for http://www.youtube.com/watch?v=FbdOnGNBMAo
+		self.MetacriticUrl = ""
+		self.RottenTomatoesUrl = ""
 		self.Scene = "" # Empty string or "on" (wihout the quotes).
 		self.Quality = "" # Other, Standard Definition, High Definition
 		self.Codec = "" # Other, DivX, XviD, H.264, x264, DVD5, DVD9, BD25, BD50
+		self.CodecOther = "" # Codec type when Codec is Other.
 		self.Container = "" # Other, MPG, AVI, MP4, MKV, VOB IFO, ISO, m2ts
+		self.ContainerOther = "" # Container type when Container is Other.
 		self.ResolutionType = "" # Other, PAL, NTSC, 480p, 576p, 720p, 1080i, 1080p
 		self.Resolution = "" # Exact resolution when ResolutionType is Other. 
 		self.Source = "" # Other, CAM, TS, VHS, TV, DVD-Screener, TC, HDTV, R5, DVD, HD-DVD, Blu-ray
+		self.SourceOther = "" # Source type when Source is Other.
 		self.ReleaseDescription = u""
+		self.RemasterTitle = "" # Eg.: Hardcoded English
+		self.RemasterYear = ""
 		# Till this.
 		
+		self.PtpId = ""
 		self.InternationalTitle = "" # International title of the movie. Eg.: The Secret in Their Eyes. Needed for renaming releases coming from Cinemageddon.
 		self.Nfo = u""
+		self.SourceTorrentPath = ""
 		self.SourceTorrentInfoHash = ""
 		self.ReleaseUploadPath = "" # Empty if using the default path. See GetReleaseUploadPath.
 
@@ -83,7 +140,10 @@ class ReleaseInfo:
 		self.ReleaseUploadPath = path
 	
 	def IsStandardDefintion(self):
-		return self.Quality == "Standard Definition"		
+		return self.Quality == "Standard Definition"
+	
+	def HasPtpId(self):
+		return len( self.PtpId ) > 0
 
 	# Fills container, codec and resolution from media info.
 	def GetDataFromMediaInfo(self, mediaInfo):

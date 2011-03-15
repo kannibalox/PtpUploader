@@ -1,0 +1,49 @@
+from PtpUploaderException import *
+
+import os
+
+class Download:
+	def __init__(self, releaseInfo, jobManager, rtorrent):
+		self.ReleaseInfo = releaseInfo
+		self.JobManager = jobManager
+		self.Rtorrent = rtorrent
+		self.TorrentPath = ""
+
+	def __CreateReleaseDirectory(self):
+		releaseRootPath = self.ReleaseInfo.GetReleaseRootPath()
+		self.ReleaseInfo.Logger.info( "Creating release root directory at '%s'." % releaseRootPath )
+
+		if os.path.exists( releaseRootPath ):
+			raise PtpUploaderException( "Release root directory '%s' already exists." % releaseRootPath )	
+
+		os.makedirs( releaseRootPath )
+
+	def __DownloadTorrentFile(self):
+		torrentName = self.ReleaseInfo.AnnouncementSource.Name + " " + self.ReleaseInfo.ReleaseName + ".torrent"
+		self.TorrentPath = os.path.join( self.ReleaseInfo.GetReleaseRootPath(), torrentName )
+		self.ReleaseInfo.AnnouncementSource.DownloadTorrent( self.ReleaseInfo.Logger, self.ReleaseInfo, self.TorrentPath )
+
+	def __DownloadTorrent(self):
+		self.ReleaseInfo.SourceTorrentInfoHash = self.Rtorrent.AddTorrent( self.ReleaseInfo.Logger, self.TorrentPath, self.ReleaseInfo.GetReleaseDownloadPath() )
+		self.JobManager.AddToPendingDownloads( self.ReleaseInfo )
+
+	def Work(self):
+		if self.ReleaseInfo.IsManualDownload:
+			self.ReleaseInfo.Logger.info( "Manual download is specified for release '%s', download skipped, going to next phase." % self.ReleaseInfo.ReleaseName )
+			self.JobManager.AddToPendingDownloads( self.ReleaseInfo )			
+			return True
+
+		self.__CreateReleaseDirectory()
+		self.__DownloadTorrentFile()
+		self.__DownloadTorrent()
+		
+		return True
+
+	@staticmethod
+	def DoWork(releaseInfo, jobManager, rtorrent):
+		try:
+			download = Download( releaseInfo, jobManager, rtorrent )
+			return download.Work()
+		except Exception, e:
+			e.Logger = releaseInfo.Logger
+			raise

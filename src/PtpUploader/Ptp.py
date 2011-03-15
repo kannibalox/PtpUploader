@@ -52,11 +52,28 @@ class Ptp:
 		
 		if response.find( 'action="login.php"' ) != -1:
 			raise PtpUploaderException( "Looks like you are not logged in to PTP. Probably due to the bad user name or password." )
-				
+		
+	# ptpId must be a valid id		
+	# returns with PtpMovieSearchResult
+	@staticmethod
+	def GetMoviePageOnPtp(logger, ptpId):
+		logger.info( "Getting movie page for PTP id '%s'." % ptpId )
+		
+		opener = urllib2.build_opener( urllib2.HTTPCookieProcessor( Globals.CookieJar ) )
+		request = urllib2.Request( "http://passthepopcorn.me/torrents.php?id=%s" % ptpId )
+		result = opener.open( request )
+		response = result.read()
+		Ptp.CheckIfLoggedInFromResponse( response )
+
+		if response.find( "<h2>Error 404</h2>" ) != -1:
+			raise PtpUploaderException( "Movie with PTP id '%s' doesn't exists." % ptpId )
+
+		return PtpMovieSearchResult( ptpId, response )
+
 	# imdbId: IMDb id. Eg.: 0137363 for http://www.imdb.com/title/tt0137363/
 	# returns with PtpMovieSearchResult
 	@staticmethod
-	def GetMoviePageOnPtp(logger, imdbId):
+	def GetMoviePageOnPtpByImdbId(logger, imdbId):
 		logger.info( "Trying to find movie with IMDb id '%s' on PTP." % imdbId );
 		
 		opener = urllib2.build_opener( urllib2.HTTPCookieProcessor( Globals.CookieJar ) );
@@ -74,12 +91,12 @@ class Ptp:
 			return PtpMovieSearchResult( ptpId, response );
 		elif response.find( "<h2>Error 404</h2>" ) != -1: # For some deleted movies PTP return with this error.
 			logger.info( "Movie with IMDb id '%s' doesn't exists on PTP. (Got error 404.)" % imdbId );
-			return PtpMovieSearchResult( ptpId = None, moviePageHtml = None );
+			return PtpMovieSearchResult( ptpId = "", moviePageHtml = None );
 		elif response.find( "<h2>Your search did not match anything.</h2>" ) == -1: # Multiple movies with the same IMDb id. 
 			raise PtpUploaderException( "There are multiple movies on PTP with IMDb id '%s'." % imdbId )
 		else:
 			logger.info( "Movie with IMDb id '%s' doesn't exists on PTP." % imdbId );
-			return PtpMovieSearchResult( ptpId = None, moviePageHtml = None );
+			return PtpMovieSearchResult( ptpId = "", moviePageHtml = None );
 
 	@staticmethod
 	def FillImdbInfo(logger, releaseInfo):
@@ -156,17 +173,17 @@ class Ptp:
 		commonParams = {
 				"submit": "true",
 				"type": releaseInfo.Type,
-				"remaster_year": "",
-				"remaster_title": "",
+				"remaster_year": releaseInfo.RemasterYear,
+				"remaster_title": releaseInfo.RemasterTitle,
 				"quality": releaseInfo.Quality,
 				"codec": releaseInfo.Codec,
-				"other_codec": "",
+				"other_codec": releaseInfo.CodecOther,
 				"container": releaseInfo.Container,
-				"other_container": "",
+				"other_container": releaseInfo.ContainerOther,
 				"resolution": releaseInfo.ResolutionType,
 				"other_resolution": releaseInfo.Resolution,
 				"source": releaseInfo.Source,
-				"other_source": "",
+				"other_source": releaseInfo.SourceOther,
 				"release_desc": releaseInfo.ReleaseDescription
 				};
 
@@ -187,15 +204,15 @@ class Ptp:
 	def __UploadMovieGetParamsForNewMovie(releaseInfo):
 		params = {
 			"imdb": releaseInfo.ImdbId,
-			"tomatoes": "",
-			"metacritic": "",
+			"tomatoes": releaseInfo.RottenTomatoesUrl,
+			"metacritic": releaseInfo.MetacriticUrl,
 			"title": releaseInfo.Title,
 			"year": releaseInfo.Year,
 			"image": releaseInfo.CoverArtUrl,
 			"genre_tags": "---",
 			"tags": releaseInfo.Tags,
 			"album_desc": releaseInfo.MovieDescription,
-			"trailer": "",
+			"trailer": releaseInfo.YouTubeId,
 			};
 			
 		paramList = params.items();
@@ -216,22 +233,20 @@ class Ptp:
 			
 		return paramList;
 	
-	# If ptpId is None then it will added as a new movie.
-	# If it is not None then it will be added as a new format to an existing movie.
 	@staticmethod
-	def UploadMovie(logger, releaseInfo, torrentPath, ptpId):
+	def UploadMovie(logger, releaseInfo, torrentPath):
 		url = "";
 		paramList = Ptp.__UploadMovieGetParamsCommon( releaseInfo );
 		
 		# We always use HTTPS for uploading because if "Force HTTPS" is enabled in the profile then the HTTP upload is not working.
-		if ptpId is None:
+		if releaseInfo.HasPtpId():
+			logger.info( "Uploading torrent '%s' to PTP as a new format for 'http://passthepopcorn.me/torrents.php?id=%s'." % ( torrentPath, releaseInfo.PtpId ) );
+			url = "https://passthepopcorn.me/upload.php?groupid=%s" % releaseInfo.PtpId;
+			paramList.extend( Ptp.__UploadMovieGetParamsForAddFormat( releaseInfo.PtpId ) ); 	
+		else:
 			logger.info( "Uploading torrent '%s' to PTP as a new movie." % torrentPath );
 			url = "https://passthepopcorn.me/upload.php";
 			paramList.extend( Ptp.__UploadMovieGetParamsForNewMovie( releaseInfo ) );
-		else:
-			logger.info( "Uploading torrent '%s' to PTP as a new format for 'http://passthepopcorn.me/torrents.php?id=%s'." % ( torrentPath, ptpId ) );
-			url = "https://passthepopcorn.me/upload.php?groupid=%s" % ptpId;
-			paramList.extend( Ptp.__UploadMovieGetParamsForAddFormat( ptpId ) ); 	
 		
 		# Add the torrent file.
 		torrentFilename = os.path.basename( torrentPath ); # Filename without path.
@@ -256,15 +271,13 @@ class Ptp:
 		if match is None:
 			raise PtpUploaderException( "Torrent upload to PTP failed: result url '%s' is not the expected one." % result.url )			
 
-		# Refresh data is not needed for new movies because PTP does this automatically.
+		# Refresh data is not needed for new movies because PTP refresh them automatically.
 		# So we only do a refresh when adding as a new format.
-		if ptpId is None:
-			ptpId = match.group( 1 )
-		else:
+		if releaseInfo.HasPtpId():
 			# response contains the movie page of the uploaded movie.
 			Ptp.TryRefreshMoviePage( logger, ptpId, response );
-
-		return ptpId;
+		else:
+			releaseInfo.PtpId = match.group( 1 )
 
 	# ptpId: movie page id. For example: ptpId is 28622 for the movie with url: http://passthepopcorn.me/torrents.php?id=28622 	
 	# page: the html contents of the movie page.

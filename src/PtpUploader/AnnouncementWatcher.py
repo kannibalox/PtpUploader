@@ -27,9 +27,20 @@ class AnnouncementWatcher:
 			Globals.Logger.error( "Unknown announcement source: '%s'." % announcementSourceName )
 			return None
 
+		releaseInfo = ReleaseInfo()
+		releaseInfo.ReleaseName = releaseName
+		releaseInfo.AnnouncementFilePath = announcementFilePath
+		releaseInfo.AnnouncementSource = announcementSource
+		releaseInfo.AnnouncementId = announcementId
+
 		announcementLogFilePath = os.path.join( Settings.GetAnnouncementLogPath(), announcementFilename )
-		logger = Logger( announcementLogFilePath )
-		return ReleaseInfo( announcementFilePath, announcementSource, announcementId, releaseName, logger )
+		releaseInfo.Logger = Logger( announcementLogFilePath )
+		
+		# TODO: after the webui is finished, this won't be needed anymore
+		if announcementSource.Name == "manual":
+			releaseInfo.IsManualDownload = True			 
+
+		return releaseInfo
 	
 	# No logging here because it would result in spamming.
 	@staticmethod
