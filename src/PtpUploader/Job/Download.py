@@ -7,7 +7,6 @@ class Download:
 		self.ReleaseInfo = releaseInfo
 		self.JobManager = jobManager
 		self.Rtorrent = rtorrent
-		self.TorrentPath = ""
 
 	def __CreateReleaseDirectory(self):
 		releaseRootPath = self.ReleaseInfo.GetReleaseRootPath()
@@ -19,12 +18,15 @@ class Download:
 		os.makedirs( releaseRootPath )
 
 	def __DownloadTorrentFile(self):
+		if self.ReleaseInfo.IsSourceTorrentPathSet():
+			return
+
 		torrentName = self.ReleaseInfo.AnnouncementSource.Name + " " + self.ReleaseInfo.ReleaseName + ".torrent"
-		self.TorrentPath = os.path.join( self.ReleaseInfo.GetReleaseRootPath(), torrentName )
-		self.ReleaseInfo.AnnouncementSource.DownloadTorrent( self.ReleaseInfo.Logger, self.ReleaseInfo, self.TorrentPath )
+		self.ReleaseInfo.SourceTorrentPath = os.path.join( self.ReleaseInfo.GetReleaseRootPath(), torrentName )
+		self.ReleaseInfo.AnnouncementSource.DownloadTorrent( self.ReleaseInfo.Logger, self.ReleaseInfo, self.ReleaseInfo.SourceTorrentPath )
 
 	def __DownloadTorrent(self):
-		self.ReleaseInfo.SourceTorrentInfoHash = self.Rtorrent.AddTorrent( self.ReleaseInfo.Logger, self.TorrentPath, self.ReleaseInfo.GetReleaseDownloadPath() )
+		self.ReleaseInfo.SourceTorrentInfoHash = self.Rtorrent.AddTorrent( self.ReleaseInfo.Logger, self.ReleaseInfo.SourceTorrentPath, self.ReleaseInfo.GetReleaseDownloadPath() )
 		self.JobManager.AddToPendingDownloads( self.ReleaseInfo )
 
 	def Work(self):

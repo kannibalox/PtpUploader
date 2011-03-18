@@ -1,0 +1,28 @@
+﻿<!doctype html>
+
+
+
+
+
+<html>
+  <head>
+  {% block head %}
+  {% endblock %}
+
+  </head>
+  
+  
+  <body>
+
+<script type=text/javascript
+  src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
+<script type=text/javascript>
+  var $SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
+</script>
+  
+    <div id="body">
+      {% block body %}{% endblock %}
+    </div>
+
+  </body>
+</html>

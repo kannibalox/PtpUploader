@@ -1,13 +1,13 @@
-from Database import Base
+from Database import Database
 from PtpUploaderException import PtpUploaderException
 from Settings import Settings
 
-from sqlalchemy import Column, Integer, String
+from sqlalchemy import Column, Integer, orm, String
 
 import codecs
 import os
 
-class ReleaseInfo(Base):
+class ReleaseInfo(Database.Base):
 	__tablename__ = "release"
 
 	Id = Column( Integer, primary_key = True )
@@ -52,14 +52,9 @@ class ReleaseInfo(Base):
 	ReleaseUploadPath = Column( String )
 	
 	def __init__(self):
-		self.AnnouncementFilePath = "" # TODO: NOT IN DB YET!
-		self.AnnouncementSource = None # TODO: NOT IN DB YET! # A class from the Source namespace.
-		self.AnnouncementSourceName = "" # TODO: announcementSource # A name of a class from the Source namespace.
+		self.AnnouncementSourceName = "" # A name of a class from the Source namespace.
 		self.AnnouncementId = ""
 		self.ReleaseName = ""
-		self.Logger = None # TODO: logger
-		self.IsManualDownload = False # TODO: NOT IN DB YET! announcementSource.Name == "manual"
-		self.IsManualAnnouncement = False # TODO: NOT IN DB YET! self.IsManualDownload or self.ReleaseName == "ManualAnnouncement"
 
 		# These are the required fields needed for an upload to PTP.		
 		self.Type = "Movies" # Movies, Musicals, Standup Comedy, Concerts
@@ -94,9 +89,41 @@ class ReleaseInfo(Base):
 		self.SourceTorrentPath = ""
 		self.SourceTorrentInfoHash = ""
 		self.ReleaseUploadPath = "" # Empty if using the default path. See GetReleaseUploadPath.
+		
+		self.MyConstructor()
+
+	# "The SQLAlchemy ORM does not call __init__ when recreating objects from database rows."
+	@orm.reconstructor
+	def MyConstructor(self):
+		self.AnnouncementFilePath = "" # TODO: NOT IN DB YET!
+		self.AnnouncementSource = None # TODO: NOT IN DB YET! # A class from the Source namespace.
+		self.Logger = None
+		self.IsManualDownload = False # TODO: NOT IN DB YET! announcementSource.Name == "manual"
+		self.IsManualAnnouncement = False # TODO: NOT IN DB YET! self.IsManualDownload or self.ReleaseName == "ManualAnnouncement"
 
 	def GetImdbId(self):
 		return self.ImdbId
+
+	def HasImdbId(self):
+		return len( self.ImdbId ) > 0
+
+	def HasPtpId(self):
+		return len( self.PtpId ) > 0
+	
+	def IsCodecSet(self): 
+		return len( self.Codec ) > 0
+
+	def IsSourceSet(self): 
+		return len( self.Source ) > 0
+
+	def IsQualitySet(self): 
+		return len( self.Quality ) > 0
+
+	def IsResolutionTypeSet(self): 
+		return len( self.ResolutionType ) > 0
+	
+	def IsSourceTorrentPathSet(self):
+		return len( self.SourceTorrentPath ) > 0
 	
 	def GetDirectors(self):
 		return self.Directors.split( ", " )
@@ -142,9 +169,6 @@ class ReleaseInfo(Base):
 	def IsStandardDefintion(self):
 		return self.Quality == "Standard Definition"
 	
-	def HasPtpId(self):
-		return len( self.PtpId ) > 0
-
 	# Fills container, codec and resolution from media info.
 	def GetDataFromMediaInfo(self, mediaInfo):
 		if mediaInfo.IsAvi():

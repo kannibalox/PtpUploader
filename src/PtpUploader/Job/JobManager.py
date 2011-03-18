@@ -5,6 +5,10 @@ from Source.SourceFactory import SourceFactory
 from Tool.Rtorrent import Rtorrent
 
 from AnnouncementWatcher import *
+from Database import Database
+from Logger import Logger # TODO: HACK
+
+import Queue
 
 class JobManager:
 	def __init__(self):
@@ -12,6 +16,7 @@ class JobManager:
 		self.Rtorrent = Rtorrent()
 		self.PendingAnnouncements = AnnouncementWatcher.GetPendingAnnouncements( self.SourceFactory ) # Contains ReleaseInfo
 		self.PendingDownloads = [] # Contains ReleaseInfo
+		self.DatabaseQueue = Queue.Queue() # Contains ReleaseInfo ids.
 		
 	def __IsSourceAvailable(self, source):
 		runningDownloads = 0
@@ -46,15 +51,35 @@ class JobManager:
 		return announcementToHandle 
 
 	def __GetAnnouncementToProcess(self):
+		# TODO: HACK
+		
 		# First check if we can process anything from the pending announcments.
-		announcementToHandle = self.__GetAnnouncementFromPendingList()
-		if announcementToHandle:
-			return announcementToHandle
+		#announcementToHandle = self.__GetAnnouncementFromPendingList()
+		#if announcementToHandle:
+		#	return announcementToHandle
 
-		return self.__ProcessNewAnnouncements()
+		#return self.__ProcessNewAnnouncements()
+		
+		if self.DatabaseQueue.empty():
+			return None
+		
+		releaseInfoId = self.DatabaseQueue.get()
+		releaseInfo = Database.DbSession.query( ReleaseInfo ).filter( ReleaseInfo.Id == releaseInfoId ).first()
+		
+		# TODO: HACK
+		announcementLogFilePath = os.path.join( Settings.GetAnnouncementLogPath(), releaseInfo.ReleaseName )
+		releaseInfo.Logger = Logger( announcementLogFilePath )
+		
+		# TODO: hack
+		releaseInfo.AnnouncementSource = self.SourceFactory.GetSource( releaseInfo.AnnouncementSourceName )
+		
+		return releaseInfo
 	
 	def AddToPendingDownloads(self, releaseInfo):
 		self.PendingDownloads.append( releaseInfo )
+
+	def AddToDatabaseQueue(self, releaseInfoId):
+		self.DatabaseQueue.put( releaseInfoId )
 		
 	def __GetFinishedDownloadToProcess(self):
 		if len( self.PendingDownloads ) > 0:
@@ -75,6 +100,7 @@ class JobManager:
 		releaseInfo = self.__GetFinishedDownloadToProcess()
 		if releaseInfo is not None: 
 			Upload.DoWork( releaseInfo, self.Rtorrent )
+			Database.DbSession.commit() # TODO
 			return True
 
 		# If there is a new announcement, then check and start downloading it.

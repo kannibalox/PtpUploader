@@ -73,11 +73,19 @@ class Settings(object):
 		return os.path.join( Settings.WorkingPath, "log/announcement" )
 
 	@staticmethod
+	def GetTemporaryPath():
+		return os.path.join( Settings.WorkingPath, "temporary" )
+
+	@staticmethod
+	def GetDatabaseFilePath():
+		return os.path.join( Settings.WorkingPath, "database.sqlite" )
+
+	@staticmethod
 	def __GetDefault(configParser, section, option, default, raw = False):
 		try:
 			return configParser.get( section, option, raw = raw )
-  		except ConfigParser.NoOptionError:
-  			return default
+		except ConfigParser.NoOptionError:
+			return default
 
 	@staticmethod
 	def LoadSettings():
@@ -124,6 +132,8 @@ class Settings(object):
 		Settings.IgnoreReleaserGroup = Settings.MakeListFromExtensionString( Settings.__GetDefault( configParser, "Settings", "IgnoreReleaserGroup", "" ) )
 		Settings.SceneReleaserGroup = Settings.MakeListFromExtensionString( Settings.__GetDefault( configParser, "Settings", "SceneReleaserGroup", "" ) )
 
+		Settings.WebServerAddress = Settings.__GetDefault( configParser, "Settings", "WebServerAddress", "" )
+
 		# Create the announcement directory.
 		# Because the processed announcement directory is within the announcement directory, we don't need to create the announcement directory separately.
 		processedAnnouncementPath = Settings.GetProcessedAnnouncementPath()
@@ -134,3 +144,8 @@ class Settings(object):
 		pendingAnnouncementPath = Settings.GetPendingAnnouncementPath()
 		if not os.path.exists( pendingAnnouncementPath ):
 			os.makedirs( pendingAnnouncementPath )
+
+		# Create the temporary directory.
+		temporaryPath = Settings.GetPendingAnnouncementPath()
+		if not os.path.exists( temporaryPath ):
+			os.makedirs( temporaryPath )
