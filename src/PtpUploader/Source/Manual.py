@@ -6,8 +6,6 @@ from ReleaseInfo import ReleaseInfo
 from ReleaseNameParser import ReleaseNameParser
 from Settings import Settings
 
-# How will we get the IMDb id and the info gained from GetSourceAndFormatFromSceneReleaseName? Probably only with a custom irc message if there is no NFO.
-
 class Manual:
 	def __init__(self):
 		self.Name = "manual"
@@ -19,9 +17,11 @@ class Manual:
 	
 	@staticmethod
 	def PrepareDownload(logger, releaseInfo):
-		nfo = NfoParser.GetNfoFile( ReleaseInfo.GetReleaseDownloadPathFromRelaseName( releaseInfo.ReleaseName ) )
-		releaseInfo.ImdbId = NfoParser.GetImdbId( nfo )
-		releaseInfo.Nfo = nfo;
+		# TODO: support for new movies without IMDB id
+		if ( not releaseInfo.HasImdbId() ) and ( not releaseInfo.HasPtpId() ):
+			logger.info( "Release '%s' doesn't contain IMDb or PTP id." % releaseInfo.ReleaseName )
+			return None
+		
 		releaseNameParser = ReleaseNameParser( releaseInfo.ReleaseName )
 		releaseNameParser.GetSourceAndFormat( releaseInfo )
 		if releaseNameParser.Scene: 

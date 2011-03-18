@@ -22,6 +22,7 @@ class CheckAnnouncement:
 			return False
 	
 		# Make sure the source is providing a name.
+		self.ReleaseInfo.ReleaseName = self.ReleaseInfo.ReleaseName.strip()
 		if len( self.ReleaseInfo.ReleaseName ) <= 0:
 			self.ReleaseInfo.Logger.error( "Name of the release is not specified." )
 			return False
