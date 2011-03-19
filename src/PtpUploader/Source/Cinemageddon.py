@@ -203,3 +203,12 @@ class Cinemageddon(SourceBase):
 	@staticmethod
 	def IncludeReleaseNameInReleaseDescription():
 		return False
+	
+
+	@staticmethod
+	def GetIdFromUrl(url):
+		result = re.match( r".*cinemageddon\.net/details.php\?id=(\d+).*", url )
+		if result is None:
+			return ""
+		else:
+			return result.group( 1 )	

@@ -26,3 +26,7 @@ class SourceBase:
 	@staticmethod
 	def IncludeReleaseNameInReleaseDescription():
 		return True
+
+	@staticmethod
+	def GetIdFromUrl(url):
+		return ""

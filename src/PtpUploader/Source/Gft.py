@@ -167,3 +167,11 @@ class Gft(SourceBase):
 		nfoPath = ReleaseExtractor.Extract( releaseInfo.GetReleaseDownloadPath(), releaseInfo.GetReleaseUploadPath() )
 		if nfoPath is not None:
 			releaseInfo.Nfo = NfoParser.ReadNfoFileToUnicode( nfoPath )
+
+	@staticmethod
+	def GetIdFromUrl(url):
+		result = re.match( r".*thegft\.org/details.php\?id=(\d+).*", url )
+		if result is None:
+			return ""
+		else:
+			return result.group( 1 )			
