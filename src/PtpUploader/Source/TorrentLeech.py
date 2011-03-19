@@ -1,3 +1,5 @@
+from Source.SourceBase import SourceBase
+
 from Globals import Globals
 from NfoParser import NfoParser
 from PtpUploaderException import *
@@ -10,7 +12,7 @@ import re
 import urllib
 import urllib2
 
-class TorrentLeech:
+class TorrentLeech(SourceBase):
 	def __init__(self):
 		self.Name = "tl"
 		self.MaximumParallelDownloads = Settings.TorrentLeechMaximumParallelDownloads
@@ -130,15 +132,3 @@ class TorrentLeech:
 		nfoPath = ReleaseExtractor.Extract( releaseInfo.GetReleaseDownloadPath(), releaseInfo.GetReleaseUploadPath() )
 		if nfoPath is not None:
 			releaseInfo.Nfo = NfoParser.ReadNfoFileToUnicode( nfoPath )
-
-	@staticmethod
-	def RenameRelease(logger, releaseInfo):
-		pass
-				
-	@staticmethod
-	def IsSingleFileTorrentNeedsDirectory():
-		return True
-	
-	@staticmethod
-	def IncludeReleaseNameInReleaseDescription():
-		return True
