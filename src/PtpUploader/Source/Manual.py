@@ -1,3 +1,5 @@
+from Source.SourceBase import SourceBase
+
 from Globals import Globals
 from NfoParser import NfoParser
 from PtpUploaderException import PtpUploaderException
@@ -6,14 +8,10 @@ from ReleaseInfo import ReleaseInfo
 from ReleaseNameParser import ReleaseNameParser
 from Settings import Settings
 
-class Manual:
+class Manual(SourceBase):
 	def __init__(self):
 		self.Name = "manual"
 		self.MaximumParallelDownloads = 1
-	
-	@staticmethod
-	def Login():
-		pass;
 	
 	@staticmethod
 	def PrepareDownload(logger, releaseInfo):
@@ -29,24 +27,8 @@ class Manual:
 		return releaseInfo
 		
 	@staticmethod
-	def DownloadTorrent(logger, releaseInfo, path):
-		pass;
-		
-	@staticmethod
 	def ExtractRelease(logger, releaseInfo):
 		# Extract the release.
 		nfoPath = ReleaseExtractor.Extract( releaseInfo.GetReleaseDownloadPath(), releaseInfo.GetReleaseUploadPath() )
 		if nfoPath is not None:
 			releaseInfo.Nfo = NfoParser.ReadNfoFileToUnicode( nfoPath )
-
-	@staticmethod
-	def RenameRelease(logger, releaseInfo):
-		pass
-
-	@staticmethod
-	def IsSingleFileTorrentNeedsDirectory():
-		return True
-	
-	@staticmethod
-	def IncludeReleaseNameInReleaseDescription():
-		return True

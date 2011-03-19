@@ -1,3 +1,5 @@
+from Source.SourceBase import SourceBase
+
 from Globals import Globals
 from NfoParser import NfoParser
 from PtpUploaderException import PtpUploaderException
@@ -11,7 +13,7 @@ import time
 import urllib
 import urllib2
 
-class Gft:
+class Gft(SourceBase):
 	def __init__(self):
 		self.Name = "gft"
 		self.MaximumParallelDownloads = Settings.GftMaximumParallelDownloads
@@ -165,15 +167,3 @@ class Gft:
 		nfoPath = ReleaseExtractor.Extract( releaseInfo.GetReleaseDownloadPath(), releaseInfo.GetReleaseUploadPath() )
 		if nfoPath is not None:
 			releaseInfo.Nfo = NfoParser.ReadNfoFileToUnicode( nfoPath )
-
-	@staticmethod
-	def RenameRelease(logger, releaseInfo):
-		pass
-				
-	@staticmethod
-	def IsSingleFileTorrentNeedsDirectory():
-		return True
-	
-	@staticmethod
-	def IncludeReleaseNameInReleaseDescription():
-		return True

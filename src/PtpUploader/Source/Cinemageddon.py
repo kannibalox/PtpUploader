@@ -1,4 +1,6 @@
 ﻿from InformationSource.Imdb import Imdb
+from Source.SourceBase import SourceBase
+
 from NfoParser import NfoParser
 from Globals import Globals
 from PtpUploaderException import PtpUploaderException
@@ -11,7 +13,7 @@ import re
 import urllib
 import urllib2
 
-class Cinemageddon:
+class Cinemageddon(SourceBase):
 	def __init__(self):
 		self.Name = "cg"
 		self.MaximumParallelDownloads = Settings.CinemageddonMaximumParallelDownloads
@@ -198,10 +200,6 @@ class Cinemageddon:
 		newUploadPath = os.path.join( newUploadPath, name )
 		releaseInfo.SetReleaseUploadPath( newUploadPath )
 
-	@staticmethod
-	def IsSingleFileTorrentNeedsDirectory():
-		return True
-	
 	@staticmethod
 	def IncludeReleaseNameInReleaseDescription():
 		return False
