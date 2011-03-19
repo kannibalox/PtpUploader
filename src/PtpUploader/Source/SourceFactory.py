@@ -28,3 +28,11 @@ class SourceFactory:
 	def GetSource(self, sourceName):
 		# We don't want to throw KeyError exception, so we use get.
 		return self.Sources.get( sourceName ) 
+	
+	def GetSourceAndIdByUrl(self, url):
+		for key, source in self.Sources.iteritems():
+			id = source.GetIdFromUrl( url )
+			if len( id ) > 0:
+				return source, id
+		
+		return None, ""
