@@ -26,6 +26,7 @@ class Download:
 		self.ReleaseInfo.AnnouncementSource.DownloadTorrent( self.ReleaseInfo.Logger, self.ReleaseInfo, self.ReleaseInfo.SourceTorrentPath )
 
 	def __DownloadTorrent(self):
+		self.Rtorrent.CleanTorrentFile( self.ReleaseInfo.Logger, self.ReleaseInfo.SourceTorrentPath )
 		self.ReleaseInfo.SourceTorrentInfoHash = self.Rtorrent.AddTorrent( self.ReleaseInfo.Logger, self.ReleaseInfo.SourceTorrentPath, self.ReleaseInfo.GetReleaseDownloadPath() )
 		self.JobManager.AddToPendingDownloads( self.ReleaseInfo )
 
