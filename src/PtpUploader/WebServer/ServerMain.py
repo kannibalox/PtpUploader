@@ -53,7 +53,7 @@ def GetPtpOrImdbId(releaseInfo, text):
 		if url.netloc == "passthepopcorn.me" or url.netloc == "www.passthepopcorn.me":
 			params = urlparse.parse_qs( url.query )
 			ptpId = params.get( "id" )
-			if ptpIdId is not None:
+			if ptpId is not None:
 				releaseInfo.PtpId = ptpId
 
 @app.route( '/', methods=[ 'GET', 'POST' ] )
