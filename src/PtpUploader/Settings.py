@@ -127,6 +127,8 @@ class Settings(object):
 		Settings.SceneReleaserGroup = Settings.MakeListFromExtensionString( Settings.__GetDefault( configParser, "Settings", "SceneReleaserGroup", "" ) )
 
 		Settings.WebServerAddress = Settings.__GetDefault( configParser, "Settings", "WebServerAddress", "" )
+		Settings.WebServerUsername = Settings.__GetDefault( configParser, "Settings", "WebServerUsername", "admin" )
+		Settings.WebServerPassword = Settings.__GetDefault( configParser, "Settings", "WebServerPassword", "" )
 
 		# Create the announcement directory.
 		processedAnnouncementPath = Settings.GetAnnouncementWatchPath()

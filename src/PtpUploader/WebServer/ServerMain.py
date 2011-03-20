@@ -10,6 +10,7 @@ https://github.com/blueimp/jQuery-File-Upload/
 
 from Job.JobStartMode import JobStartMode
 
+from Authentication import requires_auth
 from Database import Database
 from Globals import Globals
 from NfoParser import NfoParser
@@ -44,7 +45,7 @@ def GetYouTubeId(text):
 def GetPtpOrImdbId(releaseInfo, text):
 	imdbId = NfoParser.GetImdbId( text )
 	if len( imdbId ) > 0:
-		release.ImdbId = imdbId 
+		releaseInfo.ImdbId = imdbId 
 	else:
 		# Using urlparse because of torrent permalinks:
 		# https://passthepopcorn.me/torrents.php?id=9730&torrentid=72322
@@ -53,9 +54,10 @@ def GetPtpOrImdbId(releaseInfo, text):
 			params = urlparse.parse_qs( url.query )
 			ptpId = params.get( "id" )
 			if ptpIdId is not None:
-				release.PtpId = ptpId
+				releaseInfo.PtpId = ptpId
 
 @app.route( '/', methods=[ 'GET', 'POST' ] )
+@requires_auth
 def index():
 	if request.method == 'POST':
 		release = ReleaseInfo()
@@ -144,6 +146,7 @@ def index():
 	return render_template('index.html')
 
 @app.route( '/jobs/' )
+@requires_auth
 def jobs():
 	text = ""
 	for releaseInfo in Database.DbSession.query( ReleaseInfo ):#.order_by( DbRelease.id ):
@@ -152,6 +155,7 @@ def jobs():
 	return text
 
 @app.route( '/job/<int:jobId>/' )
+@requires_auth
 def job(jobId):
 	text = ""
 	
@@ -163,6 +167,7 @@ def job(jobId):
 
 # TODO: make it more simple: preset for: SD, 720p, 1080p
 @app.route( "/checkifexists/", methods=[ "GET", "POST" ] )
+@requires_auth
 def checkIfExists():
 	if request.method == 'POST':
 		Ptp.Login()
