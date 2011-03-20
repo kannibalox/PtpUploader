@@ -276,7 +276,7 @@ class Ptp:
 		# So we only do a refresh when adding as a new format.
 		if releaseInfo.HasPtpId():
 			# response contains the movie page of the uploaded movie.
-			Ptp.TryRefreshMoviePage( logger, ptpId, response );
+			Ptp.TryRefreshMoviePage( logger, releaseInfo.PtpId, response );
 		else:
 			releaseInfo.PtpId = match.group( 1 )
 
