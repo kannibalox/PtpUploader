@@ -39,8 +39,6 @@ def index():
 			release.SourceTorrentPath = os.path.join( Settings.GetTemporaryPath(), filename )
 			file.save( release.SourceTorrentPath )
 		
-		print request.values
-				
 		# Announcement
 		release.AnnouncementSourceName = "manual" # TODO
 		release.ReleaseName = file.filename.replace( ".torrent", "" )  # TODO
@@ -116,7 +114,7 @@ def index():
 		Database.DbSession.add( release )
 		Database.DbSession.commit()
 		
-		PtpUploader.GetJobManager().AddToDatabaseQueue( release.Id )
+		PtpUploader.AddToDatabaseQueue( release.Id )
 	
 	return render_template('index.html')
 
