@@ -93,7 +93,7 @@ class Upload:
 
 		# Rehost the image only if not already on an image hoster.
 		url = self.ReleaseInfo.CoverArtUrl
-		if url.find( "ptpime.me" ) != -1 or url.find( "imageshack.us" ) != -1 or url.find( "photobucket.com" ) != -1:
+		if url.find( "ptpimg.me" ) != -1 or url.find( "imageshack.us" ) != -1 or url.find( "photobucket.com" ) != -1:
 			return
 
 		self.ReleaseInfo.CoverArtUrl = ImageUploader.Upload( imageUrl = url )
