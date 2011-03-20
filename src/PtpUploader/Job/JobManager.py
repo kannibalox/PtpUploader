@@ -86,7 +86,7 @@ class JobManager:
 		for downloadIndex in range( len( self.PendingDownloads ) ):
 			releaseInfo = self.PendingDownloads[ downloadIndex ]
 			logger = releaseInfo.Logger
-			if releaseInfo.IsManualDownload or self.Rtorrent.IsTorrentFinished( logger, releaseInfo.SourceTorrentInfoHash ):
+			if releaseInfo.AnnouncementSource.IsDownloadFinished( logger, releaseInfo, self.Rtorrent ):
 				return self.PendingDownloads.pop( downloadIndex )
 
 		return None

@@ -1,8 +1,10 @@
-from Cinemageddon import Cinemageddon
-from Gft import Gft
-from Manual import Manual
+from Source.Cinemageddon import Cinemageddon
+from Source.File import File
+from Source.Gft import Gft
+from Source.Torrent import Torrent
+from Source.TorrentLeech import TorrentLeech
+
 from Settings import Settings
-from TorrentLeech import TorrentLeech
 
 class SourceFactory:
 	def __init__(self):
@@ -20,15 +22,16 @@ class SourceFactory:
 			TorrentLeech.Login()
 			self.__AddSource( TorrentLeech() )
 
-		self.__AddSource( Manual() )
+		self.__AddSource( File() )
+		self.__AddSource( Torrent() )
 
 	def __AddSource(self, source):
 		self.Sources[ source.Name ] = source
-			
+
 	def GetSource(self, sourceName):
 		# We don't want to throw KeyError exception, so we use get.
 		return self.Sources.get( sourceName ) 
-	
+
 	def GetSourceAndIdByUrl(self, url):
 		for key, source in self.Sources.iteritems():
 			id = source.GetIdFromUrl( url )

@@ -70,15 +70,15 @@ class Upload:
 		Ptp.Login()
 
 		if self.ReleaseInfo.HasPtpId():
-			# If we already got the PTP id then we only need the existing formats if this is an automatic announcement. 
-			if not self.ReleaseInfo.IsManualAnnouncement:
+			# If we already got the PTP id then we only need the existing formats if this not a forced upload.
+			if not self.ReleaseInfo.IsForceUpload():
 				movieOnPtpResult = Ptp.GetMoviePageOnPtp( self.ReleaseInfo.Logger, self.ReleaseInfo.PtpId )
 		else:
 			movieOnPtpResult = Ptp.GetMoviePageOnPtpByImdbId( self.ReleaseInfo.Logger, self.ReleaseInfo.GetImdbId() )
 			self.ReleaseInfo.PtpId = movieOnPtpResult.PtpId
 		
-		if not self.ReleaseInfo.IsManualAnnouncement:
-			# If this is an automatic announcement then we have to check (again) if is it already on PTP.
+		if not self.ReleaseInfo.IsForceUpload():
+			# If this is not a forced upload then we have to check (again) if is it already on PTP.
 			existingRelease = movieOnPtpResult.IsReleaseExists( self.ReleaseInfo )
 			if existingRelease is not None:
 				self.ReleaseInfo.Logger.info( "Somebody has already uploaded the release '%s' to PTP while we were working on it. Skipping upload because of format '%s'." % ( self.ReleaseInfo.ReleaseName, existingRelease ) )

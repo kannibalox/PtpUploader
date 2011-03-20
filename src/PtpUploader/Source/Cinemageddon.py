@@ -118,8 +118,8 @@ class Cinemageddon(SourceBase):
 		sourceType = ""
 		formatType = ""
 		
-		if releaseInfo.IsManualAnnouncement:
-			imdbId, sourceType, formatType = Cinemageddon.__DownloadNfo( logger, releaseInfo, getReleaseName = True )
+		if releaseInfo.IsUserCreatedJob():
+			imdbId, sourceType, formatType = Cinemageddon.__DownloadNfo( logger, releaseInfo )
 		else:
 			# TODO: add filterting support for Cinemageddon
 			# In case of automatic announcement we have to check the release name if it is valid.

@@ -15,8 +15,8 @@ class NfoParser:
 			entryPath = os.path.join( directoryPath, entry )
 			if os.path.isfile( entryPath ) and fnmatch.fnmatch( entry.lower(), "*.nfo" ):
 				return NfoParser.ReadNfoFileToUnicode( entryPath )
-		
-		raise PtpUploaderException( "Can't find NFO in directory '%s'." % directoryPath )
+
+		raise ""
 	
 	# Return with the IMDb id.
 	# Eg.: 0111161 for http://www.imdb.com/title/tt0111161/

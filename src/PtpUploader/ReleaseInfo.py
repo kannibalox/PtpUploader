@@ -1,4 +1,5 @@
 from Job.JobRunningState import JobRunningState
+from Job.JobStartMode import JobStartMode
 
 from Database import Database
 from PtpUploaderException import PtpUploaderException
@@ -46,6 +47,7 @@ class ReleaseInfo(Database.Base):
 	RemasterYear = Column( String )
 
 	# Other
+	JobStartMode = Column( Integer )
 	JobRunningState = Column( Integer )
 	PtpId = Column( String )
 	InternationalTitle = Column( String )
@@ -59,7 +61,7 @@ class ReleaseInfo(Database.Base):
 		self.AnnouncementId = ""
 		self.ReleaseName = ""
 
-		# These are the required fields needed for an upload to PTP.		
+		# These are the required fields needed for an upload to PTP.
 		self.Type = "Movies" # Movies, Musicals, Standup Comedy, Concerts
 		self.ImdbId = "" # Just the number. Eg.: 0111161 for http://www.imdb.com/title/tt0111161/
 		self.Directors = "" # Stored as a comma separated list. PTP needs this as a list, use GetDirectors.
@@ -86,6 +88,7 @@ class ReleaseInfo(Database.Base):
 		self.RemasterYear = ""
 		# Till this.
 		
+		self.JobStartMode = JobStartMode.Automatic
 		self.JobRunningState = JobRunningState.WaitingForStart
 		self.PtpId = ""
 		self.InternationalTitle = "" # International title of the movie. Eg.: The Secret in Their Eyes. Needed for renaming releases coming from Cinemageddon.
@@ -101,8 +104,6 @@ class ReleaseInfo(Database.Base):
 	def MyConstructor(self):
 		self.AnnouncementSource = None # A class from the Source namespace.
 		self.Logger = None
-		self.IsManualDownload = False # TODO: NOT IN DB YET! announcementSource.Name == "manual"
-		self.IsManualAnnouncement = False # TODO: NOT IN DB YET! self.IsManualDownload or self.ReleaseName == "ManualAnnouncement"
 
 	def GetImdbId(self):
 		return self.ImdbId
@@ -112,7 +113,16 @@ class ReleaseInfo(Database.Base):
 
 	def HasPtpId(self):
 		return len( self.PtpId ) > 0
-	
+
+	def IsUserCreatedJob(self):
+		return self.JobStartMode == JobStartMode.Manual or self.JobStartMode == JobStartMode.ManualForced
+
+	def IsForceUpload(self):
+		return self.JobStartMode == JobStartMode.ManualForced
+
+	def IsReleaseNameSet(self):
+		return len( self.ReleaseName ) > 0
+
 	def IsCodecSet(self): 
 		return len( self.Codec ) > 0
 
@@ -137,6 +147,12 @@ class ReleaseInfo(Database.Base):
 				raise PtpUploaderException( "Director name '%s' contains a comma." % name )
 		
 		self.Directors = ", ".join( list )
+		
+	def IsSceneRelease(self):
+		return self.Scene == "on"
+
+	def SetSceneRelease(self):
+		self.Scene = "on"
 
 	# Eg.: "working directory/release/Dark.City.1998.Directors.Cut.720p.BluRay.x264-SiNNERS/"
 	@staticmethod

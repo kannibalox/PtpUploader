@@ -10,7 +10,11 @@ class SourceBase:
 	@staticmethod
 	def DownloadTorrent(logger, releaseInfo, path):
 		pass
-		
+	
+	@staticmethod
+	def IsDownloadFinished(logger, releaseInfo, rtorrent):
+		return rtorrent.IsTorrentFinished( logger, releaseInfo.SourceTorrentInfoHash )
+
 	@staticmethod
 	def ExtractRelease(logger, releaseInfo):
 		pass

@@ -8,6 +8,8 @@ https://github.com/blueimp/jQuery-File-Upload/
 
 '''
 
+from Job.JobStartMode import JobStartMode
+
 from Database import Database
 from Globals import Globals
 from NfoParser import NfoParser
@@ -40,11 +42,17 @@ def index():
 			file.save( release.SourceTorrentPath )
 		
 		# Announcement
-		release.AnnouncementSourceName = "manual" # TODO
+		release.AnnouncementSourceName = "torrent" # TODO
 		release.ReleaseName = file.filename.replace( ".torrent", "" )  # TODO
 		#release.AnnouncementSourceName = "" # TODO: announcementSource # A name of a class from the Source namespace.
 		#release.AnnouncementId = "" # TODO: announcementId
 		#release.ReleaseName = request.values[ "" ]
+
+		forceUpload = request.values.get( "force_upload" )
+		if forceUpload is None:
+			release.JobStartMode = JobStartMode.Manual
+		else:
+			release.JobStartMode = JobStartMode.ManualForced
 
 		# For PTP		
 		release.Type = request.values[ "type" ]
@@ -64,8 +72,8 @@ def index():
 		release.RottenTomatoesUrl = request.values[ "tomatoes" ]
 		
 		release.Scene = request.values.get( "scene" )
-		if release.Scene is None:
-			release.Scene = ""
+		if release.Scene is not None:
+			release.Scene = "on"
 		
 		quality = request.values[ "quality" ]
 		if quality != "---":
@@ -122,7 +130,7 @@ def index():
 def jobs():
 	text = ""
 	for releaseInfo in Database.DbSession.query( ReleaseInfo ):#.order_by( DbRelease.id ):
-		text += "Id: %s<br/>" % ( releaseInfo.Id )
+		text += "Id: %s, Title: %s<br/>" % ( releaseInfo.Id, releaseInfo.ReleaseName )
 		
 	return text
 

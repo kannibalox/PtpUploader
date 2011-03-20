@@ -79,16 +79,15 @@ class TorrentLeech(SourceBase):
 		TorrentLeech.Login()
 		
 		# In case of manual announcement we don't have the name, so get it.
-		# TODO: none is a quick hack till announcement file reader doesn't handle empty titles
-		if releaseInfo.IsManualAnnouncement or len( releaseInfo.ReleaseName ) <= 0 or releaseInfo.ReleaseName == "none":
+		if not releaseInfo.IsReleaseNameSet():
 			releaseInfo.ReleaseName = TorrentLeech.__GetReleaseName( logger, releaseInfo )
 
 		releaseInfo.ReleaseName = TorrentLeech.__RestoreReleaseName( releaseInfo.ReleaseName )
 			
 		releaseNameParser = ReleaseNameParser( releaseInfo.ReleaseName )
 
-		# We don't have to check the release name of manual announcements. 
-		if ( not releaseInfo.IsManualAnnouncement ) and ( not releaseNameParser.IsAllowed() ):
+		# We don't have to check the release name for user created jobs. 
+		if ( not releaseInfo.IsUserCreatedJob() ) and ( not releaseNameParser.IsAllowed() ):
 			logger.info( "Ignoring release '%s' because of its name." % releaseInfo.ReleaseName )
 			return None
 
@@ -100,7 +99,10 @@ class TorrentLeech(SourceBase):
 
 		# Pretime is not indicated on TorrentLeech so we have to rely on our scene groups list.
 		if releaseNameParser.Scene:
-			releaseInfo.Scene = "on" 
+			releaseInfo.SetSceneRelease()
+			
+		if ( not releaseInfo.IsSceneRelease() ) and ( not releaseInfo.IsUserCreatedJob() ) and Settings.TorrentLeechAutomaticJobFilter == "SceneOnly":
+			raise PtpUploaderException( "Ignoring non-scene release: '%s'." % releaseInfo.ReleaseName )
 		
 		return releaseInfo
 	

@@ -57,15 +57,15 @@ class CheckAnnouncement:
 		
 		return True
 
-	def __CheckIfExistsOnPtp(self):			
+	def __CheckIfExistsOnPtp(self):
 		# TODO: this is temporary here. We should support it everywhere.
 		# If we are not logged in here that could mean that nothing interesting has been announcened for a while. 
 		Ptp.Login()
 
 		self.MovieOnPtpResult = Ptp.GetMoviePageOnPtpByImdbId( self.ReleaseInfo.Logger, self.ReleaseInfo.GetImdbId() )
 
-		# If this is an automatic announcement then we have to check if is it already on PTP.
-		if not self.ReleaseInfo.IsManualAnnouncement:
+		# If this is not a forced upload then we have to check if is it already on PTP.
+		if not self.ReleaseInfo.IsForceUpload():
 			existingRelease = self.MovieOnPtpResult.IsReleaseExists( self.ReleaseInfo )
 			if existingRelease is not None:
 				self.ReleaseInfo.Logger.info( "Release '%s' already exists on PTP. Skipping upload because of format '%s'." % ( self.ReleaseInfo.ReleaseName, existingRelease ) )

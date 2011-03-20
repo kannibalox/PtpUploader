@@ -57,7 +57,7 @@ class Gft(SourceBase):
 #		return response
 
 	@staticmethod
-	def __DownloadNfo(logger, releaseInfo, getReleaseName = False, checkPretime = True):
+	def __DownloadNfo(logger, releaseInfo, getReleaseName = False, allowSceneReleaseOnly = True):
 		url = "http://www.thegft.org/details.php?id=%s" % releaseInfo.AnnouncementId;
 		logger.info( "Downloading NFO from page '%s'." % url );
 		
@@ -88,10 +88,12 @@ class Gft(SourceBase):
 		# For some reason there are announced, but non visible releases on GFT that never start seeding. Ignore them.
 		if description.find( """<td class="heading" align="right" valign="top">Visible</td><td align="left" valign="top"><b>no</b> (dead)</td>""" ) != -1:
 			raise PtpUploaderException( "Ignoring release '%s' at '%s' because it is set to not visible." % ( releaseName, url ) ); 
-	
-		# Check for pretime to ignore non scene releases.
-		if checkPretime and not Gft.__IsPretimePresents( description ):
-			raise PtpUploaderException( "Pretime can't be found on page '%s'. Possibly a P2P release." % url ); 
+
+		if not releaseInfo.IsSceneRelease():
+			if Gft.__IsPretimePresents( description ):
+				releaseInfo.SetSceneRelease()
+			elif allowSceneReleaseOnly:
+				raise PtpUploaderException( "Ignoring non-scene release: '%s'." % releaseInfo.ReleaseName ) 
 
 		return description
 
@@ -122,9 +124,9 @@ class Gft(SourceBase):
 	def PrepareDownload(logger, releaseInfo):
 		nfoText = ""
 		
-		if releaseInfo.IsManualAnnouncement:
+		if releaseInfo.IsUserCreatedJob():
 			# Download the NFO and get the release name.
-			nfoText = Gft.__DownloadNfo( logger, releaseInfo, getReleaseName = True, checkPretime = False )
+			nfoText = Gft.__DownloadNfo( logger, releaseInfo, getReleaseName = True, allowSceneReleaseOnly = False )
 			releaseNameParser = ReleaseNameParser( releaseInfo.ReleaseName )
 			releaseNameParser.GetSourceAndFormat( releaseInfo )
 		else:
@@ -136,17 +138,18 @@ class Gft(SourceBase):
 				return None
 
 			releaseNameParser.GetSourceAndFormat( releaseInfo )
+			
+			if releaseNameParser.Scene:
+				releaseInfo.SetSceneRelease()
 
 			# TODO: temp
 			time.sleep( 30 ) # "Tactical delay" because of the not visible torrents. These should be rescheduled.
 
 			# Download the NFO.
-			# If the release is from a known scene releaser group we skip the pretime checking.
-			# This is useful because the pretime sometime not presents on GFT.
-			nfoText = Gft.__DownloadNfo( logger, releaseInfo, getReleaseName = False, checkPretime = not releaseNameParser.Scene )
+			allowSceneReleaseOnly = Settings.GftAutomaticJobFilter == "SceneOnly"
+			nfoText = Gft.__DownloadNfo( logger, releaseInfo, getReleaseName = False, allowSceneReleaseOnly = allowSceneReleaseOnly )
 		
 		releaseInfo.ImdbId = NfoParser.GetImdbId( nfoText )
-		releaseInfo.Scene = "on"
 		return releaseInfo
 	
 	@staticmethod
