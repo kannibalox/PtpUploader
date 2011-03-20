@@ -32,13 +32,20 @@ def IsFileAllowed(filename):
 	root, extension = os.path.splitext( filename )
 	return extension == ".torrent"
 
+# Needed because urlparse return with empty netloc if protocol is not set. 
+def AddHttpToUrl(url):
+	if url.startswith( "http://" ) or url.startswith( "https://" ):
+		return url
+	else:
+		return "http://" + url
+
 def GetYouTubeId(text):
-	url = urlparse.urlparse( text )
+	url = urlparse.urlparse( AddHttpToUrl( text ) )
 	if url.netloc == "youtube.com" or url.netloc == "www.youtube.com":
 		params = urlparse.parse_qs( url.query )
-		youTubeId = params.get( "v" )
-		if youTubeId is not None:
-			return youTubeId
+		youTubeIdList = params.get( "v" )
+		if youTubeIdList is not None:
+			return youTubeIdList[ 0 ]
 
 	return ""
 
@@ -49,12 +56,12 @@ def GetPtpOrImdbId(releaseInfo, text):
 	else:
 		# Using urlparse because of torrent permalinks:
 		# https://passthepopcorn.me/torrents.php?id=9730&torrentid=72322
-		url = urlparse.urlparse( text )
+		url = urlparse.urlparse( AddHttpToUrl( text ) )
 		if url.netloc == "passthepopcorn.me" or url.netloc == "www.passthepopcorn.me":
 			params = urlparse.parse_qs( url.query )
-			ptpId = params.get( "id" )
-			if ptpId is not None:
-				releaseInfo.PtpId = ptpId
+			ptpIdList = params.get( "id" )
+			if ptpIdList is not None:
+				releaseInfo.PtpId = ptpIdList[ 0 ]
 
 @app.route( '/', methods=[ 'GET', 'POST' ] )
 @requires_auth
