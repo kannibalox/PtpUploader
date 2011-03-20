@@ -12,16 +12,6 @@ class WebServer(threading.Thread):
 		threading.Thread.__init__( self, name = "WebServerThread" )
 		
 	def run(self):
-		if self.__CanStartWebServer():
-			self.__StartServer()
-		else:
-			print "Web server is not running because username or passowrd is not set in the settings."
-
-	@staticmethod
-	def __CanStartWebServer():
-		return len( Settings.WebServerUsername ) > 0 and len( Settings.WebServerPassword ) > 0
-		
-	def __StartServer(self):
 		app.config[ "DEBUG" ] = True
 		
 		host, separator, port = Settings.WebServerAddress.rpartition( ":" )
@@ -40,9 +30,7 @@ class WebServer(threading.Thread):
 		self.CherryPyServer.start()
 
 	def StopServer(self):
-		if self.__CanStartWebServer():
-			self.CherryPyServer.stop()
-			
+		self.CherryPyServer.stop()
 		self.join()
 
 @app.after_request

@@ -13,8 +13,11 @@ def Run():
 	print "Starting..."
 	InitDb()
 
-	webServerThread = WebServer()
-	webServerThread.start()
+	# Do not start the web server if the username or the password is not set.
+	webServerThread = None
+	if len( Settings.WebServerUsername ) > 0 and len( Settings.WebServerPassword ) > 0:
+		webServerThread = WebServer()
+		webServerThread.start()
 
 	try:
 		PtpUploader.Work()
@@ -22,7 +25,8 @@ def Run():
 		pass
 
 	print "Stopping..."
-	webServerThread.StopServer()
+	if webServerThread is not None:
+		webServerThread.StopServer()
 
 if __name__ == '__main__':
 	Initialize()
