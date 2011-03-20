@@ -119,8 +119,8 @@ def upload():
 		releaseInfo.MetacriticUrl = request.values[ "metacritic" ]
 		releaseInfo.RottenTomatoesUrl = request.values[ "tomatoes" ]
 		
-		releaseInfo.Scene = request.values.get( "scene" )
-		if releaseInfo.Scene is not None:
+		scene = request.values.get( "scene" )
+		if scene is not None:
 			releaseInfo.Scene = "on"
 		
 		quality = request.values[ "quality" ]
