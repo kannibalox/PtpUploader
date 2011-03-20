@@ -1,7 +1,9 @@
+from Job.JobRunningState import JobRunningState
 from Tool.MakeTorrent import MakeTorrent
 from Tool.MediaInfo import MediaInfo
 from Tool.ScreenshotMaker import ScreenshotMaker
 
+from Database import Database
 from ImageUploader import ImageUploader
 from Ptp import Ptp
 from PtpUploaderException import *
@@ -98,7 +100,10 @@ class Upload:
 		self.ReleaseInfo.Logger.info( "'%s' has been successfully uploaded to PTP." % self.ReleaseInfo.ReleaseName )
 
 	def __FinishUpload(self):
-		# Execute command on successful upload
+		self.ReleaseInfo.JobRunningState = JobRunningState.Finished
+		Database.DbSession.commit()
+
+		# Execute command on successful upload.
 		if len( Settings.OnSuccessfulUpload ) <= 0:
 			return
 
@@ -121,14 +126,17 @@ class Upload:
 		self.__StartTorrent()
 		self.__UploadMovie()
 		self.__FinishUpload()
-		
+
 		return True
 	
 	@staticmethod
-	def DoWork( releaseInfo, rtorrent ):
+	def DoWork(releaseInfo, rtorrent):
 		try:
 			upload = Upload( releaseInfo, rtorrent )
 			return upload.Work()
 		except Exception, e:
+			releaseInfo.JobRunningState = JobRunningState.Failed
+			Database.DbSession.commit()
+			
 			e.Logger = releaseInfo.Logger
 			raise

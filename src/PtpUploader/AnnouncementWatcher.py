@@ -1,3 +1,4 @@
+from Database import Database
 from Globals import Globals
 from Logger import Logger
 from PtpUploaderException import PtpUploaderException
@@ -10,67 +11,49 @@ import re
 class AnnouncementWatcher:
 	# Example: [source=gft][id=44][title=Dark.City.1998.Directors.Cut.720p.BluRay.x264-SiNNERS]
 	@staticmethod
-	def __ParseAnnouncementFile(sourceFactory, announcementFilePath):
+	def __ProcessAnnouncementFile(jobManager, announcementFilePath):
 		announcementFilename = os.path.basename( announcementFilePath ) # Get the filename.
 		
 		matches = re.match( r"\[source=(.+)\]\[id=(\d+)\]\[title=(.+)\]", announcementFilename )			
 		if not matches:
 			Globals.Logger.info( "Invalid announcement name format: '%s'." % announcementFilename )
-			return None
+			return False
 			
 		announcementSourceName = matches.group( 1 )
 		announcementId = matches.group( 2 )
 		releaseName = matches.group( 3 )
 			
-		announcementSource = sourceFactory.GetSource( announcementSourceName )
+		announcementSource = jobManager.SourceFactory.GetSource( announcementSourceName )
 		if announcementSource is None:
 			Globals.Logger.error( "Unknown announcement source: '%s'." % announcementSourceName )
-			return None
-
+			return False
+		
 		releaseInfo = ReleaseInfo()
 		releaseInfo.ReleaseName = releaseName
-		releaseInfo.AnnouncementFilePath = announcementFilePath
-		releaseInfo.AnnouncementSource = announcementSource
+		releaseInfo.AnnouncementSourceName = announcementSource.Name
 		releaseInfo.AnnouncementId = announcementId
-
-		announcementLogFilePath = os.path.join( Settings.GetAnnouncementLogPath(), announcementFilename )
-		releaseInfo.Logger = Logger( announcementLogFilePath )
-		
-		# TODO: after the webui is finished, this won't be needed anymore
-		if announcementSource.Name == "manual":
-			releaseInfo.IsManualDownload = True			 
-
-		return releaseInfo
+		Database.DbSession.add( releaseInfo )
+		Database.DbSession.commit()
+		jobManager.AddToDatabaseQueue( releaseInfo.Id )
+		return True
 	
 	# No logging here because it would result in spamming.
 	@staticmethod
-	def __ReadAnnouncements(sourceFactory, announcementsPath):
+	def LoadAnnouncementFilesIntoTheDatabase(jobManager):
 		announcements = []
 
-		entries = os.listdir( announcementsPath );
+		announcementsPath = Settings.GetAnnouncementWatchPath()
+		entries = os.listdir( announcementsPath )
 		files = [];
 		for entry in entries:
-			filePath = os.path.join( announcementsPath, entry );
+			filePath = os.path.join( announcementsPath, entry )
 			if os.path.isfile( filePath ):
-				modificationTime = os.path.getmtime( filePath );
-				item = modificationTime, filePath; # Add as a tuple.
-				files.append( item );
+				modificationTime = os.path.getmtime( filePath )
+				item = modificationTime, filePath # Add as a tuple.
+				files.append( item )
 
-		files.sort();
+		files.sort()
 		for item in files:
-			path = item[ 1 ]; # First element is the modification time, second is the path.
-			releaseInfo = AnnouncementWatcher.__ParseAnnouncementFile( sourceFactory, path )
-			if releaseInfo:
-				announcements.append( releaseInfo );
-			else:
-				ReleaseInfo.MoveAnnouncement( path, Settings.GetProcessedAnnouncementPath() )
-		
-		return announcements
-	
-	@staticmethod
-	def GetNewAnnouncements(sourceFactory):
-		return AnnouncementWatcher.__ReadAnnouncements( sourceFactory, Settings.GetAnnouncementWatchPath() )
-	
-	@staticmethod
-	def GetPendingAnnouncements(sourceFactory):
-		return AnnouncementWatcher.__ReadAnnouncements( sourceFactory, Settings.GetPendingAnnouncementPath() )
+			path = item[ 1 ] # First element is the modification time, second is the path.
+			AnnouncementWatcher.__ProcessAnnouncementFile( jobManager, path )
+			os.remove( path )

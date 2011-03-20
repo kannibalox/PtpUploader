@@ -1,6 +1,8 @@
+from Job.JobRunningState import JobRunningState
 from InformationSource.Imdb import Imdb
 from InformationSource.MoviePoster import MoviePoster
 
+from Database import Database
 from Ptp import Ptp
 from PtpUploaderException import *
 
@@ -10,6 +12,8 @@ class CheckAnnouncement:
 		self.MovieOnPtpResult = None
 
 	def __PrepareDownload(self):
+		self.ReleaseInfo.JobRunningState = JobRunningState.InProgress
+		
 		result = self.ReleaseInfo.AnnouncementSource.PrepareDownload( self.ReleaseInfo.Logger, self.ReleaseInfo )
 		if result is None:
 			return False
@@ -114,12 +118,15 @@ class CheckAnnouncement:
 			return False
 		
 		return True
-	
+
 	@staticmethod
 	def DoWork(releaseInfo): 
 		try:
 			checkAnnouncement = CheckAnnouncement( releaseInfo )
 			return checkAnnouncement.Work()
 		except Exception, e:
+			releaseInfo.JobRunningState = JobRunningState.Failed
+			Database.DbSession.commit()
+			
 			e.Logger = releaseInfo.Logger
 			raise

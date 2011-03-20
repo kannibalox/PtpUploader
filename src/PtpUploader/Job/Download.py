@@ -1,3 +1,6 @@
+from Job.JobRunningState import JobRunningState
+
+from Database import Database
 from PtpUploaderException import *
 
 import os
@@ -48,5 +51,8 @@ class Download:
 			download = Download( releaseInfo, jobManager, rtorrent )
 			return download.Work()
 		except Exception, e:
+			releaseInfo.JobRunningState = JobRunningState.Failed
+			Database.DbSession.commit()
+			
 			e.Logger = releaseInfo.Logger
 			raise

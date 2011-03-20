@@ -61,14 +61,6 @@ class Settings(object):
 		return os.path.join( Settings.WorkingPath, "announcement" )
 
 	@staticmethod
-	def GetPendingAnnouncementPath():
-		return os.path.join( Settings.WorkingPath, "announcement/pending" )
-
-	@staticmethod
-	def GetProcessedAnnouncementPath():
-		return os.path.join( Settings.WorkingPath, "announcement/processed" )
-
-	@staticmethod
 	def GetAnnouncementLogPath():
 		return os.path.join( Settings.WorkingPath, "log/announcement" )
 
@@ -135,17 +127,11 @@ class Settings(object):
 		Settings.WebServerAddress = Settings.__GetDefault( configParser, "Settings", "WebServerAddress", "" )
 
 		# Create the announcement directory.
-		# Because the processed announcement directory is within the announcement directory, we don't need to create the announcement directory separately.
-		processedAnnouncementPath = Settings.GetProcessedAnnouncementPath()
+		processedAnnouncementPath = Settings.GetAnnouncementWatchPath()
 		if not os.path.exists( processedAnnouncementPath ):
 			os.makedirs( processedAnnouncementPath )
 
-		# Create the pending announcement directory.
-		pendingAnnouncementPath = Settings.GetPendingAnnouncementPath()
-		if not os.path.exists( pendingAnnouncementPath ):
-			os.makedirs( pendingAnnouncementPath )
-
 		# Create the temporary directory.
-		temporaryPath = Settings.GetPendingAnnouncementPath()
+		temporaryPath = Settings.GetTemporaryPath()
 		if not os.path.exists( temporaryPath ):
 			os.makedirs( temporaryPath )

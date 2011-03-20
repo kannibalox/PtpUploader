@@ -14,9 +14,11 @@ class JobManager:
 	def __init__(self):
 		self.SourceFactory = SourceFactory()
 		self.Rtorrent = Rtorrent()
-		self.PendingAnnouncements = AnnouncementWatcher.GetPendingAnnouncements( self.SourceFactory ) # Contains ReleaseInfo
+		self.PendingAnnouncements = [] # Contains ReleaseInfo
 		self.PendingDownloads = [] # Contains ReleaseInfo
 		self.DatabaseQueue = Queue.Queue() # Contains ReleaseInfo ids.
+		
+		# TODO: load WaitingForStart and InProgress jobs from database
 		
 	def __IsSourceAvailable(self, source):
 		runningDownloads = 0
@@ -34,47 +36,42 @@ class JobManager:
 				return announcementToHandle
 
 		return None
+
+	def __LoadReleaseInfoFromDatabase(self, releaseInfoId):
+		releaseInfo = Database.DbSession.query( ReleaseInfo ).filter( ReleaseInfo.Id == releaseInfoId ).first()
+		
+		announcementLogFilePath = os.path.join( Settings.GetAnnouncementLogPath(), str( releaseInfoId ) + " - " + releaseInfo.ReleaseName )
+		releaseInfo.Logger = Logger( announcementLogFilePath )
+		
+		releaseInfo.AnnouncementSource = self.SourceFactory.GetSource( releaseInfo.AnnouncementSourceName )
+		# TODO: handle if announcement source is no longer presents
+		
+		return releaseInfo
 	
 	# Get new announcements, check if we can process anything from it, and add the others to the pending list.		 
-	def __ProcessNewAnnouncements(self):
+	def __ProcessDatabaseQueue(self):
 		announcementToHandle = None
-		newAnnouncements = AnnouncementWatcher.GetNewAnnouncements( self.SourceFactory )
-		for announcementIndex in range( len( newAnnouncements ) ):
-			announcement = newAnnouncements[ announcementIndex ]
-			if ( not announcementToHandle ) and self.__IsSourceAvailable( announcement.AnnouncementSource ):
-				announcementToHandle = announcement
-				announcementToHandle.MoveToProcessed()
+		
+		while not self.DatabaseQueue.empty():
+			releaseInfoId = self.DatabaseQueue.get()
+			releaseInfo = self.__LoadReleaseInfoFromDatabase( releaseInfoId )
+			
+			if ( not announcementToHandle ) and self.__IsSourceAvailable( releaseInfo.AnnouncementSource ):
+				announcementToHandle = releaseInfo
 			else:
-				announcement.MoveToPending()
-				self.PendingAnnouncements.append( announcement )				
+				self.PendingAnnouncements.append( releaseInfo )
 
 		return announcementToHandle 
 
 	def __GetAnnouncementToProcess(self):
-		# TODO: HACK
-		
 		# First check if we can process anything from the pending announcments.
-		#announcementToHandle = self.__GetAnnouncementFromPendingList()
-		#if announcementToHandle:
-		#	return announcementToHandle
+		announcementToHandle = self.__GetAnnouncementFromPendingList()
+		if announcementToHandle:
+			return announcementToHandle
 
-		#return self.__ProcessNewAnnouncements()
-		
-		if self.DatabaseQueue.empty():
-			return None
-		
-		releaseInfoId = self.DatabaseQueue.get()
-		releaseInfo = Database.DbSession.query( ReleaseInfo ).filter( ReleaseInfo.Id == releaseInfoId ).first()
-		
-		# TODO: HACK
-		announcementLogFilePath = os.path.join( Settings.GetAnnouncementLogPath(), releaseInfo.ReleaseName )
-		releaseInfo.Logger = Logger( announcementLogFilePath )
-		
-		# TODO: hack
-		releaseInfo.AnnouncementSource = self.SourceFactory.GetSource( releaseInfo.AnnouncementSourceName )
-		
-		return releaseInfo
-	
+		AnnouncementWatcher.LoadAnnouncementFilesIntoTheDatabase( self )
+		return self.__ProcessDatabaseQueue()
+
 	def AddToPendingDownloads(self, releaseInfo):
 		self.PendingDownloads.append( releaseInfo )
 
@@ -100,7 +97,6 @@ class JobManager:
 		releaseInfo = self.__GetFinishedDownloadToProcess()
 		if releaseInfo is not None: 
 			Upload.DoWork( releaseInfo, self.Rtorrent )
-			Database.DbSession.commit() # TODO
 			return True
 
 		# If there is a new announcement, then check and start downloading it.

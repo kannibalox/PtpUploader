@@ -1,3 +1,5 @@
+from Job.JobRunningState import JobRunningState
+
 from Database import Database
 from PtpUploaderException import PtpUploaderException
 from Settings import Settings
@@ -44,6 +46,7 @@ class ReleaseInfo(Database.Base):
 	RemasterYear = Column( String )
 
 	# Other
+	JobRunningState = Column( Integer )
 	PtpId = Column( String )
 	InternationalTitle = Column( String )
 	Nfo = Column( String )
@@ -83,6 +86,7 @@ class ReleaseInfo(Database.Base):
 		self.RemasterYear = ""
 		# Till this.
 		
+		self.JobRunningState = JobRunningState.WaitingForStart
 		self.PtpId = ""
 		self.InternationalTitle = "" # International title of the movie. Eg.: The Secret in Their Eyes. Needed for renaming releases coming from Cinemageddon.
 		self.Nfo = u""
@@ -95,8 +99,7 @@ class ReleaseInfo(Database.Base):
 	# "The SQLAlchemy ORM does not call __init__ when recreating objects from database rows."
 	@orm.reconstructor
 	def MyConstructor(self):
-		self.AnnouncementFilePath = "" # TODO: NOT IN DB YET!
-		self.AnnouncementSource = None # TODO: NOT IN DB YET! # A class from the Source namespace.
+		self.AnnouncementSource = None # A class from the Source namespace.
 		self.Logger = None
 		self.IsManualDownload = False # TODO: NOT IN DB YET! announcementSource.Name == "manual"
 		self.IsManualAnnouncement = False # TODO: NOT IN DB YET! self.IsManualDownload or self.ReleaseName == "ManualAnnouncement"
@@ -230,19 +233,3 @@ class ReleaseInfo(Database.Base):
 			releaseDescriptionFile = codecs.open( releaseDescriptionFilePath, encoding = "utf-8", mode = "w" )
 			releaseDescriptionFile.write( self.ReleaseDescription )
 			releaseDescriptionFile.close()
-
-	@staticmethod
-	def MoveAnnouncement(announcementFilePath, targetDirectory):
-		# Move the announcement file to the processed directory.
-		# "On Unix, if dst exists and is a file, it will be replaced silently if the user has permission." -- this can happen in case of manual downloads.
-		# TODO: what happens if the announcement file is not yet been closed? 
-		announcementFilename = os.path.basename( announcementFilePath ) # Get the filename.
-		targetAnnouncementFilePath = os.path.join( targetDirectory, announcementFilename )
-		os.rename( announcementFilePath, targetAnnouncementFilePath )
-		return targetAnnouncementFilePath
-
-	def MoveToPending(self):
-		self.AnnouncementFilePath = ReleaseInfo.MoveAnnouncement( self.AnnouncementFilePath, Settings.GetPendingAnnouncementPath() )
-
-	def MoveToProcessed(self):
-		self.AnnouncementFilePath = ReleaseInfo.MoveAnnouncement( self.AnnouncementFilePath, Settings.GetProcessedAnnouncementPath() )
