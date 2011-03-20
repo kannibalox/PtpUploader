@@ -23,12 +23,37 @@ from werkzeug import secure_filename
 
 import os
 import re
+import urlparse
 
 app = Flask(__name__)
 
 def IsFileAllowed(filename):
 	root, extension = os.path.splitext( filename )
 	return extension == ".torrent"
+
+def GetYouTubeId(text):
+	url = urlparse.urlparse( text )
+	if url.netloc == "youtube.com":
+		params = urlparse.parse_qs( url.query )
+		youTubeId = params.get( "v" )
+		if youTubeId is not None:
+			return youTubeId
+
+	return ""
+
+def GetPtpOrImdbId(releaseInfo, text):
+	imdbId = NfoParser.GetImdbId( text )
+	if len( imdbId ) > 0:
+		release.ImdbId = imdbId 
+	else:
+		# Using urlparse because of torrent permalinks:
+		# https://passthepopcorn.me/torrents.php?id=9730&torrentid=72322
+		url = urlparse.urlparse( text )
+		if url.netloc == "passthepopcorn.me":
+			params = urlparse.parse_qs( url.query )
+			ptpId = params.get( "id" )
+			if ptpIdId is not None:
+				release.PtpId = ptpId
 
 @app.route( '/', methods=[ 'GET', 'POST' ] )
 def index():
@@ -56,18 +81,14 @@ def index():
 
 		# For PTP		
 		release.Type = request.values[ "type" ]
-		
-		imdbId = request.values[ "imdb" ]
-		imdbId = NfoParser.GetImdbId( imdbId )
-		release.ImdbId = imdbId
-		
+		GetPtpOrImdbId( release, request.values[ "imdb" ] )
 		release.Directors = request.values[ "artists[]" ]
 		release.Title = request.values[ "title" ]
 		release.Year = request.values[ "year" ]
 		release.Tags = request.values[ "tags" ]
 		release.MovieDescription = request.values[ "album_desc" ]
 		release.CoverArtUrl = request.values[ "image" ]
-		release.YouTubeId = request.values[ "trailer" ]
+		release.YouTubeId = GetYouTubeId( request.values[ "trailer" ] )
 		release.MetacriticUrl = request.values[ "metacritic" ]
 		release.RottenTomatoesUrl = request.values[ "tomatoes" ]
 		
@@ -113,11 +134,7 @@ def index():
 		#release.SourceTorrentInfoHash = ""
 		#release.ReleaseUploadPath = "" # Empty if using the default path. See GetReleaseUploadPath.
 		
-		
-		# TODO: ptp url -> ptp id
 		# TODO: error if no ptp and imdb id presents
-		
-		# TODO: youtube url -> youtube id
 		
 		Database.DbSession.add( release )
 		Database.DbSession.commit()
