@@ -70,9 +70,9 @@ class Upload:
 		Ptp.Login()
 
 		if self.ReleaseInfo.HasPtpId():
-			# If we already got the PTP id then we only need the existing formats if this not a forced upload.
+			# If we already got the PTP id then we only need the existing formats if this is not a forced upload.
 			if not self.ReleaseInfo.IsForceUpload():
-				movieOnPtpResult = Ptp.GetMoviePageOnPtp( self.ReleaseInfo.Logger, self.ReleaseInfo.PtpId )
+				movieOnPtpResult = Ptp.GetMoviePageOnPtp( self.ReleaseInfo.Logger, self.ReleaseInfo.GetPtpId() )
 		else:
 			movieOnPtpResult = Ptp.GetMoviePageOnPtpByImdbId( self.ReleaseInfo.Logger, self.ReleaseInfo.GetImdbId() )
 			self.ReleaseInfo.PtpId = movieOnPtpResult.PtpId

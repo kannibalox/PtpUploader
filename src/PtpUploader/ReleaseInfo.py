@@ -108,6 +108,9 @@ class ReleaseInfo(Database.Base):
 	def GetImdbId(self):
 		return self.ImdbId
 
+	def GetPtpId(self):
+		return self.PtpId
+
 	def HasImdbId(self):
 		return len( self.ImdbId ) > 0
 

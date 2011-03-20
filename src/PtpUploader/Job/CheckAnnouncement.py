@@ -20,9 +20,9 @@ class CheckAnnouncement:
 		return True
 
 	def __ValidateReleaseInfo(self):
-		# Make sure we have the IMDb id.
-		if len( self.ReleaseInfo.GetImdbId() ) <= 0:
-			self.ReleaseInfo.Logger.error( "IMDb id can't be found." )
+		# Make sure we have IMDb or PTP id.
+		if ( not self.ReleaseInfo.HasImdbId() ) and (not self.ReleaseInfo.HasPtpId() ):
+			self.ReleaseInfo.Logger.error( "IMDb or PTP id must be specified." )
 			return False
 	
 		# Make sure the source is providing a name.
@@ -62,7 +62,10 @@ class CheckAnnouncement:
 		# If we are not logged in here that could mean that nothing interesting has been announcened for a while. 
 		Ptp.Login()
 
-		self.MovieOnPtpResult = Ptp.GetMoviePageOnPtpByImdbId( self.ReleaseInfo.Logger, self.ReleaseInfo.GetImdbId() )
+		if self.ReleaseInfo.HasPtpId():
+			self.MovieOnPtpResult = Ptp.GetMoviePageOnPtp( self.ReleaseInfo.Logger, self.ReleaseInfo.GetPtpId() )
+		else:
+			self.MovieOnPtpResult = Ptp.GetMoviePageOnPtpByImdbId( self.ReleaseInfo.Logger, self.ReleaseInfo.GetImdbId() )
 
 		# If this is not a forced upload then we have to check if is it already on PTP.
 		if not self.ReleaseInfo.IsForceUpload():
