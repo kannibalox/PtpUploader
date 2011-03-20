@@ -96,7 +96,7 @@ def upload():
 	
 		# Announcement
 		
-		if UploadFile( releaseInfo, request ):
+		if UploadTorrentFile( releaseInfo, request ):
 			pass
 		elif UploadFile( releaseInfo, request ):
 			pass
