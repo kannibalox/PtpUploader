@@ -1,5 +1,5 @@
 from Database import Database
-from Globals import Globals
+from MyGlobals import MyGlobals
 from Logger import Logger
 from PtpUploaderException import PtpUploaderException
 from ReleaseInfo import ReleaseInfo
@@ -16,7 +16,7 @@ class AnnouncementWatcher:
 		
 		matches = re.match( r"\[source=(.+)\]\[id=(\d+)\]\[title=(.+)\]", announcementFilename )			
 		if not matches:
-			Globals.Logger.info( "Invalid announcement name format: '%s'." % announcementFilename )
+			MyGlobals.Logger.info( "Invalid announcement name format: '%s'." % announcementFilename )
 			return False
 			
 		announcementSourceName = matches.group( 1 )
@@ -25,7 +25,7 @@ class AnnouncementWatcher:
 			
 		announcementSource = jobManager.SourceFactory.GetSource( announcementSourceName )
 		if announcementSource is None:
-			Globals.Logger.error( "Unknown announcement source: '%s'." % announcementSourceName )
+			MyGlobals.Logger.error( "Unknown announcement source: '%s'." % announcementSourceName )
 			return False
 		
 		releaseInfo = ReleaseInfo()

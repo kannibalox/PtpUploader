@@ -1,6 +1,6 @@
 from Source.SourceBase import SourceBase
 
-from Globals import Globals
+from MyGlobals import MyGlobals
 from NfoParser import NfoParser
 from PtpUploaderException import PtpUploaderException
 from ReleaseExtractor import ReleaseExtractor
@@ -20,14 +20,14 @@ class Gft(SourceBase):
 	
 	@staticmethod
 	def Login():
-		Globals.Logger.info( "Loggin in to GFT." );
+		MyGlobals.Logger.info( "Loggin in to GFT." );
 		
 		# GFT stores a cookie when login.php is loaded that is needed for takeloin.php. 
-		opener = urllib2.build_opener( urllib2.HTTPCookieProcessor( Globals.CookieJar ) )
+		opener = urllib2.build_opener( urllib2.HTTPCookieProcessor( MyGlobals.CookieJar ) )
 		result = opener.open( "http://www.thegft.org/login.php" )
 		response = result.read()
 
-		opener = urllib2.build_opener( urllib2.HTTPCookieProcessor( Globals.CookieJar ) )
+		opener = urllib2.build_opener( urllib2.HTTPCookieProcessor( MyGlobals.CookieJar ) )
 		postData = urllib.urlencode( { "username": Settings.GftUserName, "password": Settings.GftPassword } )
 		result = opener.open( "http://www.thegft.org/takelogin.php", postData )
 		response = result.read()
@@ -48,7 +48,7 @@ class Gft(SourceBase):
 #		url = "http://www.thegft.org/viewnfo.php?id=%s" % releaseInfo.AnnouncementId
 #		logger.info( "Downloading NFO from dedicated page '%s'." % url )
 #		
-#		opener = urllib2.build_opener( urllib2.HTTPCookieProcessor( Globals.CookieJar ) )
+#		opener = urllib2.build_opener( urllib2.HTTPCookieProcessor( MyGlobals.CookieJar ) )
 #		request = urllib2.Request( url )
 #		result = opener.open( request )
 #		response = result.read()
@@ -61,7 +61,7 @@ class Gft(SourceBase):
 		url = "http://www.thegft.org/details.php?id=%s" % releaseInfo.AnnouncementId;
 		logger.info( "Downloading NFO from page '%s'." % url );
 		
-		opener = urllib2.build_opener( urllib2.HTTPCookieProcessor( Globals.CookieJar ) );
+		opener = urllib2.build_opener( urllib2.HTTPCookieProcessor( MyGlobals.CookieJar ) );
 		request = urllib2.Request( url );
 		result = opener.open( request );
 		response = result.read();
@@ -157,7 +157,7 @@ class Gft(SourceBase):
 		url = "http://www.thegft.org/download.php?torrent=%s" % releaseInfo.AnnouncementId;
 		logger.info( "Downloading torrent file from '%s' to '%s'." % ( url, path ) );
 
-		opener = urllib2.build_opener( urllib2.HTTPCookieProcessor( Globals.CookieJar ) );		
+		opener = urllib2.build_opener( urllib2.HTTPCookieProcessor( MyGlobals.CookieJar ) );
 		request = urllib2.Request( url );
 		result = opener.open( request );
 		response = result.read();

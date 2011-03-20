@@ -1,11 +1,11 @@
-from Globals import Globals
+from MyGlobals import MyGlobals
 from Ptp import Ptp
 from PtpUploader import PtpUploader
 from Settings import Settings
 
 def Initialize():
 	Settings.LoadSettings()
-	Globals.InitializeGlobals( Settings.WorkingPath )
+	MyGlobals.InitializeGlobals( Settings.WorkingPath )
 
 def MainBotMode():
 	Ptp.Login()

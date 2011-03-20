@@ -1,6 +1,6 @@
 from Source.SourceBase import SourceBase
 
-from Globals import Globals
+from MyGlobals import MyGlobals
 from NfoParser import NfoParser
 from PtpUploaderException import *
 from ReleaseExtractor import ReleaseExtractor
@@ -19,8 +19,8 @@ class TorrentLeech(SourceBase):
 	
 	@staticmethod
 	def Login():
-		Globals.Logger.info( "Logging in to TorrentLeech." )
-		opener = urllib2.build_opener( urllib2.HTTPCookieProcessor( Globals.CookieJar ) )
+		MyGlobals.Logger.info( "Logging in to TorrentLeech." )
+		opener = urllib2.build_opener( urllib2.HTTPCookieProcessor( MyGlobals.CookieJar ) )
 		postData = urllib.urlencode( { "username": Settings.TorrentLeechUserName, "password": Settings.TorrentLeechPassword } )
 		request = urllib2.Request( "http://www.torrentleech.org/user/account/login/", postData )
 		result = opener.open( request )
@@ -46,7 +46,7 @@ class TorrentLeech(SourceBase):
 		url = "http://www.torrentleech.org/torrent/%s" % releaseInfo.AnnouncementId
 		logger.info( "Downloading release name from page '%s'." % url )
 		
-		opener = urllib2.build_opener( urllib2.HTTPCookieProcessor( Globals.CookieJar ) )
+		opener = urllib2.build_opener( urllib2.HTTPCookieProcessor( MyGlobals.CookieJar ) )
 		request = urllib2.Request( url )
 		result = opener.open( request )
 		response = result.read()
@@ -64,7 +64,7 @@ class TorrentLeech(SourceBase):
 		url = "http://www.torrentleech.org/torrents/torrent/nfotext?torrentID=%s" % releaseInfo.AnnouncementId
 		logger.info( "Downloading NFO from page '%s'." % url )
 		
-		opener = urllib2.build_opener( urllib2.HTTPCookieProcessor( Globals.CookieJar ) )
+		opener = urllib2.build_opener( urllib2.HTTPCookieProcessor( MyGlobals.CookieJar ) )
 		request = urllib2.Request( url )
 		result = opener.open( request )
 		response = result.read()
@@ -112,7 +112,7 @@ class TorrentLeech(SourceBase):
 		url = "http://www.torrentleech.org/download/%s/TL.torrent" % releaseInfo.AnnouncementId
 		logger.info( "Downloading torrent file from '%s' to '%s'." % ( url, path ) )
 
-		opener = urllib2.build_opener( urllib2.HTTPCookieProcessor( Globals.CookieJar ) )		
+		opener = urllib2.build_opener( urllib2.HTTPCookieProcessor( MyGlobals.CookieJar ) )		
 		request = urllib2.Request( url )
 		result = opener.open( request )
 		response = result.read()

@@ -1,4 +1,4 @@
-﻿from Globals import Globals
+﻿from MyGlobals import MyGlobals
 from PtpMovieSearchResult import PtpMovieSearchResult
 from PtpUploaderException import *
 from Settings import Settings
@@ -17,8 +17,8 @@ import urllib2
 class Ptp:
 	@staticmethod
 	def __LoginInternal():
-		Globals.Logger.info( "Loggin in to PTP." );
-		opener = urllib2.build_opener( urllib2.HTTPCookieProcessor( Globals.CookieJar ) );
+		MyGlobals.Logger.info( "Loggin in to PTP." );
+		opener = urllib2.build_opener( urllib2.HTTPCookieProcessor( MyGlobals.CookieJar ) );
 		postData = urllib.urlencode( { "username": Settings.PtpUserName, "password": Settings.PtpPassword } )
 		request = urllib2.Request( "http://passthepopcorn.me/login.php", postData );
 		result = opener.open( request );
@@ -59,7 +59,7 @@ class Ptp:
 	def GetMoviePageOnPtp(logger, ptpId):
 		logger.info( "Getting movie page for PTP id '%s'." % ptpId )
 		
-		opener = urllib2.build_opener( urllib2.HTTPCookieProcessor( Globals.CookieJar ) )
+		opener = urllib2.build_opener( urllib2.HTTPCookieProcessor( MyGlobals.CookieJar ) )
 		request = urllib2.Request( "http://passthepopcorn.me/torrents.php?id=%s" % ptpId )
 		result = opener.open( request )
 		response = result.read()
@@ -76,7 +76,7 @@ class Ptp:
 	def GetMoviePageOnPtpByImdbId(logger, imdbId):
 		logger.info( "Trying to find movie with IMDb id '%s' on PTP." % imdbId );
 		
-		opener = urllib2.build_opener( urllib2.HTTPCookieProcessor( Globals.CookieJar ) );
+		opener = urllib2.build_opener( urllib2.HTTPCookieProcessor( MyGlobals.CookieJar ) );
 		request = urllib2.Request( "http://passthepopcorn.me/torrents.php?imdb=%s" % imdbId );
 		result = opener.open( request );
 		response = result.read();
@@ -108,7 +108,7 @@ class Ptp:
 		htmlParser = HTMLParser.HTMLParser()
  
 		# Get IMDb info through PTP's ajax API used by the site when the user presses the auto fill button.
-		opener = urllib2.build_opener( urllib2.HTTPCookieProcessor( Globals.CookieJar ) );
+		opener = urllib2.build_opener( urllib2.HTTPCookieProcessor( MyGlobals.CookieJar ) );
 		request = urllib2.Request( "http://passthepopcorn.me/ajax.php?action=torrent_info&imdb=%s" % releaseInfo.ImdbId );
 		result = opener.open( request );
 		response = result.read();
@@ -256,7 +256,7 @@ class Ptp:
 		paramList.append( multipartParam );
 
 		opener = poster.streaminghttp.register_openers()
-		opener.add_handler( urllib2.HTTPCookieProcessor( Globals.CookieJar ) )
+		opener.add_handler( urllib2.HTTPCookieProcessor( MyGlobals.CookieJar ) )
 		datagen, headers = poster.encode.multipart_encode( paramList )
 		request = urllib2.Request( url, datagen, headers )
 		result = opener.open( request )
@@ -296,7 +296,7 @@ class Ptp:
 		
 			auth = matches.group( 1 );
 		
-			opener = urllib2.build_opener( urllib2.HTTPCookieProcessor( Globals.CookieJar ) );
+			opener = urllib2.build_opener( urllib2.HTTPCookieProcessor( MyGlobals.CookieJar ) );
 			request = urllib2.Request( "http://passthepopcorn.me/torrents.php?action=imdb&groupid=%s&auth=%s" % ( ptpId, auth ) );
 			result = opener.open( request );
 			response = result.read();
@@ -305,10 +305,10 @@ class Ptp:
 
 	@staticmethod
 	def SendPrivateMessage(userId, subject, message):
-		Globals.Logger.info( "Sending private message on PTP." );
+		MyGlobals.Logger.info( "Sending private message on PTP." );
 
 		# We need to load the send message page for the authentication key.
-		opener = urllib2.build_opener( urllib2.HTTPCookieProcessor( Globals.CookieJar ) )
+		opener = urllib2.build_opener( urllib2.HTTPCookieProcessor( MyGlobals.CookieJar ) )
 		request = urllib2.Request( "http://passthepopcorn.me/inbox.php?action=compose&to=%s" % userId )
 		result = opener.open( request )
 		response = result.read()
@@ -316,7 +316,7 @@ class Ptp:
 
 		matches = re.search( r"""<input type="hidden" name="auth" value="(.+)" />""", response )
 		if not matches:
-			Globals.Logger.info( "Authorization key couldn't be found." )
+			MyGlobals.Logger.info( "Authorization key couldn't be found." )
 			return
 
 		auth = matches.group( 1 )

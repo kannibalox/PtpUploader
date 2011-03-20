@@ -1,12 +1,13 @@
+from WebServer import app
+
 from Database import Database
-from Globals import Globals
-from ServerMain import app
+from MyGlobals import MyGlobals
 from Settings import Settings
 
 from cherrypy import wsgiserver
 import threading
 
-class WebServer(threading.Thread):
+class MyWebServer(threading.Thread):
 	def __init__(self):
 		self.CherryPyServer = None 
 		threading.Thread.__init__( self, name = "WebServerThread" )

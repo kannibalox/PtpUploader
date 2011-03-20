@@ -1,6 +1,6 @@
 from Source.SourceBase import SourceBase
 
-from Globals import Globals
+from MyGlobals import MyGlobals
 from NfoParser import NfoParser
 from PtpUploaderException import PtpUploaderException
 from ReleaseExtractor import ReleaseExtractor

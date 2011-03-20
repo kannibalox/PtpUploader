@@ -3,7 +3,7 @@ from Tool.MediaInfo import MediaInfo
 from Tool.Rtorrent import Rtorrent
 from Tool.ScreenshotMaker import ScreenshotMaker
 
-from Globals import Globals
+from MyGlobals import MyGlobals
 from ReleaseInfo import ReleaseInfo
 from Settings import Settings
 
@@ -56,7 +56,7 @@ class ReleaseInfoMaker:
 		return True
 
 	def MakeReleaseInfo(self, createTorrent):
-		logger = Globals.Logger
+		logger = MyGlobals.Logger
 		
 		if not self.CollectVideoFiles():
 			return
@@ -106,7 +106,7 @@ if __name__ == '__main__':
 	print ""
 
 	Settings.LoadSettings()
-	Globals.InitializeGlobals( Settings.WorkingPath )
+	MyGlobals.InitializeGlobals( Settings.WorkingPath )
 
 	if len( sys.argv ) == 2:
 		releaseInfoMaker = ReleaseInfoMaker( sys.argv[ 1 ] )

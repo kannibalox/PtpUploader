@@ -1,4 +1,4 @@
-﻿from Globals import Globals
+﻿from MyGlobals import MyGlobals
 from TagList import TagList
 
 import ConfigParser

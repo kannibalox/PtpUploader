@@ -1,4 +1,4 @@
-from Globals import Globals
+from MyGlobals import MyGlobals
 from PtpUploaderException import PtpUploaderException;
 from Settings import Settings;
 
@@ -13,7 +13,7 @@ import xmlrpclib;
 
 class Rtorrent:
 	def __init__(self):
-		Globals.Logger.info( "Initializing PyroScope." )
+		MyGlobals.Logger.info( "Initializing PyroScope." )
 				
 		load_config.ConfigLoader().load()
 		self.proxy = config.engine.open()

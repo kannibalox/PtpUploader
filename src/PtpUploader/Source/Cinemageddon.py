@@ -2,7 +2,7 @@
 from Source.SourceBase import SourceBase
 
 from NfoParser import NfoParser
-from Globals import Globals
+from MyGlobals import MyGlobals
 from PtpUploaderException import PtpUploaderException
 from ReleaseExtractor import ReleaseExtractor;
 from ReleaseInfo import ReleaseInfo;
@@ -20,8 +20,8 @@ class Cinemageddon(SourceBase):
 	
 	@staticmethod
 	def Login():
-		Globals.Logger.info( "Loggin in to Cinemageddon." )
-		opener = urllib2.build_opener( urllib2.HTTPCookieProcessor( Globals.CookieJar ) )
+		MyGlobals.Logger.info( "Loggin in to Cinemageddon." )
+		opener = urllib2.build_opener( urllib2.HTTPCookieProcessor( MyGlobals.CookieJar ) )
 		postData = urllib.urlencode( { "username": Settings.CinemageddonUserName, "password": Settings.CinemageddonPassword } )
 		request = urllib2.Request( "http://cinemageddon.net/takelogin.php", postData )
 		result = opener.open( request )
@@ -38,7 +38,7 @@ class Cinemageddon(SourceBase):
 		url = "http://cinemageddon.net/details.php?id=%s&filelist=1" % releaseInfo.AnnouncementId
 		logger.info( "Collecting info from torrent page '%s'." % url )
 		
-		opener = urllib2.build_opener( urllib2.HTTPCookieProcessor( Globals.CookieJar ) )
+		opener = urllib2.build_opener( urllib2.HTTPCookieProcessor( MyGlobals.CookieJar ) )
 		request = urllib2.Request( url )
 		result = opener.open( request )
 		response = result.read()
@@ -138,7 +138,7 @@ class Cinemageddon(SourceBase):
 		url = "http://cinemageddon.net/download.php?id=%s" % releaseInfo.AnnouncementId
 		logger.info( "Downloading torrent file from '%s' to '%s'." % ( url, path ) )
 
-		opener = urllib2.build_opener( urllib2.HTTPCookieProcessor( Globals.CookieJar ) )
+		opener = urllib2.build_opener( urllib2.HTTPCookieProcessor( MyGlobals.CookieJar ) )
 		request = urllib2.Request( url )
 		result = opener.open( request )
 		response = result.read()
