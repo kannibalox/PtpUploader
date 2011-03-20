@@ -143,13 +143,14 @@ class Ptp:
 		if len( releaseInfo.Tags ) <= 0:
 			raise PtpUploaderException( "PTP movie info returned without any tags." );
 
-		releaseInfo.CoverArtUrl = movie[ "art" ];
-		if releaseInfo.CoverArtUrl is None: 
-			raise PtpUploaderException( "Bad PTP movie info JSON response: art key doesn't exists.\nReponse:\n%s" % response );
-	
-		# It may be false... Eg.: "art": false
-		if not releaseInfo.CoverArtUrl:
-			releaseInfo.CoverArtUrl = "";
+		if not releaseInfo.IsCoverArtUrlSet():
+			releaseInfo.CoverArtUrl = movie[ "art" ];
+			if releaseInfo.CoverArtUrl is None:
+				raise PtpUploaderException( "Bad PTP movie info JSON response: art key doesn't exists.\nReponse:\n%s" % response );
+
+			# It may be false... Eg.: "art": false
+			if not releaseInfo.CoverArtUrl:
+				releaseInfo.CoverArtUrl = ""
 
 		# Director's name may not be present. For example: http://www.imdb.com/title/tt0864336/
 		jsonDirectors = movie[ "director" ];

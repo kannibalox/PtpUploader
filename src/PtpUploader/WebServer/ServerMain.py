@@ -34,7 +34,7 @@ def IsFileAllowed(filename):
 
 def GetYouTubeId(text):
 	url = urlparse.urlparse( text )
-	if url.netloc == "youtube.com":
+	if url.netloc == "youtube.com" or url.netloc == "www.youtube.com":
 		params = urlparse.parse_qs( url.query )
 		youTubeId = params.get( "v" )
 		if youTubeId is not None:
@@ -50,7 +50,7 @@ def GetPtpOrImdbId(releaseInfo, text):
 		# Using urlparse because of torrent permalinks:
 		# https://passthepopcorn.me/torrents.php?id=9730&torrentid=72322
 		url = urlparse.urlparse( text )
-		if url.netloc == "passthepopcorn.me":
+		if url.netloc == "passthepopcorn.me" or url.netloc == "www.passthepopcorn.me":
 			params = urlparse.parse_qs( url.query )
 			ptpId = params.get( "id" )
 			if ptpIdId is not None:

@@ -98,10 +98,10 @@ class CheckAnnouncement:
 		if len( self.ReleaseInfo.MovieDescription ) <= 0:
 			self.ReleaseInfo.MovieDescription = imdbInfo.Plot 
 
-		if len( self.ReleaseInfo.CoverArtUrl ) <= 0:
-			self.ReleaseInfo.CoverArtUrl = imdbInfo.PosterUrl 
-			if len( self.ReleaseInfo.CoverArtUrl ) <= 0:
-				self.ReleaseInfo.CoverArtUrl = MoviePoster.Get( self.ReleaseInfo.Logger, self.ReleaseInfo.GetImdbId() ) 
+		if not self.ReleaseInfo.IsCoverArtUrlSet():
+			self.ReleaseInfo.CoverArtUrl = imdbInfo.PosterUrl
+			if not self.ReleaseInfo.IsCoverArtUrlSet():
+				self.ReleaseInfo.CoverArtUrl = MoviePoster.Get( self.ReleaseInfo.Logger, self.ReleaseInfo.GetImdbId() )
 	
 		return True
 	

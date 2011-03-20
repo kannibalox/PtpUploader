@@ -120,6 +120,9 @@ class ReleaseInfo(Database.Base):
 	def IsForceUpload(self):
 		return self.JobStartMode == JobStartMode.ManualForced
 
+	def IsCoverArtUrlSet(self):
+		return len( self.CoverArtUrl ) > 0
+
 	def IsReleaseNameSet(self):
 		return len( self.ReleaseName ) > 0
 

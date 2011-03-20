@@ -88,8 +88,15 @@ class Upload:
 
 	def __RehostPoster(self):
 		# If this movie has no page yet on PTP then we will need the cover, so we rehost the image to an image hoster.
-		if ( not self.ReleaseInfo.HasPtpId() ) and len( self.ReleaseInfo.CoverArtUrl ) > 0:
-			self.ReleaseInfo.CoverArtUrl = ImageUploader.Upload( imageUrl = self.ReleaseInfo.CoverArtUrl )
+		if self.ReleaseInfo.HasPtpId() or ( not self.ReleaseInfo.IsCoverArtUrlSet() ):
+			return
+
+		# Rehost the image only if not already on an image hoster.
+		url = self.ReleaseInfo.CoverArtUrl
+		if url.find( "ptpime.me" ) != -1 or url.find( "imageshack.us" ) != -1 or url.find( "photobucket.com" ) != -1:
+			return
+
+		self.ReleaseInfo.CoverArtUrl = ImageUploader.Upload( imageUrl = url )
 
 	def __StartTorrent(self):
 		# Add torrent without hash checking.
