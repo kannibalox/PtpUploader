@@ -61,8 +61,8 @@ class Settings(object):
 		return os.path.join( Settings.WorkingPath, "announcement" )
 
 	@staticmethod
-	def GetAnnouncementLogPath():
-		return os.path.join( Settings.WorkingPath, "log/announcement" )
+	def GetJobLogPath():
+		return os.path.join( Settings.WorkingPath, "log/job" )
 
 	@staticmethod
 	def GetTemporaryPath():
@@ -134,6 +134,12 @@ class Settings(object):
 		processedAnnouncementPath = Settings.GetAnnouncementWatchPath()
 		if not os.path.exists( processedAnnouncementPath ):
 			os.makedirs( processedAnnouncementPath )
+
+		# Create the log directory.
+		# Job log directory is within the log directory, so we don't have to make the log directory separately.
+		jobLogPath = Settings.GetJobLogPath()
+		if not os.path.exists( jobLogPath ):
+			os.makedirs( jobLogPath )
 
 		# Create the temporary directory.
 		temporaryPath = Settings.GetTemporaryPath()

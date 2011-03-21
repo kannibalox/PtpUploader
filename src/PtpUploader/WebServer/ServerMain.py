@@ -9,6 +9,7 @@ https://github.com/blueimp/jQuery-File-Upload/
 '''
 
 from Job.JobStartMode import JobStartMode
+from Job.JobRunningState import JobRunningState
 from WebServer import app
 
 from Authentication import requires_auth
@@ -29,16 +30,40 @@ import urlparse
 @app.route( '/' )
 @requires_auth
 def index():
-	return "Hello World!"
-
-@app.route( '/jobs/' )
-@requires_auth
-def jobs():
-	text = ""
+	entries = []
 	for releaseInfo in Database.DbSession.query( ReleaseInfo ):#.order_by( DbRelease.id ):
-		text += "Id: %s, Title: %s<br/>" % ( releaseInfo.Id, releaseInfo.ReleaseName )
+		entry = {}
+		entry[ "Id" ] = releaseInfo.Id
+		entry[ "ReleaseName" ] = releaseInfo.ReleaseName
 		
-	return text
+		state = releaseInfo.JobRunningState
+		if state == JobRunningState.WaitingForStart:
+			state = "Waiting for start"
+		elif state == JobRunningState.InProgress:
+			state = "In progress"
+		elif state == JobRunningState.Paused:
+			state = "Paused"
+		elif state == JobRunningState.Finished:
+			state = "Finished"
+		elif state == JobRunningState.Failed:
+			state = "Failed"
+		elif state == JobRunningState.Ignored:
+			state = "Ignored"
+		else:
+			state = "Unknown"
+		entry[ "State" ] = state
+		
+		if ( releaseInfo.PtpId is not None ) and releaseInfo.HasPtpId():
+			entry[ "PtpUrl" ] = "https://passthepopcorn.me/torrents.php?id=%s" % releaseInfo.PtpId
+		elif releaseInfo.HasImdbId():
+			entry[ "PtpUrl" ] = "http://passthepopcorn.me/torrents.php?imdb=%s" % releaseInfo.ImdbId
+
+		entry[ "LogPageUrl" ] = url_for( "log", jobId = releaseInfo.Id )
+		entry[ "EditPageUrl" ] = url_for( "job", jobId = releaseInfo.Id )
+		
+		entries.append( entry )
+
+	return render_template( "jobs.html", entries = entries )
 
 @app.route( '/job/<int:jobId>/' )
 @requires_auth
@@ -48,8 +73,27 @@ def job(jobId):
 	releaseInfo = Database.DbSession.query( ReleaseInfo ).filter( ReleaseInfo.Id == jobId ).first()
 	
 	text += "Id: %s<br/>IMDb id: %s" % ( releaseInfo.Id, releaseInfo.ImdbId )
-		
+
 	return text
+
+@app.route( '/job/<int:jobId>/log/' )
+@requires_auth
+def log(jobId):
+	releaseInfo = Database.DbSession.query( ReleaseInfo ).filter( ReleaseInfo.Id == jobId ).first()
+	
+	logFilePath = releaseInfo.GetLogFilePath()
+	log = ""
+	
+	if os.path.isfile( logFilePath ):
+		file = open( logFilePath )
+		log = file.read()
+		file.close()
+	else:
+		log = "Log file '%s' doesn't exists!" % logFilePath
+
+	log = log.replace( "\n", r"<br>" )
+
+	return log
 
 # TODO: make it more simple: preset for: SD, 720p, 1080p
 @app.route( "/checkifexists/", methods=[ "GET", "POST" ] )

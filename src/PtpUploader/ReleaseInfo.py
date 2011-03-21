@@ -160,6 +160,10 @@ class ReleaseInfo(Database.Base):
 	def SetSceneRelease(self):
 		self.Scene = "on"
 
+	# Eg.: "working directory/log/job/1"
+	def GetLogFilePath(self):
+		return os.path.join( Settings.GetJobLogPath(), str( self.Id ) )
+
 	# Eg.: "working directory/release/Dark.City.1998.Directors.Cut.720p.BluRay.x264-SiNNERS/"
 	@staticmethod
 	def GetReleaseRootPathFromRelaseName(releaseName):

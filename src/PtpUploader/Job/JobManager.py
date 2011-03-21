@@ -39,10 +39,8 @@ class JobManager:
 
 	def __LoadReleaseInfoFromDatabase(self, releaseInfoId):
 		releaseInfo = Database.DbSession.query( ReleaseInfo ).filter( ReleaseInfo.Id == releaseInfoId ).first()
-		
-		announcementLogFilePath = os.path.join( Settings.GetAnnouncementLogPath(), str( releaseInfoId ) + " - " + releaseInfo.ReleaseName )
-		releaseInfo.Logger = Logger( announcementLogFilePath )
-		
+
+		releaseInfo.Logger = Logger( releaseInfo.GetLogFilePath() )
 		releaseInfo.AnnouncementSource = self.SourceFactory.GetSource( releaseInfo.AnnouncementSourceName )
 		# TODO: handle if announcement source is no longer presents
 		

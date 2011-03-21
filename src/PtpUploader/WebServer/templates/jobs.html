@@ -1,0 +1,40 @@
+﻿{% extends "layout.html" %}
+
+{% block head %}
+{% endblock %}
+
+{% block body %}
+
+<table class="border" border="0" cellpadding="3" cellspacing="1">
+	<tr>
+		<td>Release name</td>
+		<td>State</td>
+		<td>Edit</td>
+	</tr>
+
+	<tbody>
+		{% for entry in entries %}
+			<tr>
+				<td>
+					{% if entry.PtpUrl %}
+						<a href="{{ entry.PtpUrl }}">{{ entry.ReleaseName }}</a>
+					{% else %}
+						{{ entry.ReleaseName }}
+					{% endif %}
+				</td>
+				<td>
+					<a href="{{ entry.LogPageUrl }}">{{ entry.State }}</a>
+				</td>
+				<td>
+					<a href="{{ entry.EditPageUrl }}">Edit</a>
+				</td>
+			</tr>
+		{% else %}
+			<tr>
+				<td>No entries.</td>
+			</tr>
+		{% endfor %}
+	</tbody>
+</table>
+
+{% endblock %}
