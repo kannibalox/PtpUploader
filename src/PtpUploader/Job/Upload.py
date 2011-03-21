@@ -103,7 +103,7 @@ class Upload:
 		self.Rtorrent.AddTorrentSkipHashCheck( self.ReleaseInfo.Logger, self.UploadTorrentPath, self.ReleaseInfo.GetReleaseUploadPath() )
 
 	def __UploadMovie(self):
-		self.ReleaseInfo.PtpId = Ptp.UploadMovie( self.ReleaseInfo.Logger, self.ReleaseInfo, self.UploadTorrentPath )
+		Ptp.UploadMovie( self.ReleaseInfo.Logger, self.ReleaseInfo, self.UploadTorrentPath )
 		self.ReleaseInfo.Logger.info( "'%s' has been successfully uploaded to PTP." % self.ReleaseInfo.ReleaseName )
 
 	def __FinishUpload(self):
