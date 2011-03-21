@@ -132,10 +132,7 @@ class PtpMovieSearchResult:
 		raise PtpUploaderException( "Can't check whether the release '%s' exist on PTP because its type is unsupported." % releaseInfo.ReleaseName );
 
 	def IsMoviePageExists(self):
-		if len( self.PtpId ) > 0:
-			return True
-		else:
-			return False
+		return len( self.PtpId ) > 0
 
 	def IsReleaseExists(self, releaseInfo):
 		if not self.IsMoviePageExists():
