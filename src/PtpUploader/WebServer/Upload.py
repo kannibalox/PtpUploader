@@ -53,7 +53,8 @@ def GetPtpOrImdbId(releaseInfo, text):
 
 def UploadTorrentFile(releaseInfo, request):
 	file = request.files.get( "file_input" )
-	if ( file is None ) or ( not IsFileAllowed( file.filename ) ):
+	# file is is not None even there is no file specified, but checking file as a boolean is OK. (As shown in the Flask example.) 
+	if ( not file ) or ( not IsFileAllowed( file.filename ) ):
 		return False
 		
 	filename = secure_filename( file.filename )
