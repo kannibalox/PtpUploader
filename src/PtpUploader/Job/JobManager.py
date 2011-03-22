@@ -6,7 +6,7 @@ from Tool.Rtorrent import Rtorrent
 
 from AnnouncementWatcher import *
 from Database import Database
-from Logger import Logger # TODO: HACK
+from Logger import Logger
 
 import Queue
 
