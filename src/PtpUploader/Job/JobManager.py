@@ -32,7 +32,6 @@ class JobManager:
 		for announcementIndex in range( len( self.PendingAnnouncements ) ):
 			if self.__IsSourceAvailable( self.PendingAnnouncements[ announcementIndex ].AnnouncementSource ):
 				announcementToHandle = self.PendingAnnouncements.pop( announcementIndex )
-				announcementToHandle.MoveToProcessed()
 				return announcementToHandle
 
 		return None
