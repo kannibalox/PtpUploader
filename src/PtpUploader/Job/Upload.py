@@ -56,8 +56,9 @@ class Upload:
 		# We save it into a separate folder to make sure it won't end up in the upload somehow. :)
 		uploadTorrentName = "PTP " + self.ReleaseInfo.ReleaseName + ".torrent"
 		self.UploadTorrentPath = os.path.join( self.ReleaseInfo.GetReleaseRootPath(), uploadTorrentName )
+
 		# Make torrent with the parent directory's name included if there is more than one file or requested by the source (it is a scene release).
-		if self.TotalFileCount > 1 or self.ReleaseInfo.AnnouncementSource.IsSingleFileTorrentNeedsDirectory():
+		if self.TotalFileCount > 1 or ( self.ReleaseInfo.AnnouncementSource.IsSingleFileTorrentNeedsDirectory() and not self.ReleaseInfo.ForceDirectorylessSingleFileTorrent ):
 			MakeTorrent.Make( self.ReleaseInfo.Logger, self.ReleaseInfo.GetReleaseUploadPath(), self.UploadTorrentPath )
 		else: # Create the torrent including only the single video file.
 			MakeTorrent.Make( self.ReleaseInfo.Logger, self.VideoFiles[ 0 ], self.UploadTorrentPath )

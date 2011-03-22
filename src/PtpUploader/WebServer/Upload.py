@@ -120,8 +120,7 @@ def upload():
 		releaseInfo.MetacriticUrl = request.values[ "metacritic" ]
 		releaseInfo.RottenTomatoesUrl = request.values[ "tomatoes" ]
 		
-		scene = request.values.get( "scene" )
-		if scene is not None:
+		if request.values.get( "scene" ) is not None:
 			releaseInfo.Scene = "on"
 		
 		quality = request.values[ "quality" ]
@@ -158,11 +157,13 @@ def upload():
 		
 		# Other
 		
-		forceUpload = request.values.get( "force_upload" )
-		if forceUpload is None:
+		if request.values.get( "force_upload" ) is None:
 			releaseInfo.JobStartMode = JobStartMode.Manual
 		else:
 			releaseInfo.JobStartMode = JobStartMode.ManualForced
+
+		if request.values.get( "ForceDirectorylessSingleFileTorrent" ) is not None:
+			releaseInfo.ForceDirectorylessSingleFileTorrent = True
 		
 		#releaseInfo.InternationalTitle = "" # International title of the movie. Eg.: The Secret in Their Eyes. Needed for renaming releases coming from Cinemageddon.
 		#releaseInfo.Nfo = u""
@@ -170,6 +171,7 @@ def upload():
 		#releaseInfo.ReleaseUploadPath = "" # Empty if using the default path. See GetReleaseUploadPath.
 		
 		# TODO: error if no ptp and imdb id presents
+		# TODO: todo multiline torrent site link field
 		
 		Database.DbSession.add( releaseInfo )
 		Database.DbSession.commit()

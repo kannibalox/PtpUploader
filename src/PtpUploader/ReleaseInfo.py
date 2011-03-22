@@ -5,7 +5,7 @@ from Database import Database
 from PtpUploaderException import PtpUploaderException
 from Settings import Settings
 
-from sqlalchemy import Column, Integer, orm, String
+from sqlalchemy import Boolean, Column, Integer, orm, String
 
 import codecs
 import os
@@ -50,6 +50,7 @@ class ReleaseInfo(Database.Base):
 	JobStartMode = Column( Integer )
 	JobRunningState = Column( Integer )
 	PtpId = Column( String )
+	ForceDirectorylessSingleFileTorrent = Column( Boolean )
 	InternationalTitle = Column( String )
 	Nfo = Column( String )
 	SourceTorrentPath = Column( String )
@@ -91,6 +92,7 @@ class ReleaseInfo(Database.Base):
 		self.JobStartMode = JobStartMode.Automatic
 		self.JobRunningState = JobRunningState.WaitingForStart
 		self.PtpId = ""
+		self.ForceDirectorylessSingleFileTorrent = False # If set to true, then it overrides the value returned by SourceBase.IsSingleFileTorrentNeedsDirectory.  
 		self.InternationalTitle = "" # International title of the movie. Eg.: The Secret in Their Eyes. Needed for renaming releases coming from Cinemageddon.
 		self.Nfo = u""
 		self.SourceTorrentPath = ""
