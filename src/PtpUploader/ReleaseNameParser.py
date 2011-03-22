@@ -29,7 +29,7 @@ class ReleaseNameParser:
 
 	def GetSourceAndFormat(self, releaseInfo):
 		if releaseInfo.IsCodecSet():
-			releaseInfo.Logger.info( "Codec '%s' is already set, not getting from release name." % releaseInfo.Codec )			
+			releaseInfo.Logger.info( "Codec '%s' is already set, not getting from release name." % releaseInfo.Codec )
 		elif self.Tags.IsContainsTag( "xvid" ):
 			releaseInfo.Codec = "XviD"
 		elif self.Tags.IsContainsTag( "divx" ):
@@ -40,7 +40,7 @@ class ReleaseNameParser:
 			raise PtpUploaderException( "Can't figure out codec from release name '%s'." % releaseInfo.ReleaseName )
 
 		if releaseInfo.IsSourceSet():
-			releaseInfo.Logger.info( "Source '%s' is already set, not getting from release name." % releaseInfo.Source )			
+			releaseInfo.Logger.info( "Source '%s' is already set, not getting from release name." % releaseInfo.Source )
 		elif self.Tags.IsContainsTag( "dvdrip" ):
 			releaseInfo.Source = "DVD"
 		elif self.Tags.IsContainsTag( "bdrip" ) or self.Tags.IsContainsTag( "brrip" ) or self.Tags.IsContainsTag( "bluray" ):
@@ -50,7 +50,7 @@ class ReleaseNameParser:
 
 		if releaseInfo.IsQualitySet() and releaseInfo.IsResolutionTypeSet():
 			releaseInfo.Logger.info( "Quality '%s' and resolution type '%s' are already set, not getting from release name." % ( releaseInfo.Quality, releaseInfo.ResolutionType ) )
-		if self.Tags.IsContainsTag( "720p" ):
+		elif self.Tags.IsContainsTag( "720p" ):
 			releaseInfo.Quality = "High Definition"
 			releaseInfo.ResolutionType = "720p"
 		elif self.Tags.IsContainsTag( "1080p" ):

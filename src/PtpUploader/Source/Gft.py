@@ -38,10 +38,6 @@ class Gft(SourceBase):
 		if response.find( """action='takelogin.php'""" ) != -1 or response.find( """<a href='login.php'>Back to Login</a>""" ) != -1:
 			raise PtpUploaderException( "Looks like you are not logged in to GFT. Probably due to the bad user name or password in settings." )
 	
-	@staticmethod
-	def __IsPretimePresents(description):
-		return description.find( """<td><img src='/pic/scene.jpg' alt='Scene' /></td>""" ) != -1
-
 	# TODO: no longer needed
 #	@staticmethod
 #	def __DownloadNfoFromDedicatedPage(logger, releaseInfo):
@@ -56,8 +52,12 @@ class Gft(SourceBase):
 #		
 #		return response
 
+	
+	# Sets IMDb if presents in the torrent description.
+	# Sets scene release if pretime presents on the page.
+	# Returns with the release name.
 	@staticmethod
-	def __DownloadNfo(logger, releaseInfo, getReleaseName = False, allowSceneReleaseOnly = True):
+	def __ReadTorrentPage(logger, releaseInfo):
 		url = "http://www.thegft.org/details.php?id=%s" % releaseInfo.AnnouncementId;
 		logger.info( "Downloading NFO from page '%s'." % url );
 		
@@ -80,22 +80,20 @@ class Gft(SourceBase):
 			raise PtpUploaderException( "Release name can't be found on page '%s'." % url );
 	
 		releaseName = matches.group( 1 );
-		if getReleaseName:
-			releaseInfo.ReleaseName = releaseName;
-		elif releaseName != releaseInfo.ReleaseName:
-			raise PtpUploaderException( "Announcement release name '%s' and release name '%s' on page '%s' are different." % ( releaseInfo.ReleaseName, releaseName, url ) );
+
+		# Get IMDb id.
+		if ( not releaseInfo.HasImdbId() ) and ( not releaseInfo.HasPtpId() ):
+			releaseInfo.ImdbId = NfoParser.GetImdbId( description )
+
+		# Check if pretime presents.
+		if description.find( """<td><img src='/pic/scene.jpg' alt='Scene' /></td>""" ) != -1:
+			releaseInfo.SetSceneRelease()
 
 		# For some reason there are announced, but non visible releases on GFT that never start seeding. Ignore them.
 		if description.find( """<td class="heading" align="right" valign="top">Visible</td><td align="left" valign="top"><b>no</b> (dead)</td>""" ) != -1:
 			raise PtpUploaderException( "Ignoring release '%s' at '%s' because it is set to not visible." % ( releaseName, url ) ); 
 
-		if not releaseInfo.IsSceneRelease():
-			if Gft.__IsPretimePresents( description ):
-				releaseInfo.SetSceneRelease()
-			elif allowSceneReleaseOnly:
-				raise PtpUploaderException( "Ignoring non-scene release: '%s'." % releaseInfo.ReleaseName ) 
-
-		return description
+		return releaseName
 
 		# TODO: no longer needed
 
@@ -119,38 +117,52 @@ class Gft(SourceBase):
 		#	return Gft.__DownloadNfoFromDedicatedPage( logger, releaseInfo )
 		#
 		#return nfo
+
+	@staticmethod
+	def __HandleUserCreatedJob(logger, releaseInfo):
+		releaseName = Gft.__ReadTorrentPage( logger, releaseInfo )
+		if not releaseInfo.IsReleaseNameSet():
+			releaseInfo.ReleaseName = releaseName
+
+		releaseNameParser = ReleaseNameParser( releaseInfo.ReleaseName )
+		releaseNameParser.GetSourceAndFormat( releaseInfo )
+		if releaseNameParser.Scene:
+			releaseInfo.SetSceneRelease()
+		
+		return releaseInfo
+
+	@staticmethod
+	def __HandleAutoCreatedJob(logger, releaseInfo):
+		# In case of automatic announcement we have to check the release name if it is valid.
+		# We know the release name from the announcement, so we can filter it without downloading anything (yet) from the source.
+		releaseNameParser = ReleaseNameParser( releaseInfo.ReleaseName )
+		if not releaseNameParser.IsAllowed():
+			logger.info( "Ignoring release '%s' because of its name." % releaseInfo.ReleaseName )
+			return None
+
+		releaseNameParser.GetSourceAndFormat( releaseInfo )
+		
+		# TODO: temp
+		time.sleep( 30 ) # "Tactical delay" because of the not visible torrents. These should be rescheduled.
+
+		releaseName = Gft.__ReadTorrentPage( logger, releaseInfo )
+		if releaseName != releaseInfo.ReleaseName:
+			raise PtpUploaderException( "Announcement release name '%s' and release name '%s' on page '%s' are different." % ( releaseInfo.ReleaseName, releaseName, url ) )
+
+		if releaseNameParser.Scene:
+			releaseInfo.SetSceneRelease()
+
+		if ( not releaseInfo.IsSceneRelease() ) and Settings.GftAutomaticJobFilter == "SceneOnly":
+			raise PtpUploaderException( "Ignoring non-scene release: '%s'." % releaseInfo.ReleaseName )
+		
+		return releaseInfo
 	
 	@staticmethod
 	def PrepareDownload(logger, releaseInfo):
-		nfoText = ""
-		
 		if releaseInfo.IsUserCreatedJob():
-			# Download the NFO and get the release name.
-			nfoText = Gft.__DownloadNfo( logger, releaseInfo, getReleaseName = True, allowSceneReleaseOnly = False )
-			releaseNameParser = ReleaseNameParser( releaseInfo.ReleaseName )
-			releaseNameParser.GetSourceAndFormat( releaseInfo )
+			return Gft.__HandleUserCreatedJob( logger, releaseInfo )
 		else:
-			# In case of automatic announcement we have to check the release name if it is valid.
-			# We know the release name from the announcement, so we can filter it without downloading anything (yet) from the source.
-			releaseNameParser = ReleaseNameParser( releaseInfo.ReleaseName )
-			if not releaseNameParser.IsAllowed():
-				logger.info( "Ignoring release '%s' because of its name." % releaseInfo.ReleaseName )
-				return None
-
-			releaseNameParser.GetSourceAndFormat( releaseInfo )
-			
-			if releaseNameParser.Scene:
-				releaseInfo.SetSceneRelease()
-
-			# TODO: temp
-			time.sleep( 30 ) # "Tactical delay" because of the not visible torrents. These should be rescheduled.
-
-			# Download the NFO.
-			allowSceneReleaseOnly = Settings.GftAutomaticJobFilter == "SceneOnly"
-			nfoText = Gft.__DownloadNfo( logger, releaseInfo, getReleaseName = False, allowSceneReleaseOnly = allowSceneReleaseOnly )
-		
-		releaseInfo.ImdbId = NfoParser.GetImdbId( nfoText )
-		return releaseInfo
+			return Gft.__HandleAutoCreatedJob( logger, releaseInfo )
 	
 	@staticmethod
 	def DownloadTorrent(logger, releaseInfo, path):

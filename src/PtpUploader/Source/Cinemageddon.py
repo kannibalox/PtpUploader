@@ -67,11 +67,12 @@ class Cinemageddon(SourceBase):
 		formatType = matches.group( 4 )
 
 		# Get IMDb id
-		matches = re.search( r'imdb\.com/title/tt(\d+)', description )
-		if matches is None:
-			raise PtpUploaderException( "Ignoring release '%s' at '%s' because IMDb id can't be found." % ( releaseInfo.ReleaseName, url ) )
+		if ( not releaseInfo.HasImdbId() ) and ( not releaseInfo.HasPtpId() ):
+			matches = re.search( r'imdb\.com/title/tt(\d+)', description )
+			if matches is None:
+				raise PtpUploaderException( "Ignoring release '%s' at '%s' because IMDb id can't be found." % ( releaseInfo.ReleaseName, url ) )
 
-		imdbId = matches.group( 1 )
+			releaseInfo.ImdbId = matches.group( 1 )
 
 		# Ignore XXX releases.
 		if description.find( '>Type</td><td valign="top" align=left>XXX<' ) != -1:
@@ -81,7 +82,7 @@ class Cinemageddon(SourceBase):
 		if re.search( ".vob</td>", description, re.IGNORECASE ) or re.search( ".iso</td>", description, re.IGNORECASE ):
 			raise PtpUploaderException( "Ignoring release '%s' at '%s' because it is a wrongly categorized DVDR." % ( releaseInfo.ReleaseName, url ) )
 		
-		return imdbId, sourceType, formatType
+		return sourceType, formatType
 
 	@staticmethod
 	def __MapSourceAndFormatToPtp(releaseInfo, sourceType, formatType):
@@ -91,19 +92,26 @@ class Cinemageddon(SourceBase):
 		# Adding BDrip support would be problematic because there is no easy way to decide if it is HD or SD.
 		# Maybe we could use the resolution and file size. But what about the oversized and upscaled releases? 
 		
-		releaseInfo.Quality = "Standard Definition"
-		releaseInfo.ResolutionType = "Other"
+		if releaseInfo.IsQualitySet() and releaseInfo.IsResolutionTypeSet():
+			releaseInfo.Logger.info( "Quality '%s' and resolution type '%s' are already set, not getting from the torrent page." % ( releaseInfo.Quality, releaseInfo.ResolutionType ) )
+		else:
+			releaseInfo.Quality = "Standard Definition"
+			releaseInfo.ResolutionType = "Other"
 
-		if sourceType == "dvdrip":
+		if releaseInfo.IsSourceSet():
+			releaseInfo.Logger.info( "Source '%s' is already set, not getting from the torrent page." % releaseInfo.Source )
+		elif sourceType == "dvdrip":
 			releaseInfo.Source = "DVD"
 		elif sourceType == "vhsrip":
 			releaseInfo.Source = "VHS"
 		elif sourceType == "tvrip":
 			releaseInfo.Source = "TV"
 		else:
-			raise PtpUploaderException( "Got unsupported source type '%s' from Cinemageddon." % sourceType );
+			raise PtpUploaderException( "Got unsupported source type '%s' from Cinemageddon." % sourceType )
 
-		if formatType == "x264":
+		if releaseInfo.IsCodecSet():
+			releaseInfo.Logger.info( "Codec '%s' is already set, not getting from the torrent page." % releaseInfo.Codec )
+		elif formatType == "x264":
 			releaseInfo.Codec = "x264"
 		elif formatType == "xvid":
 			releaseInfo.Codec = "XviD"
@@ -114,12 +122,11 @@ class Cinemageddon(SourceBase):
 	
 	@staticmethod
 	def PrepareDownload(logger, releaseInfo):
-		imdbId = ""
 		sourceType = ""
 		formatType = ""
 		
 		if releaseInfo.IsUserCreatedJob():
-			imdbId, sourceType, formatType = Cinemageddon.__DownloadNfo( logger, releaseInfo )
+			sourceType, formatType = Cinemageddon.__DownloadNfo( logger, releaseInfo )
 		else:
 			# TODO: add filterting support for Cinemageddon
 			# In case of automatic announcement we have to check the release name if it is valid.
@@ -127,9 +134,8 @@ class Cinemageddon(SourceBase):
 			#if not ReleaseFilter.IsValidReleaseName( releaseInfo.ReleaseName ):
 			#	logger.info( "Ignoring release '%s' because of its name." % releaseInfo.ReleaseName )
 			#	return None
-			imdbId, sourceType, formatType = Cinemageddon.__DownloadNfo( logger, releaseInfo )
+			sourceType, formatType = Cinemageddon.__DownloadNfo( logger, releaseInfo )
 
-		releaseInfo.ImdbId = imdbId
 		Cinemageddon.__MapSourceAndFormatToPtp( releaseInfo, sourceType, formatType )		
 		return releaseInfo
 		
@@ -170,7 +176,7 @@ class Cinemageddon(SourceBase):
 		#	elif c == ' ':
 		#		newText += '.'
 		
-		# These characters can'be in filenames on Windows.
+		# These characters can't be in filenames on Windows.
 		forbiddenCharacters = r"""\/:*?"<>|"""
 		for c in forbiddenCharacters:
 			newText = newText.replace( c, "" )
@@ -204,7 +210,6 @@ class Cinemageddon(SourceBase):
 	def IncludeReleaseNameInReleaseDescription():
 		return False
 	
-
 	@staticmethod
 	def GetIdFromUrl(url):
 		result = re.match( r".*cinemageddon\.net/details.php\?id=(\d+).*", url )

@@ -21,7 +21,7 @@ class CheckAnnouncement:
 
 	def __ValidateReleaseInfo(self):
 		# Make sure we have IMDb or PTP id.
-		if ( not self.ReleaseInfo.HasImdbId() ) and (not self.ReleaseInfo.HasPtpId() ):
+		if ( not self.ReleaseInfo.HasImdbId() ) and ( not self.ReleaseInfo.HasPtpId() ):
 			self.ReleaseInfo.Logger.error( "IMDb or PTP id must be specified." )
 			return False
 	

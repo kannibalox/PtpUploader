@@ -35,12 +35,13 @@ class TorrentLeech(SourceBase):
 		if response.find( '<form method="post" action="/user/account/login/">' ) != -1:
 			raise PtpUploaderException( "Looks like you are not logged in to TorrentLeech. Probably due to the bad user name or password in settings." )
 
-	# Release names on TL don't contain periods. This functions restore them.
+	# Release names on TL don't contain periods. This function restores them.
 	# Eg.: "Far From Heaven 2002 720p BluRay x264-HALCYON" instead of "Far.From.Heaven.2002.720p.BluRay.x264-HALCYON"
 	@staticmethod
 	def __RestoreReleaseName(releaseName):
 		return releaseName.replace( " ", "." )
 	
+	# On TorrentLeech the torrent page doesn't contain the NFO, and the NFO page doesn't contain the release name so we have to read them separately. 
 	@staticmethod
 	def __GetReleaseName(logger, releaseInfo):
 		url = "http://www.torrentleech.org/torrent/%s" % releaseInfo.AnnouncementId
@@ -57,10 +58,14 @@ class TorrentLeech(SourceBase):
 		if matches is None:
 			raise PtpUploaderException( "Release name can't be found on page '%s'." % url )
 
-		return matches.group( 1 )
+		return TorrentLeech.__RestoreReleaseName( matches.group( 1 ) )
 
+	# On TorrentLeech the torrent page doesn't contain the NFO, and the NFO page doesn't contain the release name so we have to read them separately. 
 	@staticmethod
-	def __GetNfo(logger, releaseInfo, getReleaseName = False):
+	def __ReadImdbIdFromNfoPage(logger, releaseInfo):
+		if releaseInfo.HasImdbId() or releaseInfo.HasPtpId():
+			return
+		
 		url = "http://www.torrentleech.org/torrents/torrent/nfotext?torrentID=%s" % releaseInfo.AnnouncementId
 		logger.info( "Downloading NFO from page '%s'." % url )
 		
@@ -70,41 +75,62 @@ class TorrentLeech(SourceBase):
 		response = result.read()
 		TorrentLeech.CheckIfLoggedInFromResponse( response )
 
-		return response
+		releaseInfo.ImdbId = NfoParser.GetImdbId( response )
+	
+	@staticmethod
+	def __HandleUserCreatedJob(logger, releaseInfo):
+		if not releaseInfo.IsReleaseNameSet():
+			releaseInfo.ReleaseName = TorrentLeech.__GetReleaseName( logger, releaseInfo )
 
+		releaseNameParser = ReleaseNameParser( releaseInfo.ReleaseName )
+		releaseNameParser.GetSourceAndFormat( releaseInfo )
+
+		# Pretime is not indicated on TorrentLeech so we have to rely on our scene groups list.
+		if releaseNameParser.Scene:
+			releaseInfo.SetSceneRelease()
+
+		TorrentLeech.__ReadImdbIdFromNfoPage( logger, releaseInfo )
+		
+		return releaseInfo
+
+	@staticmethod
+	def __HandleAutoCreatedJob(logger, releaseInfo):
+		releaseInfo.ReleaseName = TorrentLeech.__RestoreReleaseName( releaseInfo.ReleaseName )
+		
+		# In case of automatic announcement we have to check the release name if it is valid.
+		# We know the release name from the announcement, so we can filter it without downloading anything (yet) from the source.
+		releaseNameParser = ReleaseNameParser( releaseInfo.ReleaseName )
+		if not releaseNameParser.IsAllowed():
+			logger.info( "Ignoring release '%s' because of its name." % releaseInfo.ReleaseName )
+			return None
+
+		releaseNameParser.GetSourceAndFormat( releaseInfo )
+		
+		releaseName = TorrentLeech.__GetReleaseName( logger, releaseInfo )
+		if releaseName != releaseInfo.ReleaseName:
+			raise PtpUploaderException( "Announcement release name '%s' and release name '%s' on page '%s' are different." % ( releaseInfo.ReleaseName, releaseName, url ) )
+
+		# Pretime is not indicated on TorrentLeech so we have to rely on our scene groups list.
+		if releaseNameParser.Scene:
+			releaseInfo.SetSceneRelease()
+
+		if ( not releaseInfo.IsSceneRelease() ) and Settings.TorrentLeechAutomaticJobFilter == "SceneOnly":
+			raise PtpUploaderException( "Ignoring non-scene release: '%s'." % releaseInfo.ReleaseName )
+
+		TorrentLeech.__ReadImdbIdFromNfoPage( logger, releaseInfo )
+		
+		return releaseInfo
+	
 	@staticmethod
 	def PrepareDownload(logger, releaseInfo):
 		# TODO: temp
 		# TorrentLeech has a bad habit of logging out, so we put this here.
 		TorrentLeech.Login()
 		
-		# In case of manual announcement we don't have the name, so get it.
-		if not releaseInfo.IsReleaseNameSet():
-			releaseInfo.ReleaseName = TorrentLeech.__GetReleaseName( logger, releaseInfo )
-
-		releaseInfo.ReleaseName = TorrentLeech.__RestoreReleaseName( releaseInfo.ReleaseName )
-			
-		releaseNameParser = ReleaseNameParser( releaseInfo.ReleaseName )
-
-		# We don't have to check the release name for user created jobs. 
-		if ( not releaseInfo.IsUserCreatedJob() ) and ( not releaseNameParser.IsAllowed() ):
-			logger.info( "Ignoring release '%s' because of its name." % releaseInfo.ReleaseName )
-			return None
-
-		releaseNameParser.GetSourceAndFormat( releaseInfo )
-
-		# Download the NFO.
-		nfoText = TorrentLeech.__GetNfo( logger, releaseInfo )
-		releaseInfo.ImdbId = NfoParser.GetImdbId( nfoText )
-
-		# Pretime is not indicated on TorrentLeech so we have to rely on our scene groups list.
-		if releaseNameParser.Scene:
-			releaseInfo.SetSceneRelease()
-			
-		if ( not releaseInfo.IsSceneRelease() ) and ( not releaseInfo.IsUserCreatedJob() ) and Settings.TorrentLeechAutomaticJobFilter == "SceneOnly":
-			raise PtpUploaderException( "Ignoring non-scene release: '%s'." % releaseInfo.ReleaseName )
-		
-		return releaseInfo
+		if releaseInfo.IsUserCreatedJob():
+			return TorrentLeech.__HandleUserCreatedJob( logger, releaseInfo )
+		else:
+			return TorrentLeech.__HandleAutoCreatedJob( logger, releaseInfo )
 	
 	@staticmethod
 	def DownloadTorrent(logger, releaseInfo, path):
