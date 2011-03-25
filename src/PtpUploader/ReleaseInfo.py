@@ -260,7 +260,7 @@ class ReleaseInfo(Database.Base):
 
 		# Add NFO if presents
 		if len( releaseInfo.Nfo ) > 0:
-			self.ReleaseDescription += u"[size=3][u]NFO[/u][/size]:[pre]\n%s\n[/pre]" % releaseInfo.Nfo
+			self.ReleaseDescription += u"[size=3][u]NFO[/u][/size]:\n%s" % releaseInfo.Nfo
 
 		# We don't use this file for anything, we just save it for convenience.
 		if releaseDescriptionFilePath is not None:
