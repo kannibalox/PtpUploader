@@ -53,10 +53,10 @@ def index():
 			state = "Unknown"
 		entry[ "State" ] = state
 		
-		if ( releaseInfo.PtpId is not None ) and releaseInfo.HasPtpId():
-			entry[ "PtpUrl" ] = "https://passthepopcorn.me/torrents.php?id=%s" % releaseInfo.PtpId
-		elif releaseInfo.HasImdbId():
-			entry[ "PtpUrl" ] = "http://passthepopcorn.me/torrents.php?imdb=%s" % releaseInfo.ImdbId
+		if releaseInfo.HasPtpId():
+			entry[ "PtpUrl" ] = "https://passthepopcorn.me/torrents.php?id=%s" % releaseInfo.GetPtpId()
+		elif releaseInfo.HasImdbId() and ( not releaseInfo.IsZeroImdbId() ):
+			entry[ "PtpUrl" ] = "http://passthepopcorn.me/torrents.php?imdb=%s" % releaseInfo.GetImdbId()
 
 		entry[ "LogPageUrl" ] = url_for( "log", jobId = releaseInfo.Id )
 		entry[ "EditPageUrl" ] = url_for( "job", jobId = releaseInfo.Id )
@@ -72,7 +72,7 @@ def job(jobId):
 	
 	releaseInfo = Database.DbSession.query( ReleaseInfo ).filter( ReleaseInfo.Id == jobId ).first()
 	
-	text += "Id: %s<br/>IMDb id: %s" % ( releaseInfo.Id, releaseInfo.ImdbId )
+	text += "Id: %s<br/>IMDb id: %s" % ( releaseInfo.Id, releaseInfo.GetImdbId() )
 
 	return text
 

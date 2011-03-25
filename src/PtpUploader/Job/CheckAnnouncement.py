@@ -62,6 +62,11 @@ class CheckAnnouncement:
 		# If we are not logged in here that could mean that nothing interesting has been announcened for a while. 
 		Ptp.Login()
 
+		# This could be before the Ptp.Login() line, but this way we can hopefully avoid some logging out errors.
+		if self.ReleaseInfo.IsZeroImdbId():
+			self.ReleaseInfo.Logger.info( "IMDb ID is set zero, ignoring the check for existing release." )
+			return True
+
 		if self.ReleaseInfo.HasPtpId():
 			self.MovieOnPtpResult = Ptp.GetMoviePageOnPtp( self.ReleaseInfo.Logger, self.ReleaseInfo.GetPtpId() )
 		else:
@@ -77,8 +82,8 @@ class CheckAnnouncement:
 		return True
 	
 	def __FillOutDetailsForNewMovie(self):
-		# If this movie has no page yet on PTP then fill out the required info (title, year, etc.).
-		if self.MovieOnPtpResult.IsMoviePageExists():
+		# If the IMDb ID is set to zero or already has a page on PTP then we don't have to do anything here.
+		if self.ReleaseInfo.IsZeroImdbId() or self.MovieOnPtpResult.IsMoviePageExists():
 			return True
 
 		Ptp.FillImdbInfo( self.ReleaseInfo.Logger, self.ReleaseInfo )
@@ -107,6 +112,28 @@ class CheckAnnouncement:
 				self.ReleaseInfo.CoverArtUrl = MoviePoster.Get( self.ReleaseInfo.Logger, self.ReleaseInfo.GetImdbId() )
 	
 		return True
+
+	def __ValidateReleaseInfoForNewMovie(self):
+		if self.ReleaseInfo.HasPtpId():
+			return True
+
+		if len( self.ReleaseInfo.Title ) <= 0: 
+			self.ReleaseInfo.Logger.error( "Movie title is not set."  )
+			return False
+
+		if len( self.ReleaseInfo.Year ) <= 0: 
+			self.ReleaseInfo.Logger.error( "Movie year is not set."  )
+			return False
+
+		if len( self.ReleaseInfo.Directors ) <= 0:
+			self.ReleaseInfo.Logger.error( """The director of the movie is not set. Use "None Listed" (without the quotes) if there is no director.""" )
+			return False
+
+		if len( self.ReleaseInfo.Tags ) <= 0:
+			self.ReleaseInfo.Logger.error( "At least one tag must be specified for a movie."  )
+			return False
+	
+		return True
 	
 	def Work(self):
 		self.ReleaseInfo.Logger.info( "Working on announcement from '%s' with id '%s' and name '%s'." % ( self.ReleaseInfo.AnnouncementSource.Name, self.ReleaseInfo.AnnouncementId, self.ReleaseInfo.ReleaseName ) )
@@ -118,6 +145,8 @@ class CheckAnnouncement:
 		if not self.__CheckIfExistsOnPtp():
 			return False
 		if not self.__FillOutDetailsForNewMovie():
+			return False
+		if not self.__ValidateReleaseInfoForNewMovie():
 			return False
 		
 		return True

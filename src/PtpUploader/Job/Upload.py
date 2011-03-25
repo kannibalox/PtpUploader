@@ -64,11 +64,16 @@ class Upload:
 			MakeTorrent.Make( self.ReleaseInfo.Logger, self.VideoFiles[ 0 ], self.UploadTorrentPath )
 
 	def __CheckIfExistsOnPtp(self):
-		movieOnPtpResult = None
-
 		# TODO: this is temporary here. We should support it everywhere.
 		# If we are not logged in here that could mean that the download took a lot of time and the user got logged out for some reason. 
 		Ptp.Login()
+
+		# This could be before the Ptp.Login() line, but this way we can hopefully avoid some logging out errors.
+		if self.ReleaseInfo.IsZeroImdbId():
+			self.ReleaseInfo.Logger.info( "IMDb ID is set zero, ignoring the check for existing release." )
+			return True
+
+		movieOnPtpResult = None
 
 		if self.ReleaseInfo.HasPtpId():
 			# If we already got the PTP id then we only need the existing formats if this is not a forced upload.

@@ -40,7 +40,9 @@ def GetYouTubeId(text):
 def GetPtpOrImdbId(releaseInfo, text):
 	imdbId = NfoParser.GetImdbId( text )
 	if len( imdbId ) > 0:
-		releaseInfo.ImdbId = imdbId 
+		releaseInfo.ImdbId = imdbId
+	elif text == "0" or text == "-":
+		releaseInfo.SetZeroImdbId()
 	else:
 		# Using urlparse because of torrent permalinks:
 		# https://passthepopcorn.me/torrents.php?id=9730&torrentid=72322

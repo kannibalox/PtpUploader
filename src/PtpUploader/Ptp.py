@@ -204,19 +204,23 @@ class Ptp:
 	@staticmethod
 	def __UploadMovieGetParamsForNewMovie(releaseInfo):
 		params = {
-			"imdb": releaseInfo.ImdbId,
 			"tomatoes": releaseInfo.RottenTomatoesUrl,
 			"metacritic": releaseInfo.MetacriticUrl,
 			"title": releaseInfo.Title,
 			"year": releaseInfo.Year,
 			"image": releaseInfo.CoverArtUrl,
-			"genre_tags": "---",
 			"tags": releaseInfo.Tags,
 			"album_desc": releaseInfo.MovieDescription,
 			"trailer": releaseInfo.YouTubeId,
 			};
 			
 		paramList = params.items();
+
+		# Add the IMDb ID.
+		if releaseInfo.IsZeroImdbId():
+			paramList.append( poster.encode.MultipartParam( "imdb", "" ) )
+		else:
+			paramList.append( poster.encode.MultipartParam( "imdb", releaseInfo.GetImdbId() ) )
 
 		# Add the directors.
 		# These needs to be added in order because of the "importance" field follows them.
