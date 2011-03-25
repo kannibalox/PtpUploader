@@ -71,6 +71,7 @@ class CheckAnnouncement:
 			self.MovieOnPtpResult = Ptp.GetMoviePageOnPtp( self.ReleaseInfo.Logger, self.ReleaseInfo.GetPtpId() )
 		else:
 			self.MovieOnPtpResult = Ptp.GetMoviePageOnPtpByImdbId( self.ReleaseInfo.Logger, self.ReleaseInfo.GetImdbId() )
+			self.ReleaseInfo.PtpId = self.MovieOnPtpResult.PtpId
 
 		# If this is not a forced upload then we have to check if is it already on PTP.
 		if not self.ReleaseInfo.IsForceUpload():
