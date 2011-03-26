@@ -4,9 +4,7 @@ from PtpUploaderException import *
 from Settings import Settings
 
 import poster
-import simplejson as json
 
-import HTMLParser # For HTML entity reference decoding...
 import mimetypes
 import os
 import re
@@ -97,77 +95,6 @@ class Ptp:
 		else:
 			logger.info( "Movie with IMDb id '%s' doesn't exists on PTP." % imdbId );
 			return PtpMovieSearchResult( ptpId = "", moviePageHtml = None );
-
-	@staticmethod
-	def FillImdbInfo(logger, releaseInfo):
-		logger.info( "Downloading movie info from PTP for IMDb id '%s'." % releaseInfo.ImdbId );
-
-		# PTP doesn't decodes the HTML entity references (like "&#x26;" to "&") in the JSON response, so we have to.
-		# We are using an internal function of HTMLParser. 
-		# See this: http://fredericiana.com/2010/10/08/decoding-html-entities-to-text-in-python/
-		htmlParser = HTMLParser.HTMLParser()
- 
-		# Get IMDb info through PTP's ajax API used by the site when the user presses the auto fill button.
-		opener = urllib2.build_opener( urllib2.HTTPCookieProcessor( MyGlobals.CookieJar ) );
-		request = urllib2.Request( "http://passthepopcorn.me/ajax.php?action=torrent_info&imdb=%s" % releaseInfo.ImdbId );
-		result = opener.open( request );
-		response = result.read();
-		Ptp.CheckIfLoggedInFromResponse( response );
-		
-		# The response is JSON.
-		# [{"title":"Devil's Playground","plot":"As the world succumbs to a zombie apocalypse, Cole a hardened mercenary, is chasing the one person who can provide a cure. Not only to the plague but to Cole's own incumbent destiny. DEVIL'S PLAYGROUND is a cutting edge British horror film that features zombies portrayed by free runners for a terrifyingly authentic representation of the undead","art":false,"year":"2010","director":[{"imdb":"1654324","name":"Mark McQueen","role":null}],"tags":"action, horror","writers":[{"imdb":"1057010","name":"Bart Ruspoli","role":" screenplay"}]}]
-
-		jsonResult = json.loads( response );
-		if len( jsonResult ) != 1:
-			raise PtpUploaderException( "Bad PTP movie info JSON response: array length is not one.\nResponse:\n%s" % response );
-	
-		movie = jsonResult[ 0 ];
-		releaseInfo.Title = movie[ "title" ];
-		if ( releaseInfo.Title is None ) or len( releaseInfo.Title ) == 0: 
-			raise PtpUploaderException( "Bad PTP movie info JSON response: title is empty.\nResponse:\n%s" % response );
-		releaseInfo.Title = htmlParser.unescape( releaseInfo.Title ) # PTP doesn't decodes properly the text.
-
-		releaseInfo.Year = movie[ "year" ];
-		if ( releaseInfo.Year is None ) or len( releaseInfo.Year ) == 0: 
-			raise PtpUploaderException( "Bad PTP movie info JSON response: year is empty.\nReponse:\n%s" % response );
-
-		releaseInfo.MovieDescription = movie[ "plot" ];
-		if releaseInfo.MovieDescription is None:
-			releaseInfo.MovieDescription = ""; 
-
-		releaseInfo.Tags = movie[ "tags" ];
-		if releaseInfo.Tags is None: 
-			raise PtpUploaderException( "Bad PTP movie info JSON response: tags key doesn't exists.\nReponse:\n%s" % response );
-
-		# PTP's upload page doesn't allows movies without tags. 
-		if len( releaseInfo.Tags ) <= 0:
-			raise PtpUploaderException( "PTP movie info returned without any tags." );
-
-		if not releaseInfo.IsCoverArtUrlSet():
-			releaseInfo.CoverArtUrl = movie[ "art" ];
-			if releaseInfo.CoverArtUrl is None:
-				raise PtpUploaderException( "Bad PTP movie info JSON response: art key doesn't exists.\nReponse:\n%s" % response );
-
-			# It may be false... Eg.: "art": false
-			if not releaseInfo.CoverArtUrl:
-				releaseInfo.CoverArtUrl = ""
-
-		# Director's name may not be present. For example: http://www.imdb.com/title/tt0864336/
-		jsonDirectors = movie[ "director" ];
-		if ( jsonDirectors is None ) or len( jsonDirectors ) < 1:
-			releaseInfo.Directors = "None Listed"
-		else:
-			directorNames = []
-
-			for jsonDirector in jsonDirectors:
-				directorName = jsonDirector[ "name" ];
-				if ( directorName is None ) or len( directorName ) == 0: 
-					raise PtpUploaderException( "Bad PTP movie info JSON response: director name is empty.\nReponse:\n%s" % response );
-
-				directorName = htmlParser.unescape( directorName ) # PTP doesn't decodes properly the text.
-				directorNames.append( directorName )
-
-			releaseInfo.SetDirectors( directorNames )
 
 	@staticmethod
 	def __UploadMovieGetParamsCommon(releaseInfo):

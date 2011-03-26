@@ -190,18 +190,20 @@ class Cinemageddon(SourceBase):
 	# The new name will be formatted like this: Movie Name Year
 	@staticmethod
 	def RenameRelease(logger, releaseInfo):
-		# TODO: if the user forced a release name, then let it upload.
+		# TODO: if the user forced a release name, then let it upload by that name.
 		if releaseInfo.IsZeroImdbId():
 			raise PtpUploaderException( "Uploading to CG with zero IMDb ID is not yet supported." % text ) 		
 		
 		# If the movie already exists on PTP then the IMDb info is not populated in ReleaseInfo.
-		if len( releaseInfo.InternationalTitle ) <= 0:
+		if len( releaseInfo.InternationalTitle ) <= 0 or len( releaseInfo.Year ) <= 0:
 			imdbInfo = Imdb.GetInfo( logger, releaseInfo.GetImdbId() )
-			releaseInfo.InternationalTitle = imdbInfo.Title
-			releaseInfo.Year = imdbInfo.Year
+			if len( releaseInfo.InternationalTitle ) <= 0:
+				releaseInfo.InternationalTitle = imdbInfo.Title
+			if len( releaseInfo.Year ) <= 0:
+				releaseInfo.Year = imdbInfo.Year
 
-		title = Cinemageddon.__RemoveNonAllowedCharacters( releaseInfo.InternationalTitle )
-		name = "%s (%s)" % ( title, releaseInfo.Year )
+		name = "%s (%s)" % ( releaseInfo.InternationalTitle, releaseInfo.Year )
+		name = Cinemageddon.__RemoveNonAllowedCharacters( name )
 
 		logger.info( "Upload directory will be named '%s' instead of '%s'." % ( name, releaseInfo.ReleaseName ) )
 		
