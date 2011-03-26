@@ -36,7 +36,7 @@ class Download:
 	def Work(self):
 		# Instead of this if, it would be possible to make a totally generic downloader system through SourceBase.
 		if self.ReleaseInfo.AnnouncementSourceName == "file":
-			self.ReleaseInfo.Logger.info( "Local directory or file is specified for release '%s', download skipped, going to next phase." % self.ReleaseInfo.ReleaseName )
+			self.ReleaseInfo.Logger.info( "Local directory or file is specified for release '%s', skipping download phase." % self.ReleaseInfo.ReleaseName )
 			self.JobManager.AddToPendingDownloads( self.ReleaseInfo )			
 			return True
 

@@ -86,10 +86,22 @@ def UploadFile(releaseInfo, request):
 		return False
 
 	# TODO: implement me
-	#releaseInfo.AnnouncementSourceName = "file"
-	#releaseInfo.ReleaseName
-	#return True
-	return False 
+	return False
+
+	# TODO: support if path is a file
+	if os.path.isdir( path ):
+		releaseInfo.AnnouncementSourceName = "file"
+		releaseInfo.ReleaseDownloadPath = path
+
+		# Make sure that path doesn't ends with a trailing slash or else os.path.split would return with wrong values.
+		path = path.rstrip( "\\/" )
+	
+		# Release name will be the directory's name. Eg. it will be "anything" for "/something/anything"
+		releaseInfo.ReleaseName = os.path.split( path )
+	
+		return True
+	else:
+		return False
 
 @app.route( '/upload/', methods=[ 'GET', 'POST' ] )
 @requires_auth

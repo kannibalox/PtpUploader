@@ -55,6 +55,7 @@ class ReleaseInfo(Database.Base):
 	Nfo = Column( String )
 	SourceTorrentPath = Column( String )
 	SourceTorrentInfoHash = Column( String )
+	ReleaseDownloadPath = Column( String )
 	ReleaseUploadPath = Column( String )
 	
 	def __init__(self):
@@ -97,6 +98,7 @@ class ReleaseInfo(Database.Base):
 		self.Nfo = u""
 		self.SourceTorrentPath = ""
 		self.SourceTorrentInfoHash = ""
+		self.ReleaseDownloadPath = "" # Empty if using the default path. See GetReleaseDownloadPath.
 		self.ReleaseUploadPath = "" # Empty if using the default path. See GetReleaseUploadPath.
 		
 		self.MyConstructor()
@@ -176,23 +178,19 @@ class ReleaseInfo(Database.Base):
 		return os.path.join( Settings.GetJobLogPath(), str( self.Id ) )
 
 	# Eg.: "working directory/release/Dark.City.1998.Directors.Cut.720p.BluRay.x264-SiNNERS/"
-	@staticmethod
-	def GetReleaseRootPathFromRelaseName(releaseName):
-		releasesPath = os.path.join( Settings.WorkingPath, "release" )
-		return os.path.join( releasesPath, releaseName )
-		
-	# Eg.: "working directory/release/Dark.City.1998.Directors.Cut.720p.BluRay.x264-SiNNERS/"
 	def GetReleaseRootPath(self):
-		return ReleaseInfo.GetReleaseRootPathFromRelaseName( self.ReleaseName )
-
-	# Eg.: "working directory/release/Dark.City.1998.Directors.Cut.720p.BluRay.x264-SiNNERS/download/"
-	@staticmethod
-	def GetReleaseDownloadPathFromRelaseName(releaseName):
-		return os.path.join( ReleaseInfo.GetReleaseRootPathFromRelaseName( releaseName ), "download" )
+		releasesPath = os.path.join( Settings.WorkingPath, "release" )
+		return os.path.join( releasesPath, self.ReleaseName )
 
 	# Eg.: "working directory/release/Dark.City.1998.Directors.Cut.720p.BluRay.x264-SiNNERS/download/"
 	def GetReleaseDownloadPath(self):
-		return ReleaseInfo.GetReleaseDownloadPathFromRelaseName( self.ReleaseName )
+		if len( self.ReleaseDownloadPath ) > 0:
+			return self.ReleaseDownloadPath
+		else:
+			return os.path.join( self.GetReleaseRootPath(), "download" )
+
+	def SetReleaseDownloadPath(self, path):
+		self.ReleaseDownloadPath = path
 	
 	# Eg.: "working directory/release/Dark.City.1998.Directors.Cut.720p.BluRay.x264-SiNNERS/upload/Dark.City.1998.Directors.Cut.720p.BluRay.x264-SiNNERS/"
 	# It must contain the final release name because of mktorrent.

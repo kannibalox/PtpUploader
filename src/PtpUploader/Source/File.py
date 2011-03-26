@@ -15,9 +15,10 @@ class File(SourceBase):
 	
 	@staticmethod
 	def PrepareDownload(logger, releaseInfo):
-		# TODO: support for new movies without IMDB id
+		# TODO: support if GetReleaseDownloadPath is a file
+		
 		if ( not releaseInfo.HasImdbId() ) and ( not releaseInfo.HasPtpId() ):
-			nfo = NfoParser.GetNfoFile( ReleaseInfo.GetReleaseDownloadPathFromRelaseName( releaseInfo.ReleaseName ) )
+			nfo = NfoParser.GetNfoFile( ReleaseInfo.GetReleaseDownloadPath() )
 			imdbId = NfoParser.GetImdbId( nfo )
 			if len( imdbId ) > 0:
 				releaseInfo.ImdbId = imdbId 
@@ -28,7 +29,7 @@ class File(SourceBase):
 		releaseNameParser = ReleaseNameParser( releaseInfo.ReleaseName )
 		releaseNameParser.GetSourceAndFormat( releaseInfo )
 		if releaseNameParser.Scene: 
-			releaseInfo.SetSceneRelease() 
+			releaseInfo.SetSceneRelease()
 		return releaseInfo
 
 	@staticmethod
@@ -37,6 +38,8 @@ class File(SourceBase):
 		
 	@staticmethod
 	def ExtractRelease(logger, releaseInfo):
+		# TODO: support if GetReleaseDownloadPath is a file
+		
 		# Extract the release.
 		nfoPath = ReleaseExtractor.Extract( releaseInfo.GetReleaseDownloadPath(), releaseInfo.GetReleaseUploadPath() )
 		if nfoPath is not None:
