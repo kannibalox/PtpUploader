@@ -36,10 +36,76 @@ class Upload:
 		if len( self.VideoFiles ) < 1:
 			raise PtpUploaderException( "Upload path '%s' doesn't contains any video files." % self.ReleaseInfo.GetReleaseUploadPath() )
 
+	def __GetMediaInfoContainer(self, mediaInfo):
+		container = ""
+
+		if mediaInfo.IsAvi():
+			container = "AVI"
+		elif mediaInfo.IsMkv():
+			container = "MKV"
+		
+		if self.ReleaseInfo.IsContainerSet():
+			if container != self.ReleaseInfo.Container:
+				if self.ReleaseInfo.IsForceUpload():
+					self.ReleaseInfo.Logger.info( "Container is set to '%s', detected MediaInfo container is '%s' ('%s'). Ignoring mismatch because of force upload." % ( self.ReleaseInfo.Container, container, mediaInfo.Container ) )
+				else:
+					raise PtpUploaderException( "Container is set to '%s', detected MediaInfo container is '%s' ('%s')." % ( self.ReleaseInfo.Container, container, mediaInfo.Container ) )
+		else:
+			if len( container ) > 0:
+				self.ReleaseInfo.Container = container
+			else:
+				raise PtpUploaderException( "Unsupported container: '%s'." % mediaInfo.Container )
+
+	def __GetMediaInfoCodec(self, mediaInfo):
+		codec = ""
+
+		if mediaInfo.IsX264():
+			codec = "x264"
+			if mediaInfo.IsAvi():
+				raise PtpUploaderException( "X264 in AVI is not allowed." )
+		elif mediaInfo.IsXvid():
+			codec = "XviD"
+			if mediaInfo.IsMkv():
+				raise PtpUploaderException( "XviD in MKV is not allowed." )
+		elif mediaInfo.IsDivx():
+			codec = "DivX"
+			if mediaInfo.IsMkv():
+				raise PtpUploaderException( "DivX in MKV is not allowed." )
+
+		if self.ReleaseInfo.IsCodecSet():
+			if codec != self.ReleaseInfo.Codec:
+				if self.ReleaseInfo.IsForceUpload():
+					self.ReleaseInfo.Logger.info( "Codec is set to '%s', detected MediaInfo codec is '%s' ('%s'). Ignoring mismatch because of force upload." % ( self.ReleaseInfo.Codec, codec, mediaInfo.Codec ) )
+				else:
+					raise PtpUploaderException( "Codec is set to '%s', detected MediaInfo codec is '%s' ('%s')." % ( self.ReleaseInfo.Codec, codec, mediaInfo.Codec ) )
+		else:
+			if len( codec ) > 0:
+				self.ReleaseInfo.Codec = codec
+			else:
+				raise PtpUploaderException( "Unsupported codec: '%s'." % mediaInfo.Codec )
+
+	def __GetMediaInfoResolution(self, mediaInfo):
+		resolution = ""
+
+		# Indicate the exact resolution for standard definition releases.
+		if self.ReleaseInfo.IsStandardDefintion():
+			resolution = "%sx%s" % ( mediaInfo.Width, mediaInfo.Height )
+			
+		if len( self.ReleaseInfo.Resolution ) > 0:
+			if resolution != self.ReleaseInfo.Resolution:
+				if self.ReleaseInfo.IsForceUpload():
+					self.ReleaseInfo.Logger.info( "Resolution is set to '%s', detected MediaInfo resolution is '%s' ('%sx%s'). Ignoring mismatch because of force upload." % ( self.ReleaseInfo.Resolution, resolution, mediaInfo.Width, mediaInfo.Height ) )
+				else:
+					raise PtpUploaderException( "Resolution is set to '%s', detected MediaInfo resolution is '%s' ('%sx%s')." % ( self.ReleaseInfo.Resolution, resolution, mediaInfo.Width, mediaInfo.Height ) )
+		else:
+			self.ReleaseInfo.Resolution = resolution
+
 	def __GetMediaInfo(self):
 		self.VideoFiles = ScreenshotMaker.SortVideoFiles( self.VideoFiles )
 		self.MediaInfos = MediaInfo.ReadAndParseMediaInfos( self.ReleaseInfo.Logger, self.VideoFiles )
-		self.ReleaseInfo.GetDataFromMediaInfo( self.MediaInfos[ 0 ] )
+		self.__GetMediaInfoContainer( self.MediaInfos[ 0 ] )
+		self.__GetMediaInfoCodec( self.MediaInfos[ 0 ] )
+		self.__GetMediaInfoResolution( self.MediaInfos[ 0 ] )
 
 	def __TakeAndUploadScreenshots(self):
 		screenshotPath = os.path.join( self.ReleaseInfo.GetReleaseRootPath(), "screenshot.png" )
