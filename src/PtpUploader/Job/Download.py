@@ -1,3 +1,4 @@
+from Job.FinishedJobPhase import FinishedJobPhase
 from Job.JobRunningState import JobRunningState
 
 from Database import Database
@@ -12,6 +13,9 @@ class Download:
 		self.Rtorrent = rtorrent
 
 	def __CreateReleaseDirectory(self):
+		if self.ReleaseInfo.IsJobPhaseFinished( FinishedJobPhase.Download_CreateReleaseDirectory ):
+			return
+
 		releaseRootPath = self.ReleaseInfo.GetReleaseRootPath()
 		self.ReleaseInfo.Logger.info( "Creating release root directory at '%s'." % releaseRootPath )
 
@@ -20,17 +24,29 @@ class Download:
 
 		os.makedirs( releaseRootPath )
 
+		self.ReleaseInfo.SetJobPhaseFinished( FinishedJobPhase.Download_CreateReleaseDirectory )
+		Database.DbSession.commit()
+
 	def __DownloadTorrentFile(self):
 		if self.ReleaseInfo.IsSourceTorrentPathSet():
 			return
 
 		torrentName = self.ReleaseInfo.AnnouncementSource.Name + " " + self.ReleaseInfo.ReleaseName + ".torrent"
-		self.ReleaseInfo.SourceTorrentPath = os.path.join( self.ReleaseInfo.GetReleaseRootPath(), torrentName )
-		self.ReleaseInfo.AnnouncementSource.DownloadTorrent( self.ReleaseInfo.Logger, self.ReleaseInfo, self.ReleaseInfo.SourceTorrentPath )
+		sourceTorrentPath = os.path.join( self.ReleaseInfo.GetReleaseRootPath(), torrentName )
+		self.ReleaseInfo.AnnouncementSource.DownloadTorrent( self.ReleaseInfo.Logger, self.ReleaseInfo, sourceTorrentPath )
+		
+		# Local variable is used temporarily to make sure that SourceTorrentPath is only gets stored in the database if DownloadTorrent succeeded. 
+		self.ReleaseInfo.SourceTorrentPath = sourceTorrentPath
+		Database.DbSession.commit()
 
 	def __DownloadTorrent(self):
+		if len( self.ReleaseInfo.SourceTorrentInfoHash ) > 0:
+			return
+		
 		self.Rtorrent.CleanTorrentFile( self.ReleaseInfo.Logger, self.ReleaseInfo.SourceTorrentPath )
 		self.ReleaseInfo.SourceTorrentInfoHash = self.Rtorrent.AddTorrent( self.ReleaseInfo.Logger, self.ReleaseInfo.SourceTorrentPath, self.ReleaseInfo.GetReleaseDownloadPath() )
+		Database.DbSession.commit()
+		
 		self.JobManager.AddToPendingDownloads( self.ReleaseInfo )
 
 	def Work(self):

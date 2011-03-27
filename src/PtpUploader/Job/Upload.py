@@ -1,3 +1,5 @@
+from Job.FinishedJobPhase import FinishedJobPhase
+from Job.JobPhase import JobPhase
 from Job.JobRunningState import JobRunningState
 from Tool.MakeTorrent import MakeTorrent
 from Tool.MediaInfo import MediaInfo
@@ -25,16 +27,37 @@ class Upload:
 		self.UploadTorrentPath = ""
 
 	def __CreateUploadPath(self):
-		self.ReleaseInfo.AnnouncementSource.RenameRelease( self.ReleaseInfo.Logger, self.ReleaseInfo )
+		if self.ReleaseInfo.IsJobPhaseFinished( FinishedJobPhase.Upload_CreateUploadPath ):
+			return
+
 		uploadPath = self.ReleaseInfo.GetReleaseUploadPath()
+		customUploadPath = self.ReleaseInfo.AnnouncementSource.GetCustomUploadPath( self.ReleaseInfo.Logger, self.ReleaseInfo )
+		if len( customUploadPath ) > 0:
+			uploadPath = customUploadPath
+
 		self.ReleaseInfo.Logger.info( "Creating upload path at '%s'." % uploadPath )
+		
+		if os.path.exists( releaseRootPath ):
+			raise PtpUploaderException( "Release root directory '%s' already exists." % uploadPath )	
+		
 		os.makedirs( uploadPath )
 
+		if len( customUploadPath ) > 0:
+			self.ReleaseInfo.SetReleaseUploadPath( customUploadPath )
+		self.ReleaseInfo.SetJobPhaseFinished( FinishedJobPhase.Upload_CreateUploadPath )
+		Database.DbSession.commit()
+
 	def __ExtractRelease(self):
+		if self.ReleaseInfo.IsJobPhaseFinished( FinishedJobPhase.Upload_ExtractRelease ):
+			return
+		
 		self.ReleaseInfo.AnnouncementSource.ExtractRelease( self.ReleaseInfo.Logger, self.ReleaseInfo )
 		self.VideoFiles, self.TotalFileCount = ReleaseExtractor.ValidateDirectory( self.ReleaseInfo.GetReleaseUploadPath() )
 		if len( self.VideoFiles ) < 1:
 			raise PtpUploaderException( "Upload path '%s' doesn't contains any video files." % self.ReleaseInfo.GetReleaseUploadPath() )
+		
+		self.ReleaseInfo.SetJobPhaseFinished( FinishedJobPhase.Upload_ExtractRelease )
+		Database.DbSession.commit()
 
 	def __GetMediaInfoContainer(self, mediaInfo):
 		container = ""

@@ -20,8 +20,8 @@ class SourceBase:
 		pass
 
 	@staticmethod
-	def RenameRelease(logger, releaseInfo):
-		pass
+	def GetCustomUploadPath(logger, releaseInfo):
+		return ""
 
 	@staticmethod
 	def IsSingleFileTorrentNeedsDirectory():

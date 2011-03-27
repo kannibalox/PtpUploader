@@ -1,3 +1,4 @@
+from Job.JobPhase import JobPhase
 from Job.JobRunningState import JobRunningState
 from Job.JobStartMode import JobStartMode
 
@@ -49,6 +50,7 @@ class ReleaseInfo(Database.Base):
 	# Other
 	JobStartMode = Column( Integer )
 	JobRunningState = Column( Integer )
+	FinishedJobPhase = Column( Integer )
 	PtpId = Column( String )
 	ForceDirectorylessSingleFileTorrent = Column( Boolean )
 	InternationalTitle = Column( String )
@@ -89,9 +91,10 @@ class ReleaseInfo(Database.Base):
 		self.RemasterTitle = "" # Eg.: Hardcoded English
 		self.RemasterYear = ""
 		# Till this.
-		
+
 		self.JobStartMode = JobStartMode.Automatic
 		self.JobRunningState = JobRunningState.WaitingForStart
+		self.FinishedJobPhase = 0 # Flag. Takes values from FinishedJobPhase.
 		self.PtpId = ""
 		self.ForceDirectorylessSingleFileTorrent = False # If set to true, then it overrides the value returned by SourceBase.IsSingleFileTorrentNeedsDirectory.  
 		self.InternationalTitle = "" # International title of the movie. Eg.: The Secret in Their Eyes. Needed for renaming releases coming from Cinemageddon.
@@ -166,12 +169,18 @@ class ReleaseInfo(Database.Base):
 				raise PtpUploaderException( "Director name '%s' contains a comma." % name )
 		
 		self.Directors = ", ".join( list )
-		
+
 	def IsSceneRelease(self):
 		return self.Scene == "on"
 
 	def SetSceneRelease(self):
 		self.Scene = "on"
+		
+	def IsJobPhaseFinished(self, jobPhase):
+		return ( self.FinishedJobPhase & jobPhase ) != 0 
+
+	def SetJobPhaseFinished(self, jobPhase):
+		self.FinishedJobPhase |= jobPhase
 
 	# Eg.: "working directory/log/job/1"
 	def GetLogFilePath(self):

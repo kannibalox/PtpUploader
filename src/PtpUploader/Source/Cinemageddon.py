@@ -189,7 +189,7 @@ class Cinemageddon(SourceBase):
 	# Because some of the releases on CG do not contain the full name of the movie, we have to rename them because of the uploading rules on PTP.
 	# The new name will be formatted like this: Movie Name Year
 	@staticmethod
-	def RenameRelease(logger, releaseInfo):
+	def GetCustomUploadPath(logger, releaseInfo):
 		# TODO: if the user forced a release name, then let it upload by that name.
 		if releaseInfo.IsZeroImdbId():
 			raise PtpUploaderException( "Uploading to CG with zero IMDb ID is not yet supported." % text ) 		
@@ -210,7 +210,7 @@ class Cinemageddon(SourceBase):
 		newUploadPath = releaseInfo.GetReleaseUploadPath()
 		newUploadPath = os.path.dirname( newUploadPath )
 		newUploadPath = os.path.join( newUploadPath, name )
-		releaseInfo.SetReleaseUploadPath( newUploadPath )
+		return newUploadPath
 
 	@staticmethod
 	def IncludeReleaseNameInReleaseDescription():
