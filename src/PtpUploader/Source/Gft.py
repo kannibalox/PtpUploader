@@ -87,8 +87,9 @@ class Gft(SourceBase):
 			releaseInfo.ImdbId = NfoParser.GetImdbId( description )
 
 		# Check if pretime presents.
-		if description.find( """<td><img src='/pic/scene.jpg' alt='Scene' /></td>""" ) != -1:
-			releaseInfo.SetSceneRelease()
+		# TODO: this is unreliable as the uploaders on GFT set this
+		#if description.find( """<td><img src='/pic/scene.jpg' alt='Scene' /></td>""" ) != -1:
+		#	releaseInfo.SetSceneRelease()
 
 		# For some reason there are announced, but non visible releases on GFT that never start seeding. Ignore them.
 		if description.find( """<td class="heading" align="right" valign="top">Visible</td><td align="left" valign="top"><b>no</b> (dead)</td>""" ) != -1:
