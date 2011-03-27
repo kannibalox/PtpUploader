@@ -46,12 +46,11 @@ class Download(WorkerBase):
 	def __DownloadTorrent(self):
 		if len( self.ReleaseInfo.SourceTorrentInfoHash ) > 0:
 			self.ReleaseInfo.Logger.info( "Source torrent info hash is set, not starting torent again." )
-			return
-		
-		self.Rtorrent.CleanTorrentFile( self.ReleaseInfo.Logger, self.ReleaseInfo.SourceTorrentFilePath )
-		self.ReleaseInfo.SourceTorrentInfoHash = self.Rtorrent.AddTorrent( self.ReleaseInfo.Logger, self.ReleaseInfo.SourceTorrentFilePath, self.ReleaseInfo.GetReleaseDownloadPath() )
-		Database.DbSession.commit()
-		
+		else:
+			self.Rtorrent.CleanTorrentFile( self.ReleaseInfo.Logger, self.ReleaseInfo.SourceTorrentFilePath )
+			self.ReleaseInfo.SourceTorrentInfoHash = self.Rtorrent.AddTorrent( self.ReleaseInfo.Logger, self.ReleaseInfo.SourceTorrentFilePath, self.ReleaseInfo.GetReleaseDownloadPath() )
+			Database.DbSession.commit()
+
 		self.JobManager.AddToPendingDownloads( self.ReleaseInfo )
 
 	def Work(self):

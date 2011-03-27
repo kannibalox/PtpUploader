@@ -55,12 +55,14 @@ class Upload(WorkerBase):
 			return
 		
 		self.ReleaseInfo.AnnouncementSource.ExtractRelease( self.ReleaseInfo.Logger, self.ReleaseInfo )
+
+		self.ReleaseInfo.SetJobPhaseFinished( FinishedJobPhase.Upload_ExtractRelease )
+		Database.DbSession.commit()
+
+	def __ValidateExtractedRelease(self):
 		self.VideoFiles, self.TotalFileCount = ReleaseExtractor.ValidateDirectory( self.ReleaseInfo.GetReleaseUploadPath() )
 		if len( self.VideoFiles ) < 1:
 			raise PtpUploaderException( "Upload path '%s' doesn't contains any video files." % self.ReleaseInfo.GetReleaseUploadPath() )
-		
-		self.ReleaseInfo.SetJobPhaseFinished( FinishedJobPhase.Upload_ExtractRelease )
-		Database.DbSession.commit()
 
 	def __GetMediaInfoContainer(self, mediaInfo):
 		container = ""
@@ -247,6 +249,7 @@ class Upload(WorkerBase):
 	def Work(self):
 		self.__CreateUploadPath()
 		self.__ExtractRelease()
+		self.__ValidateExtractedRelease()
 		self.__GetMediaInfo()
 		self.__TakeAndUploadScreenshots()
 		self.__MakeReleaseDescription()
