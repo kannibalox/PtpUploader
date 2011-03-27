@@ -28,23 +28,23 @@ class Download:
 		Database.DbSession.commit()
 
 	def __DownloadTorrentFile(self):
-		if self.ReleaseInfo.IsSourceTorrentPathSet():
+		if self.ReleaseInfo.IsSourceTorrentFilePathSet():
 			return
 
 		torrentName = self.ReleaseInfo.AnnouncementSource.Name + " " + self.ReleaseInfo.ReleaseName + ".torrent"
-		sourceTorrentPath = os.path.join( self.ReleaseInfo.GetReleaseRootPath(), torrentName )
-		self.ReleaseInfo.AnnouncementSource.DownloadTorrent( self.ReleaseInfo.Logger, self.ReleaseInfo, sourceTorrentPath )
+		sourceTorrentFilePath = os.path.join( self.ReleaseInfo.GetReleaseRootPath(), torrentName )
+		self.ReleaseInfo.AnnouncementSource.DownloadTorrent( self.ReleaseInfo.Logger, self.ReleaseInfo, sourceTorrentFilePath )
 		
-		# Local variable is used temporarily to make sure that SourceTorrentPath is only gets stored in the database if DownloadTorrent succeeded. 
-		self.ReleaseInfo.SourceTorrentPath = sourceTorrentPath
+		# Local variable is used temporarily to make sure that SourceTorrentFilePath is only gets stored in the database if DownloadTorrent succeeded. 
+		self.ReleaseInfo.SourceTorrentFilePath = sourceTorrentFilePath
 		Database.DbSession.commit()
 
 	def __DownloadTorrent(self):
 		if len( self.ReleaseInfo.SourceTorrentInfoHash ) > 0:
 			return
 		
-		self.Rtorrent.CleanTorrentFile( self.ReleaseInfo.Logger, self.ReleaseInfo.SourceTorrentPath )
-		self.ReleaseInfo.SourceTorrentInfoHash = self.Rtorrent.AddTorrent( self.ReleaseInfo.Logger, self.ReleaseInfo.SourceTorrentPath, self.ReleaseInfo.GetReleaseDownloadPath() )
+		self.Rtorrent.CleanTorrentFile( self.ReleaseInfo.Logger, self.ReleaseInfo.SourceTorrentFilePath )
+		self.ReleaseInfo.SourceTorrentInfoHash = self.Rtorrent.AddTorrent( self.ReleaseInfo.Logger, self.ReleaseInfo.SourceTorrentFilePath, self.ReleaseInfo.GetReleaseDownloadPath() )
 		Database.DbSession.commit()
 		
 		self.JobManager.AddToPendingDownloads( self.ReleaseInfo )

@@ -25,7 +25,6 @@ class Upload:
 		self.MediaInfos = []
 		self.ScaleSize = ""
 		self.ReleaseDescription = u""
-		self.UploadTorrentPath = ""
 
 	def __CreateUploadPath(self):
 		if self.ReleaseInfo.IsJobPhaseFinished( FinishedJobPhase.Upload_CreateUploadPath ):
@@ -150,13 +149,17 @@ class Upload:
 	def __MakeTorrent(self):
 		# We save it into a separate folder to make sure it won't end up in the upload somehow. :)
 		uploadTorrentName = "PTP " + self.ReleaseInfo.ReleaseName + ".torrent"
-		self.UploadTorrentPath = os.path.join( self.ReleaseInfo.GetReleaseRootPath(), uploadTorrentName )
+		uploadTorrentFilePath = os.path.join( self.ReleaseInfo.GetReleaseRootPath(), uploadTorrentName )
 
 		# Make torrent with the parent directory's name included if there is more than one file or requested by the source (it is a scene release).
 		if self.TotalFileCount > 1 or ( self.ReleaseInfo.AnnouncementSource.IsSingleFileTorrentNeedsDirectory() and not self.ReleaseInfo.ForceDirectorylessSingleFileTorrent ):
-			MakeTorrent.Make( self.ReleaseInfo.Logger, self.ReleaseInfo.GetReleaseUploadPath(), self.UploadTorrentPath )
+			MakeTorrent.Make( self.ReleaseInfo.Logger, self.ReleaseInfo.GetReleaseUploadPath(), uploadTorrentFilePath )
 		else: # Create the torrent including only the single video file.
-			MakeTorrent.Make( self.ReleaseInfo.Logger, self.VideoFiles[ 0 ], self.UploadTorrentPath )
+			MakeTorrent.Make( self.ReleaseInfo.Logger, self.VideoFiles[ 0 ], uploadTorrentFilePath )
+			
+		# Local variable is used temporarily to make sure that UploadTorrentFilePath is only gets stored in the database if MakeTorrent.Make succeeded.
+		self.ReleaseInfo.UploadTorrentFilePath = uploadTorrentFilePath
+		Database.DbSession.commit()
 
 	def __CheckIfExistsOnPtp(self):
 		# TODO: this is temporary here. We should support it everywhere.
@@ -200,11 +203,15 @@ class Upload:
 		self.ReleaseInfo.CoverArtUrl = ImageUploader.Upload( imageUrl = url )
 
 	def __StartTorrent(self):
+		if len( self.ReleaseInfo.UploadTorrentInfoHash ) > 0:
+			return
+		
 		# Add torrent without hash checking.
-		self.Rtorrent.AddTorrentSkipHashCheck( self.ReleaseInfo.Logger, self.UploadTorrentPath, self.ReleaseInfo.GetReleaseUploadPath() )
+		self.ReleaseInfo.UploadTorrentInfoHash = self.Rtorrent.AddTorrentSkipHashCheck( self.ReleaseInfo.Logger, self.ReleaseInfo.UploadTorrentFilePath, self.ReleaseInfo.GetReleaseUploadPath() )
+		Database.DbSession.commit()
 
 	def __UploadMovie(self):
-		Ptp.UploadMovie( self.ReleaseInfo.Logger, self.ReleaseInfo, self.UploadTorrentPath, self.ReleaseDescription )
+		Ptp.UploadMovie( self.ReleaseInfo.Logger, self.ReleaseInfo, self.ReleaseInfo.UploadTorrentFilePath, self.ReleaseDescription )
 		self.ReleaseInfo.Logger.info( "'%s' has been successfully uploaded to PTP." % self.ReleaseInfo.ReleaseName )
 
 	def __FinishUpload(self):

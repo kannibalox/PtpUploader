@@ -60,8 +60,8 @@ def UploadTorrentFile(releaseInfo, request):
 		return False
 		
 	filename = secure_filename( file.filename )
-	releaseInfo.SourceTorrentPath = os.path.join( Settings.GetTemporaryPath(), filename )
-	file.save( releaseInfo.SourceTorrentPath )
+	releaseInfo.SourceTorrentFilePath = os.path.join( Settings.GetTemporaryPath(), filename )
+	file.save( releaseInfo.SourceTorrentFilePath )
 
 	releaseInfo.AnnouncementSourceName = "torrent"
 	releaseInfo.ReleaseName = file.filename.replace( ".torrent", "" ) # TODO

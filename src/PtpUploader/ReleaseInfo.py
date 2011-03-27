@@ -53,8 +53,10 @@ class ReleaseInfo(Database.Base):
 	ForceDirectorylessSingleFileTorrent = Column( Boolean )
 	InternationalTitle = Column( String )
 	Nfo = Column( String )
-	SourceTorrentPath = Column( String )
+	SourceTorrentFilePath = Column( String )
 	SourceTorrentInfoHash = Column( String )
+	UploadTorrentFilePath = Column( String )
+	UploadTorrentInfoHash = Column( String )
 	ReleaseDownloadPath = Column( String )
 	ReleaseUploadPath = Column( String )
 	ReleaseNotes = Column( String )
@@ -99,8 +101,10 @@ class ReleaseInfo(Database.Base):
 		self.ForceDirectorylessSingleFileTorrent = False # If set to true, then it overrides the value returned by SourceBase.IsSingleFileTorrentNeedsDirectory.  
 		self.InternationalTitle = "" # International title of the movie. Eg.: The Secret in Their Eyes. Needed for renaming releases coming from Cinemageddon.
 		self.Nfo = u""
-		self.SourceTorrentPath = ""
+		self.SourceTorrentFilePath = ""
 		self.SourceTorrentInfoHash = ""
+		self.UploadTorrentFilePath = ""
+		self.UploadTorrentInfoHash = ""
 		self.ReleaseDownloadPath = "" # Empty if using the default path. See GetReleaseDownloadPath.
 		self.ReleaseUploadPath = "" # Empty if using the default path. See GetReleaseUploadPath.
 		self.ReleaseNotes = ""
@@ -159,8 +163,8 @@ class ReleaseInfo(Database.Base):
 	def IsResolutionTypeSet(self): 
 		return len( self.ResolutionType ) > 0
 	
-	def IsSourceTorrentPathSet(self):
-		return len( self.SourceTorrentPath ) > 0
+	def IsSourceTorrentFilePathSet(self):
+		return len( self.SourceTorrentFilePath ) > 0
 	
 	def GetDirectors(self):
 		return self.Directors.split( ", " )

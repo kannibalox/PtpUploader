@@ -89,7 +89,7 @@ class ReleaseInfoMaker:
 		torrentName = "PTP " + self.ReleaseName + ".torrent";
 		torrentPath = os.path.join( self.WorkingDirectory, torrentName );
 		if createTorrent and os.path.exists( torrentPath ):
-			print "Can't create torrent because '%s' already exists!" % uploadTorrentPath
+			print "Can't create torrent because '%s' already exists!" % torrentPath
 			return
 
 		# Get the media info.
