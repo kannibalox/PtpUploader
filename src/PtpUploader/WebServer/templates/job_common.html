@@ -1,0 +1,283 @@
+﻿{% block job_common %}
+
+<tr>
+	<td class="label">Force upload</td>
+	<td>
+		<input id="force_upload" name="force_upload" type="checkbox">
+	</td>
+</tr>
+
+<tr>
+	<td class="label">Make torrent without directory if possible</td>
+	<td>
+		<input id="ForceDirectorylessSingleFileTorrent" name="ForceDirectorylessSingleFileTorrent" type="checkbox">
+	</td>
+</tr>
+
+<tr>
+	<td class="label">Type</td>
+	<td>
+		<select id="categories" name="type" onchange="Categories()">
+			<option value="Movies">Movies</option>
+			<option value="Musicals">Musicals</option>
+			<option value="Standup Comedy">Standup Comedy</option>
+			<option value="Concerts">Concerts</option>
+		</select>
+	</td>
+</tr>
+
+<tr id="imdb_tr">
+	<td class="label">IMDb or PTP link</td>
+	<td>
+		<input id="imdb" name="imdb" size="60" value="{{ job.imdb }}" type="text">
+	</td>
+</tr>
+
+<tr>
+	<td class="label">Rotten Tomatoes:</td>
+	<td>
+		<input id="tomatoes" name="tomatoes" size="60" value="{{ job.tomatoes }}" type="text">
+	</td>
+</tr>
+
+<tr>
+	<td class="label">Metacritic:</td>
+	<td>
+		<input id="metacritic" name="metacritic" size="60" value="{{ job.metacritic }}" type="text">
+	</td>
+</tr>
+
+<tr>
+	<td class="label">Auto-Fill</td>
+	<td>
+		<div id="auto">
+			<input id="autofill" name="autofill" value="Auto-Fill" onclick="AutoFill()" type="button">&nbsp;&nbsp;Use AutoFill first, as it will replace everything below.
+		</div>
+	</td>
+</tr>
+
+<tr id="artist_tr">
+	<td class="label">Director(s)</td>
+	<td id="artistfields">
+		<input id="artists[]" name="artists[]" size="45" value="{{ job[ "artists[]" ] }}" type="text">
+	</td>
+</tr>
+
+<tr id="title_tr">
+	<td class="label">Movie title:</td>
+	<td>
+		<input id="title" name="title" size="60" value="{{ job.title }}" type="text">
+	</td>
+</tr>
+
+<tr id="year_tr">
+	<td class="label">
+		<span id="year_label_not_remaster">Year</span>
+	</td>
+	<td>
+		<input id="year" name="year" size="5" value="{{ job.year }}" onblur="CheckYear();" type="text">
+	</td>
+</tr>
+
+<tr id="coverart_tr">
+	<td class="label">Cover Art Image</td>
+	<td>
+		<input id="image" name="image" size="60" value="{{ job.image }}" type="text">
+	</td>
+</tr>
+
+<tr>
+	<td class="label">YouTube link</td>
+	<td>
+		<input name="trailer" size="60" value="{{ job.trailer }}" type="text">
+	</td>
+</tr>
+
+<tr>
+	<td class="label">Special release title</td>
+	<td>
+		<input id="remaster_title" name="remaster_title" size="60" value="{{ job.remaster_title }}" type="text">
+	</td>
+</tr>
+
+<tr>
+	<td class="label">Special release year</td>
+	<td>
+		<input id="remaster_year" name="remaster_year" size="5" value="{{ job.remaster_year }}" type="text"> <br>
+	</td>
+</tr>
+
+<tr>
+	<td class="label">Scene</td>
+	<td>
+		<input id="scene" name="scene" type="checkbox">
+	</td>
+</tr>
+
+<tr>
+	<td class="label">Quality</td>
+	<td>
+		<select id="quality" name="quality">
+			<option>---</option>
+			<option value="High Definition">High Definition</option>
+			<option value="Standard Definition">Standard Definition</option>
+			<option value="Other">Other</option>
+		</select>
+	</td>
+</tr>
+
+<tr>
+	<td class="label">Codec</td>
+	<td>
+		<select id="codec" name="codec" onchange="Codec()">
+			<option>---</option>
+				<option value="XviD">XviD</option>
+				<option value="DivX">DivX</option>
+				<option value="H.264">H.264</option>
+				<option value="x264">x264</option>
+				<option value="DVD5">DVD5</option>
+				<option value="DVD9">DVD9</option>
+				<option value="BD25">BD25</option>
+				<option value="BD50">BD50</option>
+				<option value="Other">Other</option>
+		</select>
+
+		<span id="other_codec_span" class="hidden">
+			<input name="other_codec" size="5" id="other_codec" value="{{ job.other_codec }}" type="text">
+		</span>
+	</td>
+</tr>
+
+<tr>
+	<td class="label">Container</td>
+	<td>
+		<select id="container" name="container" onchange="Container()">
+			<option>---</option>
+			<option value="AVI">AVI</option>
+			<option value="MPG">MPG</option>
+			<option value="MKV">MKV</option>
+			<option value="MP4">MP4</option>
+			<option value="VOB IFO">VOB IFO</option>
+			<option value="ISO">ISO</option>
+			<option value="m2ts">m2ts</option>
+			<option value="Other">Other</option>
+		</select>
+
+		<span id="other_container_span" class="hidden">
+			<input name="other_container" size="5" id="other_container" value="{{ job.other_container }}" type="text">
+		</span>
+	</td>
+</tr>
+
+<tr>
+	<td class="label">Resolution</td>
+	<td>
+		<select id="resolution" name="resolution" onchange="Resolution()">
+			<option selected="selected">---</option>
+			<option value="NTSC">NTSC</option>
+			<option value="PAL">PAL</option>
+			<option value="480p">480p</option>
+			<option value="576p">576p</option>
+			<option value="720p">720p</option>
+			<option value="1080i">1080i</option>
+			<option value="1080p">1080p</option>
+			<option value="Other">Other</option>
+		</select>
+
+		<span id="other_resolution_span" class="hidden">
+			<input name="other_resolution" size="10" id="other_resolution" value="{{ job.other_resolution }}" type="text">
+		</span>
+	</td>
+</tr>
+
+<tr>
+	<td class="label">Source</td>
+	<td>
+		<select name="source" id="source" onchange="Source();">
+			<option>---</option>
+			<option value="CAM">CAM</option>
+			<option value="TC">TC</option>
+			<option value="TS">TS</option>
+			<option value="R5">R5</option>
+			<option value="DVD-Screener">DVD-Screener</option>
+			<option value="VHS">VHS</option>
+			<option value="DVD">DVD</option>
+			<option value="TV">TV</option>
+			<option value="HDTV">HDTV</option>
+			<option value="HD-DVD">HD-DVD</option>
+			<option value="Blu-ray">Blu-ray</option>
+			<option value="Other">Other</option>
+		</select>
+
+		<span id="other_source_span" class="hidden">
+			<input name="other_source" size="5" id="other_source" value="{{ job.other_source }}" type="text">
+		</span>
+	</td>
+</tr>
+
+<tr>
+	<td class="label">Tags</td>
+	<td>
+		<select id="genre_tags" name="genre_tags" onchange="add_tag();return false;">
+			<option>---</option>
+			<option value="action">action</option>
+			<option value="adventure">adventure</option>
+
+			<option value="animation">animation</option>
+			<option value="arthouse">arthouse</option>
+			<option value="asian">asian</option>
+			<option value="biography">biography</option>
+			<option value="camp">camp</option>
+			<option value="comedy">comedy</option>
+
+			<option value="crime">crime</option>
+			<option value="cult">cult</option>
+			<option value="documentary">documentary</option>
+			<option value="drama">drama</option>
+			<option value="experimental">experimental</option>
+			<option value="exploitation">exploitation</option>
+
+			<option value="family">family</option>
+			<option value="fantasy">fantasy</option>
+			<option value="film.noir">film.noir</option>
+			<option value="history">history</option>
+			<option value="horror">horror</option>
+			<option value="martial.arts">martial.arts</option>
+
+			<option value="musical">musical</option>
+			<option value="mystery">mystery</option>
+			<option value="performance">performance</option>
+			<option value="philosophy">philosophy</option>
+			<option value="politics">politics</option>
+			<option value="romance">romance</option>
+
+			<option value="sci.fi">sci.fi</option>
+			<option value="short">short</option>
+			<option value="silent">silent</option>
+			<option value="sport">sport</option>
+			<option value="thriller">thriller</option>
+			<option value="video.art">video.art</option>
+
+			<option value="war">war</option>
+			<option value="western">western</option>
+		</select>
+
+		<input id="tags" name="tags" size="40" value="{{ job.tags }}" type="text">
+	</td>
+</tr>
+
+<tr>
+	<td class="label">Movie Description</td>
+	<td>
+		<textarea name="album_desc" id="album_desc" cols="60" rows="8"></textarea>
+	</td>
+</tr>
+
+<tr>
+	<td class="label">Release Notes</td>
+	<td>
+		<textarea name="ReleaseNotes" id="ReleaseNotes" cols="60" rows="8"></textarea>
+	</td>
+</tr>
+
+{% endblock %}

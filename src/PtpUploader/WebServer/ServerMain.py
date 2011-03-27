@@ -46,22 +46,11 @@ def index():
 			entry[ "PtpUrl" ] = "http://passthepopcorn.me/torrents.php?imdb=%s" % releaseInfo.GetImdbId()
 
 		entry[ "LogPageUrl" ] = url_for( "log", jobId = releaseInfo.Id )
-		entry[ "EditPageUrl" ] = url_for( "job", jobId = releaseInfo.Id )
+		entry[ "EditPageUrl" ] = url_for( "EditJob", jobId = releaseInfo.Id )
 		
 		entries.append( entry )
 
 	return render_template( "jobs.html", entries = entries )
-
-@app.route( '/job/<int:jobId>/' )
-@requires_auth
-def job(jobId):
-	text = ""
-	
-	releaseInfo = Database.DbSession.query( ReleaseInfo ).filter( ReleaseInfo.Id == jobId ).first()
-	
-	text += "Id: %s<br/>IMDb id: %s" % ( releaseInfo.Id, releaseInfo.GetImdbId() )
-
-	return text
 
 @app.route( '/job/<int:jobId>/log/' )
 @requires_auth

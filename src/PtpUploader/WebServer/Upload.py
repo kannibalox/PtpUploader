@@ -193,4 +193,5 @@ def upload():
 		
 		MyGlobals.PtpUploader.AddToDatabaseQueue( releaseInfo.Id )
 	
-	return render_template('index.html')
+	# job parameter is needed because it uses the same template as edit job 
+	return render_template( "upload.html", job = {} )

@@ -1,0 +1,50 @@
+﻿{% extends "layout.html" %}
+
+{% block head %}
+{% endblock %}
+
+{% block body %}
+
+<form action="" enctype="multipart/form-data" method="post" id="upload_table">
+	<table class="border" border="0" cellpadding="3" cellspacing="1">
+		<tbody>
+			<tr>
+				<td class="label">
+					Torrent file
+				</td>
+			
+				<td>
+					<input id="file" name="file_input" size="50" type="file">
+				</td>
+			</tr>
+
+			<tr>
+				<td class="label">Existing file or folder</td>
+			
+				<td>
+					<input id="existingfile" name="existingfile_input" size="60">
+				</td>
+			</tr>
+
+			<tr>
+				<td class="label">Torrent site link</td>
+				<td>
+					<input id="torrent_site_link" name="torrent_site_link" size="60" value="" type="text">
+				</td>
+			</tr>
+
+			{% include "job_common.html" %}
+
+			<tr>
+				<td colspan="2" style="text-align: center;">
+					<br/>
+					<br/>
+					<input id="post" value="Upload torrent" type="submit">
+				</td>
+			</tr>
+			
+		</tbody>
+	</table>
+</form>
+
+{% endblock %}

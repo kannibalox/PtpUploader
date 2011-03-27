@@ -5,5 +5,6 @@ from flask import Flask
 
 app = Flask( __name__ )
 
+import WebServer.EditJob
 import WebServer.ServerMain
 import WebServer.Upload
