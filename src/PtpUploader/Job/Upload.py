@@ -39,8 +39,8 @@ class Upload(WorkerBase):
 
 		self.ReleaseInfo.Logger.info( "Creating upload path at '%s'." % uploadPath )
 		
-		if os.path.exists( releaseRootPath ):
-			raise PtpUploaderException( "Release root directory '%s' already exists." % uploadPath )	
+		if os.path.exists( uploadPath ):
+			raise PtpUploaderException( "Upload directory '%s' already exists." % uploadPath )	
 		
 		os.makedirs( uploadPath )
 
