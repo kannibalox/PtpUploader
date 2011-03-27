@@ -28,7 +28,7 @@ class Upload:
 
 	def __CreateUploadPath(self):
 		if self.ReleaseInfo.IsJobPhaseFinished( FinishedJobPhase.Upload_CreateUploadPath ):
-			self.ReleaseInfo.Logger.info( "Upload path creation phase reached previously, not creating it again." )
+			self.ReleaseInfo.Logger.info( "Upload path creation phase has been reached previously, not creating it again." )
 			return
 
 		uploadPath = self.ReleaseInfo.GetReleaseUploadPath()
@@ -50,7 +50,7 @@ class Upload:
 
 	def __ExtractRelease(self):
 		if self.ReleaseInfo.IsJobPhaseFinished( FinishedJobPhase.Upload_ExtractRelease ):
-			self.ReleaseInfo.Logger.info( "Extract release phase reached previously, not extracting release again." )
+			self.ReleaseInfo.Logger.info( "Extract release phase has been reached previously, not extracting release again." )
 			return
 		
 		self.ReleaseInfo.AnnouncementSource.ExtractRelease( self.ReleaseInfo.Logger, self.ReleaseInfo )
@@ -218,13 +218,19 @@ class Upload:
 		Database.DbSession.commit()
 
 	def __UploadMovie(self):
+		# This is not possible because finished jobs can't be restarted.
+		if self.ReleaseInfo.IsJobPhaseFinished( FinishedJobPhase.Upload_UploadMovie ):
+			self.ReleaseInfo.Logger.info( "Upload movie phase has been reached previously, not uploading it again." )
+			return
+
 		Ptp.UploadMovie( self.ReleaseInfo.Logger, self.ReleaseInfo, self.ReleaseInfo.UploadTorrentFilePath, self.ReleaseDescription )
 		self.ReleaseInfo.Logger.info( "'%s' has been successfully uploaded to PTP." % self.ReleaseInfo.ReleaseName )
 
-	def __FinishUpload(self):
+		self.ReleaseInfo.SetJobPhaseFinished( FinishedJobPhase.Upload_UploadMovie )
 		self.ReleaseInfo.JobRunningState = JobRunningState.Finished
 		Database.DbSession.commit()
 
+	def __ExecuteCommandOnSuccessfulUpload(self):
 		# Execute command on successful upload.
 		if len( Settings.OnSuccessfulUpload ) <= 0:
 			return
@@ -247,7 +253,7 @@ class Upload:
 		self.__RehostPoster()
 		self.__StartTorrent()
 		self.__UploadMovie()
-		self.__FinishUpload()
+		self.__ExecuteCommandOnSuccessfulUpload()
 
 		return True
 	

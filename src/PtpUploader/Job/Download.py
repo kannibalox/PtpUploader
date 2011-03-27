@@ -14,7 +14,7 @@ class Download:
 
 	def __CreateReleaseDirectory(self):
 		if self.ReleaseInfo.IsJobPhaseFinished( FinishedJobPhase.Download_CreateReleaseDirectory ):
-			self.ReleaseInfo.Logger.info( "Release root path creation phase reached previously, not creating it again." )
+			self.ReleaseInfo.Logger.info( "Release root path creation phase has been reached previously, not creating it again." )
 			return
 
 		releaseRootPath = self.ReleaseInfo.GetReleaseRootPath()
