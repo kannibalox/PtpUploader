@@ -8,7 +8,6 @@ from Settings import Settings
 
 from sqlalchemy import Boolean, Column, Integer, orm, String
 
-import codecs
 import os
 
 class ReleaseInfo(Database.Base):
@@ -43,7 +42,6 @@ class ReleaseInfo(Database.Base):
 	Resolution = Column( String )
 	Source = Column( String )
 	SourceOther = Column( String )
-	ReleaseDescription = Column( String ) 
 	RemasterTitle = Column( String )
 	RemasterYear = Column( String )
 
@@ -59,6 +57,8 @@ class ReleaseInfo(Database.Base):
 	SourceTorrentInfoHash = Column( String )
 	ReleaseDownloadPath = Column( String )
 	ReleaseUploadPath = Column( String )
+	ReleaseNotes = Column( String )
+	Screenshots = Column( String )
 	
 	def __init__(self):
 		self.AnnouncementSourceName = "" # A name of a class from the Source namespace.
@@ -87,9 +87,9 @@ class ReleaseInfo(Database.Base):
 		self.Resolution = "" # Exact resolution when ResolutionType is Other. 
 		self.Source = "" # Other, CAM, TS, VHS, TV, DVD-Screener, TC, HDTV, R5, DVD, HD-DVD, Blu-ray
 		self.SourceOther = "" # Source type when Source is Other.
-		self.ReleaseDescription = u""
 		self.RemasterTitle = "" # Eg.: Hardcoded English
 		self.RemasterYear = ""
+		# Release description text is also needed for PTP but we use the other members to fill that. 
 		# Till this.
 
 		self.JobStartMode = JobStartMode.Automatic
@@ -103,6 +103,8 @@ class ReleaseInfo(Database.Base):
 		self.SourceTorrentInfoHash = ""
 		self.ReleaseDownloadPath = "" # Empty if using the default path. See GetReleaseDownloadPath.
 		self.ReleaseUploadPath = "" # Empty if using the default path. See GetReleaseUploadPath.
+		self.ReleaseNotes = ""
+		self.Screenshots = ""
 		
 		self.MyConstructor()
 
@@ -182,6 +184,16 @@ class ReleaseInfo(Database.Base):
 	def SetJobPhaseFinished(self, jobPhase):
 		self.FinishedJobPhase |= jobPhase
 
+	def GetScreenshotList(self):
+		return self.Screenshots.split( "|" )
+	
+	def SetScreenshotList(self, list):
+		for name in list:
+			if name.find( "|" ) != -1:
+				raise PtpUploaderException( "Screenshot URL '%s' contains |." % name )
+		
+		self.Screenshots = "|".join( list )
+
 	# Eg.: "working directory/log/job/1"
 	def GetLogFilePath(self):
 		return os.path.join( Settings.GetJobLogPath(), str( self.Id ) )
@@ -215,36 +227,3 @@ class ReleaseInfo(Database.Base):
 	
 	def IsStandardDefintion(self):
 		return self.Quality == "Standard Definition"
-	
-	# releaseDescriptionFilePath: optional. If given the description is written to file.
-	def FormatReleaseDescription(self, logger, releaseInfo, screenshots, scaleSize, mediaInfos, includeReleaseName = True, releaseDescriptionFilePath = None):
-		logger.info( "Making release description for release '%s' with screenshots at %s." % ( releaseInfo.ReleaseName, screenshots ) )
-
-		if includeReleaseName:
-			self.ReleaseDescription = u"[size=4][b]%s[/b][/size]\n\n" % releaseInfo.ReleaseName
-		else:
-			self.ReleaseDescription = u""
-
-		if scaleSize is not None:
-			self.ReleaseDescription += u"Screenshots are showing the display aspect ratio. Resolution: %s.\n\n" % scaleSize 
-
-		for screenshot in screenshots:
-			self.ReleaseDescription += u"[img=%s]\n\n" % screenshot
-
-		for mediaInfo in mediaInfos:
-			# Add file name before each media info if there are more than one videos in the release.
-			if len( mediaInfos ) > 1:
-				fileName = os.path.basename( mediaInfo.Path )
-				self.ReleaseDescription += u"[size=3][u]%s[/u][/size]\n\n" % fileName
-
-			self.ReleaseDescription += mediaInfo.FormattedMediaInfo
-
-		# Add NFO if presents
-		if len( releaseInfo.Nfo ) > 0:
-			self.ReleaseDescription += u"[size=3][u]NFO[/u][/size]:[pre]\n%s\n[/pre]" % releaseInfo.Nfo
-
-		# We don't use this file for anything, we just save it for convenience.
-		if releaseDescriptionFilePath is not None:
-			releaseDescriptionFile = codecs.open( releaseDescriptionFilePath, encoding = "utf-8", mode = "w" )
-			releaseDescriptionFile.write( self.ReleaseDescription )
-			releaseDescriptionFile.close()

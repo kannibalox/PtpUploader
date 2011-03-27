@@ -97,7 +97,7 @@ class Ptp:
 			return PtpMovieSearchResult( ptpId = "", moviePageHtml = None );
 
 	@staticmethod
-	def __UploadMovieGetParamsCommon(releaseInfo):
+	def __UploadMovieGetParamsCommon(releaseInfo, releaseDescription):
 		commonParams = {
 				"submit": "true",
 				"type": releaseInfo.Type,
@@ -112,7 +112,7 @@ class Ptp:
 				"other_resolution": releaseInfo.Resolution,
 				"source": releaseInfo.Source,
 				"other_source": releaseInfo.SourceOther,
-				"release_desc": releaseInfo.ReleaseDescription
+				"release_desc": releaseDescription
 				};
 
 		paramList = commonParams.items()
@@ -166,9 +166,9 @@ class Ptp:
 		return paramList;
 	
 	@staticmethod
-	def UploadMovie(logger, releaseInfo, torrentPath):
+	def UploadMovie(logger, releaseInfo, torrentPath, releaseDescription):
 		url = "";
-		paramList = Ptp.__UploadMovieGetParamsCommon( releaseInfo );
+		paramList = Ptp.__UploadMovieGetParamsCommon( releaseInfo, releaseDescription );
 		
 		# We always use HTTPS for uploading because if "Force HTTPS" is enabled in the profile then the HTTP upload is not working.
 		if releaseInfo.HasPtpId():

@@ -9,6 +9,7 @@ from Database import Database
 from ImageUploader import ImageUploader
 from Ptp import Ptp
 from PtpUploaderException import *
+from ReleaseDescriptionFormatter import ReleaseDescriptionFormatter
 from ReleaseExtractor import ReleaseExtractor
 from Settings import Settings
 
@@ -22,8 +23,8 @@ class Upload:
 		self.VideoFiles = []
 		self.TotalFileCount = 0
 		self.MediaInfos = []
-		self.UploadedScreenshots = []
 		self.ScaleSize = ""
+		self.ReleaseDescription = u""
 		self.UploadTorrentPath = ""
 
 	def __CreateUploadPath(self):
@@ -133,13 +134,18 @@ class Upload:
 	def __TakeAndUploadScreenshots(self):
 		screenshotPath = os.path.join( self.ReleaseInfo.GetReleaseRootPath(), "screenshot.png" )
 		screenshotMaker = ScreenshotMaker( self.ReleaseInfo.Logger, self.VideoFiles[ 0 ] )
-		self.UploadedScreenshots = screenshotMaker.TakeAndUploadScreenshots( screenshotPath, self.MediaInfos[ 0 ].DurationInSec )
-		self.ScaleSize = screenshotMaker.ScaleSize 
-		
+		self.ScaleSize = screenshotMaker.ScaleSize
+
+		if len( self.ReleaseInfo.Screenshots ) > 0:
+			self.ReleaseInfo.Logger.info( "Screenshots are set, not making new ones." )			
+		else:
+			screens = screenshotMaker.TakeAndUploadScreenshots( screenshotPath, self.MediaInfos[ 0 ].DurationInSec )
+			self.ReleaseInfo.SetScreenshotList( screens )
+
 	def __MakeReleaseDescription(self):
 		releaseDescriptionFilePath = os.path.join( self.ReleaseInfo.GetReleaseRootPath(), "release description.txt" )
-		includeReleaseName = self.ReleaseInfo.AnnouncementSource.IncludeReleaseNameInReleaseDescription() 
-		self.ReleaseInfo.FormatReleaseDescription( self.ReleaseInfo.Logger, self.ReleaseInfo, self.UploadedScreenshots, self.ScaleSize, self.MediaInfos, includeReleaseName, releaseDescriptionFilePath )
+		includeReleaseName = self.ReleaseInfo.AnnouncementSource.IncludeReleaseNameInReleaseDescription()
+		self.ReleaseDescription = ReleaseDescriptionFormatter.Format( self.ReleaseInfo, self.ScaleSize, self.MediaInfos, includeReleaseName )
 
 	def __MakeTorrent(self):
 		# We save it into a separate folder to make sure it won't end up in the upload somehow. :)
@@ -198,7 +204,7 @@ class Upload:
 		self.Rtorrent.AddTorrentSkipHashCheck( self.ReleaseInfo.Logger, self.UploadTorrentPath, self.ReleaseInfo.GetReleaseUploadPath() )
 
 	def __UploadMovie(self):
-		Ptp.UploadMovie( self.ReleaseInfo.Logger, self.ReleaseInfo, self.UploadTorrentPath )
+		Ptp.UploadMovie( self.ReleaseInfo.Logger, self.ReleaseInfo, self.UploadTorrentPath, self.ReleaseDescription )
 		self.ReleaseInfo.Logger.info( "'%s' has been successfully uploaded to PTP." % self.ReleaseInfo.ReleaseName )
 
 	def __FinishUpload(self):

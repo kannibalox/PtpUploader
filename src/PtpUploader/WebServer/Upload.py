@@ -165,7 +165,6 @@ def upload():
 			
 		releaseInfo.SourceOther = request.values[ "other_source" ]
 		
-		releaseInfo.ReleaseDescription = request.values[ "release_desc" ]
 		releaseInfo.RemasterTitle = request.values[ "remaster_title" ]
 		releaseInfo.RemasterYear = request.values[ "remaster_year" ]
 		
@@ -178,6 +177,8 @@ def upload():
 
 		if request.values.get( "ForceDirectorylessSingleFileTorrent" ) is not None:
 			releaseInfo.ForceDirectorylessSingleFileTorrent = True
+
+		releaseInfo.ReleaseNotes = request.values[ "ReleaseNotes" ]
 		
 		#releaseInfo.InternationalTitle = "" # International title of the movie. Eg.: The Secret in Their Eyes. Needed for renaming releases coming from Cinemageddon.
 		#releaseInfo.Nfo = u""
