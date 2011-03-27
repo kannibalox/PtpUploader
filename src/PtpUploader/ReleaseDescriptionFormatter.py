@@ -3,7 +3,7 @@ import os
 class ReleaseDescriptionFormatter:
 	@staticmethod	
 	def Format(releaseInfo, scaleSize, mediaInfos, includeReleaseName):
-		screenshots = releaseInfo.Screenshots.GetScreenshotList()
+		screenshots = releaseInfo.GetScreenshotList()
 
 		releaseInfo.Logger.info( "Making release description for release '%s' with screenshots at %s." % ( releaseInfo.ReleaseName, screenshots ) )
 		releaseDescription = u""
