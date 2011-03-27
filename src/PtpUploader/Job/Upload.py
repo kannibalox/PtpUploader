@@ -236,8 +236,15 @@ class Upload:
 			return
 
 		uploadedTorrentUrl = "http://passthepopcorn.me/torrents.php?id=" + self.ReleaseInfo.PtpId
-		command = Settings.OnSuccessfulUpload % { "releaseName": self.ReleaseInfo.ReleaseName, "uploadedTorrentUrl": uploadedTorrentUrl } 
-		subprocess.Popen( command, shell = True )
+		command = Settings.OnSuccessfulUpload % { "releaseName": self.ReleaseInfo.ReleaseName, "uploadedTorrentUrl": uploadedTorrentUrl }
+		
+		# We don't care if this fails. Our upload is complete anyway. :)
+		try: 
+			subprocess.Popen( command, shell = True )
+		except ( KeyboardInterrupt, SystemExit ):
+			raise
+		except Exception, e:
+			logger.exception( "Got exception while trying to run command '%s' after successful upload." % command )
 
 	def Work(self):
 		self.__CreateUploadPath()

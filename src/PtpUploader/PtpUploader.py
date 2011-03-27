@@ -31,7 +31,7 @@ class PtpUploader:
 					# Sleep 30 seconds (or less if there is an event), if there was no work to do.
 					self.WaitEvent.clear()
 					self.WaitEvent.wait( 30 )
-			except (KeyboardInterrupt, SystemExit):
+			except ( KeyboardInterrupt, SystemExit ):
 				raise
 			except PtpUploaderInvalidLoginException, e:
 				self.__GetLoggerFromException( e ).exception( "Aborting." )

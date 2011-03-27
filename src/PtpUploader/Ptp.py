@@ -231,6 +231,8 @@ class Ptp:
 			request = urllib2.Request( "http://passthepopcorn.me/torrents.php?action=imdb&groupid=%s&auth=%s" % ( ptpId, auth ) );
 			result = opener.open( request );
 			response = result.read();
+		except ( KeyboardInterrupt, SystemExit ):
+			raise
 		except Exception:
 			logger.exception( "Couldn't refresh data for 'http://passthepopcorn.me/torrents.php?id=%s'. Got exception." % ptpId );
 
