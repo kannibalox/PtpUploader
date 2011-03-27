@@ -14,6 +14,7 @@ class Download:
 
 	def __CreateReleaseDirectory(self):
 		if self.ReleaseInfo.IsJobPhaseFinished( FinishedJobPhase.Download_CreateReleaseDirectory ):
+			self.ReleaseInfo.Logger.info( "Release root path creation phase reached previously, not creating it again." )
 			return
 
 		releaseRootPath = self.ReleaseInfo.GetReleaseRootPath()
@@ -29,6 +30,7 @@ class Download:
 
 	def __DownloadTorrentFile(self):
 		if self.ReleaseInfo.IsSourceTorrentFilePathSet():
+			self.ReleaseInfo.Logger.info( "Source torrent file path is set, not download the file again." )
 			return
 
 		torrentName = self.ReleaseInfo.AnnouncementSource.Name + " " + self.ReleaseInfo.ReleaseName + ".torrent"
@@ -41,6 +43,7 @@ class Download:
 
 	def __DownloadTorrent(self):
 		if len( self.ReleaseInfo.SourceTorrentInfoHash ) > 0:
+			self.ReleaseInfo.Logger.info( "Source torrent info hash is set, not starting torent again." )
 			return
 		
 		self.Rtorrent.CleanTorrentFile( self.ReleaseInfo.Logger, self.ReleaseInfo.SourceTorrentFilePath )

@@ -28,6 +28,7 @@ class Upload:
 
 	def __CreateUploadPath(self):
 		if self.ReleaseInfo.IsJobPhaseFinished( FinishedJobPhase.Upload_CreateUploadPath ):
+			self.ReleaseInfo.Logger.info( "Upload path creation phase reached previously, not creating it again." )
 			return
 
 		uploadPath = self.ReleaseInfo.GetReleaseUploadPath()
@@ -49,6 +50,7 @@ class Upload:
 
 	def __ExtractRelease(self):
 		if self.ReleaseInfo.IsJobPhaseFinished( FinishedJobPhase.Upload_ExtractRelease ):
+			self.ReleaseInfo.Logger.info( "Extract release phase reached previously, not extracting release again." )
 			return
 		
 		self.ReleaseInfo.AnnouncementSource.ExtractRelease( self.ReleaseInfo.Logger, self.ReleaseInfo )
@@ -147,6 +149,10 @@ class Upload:
 		self.ReleaseDescription = ReleaseDescriptionFormatter.Format( self.ReleaseInfo, self.ScaleSize, self.MediaInfos, includeReleaseName )
 
 	def __MakeTorrent(self):
+		if len( self.ReleaseInfo.UploadTorrentFilePath ) > 0:
+			self.ReleaseInfo.Logger.info( "Upload torrent file path is set, not making torrent again." )
+			return
+		
 		# We save it into a separate folder to make sure it won't end up in the upload somehow. :)
 		uploadTorrentName = "PTP " + self.ReleaseInfo.ReleaseName + ".torrent"
 		uploadTorrentFilePath = os.path.join( self.ReleaseInfo.GetReleaseRootPath(), uploadTorrentName )
@@ -204,6 +210,7 @@ class Upload:
 
 	def __StartTorrent(self):
 		if len( self.ReleaseInfo.UploadTorrentInfoHash ) > 0:
+			self.ReleaseInfo.Logger.info( "Upload torrent info hash is set, not starting torrent again." )
 			return
 		
 		# Add torrent without hash checking.
