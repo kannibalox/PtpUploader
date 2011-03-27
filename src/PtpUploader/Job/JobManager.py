@@ -99,8 +99,8 @@ class JobManager:
 		# If there is a new announcement, then check and start downloading it.
 		releaseInfo = self.__GetAnnouncementToProcess()
 		if releaseInfo is not None:
-			if CheckAnnouncement.DoWork( releaseInfo ):
-				Download.DoWork( releaseInfo, self, self.Rtorrent )
+			CheckAnnouncement.DoWork( releaseInfo )
+			Download.DoWork( releaseInfo, self, self.Rtorrent )
 
 			return True
 
