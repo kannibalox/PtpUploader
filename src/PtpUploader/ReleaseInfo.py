@@ -1,4 +1,4 @@
-from Job.JobPhase import JobPhase
+from Job.FinishedJobPhase import FinishedJobPhase
 from Job.JobRunningState import JobRunningState
 from Job.JobStartMode import JobStartMode
 
@@ -49,6 +49,7 @@ class ReleaseInfo(Database.Base):
 	JobStartMode = Column( Integer )
 	JobRunningState = Column( Integer )
 	FinishedJobPhase = Column( Integer )
+	ErrorMessage = Column( String )
 	PtpId = Column( String )
 	ForceDirectorylessSingleFileTorrent = Column( Boolean )
 	InternationalTitle = Column( String )
@@ -97,6 +98,7 @@ class ReleaseInfo(Database.Base):
 		self.JobStartMode = JobStartMode.Automatic
 		self.JobRunningState = JobRunningState.WaitingForStart
 		self.FinishedJobPhase = 0 # Flag. Takes values from FinishedJobPhase.
+		self.ErrorMessage = ""
 		self.PtpId = ""
 		self.ForceDirectorylessSingleFileTorrent = False # If set to true, then it overrides the value returned by SourceBase.IsSingleFileTorrentNeedsDirectory.  
 		self.InternationalTitle = "" # International title of the movie. Eg.: The Secret in Their Eyes. Needed for renaming releases coming from Cinemageddon.

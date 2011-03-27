@@ -19,14 +19,12 @@ class Torrent(SourceBase):
 
 		# TODO: support for new movies without IMDB id
 		if ( not releaseInfo.HasImdbId() ) and ( not releaseInfo.HasPtpId() ):
-			logger.info( "Release '%s' doesn't contain IMDb or PTP id." % releaseInfo.ReleaseName )
-			return None
-		
+			raise PtpUploaderException( "Doesn't contain IMDb ID." )
+
 		releaseNameParser = ReleaseNameParser( releaseInfo.ReleaseName )
 		releaseNameParser.GetSourceAndFormat( releaseInfo )
 		if releaseNameParser.Scene: 
 			releaseInfo.SetSceneRelease() 
-		return releaseInfo
 		
 	@staticmethod
 	def ExtractRelease(logger, releaseInfo):

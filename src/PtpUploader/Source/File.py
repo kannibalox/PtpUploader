@@ -1,3 +1,4 @@
+from Job.JobRunningState import JobRunningState
 from Source.SourceBase import SourceBase
 
 from MyGlobals import MyGlobals
@@ -23,14 +24,12 @@ class File(SourceBase):
 			if len( imdbId ) > 0:
 				releaseInfo.ImdbId = imdbId 
 			else:
-				logger.info( "Release '%s' doesn't contain IMDb or PTP id." % releaseInfo.ReleaseName )
-				return None
+				raise PtpUploaderException( "Doesn't contain IMDb ID." )
 
 		releaseNameParser = ReleaseNameParser( releaseInfo.ReleaseName )
 		releaseNameParser.GetSourceAndFormat( releaseInfo )
 		if releaseNameParser.Scene: 
 			releaseInfo.SetSceneRelease()
-		return releaseInfo
 
 	@staticmethod
 	def IsDownloadFinished(logger, releaseInfo, rtorrent):

@@ -35,24 +35,11 @@ def index():
 		entry = {}
 		entry[ "Id" ] = releaseInfo.Id
 		entry[ "ReleaseName" ] = releaseInfo.ReleaseName
+		entry[ "State" ] = JobRunningState.ToText( releaseInfo.JobRunningState )
 		
-		state = releaseInfo.JobRunningState
-		if state == JobRunningState.WaitingForStart:
-			state = "Waiting for start"
-		elif state == JobRunningState.InProgress:
-			state = "In progress"
-		elif state == JobRunningState.Paused:
-			state = "Paused"
-		elif state == JobRunningState.Finished:
-			state = "Finished"
-		elif state == JobRunningState.Failed:
-			state = "Failed"
-		elif state == JobRunningState.Ignored:
-			state = "Ignored"
-		else:
-			state = "Unknown"
-		entry[ "State" ] = state
-		
+		if len( releaseInfo.ErrorMessage ) > 0:
+			entry[ "ErrorMessage" ] = releaseInfo.ErrorMessage
+
 		if releaseInfo.HasPtpId():
 			entry[ "PtpUrl" ] = "https://passthepopcorn.me/torrents.php?id=%s" % releaseInfo.GetPtpId()
 		elif releaseInfo.HasImdbId() and ( not releaseInfo.IsZeroImdbId() ):

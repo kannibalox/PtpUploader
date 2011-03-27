@@ -1,14 +1,16 @@
 from Job.FinishedJobPhase import FinishedJobPhase
 from Job.JobRunningState import JobRunningState
+from Job.WorkerBase import WorkerBase
 
 from Database import Database
 from PtpUploaderException import *
 
 import os
 
-class Download:
+class Download(WorkerBase):
 	def __init__(self, releaseInfo, jobManager, rtorrent):
-		self.ReleaseInfo = releaseInfo
+		WorkerBase.__init__( self, releaseInfo )
+		
 		self.JobManager = jobManager
 		self.Rtorrent = rtorrent
 
@@ -57,22 +59,13 @@ class Download:
 		if self.ReleaseInfo.AnnouncementSourceName == "file":
 			self.ReleaseInfo.Logger.info( "Local directory or file is specified for release '%s', skipping download phase." % self.ReleaseInfo.ReleaseName )
 			self.JobManager.AddToPendingDownloads( self.ReleaseInfo )			
-			return True
+			return
 
 		self.__CreateReleaseDirectory()
 		self.__DownloadTorrentFile()
 		self.__DownloadTorrent()
-		
-		return True
 
 	@staticmethod
 	def DoWork(releaseInfo, jobManager, rtorrent):
-		try:
-			download = Download( releaseInfo, jobManager, rtorrent )
-			return download.Work()
-		except Exception, e:
-			releaseInfo.JobRunningState = JobRunningState.Failed
-			Database.DbSession.commit()
-			
-			e.Logger = releaseInfo.Logger
-			raise
+		download = Download( releaseInfo, jobManager, rtorrent )
+		download.WorkGuarded()

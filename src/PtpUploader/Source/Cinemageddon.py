@@ -1,4 +1,5 @@
 ﻿from InformationSource.Imdb import Imdb
+from Job.JobRunningState import JobRunningState
 from Source.SourceBase import SourceBase
 
 from NfoParser import NfoParser
@@ -47,21 +48,21 @@ class Cinemageddon(SourceBase):
 		# Make sure we only get information from the description and not from the comments.
 		descriptionEndIndex = response.find( '<p><a name="startcomments"></a></p>' )
 		if descriptionEndIndex == -1:
-			raise PtpUploaderException( "Description can't found on page '%s'. Probably the layout of the site has changed." % url )
+			raise PtpUploaderException( JobRunningState.Ignored_MissingInfo, "Description can't found on torrent page. Probably the layout of the site has changed." )
 		
 		description = response[ :descriptionEndIndex ]			
 
 		# We will use the torrent's name as release name.
 		matches = re.search( r'href="download.php\?id=(\d+)&name=.+">(.+)\.torrent</a>', description )
 		if matches is None:
-			raise PtpUploaderException( "Can't get release name from page '%s'." % url )
+			raise PtpUploaderException( JobRunningState.Ignored_MissingInfo, "Can't get release name from torrent page." )
 		
 		releaseInfo.ReleaseName = matches.group( 2 )
 
 		# Get source and format type
 		matches = re.search( r"torrent details for &quot;(.+) \[(\d+)/(.+)/(.+)\]&quot;", description )
 		if matches is None:
-			raise PtpUploaderException( "Can't get release source and format type from page '%s'." % url )
+			raise PtpUploaderException( JobRunningState.Ignored_MissingInfo, "Can't get release source and format type from torrent page." )
 		
 		sourceType = matches.group( 3 )
 		formatType = matches.group( 4 )
@@ -70,17 +71,17 @@ class Cinemageddon(SourceBase):
 		if ( not releaseInfo.HasImdbId() ) and ( not releaseInfo.HasPtpId() ):
 			matches = re.search( r'imdb\.com/title/tt(\d+)', description )
 			if matches is None:
-				raise PtpUploaderException( "Ignoring release '%s' at '%s' because IMDb id can't be found." % ( releaseInfo.ReleaseName, url ) )
+				raise PtpUploaderException( JobRunningState.Ignored_MissingInfo, "IMDb id can't be found on torrent page." )
 
 			releaseInfo.ImdbId = matches.group( 1 )
 
 		# Ignore XXX releases.
 		if description.find( '>Type</td><td valign="top" align=left>XXX<' ) != -1:
-			raise PtpUploaderException( "Ignoring release '%s' at '%s' because it is XXX." % ( releaseInfo.ReleaseName, url ) )
+			raise PtpUploaderException( JobRunningState.Ignored_Forbidden, "Marked as XXX." )
 		
 		# Make sure that this is not a wrongly categorized DVDR.
 		if re.search( ".vob</td>", description, re.IGNORECASE ) or re.search( ".iso</td>", description, re.IGNORECASE ):
-			raise PtpUploaderException( "Ignoring release '%s' at '%s' because it is a wrongly categorized DVDR." % ( releaseInfo.ReleaseName, url ) )
+			raise PtpUploaderException( JobRunningState.Ignored_NotSupported, "Wrongly categorized DVDR." )
 		
 		return sourceType, formatType
 
@@ -107,7 +108,7 @@ class Cinemageddon(SourceBase):
 		elif sourceType == "tvrip":
 			releaseInfo.Source = "TV"
 		else:
-			raise PtpUploaderException( "Got unsupported source type '%s' from Cinemageddon." % sourceType )
+			raise PtpUploaderException( JobRunningState.Ignored_NotSupported, "Unsupported source type '%s'." % sourceType )
 
 		if releaseInfo.IsCodecSet():
 			releaseInfo.Logger.info( "Codec '%s' is already set, not getting from the torrent page." % releaseInfo.Codec )
@@ -118,7 +119,7 @@ class Cinemageddon(SourceBase):
 		elif formatType == "divx":
 			releaseInfo.Codec = "DivX"
 		else:
-			raise PtpUploaderException( "Got unsupported format type '%s' from Cinemageddon." % formatType )
+			raise PtpUploaderException( JobRunningState.Ignored_NotSupported, "Unsupported format type '%s'." % formatType )
 	
 	@staticmethod
 	def PrepareDownload(logger, releaseInfo):
@@ -137,8 +138,7 @@ class Cinemageddon(SourceBase):
 			sourceType, formatType = Cinemageddon.__DownloadNfo( logger, releaseInfo )
 
 		Cinemageddon.__MapSourceAndFormatToPtp( releaseInfo, sourceType, formatType )		
-		return releaseInfo
-		
+
 	@staticmethod
 	def DownloadTorrent(logger, releaseInfo, path):
 		url = "http://cinemageddon.net/download.php?id=%s" % releaseInfo.AnnouncementId

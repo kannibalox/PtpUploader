@@ -1,3 +1,4 @@
+from Job.JobRunningState import JobRunningState
 from Source.SourceBase import SourceBase
 
 from MyGlobals import MyGlobals
@@ -56,7 +57,7 @@ class TorrentLeech(SourceBase):
 		# Get release name.
 		matches = re.search( "<title>Torrent Details for (.+) :: TorrentLeech.org</title>", response )
 		if matches is None:
-			raise PtpUploaderException( "Release name can't be found on page '%s'." % url )
+			raise PtpUploaderException( JobRunningState.Ignored_MissingInfo, "Release name can't be found on torrent page." )
 
 		return TorrentLeech.__RestoreReleaseName( matches.group( 1 ) )
 
@@ -90,8 +91,6 @@ class TorrentLeech(SourceBase):
 			releaseInfo.SetSceneRelease()
 
 		TorrentLeech.__ReadImdbIdFromNfoPage( logger, releaseInfo )
-		
-		return releaseInfo
 
 	@staticmethod
 	def __HandleAutoCreatedJob(logger, releaseInfo):
@@ -101,8 +100,7 @@ class TorrentLeech(SourceBase):
 		# We know the release name from the announcement, so we can filter it without downloading anything (yet) from the source.
 		releaseNameParser = ReleaseNameParser( releaseInfo.ReleaseName )
 		if not releaseNameParser.IsAllowed():
-			logger.info( "Ignoring release '%s' because of its name." % releaseInfo.ReleaseName )
-			return None
+			raise PtpUploaderException( JobRunningState.Ignored, "Ignored because of its name." )
 
 		releaseNameParser.GetSourceAndFormat( releaseInfo )
 		
@@ -115,11 +113,9 @@ class TorrentLeech(SourceBase):
 			releaseInfo.SetSceneRelease()
 
 		if ( not releaseInfo.IsSceneRelease() ) and Settings.TorrentLeechAutomaticJobFilter == "SceneOnly":
-			raise PtpUploaderException( "Ignoring non-scene release: '%s'." % releaseInfo.ReleaseName )
+			raise PtpUploaderException( JobRunningState.Ignored, "Non-scene release." )
 
 		TorrentLeech.__ReadImdbIdFromNfoPage( logger, releaseInfo )
-		
-		return releaseInfo
 	
 	@staticmethod
 	def PrepareDownload(logger, releaseInfo):
@@ -128,9 +124,9 @@ class TorrentLeech(SourceBase):
 		TorrentLeech.Login()
 		
 		if releaseInfo.IsUserCreatedJob():
-			return TorrentLeech.__HandleUserCreatedJob( logger, releaseInfo )
+			TorrentLeech.__HandleUserCreatedJob( logger, releaseInfo )
 		else:
-			return TorrentLeech.__HandleAutoCreatedJob( logger, releaseInfo )
+			TorrentLeech.__HandleAutoCreatedJob( logger, releaseInfo )
 	
 	@staticmethod
 	def DownloadTorrent(logger, releaseInfo, path):

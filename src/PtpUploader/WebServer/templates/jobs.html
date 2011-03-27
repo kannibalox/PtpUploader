@@ -16,10 +16,16 @@
 		{% for entry in entries %}
 			<tr>
 				<td>
+					<b>
 					{% if entry.PtpUrl %}
 						<a href="{{ entry.PtpUrl }}">{{ entry.ReleaseName }}</a>
 					{% else %}
 						{{ entry.ReleaseName }}
+					{% endif %}
+					</b>
+					{% if entry.ErrorMessage %}
+					<br>
+						{{ entry.ErrorMessage }}
 					{% endif %}
 				</td>
 				<td>

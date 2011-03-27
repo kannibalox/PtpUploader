@@ -1,68 +1,57 @@
-from Job.JobRunningState import JobRunningState
 from InformationSource.Imdb import Imdb
 from InformationSource.MoviePoster import MoviePoster
+from Job.JobRunningState import JobRunningState
+from Job.WorkerBase import WorkerBase
 
 from Database import Database
 from Ptp import Ptp
 from PtpImdbInfo import PtpImdbInfo, PtpZeroImdbInfo
 from PtpUploaderException import *
 
-class CheckAnnouncement:
+class CheckAnnouncement(WorkerBase):
 	def __init__(self, releaseInfo):
-		self.ReleaseInfo = releaseInfo
+		WorkerBase.__init__( self, releaseInfo )
 
 	def __PrepareDownload(self):
 		self.ReleaseInfo.JobRunningState = JobRunningState.InProgress
+		self.ReleaseInfo.ErrorMessage = ""
 		
-		result = self.ReleaseInfo.AnnouncementSource.PrepareDownload( self.ReleaseInfo.Logger, self.ReleaseInfo )
-		if result is None:
-			return False
-		return True
+		self.ReleaseInfo.AnnouncementSource.PrepareDownload( self.ReleaseInfo.Logger, self.ReleaseInfo )
 
 	def __ValidateReleaseInfo(self):
 		# Make sure we have IMDb or PTP id.
 		if ( not self.ReleaseInfo.HasImdbId() ) and ( not self.ReleaseInfo.HasPtpId() ):
-			self.ReleaseInfo.Logger.error( "IMDb or PTP id must be specified." )
-			return False
+			raise PtpUploaderException( JobRunningState.Ignored_MissingInfo, "IMDb or PTP id must be specified." )
 	
 		# Make sure the source is providing a name.
 		self.ReleaseInfo.ReleaseName = self.ReleaseInfo.ReleaseName.strip()
 		if len( self.ReleaseInfo.ReleaseName ) <= 0:
-			self.ReleaseInfo.Logger.error( "Name of the release is not specified." )
-			return False
+			raise PtpUploaderException( JobRunningState.Ignored_MissingInfo, "Name of the release is not specified." )
 
 		# Make sure the source is providing release quality information.
 		if len( self.ReleaseInfo.Quality ) <= 0:
-			self.ReleaseInfo.Logger.error( "Quality of the release is not specified." )
-			return False
+			raise PtpUploaderException( JobRunningState.Ignored_MissingInfo, "Quality of the release is not specified." )
 
 		# Make sure the source is providing release source information.
 		if len( self.ReleaseInfo.Source ) <= 0:
-			self.ReleaseInfo.Logger.error( "Source of the release is not specified." )
-			return False
+			raise PtpUploaderException( JobRunningState.Ignored_MissingInfo, "Source of the release is not specified." )
 
 		# Make sure the source is providing release codec information.
 		if len( self.ReleaseInfo.Codec ) <= 0:
-			self.ReleaseInfo.Logger.error( "Codec of the release is not specified." )
-			return False
+			raise PtpUploaderException( JobRunningState.Ignored_MissingInfo, "Codec of the release is not specified." )
 
 		# Make sure the source is providing release resolution type information.
 		if len( self.ReleaseInfo.ResolutionType ) <= 0:
-			self.ReleaseInfo.Logger.error( "Resolution type of the release is not specified." )
-			return False		
+			raise PtpUploaderException( JobRunningState.Ignored_MissingInfo, "Resolution type of the release is not specified." )
 
 		# HD XviDs are not allowed.
 		if self.ReleaseInfo.Quality == "High Definition" and ( self.ReleaseInfo.Codec == "XviD" or self.ReleaseInfo.Codec == "DivX" ):
-			raise PtpUploaderException( "Forbidden combination of quality '%s' and codec '%s'." % ( self.ReleaseInfo.Quality, self.ReleaseInfo.Codec ) )
-		
-		return True
+			raise PtpUploaderException( JobRunningState.Ignored_Forbidden, "Forbidden combination of quality '%s' and codec '%s'." % ( self.ReleaseInfo.Quality, self.ReleaseInfo.Codec ) )
 	
 	def __CheckIfExistsOnPtpInternal(self, movieOnPtpResult):
 		existingRelease = movieOnPtpResult.IsReleaseExists( self.ReleaseInfo )
 		if existingRelease is not None:
-			self.ReleaseInfo.Logger.info( "Release '%s' already exists on PTP. Skipping upload because of format '%s'." % ( self.ReleaseInfo.ReleaseName, existingRelease ) )
-			return False
-		return True
+			raise PtpUploaderException( JobRunningState.Ignored_AlreadyExists, "Already exists on PTP: '%s'." % existingRelease )
 
 	def __CheckIfExistsOnPtp(self):
 		# TODO: this is temporary here. We should support it everywhere.
@@ -72,13 +61,13 @@ class CheckAnnouncement:
 		# This could be before the Ptp.Login() line, but this way we can hopefully avoid some logging out errors.
 		if self.ReleaseInfo.IsZeroImdbId():
 			self.ReleaseInfo.Logger.info( "IMDb ID is set zero, ignoring the check for existing release." )
-			return True
+			return
 
 		if self.ReleaseInfo.HasPtpId():
 			# If this is not a forced upload then we have to check if is it already on PTP.
 			if not self.ReleaseInfo.IsForceUpload():
 				movieOnPtpResult = Ptp.GetMoviePageOnPtp( self.ReleaseInfo.Logger, self.ReleaseInfo.GetPtpId() )
-				return self.__CheckIfExistsOnPtpInternal( movieOnPtpResult )
+				self.__CheckIfExistsOnPtpInternal( movieOnPtpResult )
 		else:
 			# Try to get a PTP ID.
 			movieOnPtpResult = Ptp.GetMoviePageOnPtpByImdbId( self.ReleaseInfo.Logger, self.ReleaseInfo.GetImdbId() )
@@ -86,14 +75,12 @@ class CheckAnnouncement:
 
 			# If this is not a forced upload then we have to check if is it already on PTP.
 			if not self.ReleaseInfo.IsForceUpload():
-				return self.__CheckIfExistsOnPtpInternal( movieOnPtpResult )
-
-		return True
+				self.__CheckIfExistsOnPtpInternal( movieOnPtpResult )
 	
 	def __FillOutDetailsForNewMovieByPtpApi(self):
 		# If already has a page on PTP then we don't have to do anything here.
 		if self.ReleaseInfo.HasPtpId():
-			return True
+			return
 
 		ptpImdbInfo = None
 		if self.ReleaseInfo.IsZeroImdbId():
@@ -107,8 +94,7 @@ class CheckAnnouncement:
 		else:
 			self.ReleaseInfo.Title = ptpImdbInfo.GetTitle()
 			if len( self.ReleaseInfo.Title ) <= 0: 
-				self.ReleaseInfo.Logger.error( "Movie title is not set."  )
-				return False
+				raise PtpUploaderException( JobRunningState.Ignored_MissingInfo, "Movie title is not set."  )
 			
 		# Year
 		if len( self.ReleaseInfo.Year ) > 0:
@@ -116,8 +102,7 @@ class CheckAnnouncement:
 		else:
 			self.ReleaseInfo.Year = ptpImdbInfo.GetYear()
 			if len( self.ReleaseInfo.Year ) <= 0: 
-				self.ReleaseInfo.Logger.error( "Movie year is not set."  )
-				return False
+				raise PtpUploaderException( JobRunningState.Ignored_MissingInfo, "Movie year is not set."  )
 
 		# Movie description
 		if len( self.ReleaseInfo.MovieDescription ) > 0:
@@ -131,8 +116,7 @@ class CheckAnnouncement:
 		else:
 			self.ReleaseInfo.Tags = ptpImdbInfo.GetTags()
 			if len( self.ReleaseInfo.Tags ) <= 0:
-				self.ReleaseInfo.Logger.error( "At least one tag must be specified for a movie."  )
-				return False
+				raise PtpUploaderException( JobRunningState.Ignored_MissingInfo, "At least one tag must be specified for a movie."  )
 			
 		# Cover art URL
 		if self.ReleaseInfo.IsCoverArtUrlSet():
@@ -146,23 +130,19 @@ class CheckAnnouncement:
 		else:
 			self.ReleaseInfo.SetDirectors( ptpImdbInfo.GetDirectors() )			
 			if len( self.ReleaseInfo.Directors ) <= 0:
-				self.ReleaseInfo.Logger.error( """The director of the movie is not set. Use "None Listed" (without the quotes) if there is no director.""" )
-				return False
-			
+				raise PtpUploaderException( JobRunningState.Ignored_MissingInfo, """The director of the movie is not set. Use "None Listed" (without the quotes) if there is no director.""" )
+
 		# Ignore adult movies (if force upload is not set).
 		if "adult" in self.ReleaseInfo.Tags:
 			if self.ReleaseInfo.IsForceUpload():
 				self.ReleaseInfo.Logger.info( "Movie's genre is adult, but continuing due to force upload." )
 			else:
-				self.ReleaseInfo.Logger.info( "Ignoring release '%s' because its genre is adult." % self.ReleaseInfo.ReleaseName )
-				return False
-
-		return True
+				raise PtpUploaderException( JobRunningState.Ignored_Forbidden, "Genre is adult." )
 
 	# Uses IMDb and The Internet Movie Poster DataBase. 
 	def __FillOutDetailsForNewMovieByExternalSources(self):
 		if self.ReleaseInfo.HasPtpId() or self.ReleaseInfo.IsZeroImdbId():
-			return True
+			return
 
 		imdbInfo = Imdb.GetInfo( self.ReleaseInfo.Logger, self.ReleaseInfo.GetImdbId() )
 
@@ -171,8 +151,7 @@ class CheckAnnouncement:
 			if self.ReleaseInfo.IsForceUpload():
 				self.ReleaseInfo.Logger.info( "The release is a series, but continuing due to force upload." )
 			else:
-				self.ReleaseInfo.Logger.info( "Ignoring release '%s' because it is a series." % self.ReleaseInfo.ReleaseName )
-				return False
+				raise PtpUploaderException( JobRunningState.Ignored_Forbidden, "It is a series." )
 
 		# PTP returns with the original title, IMDb's iPhone API returns with the international English title.
 		self.ReleaseInfo.InternationalTitle = imdbInfo.Title
@@ -187,32 +166,16 @@ class CheckAnnouncement:
 			if not self.ReleaseInfo.IsCoverArtUrlSet():
 				self.ReleaseInfo.CoverArtUrl = MoviePoster.Get( self.ReleaseInfo.Logger, self.ReleaseInfo.GetImdbId() )
 	
-		return True
-	
 	def Work(self):
 		self.ReleaseInfo.Logger.info( "Working on announcement from '%s' with id '%s' and name '%s'." % ( self.ReleaseInfo.AnnouncementSource.Name, self.ReleaseInfo.AnnouncementId, self.ReleaseInfo.ReleaseName ) )
 
-		if not self.__PrepareDownload():
-			return False
-		if not self.__ValidateReleaseInfo():
-			return False
-		if not self.__CheckIfExistsOnPtp():
-			return False
-		if not self.__FillOutDetailsForNewMovieByPtpApi():
-			return False
-		if not self.__FillOutDetailsForNewMovieByExternalSources():
-			return False
-		
-		return True
+		self.__PrepareDownload()
+		self.__ValidateReleaseInfo()
+		self.__CheckIfExistsOnPtp()
+		self.__FillOutDetailsForNewMovieByPtpApi()
+		self.__FillOutDetailsForNewMovieByExternalSources()
 
 	@staticmethod
 	def DoWork(releaseInfo): 
-		try:
-			checkAnnouncement = CheckAnnouncement( releaseInfo )
-			return checkAnnouncement.Work()
-		except Exception, e:
-			releaseInfo.JobRunningState = JobRunningState.Failed
-			Database.DbSession.commit()
-			
-			e.Logger = releaseInfo.Logger
-			raise
+		checkAnnouncement = CheckAnnouncement( releaseInfo )
+		checkAnnouncement.WorkGuarded()

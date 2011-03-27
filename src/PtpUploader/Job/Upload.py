@@ -1,6 +1,6 @@
 from Job.FinishedJobPhase import FinishedJobPhase
-from Job.JobPhase import JobPhase
 from Job.JobRunningState import JobRunningState
+from Job.WorkerBase import WorkerBase
 from Tool.MakeTorrent import MakeTorrent
 from Tool.MediaInfo import MediaInfo
 from Tool.ScreenshotMaker import ScreenshotMaker
@@ -16,9 +16,10 @@ from Settings import Settings
 import os
 import subprocess
 
-class Upload:
+class Upload(WorkerBase):
 	def __init__(self, releaseInfo, rtorrent):
-		self.ReleaseInfo = releaseInfo
+		WorkerBase.__init__( self, releaseInfo )
+		
 		self.Rtorrent = rtorrent
 		self.VideoFiles = []
 		self.TotalFileCount = 0
@@ -175,7 +176,7 @@ class Upload:
 		# This could be before the Ptp.Login() line, but this way we can hopefully avoid some logging out errors.
 		if self.ReleaseInfo.IsZeroImdbId():
 			self.ReleaseInfo.Logger.info( "IMDb ID is set zero, ignoring the check for existing release." )
-			return True
+			return
 
 		movieOnPtpResult = None
 
@@ -191,10 +192,7 @@ class Upload:
 			# If this is not a forced upload then we have to check (again) if is it already on PTP.
 			existingRelease = movieOnPtpResult.IsReleaseExists( self.ReleaseInfo )
 			if existingRelease is not None:
-				self.ReleaseInfo.Logger.info( "Somebody has already uploaded the release '%s' to PTP while we were working on it. Skipping upload because of format '%s'." % ( self.ReleaseInfo.ReleaseName, existingRelease ) )
-				return False
-			
-		return True
+				raise PtpUploaderException( JobRunningState.DownloadedAlreadyExists, "Got uploaded to PTP while we were working on it. Skipping upload because of format '%s'." % existingRelease )
 
 	def __RehostPoster(self):
 		# If this movie has no page yet on PTP then we will need the cover, so we rehost the image to an image hoster.
@@ -253,25 +251,13 @@ class Upload:
 		self.__TakeAndUploadScreenshots()
 		self.__MakeReleaseDescription()
 		self.__MakeTorrent()
-		
-		if not self.__CheckIfExistsOnPtp():
-			return False
-
+		self.__CheckIfExistsOnPtp()
 		self.__RehostPoster()
 		self.__StartTorrent()
 		self.__UploadMovie()
 		self.__ExecuteCommandOnSuccessfulUpload()
-
-		return True
 	
 	@staticmethod
 	def DoWork(releaseInfo, rtorrent):
-		try:
-			upload = Upload( releaseInfo, rtorrent )
-			return upload.Work()
-		except Exception, e:
-			releaseInfo.JobRunningState = JobRunningState.Failed
-			Database.DbSession.commit()
-			
-			e.Logger = releaseInfo.Logger
-			raise
+		upload = Upload( releaseInfo, rtorrent )
+		upload.WorkGuarded()

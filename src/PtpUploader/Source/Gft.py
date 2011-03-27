@@ -1,3 +1,4 @@
+from Job.JobRunningState import JobRunningState
 from Source.SourceBase import SourceBase
 
 from MyGlobals import MyGlobals
@@ -70,14 +71,14 @@ class Gft(SourceBase):
 		# Make sure we only get information from the description and not from the comments.
 		descriptionEndIndex = response.find( """<p><a name="startcomments"></a></p>""" )
 		if descriptionEndIndex == -1:
-			raise PtpUploaderException( "Description can't found on page '%s'. Probably the layout of the site has changed." % url )
+			raise PtpUploaderException( JobRunningState.Ignored_MissingInfo, "Description can't found. Probably the layout of the site has changed." )
 		
 		description = response[ :descriptionEndIndex ]
 
 		# Get release name.
 		matches = re.search( r"<title>GFT 2011 :: Details for torrent &quot;(.+)&quot;</title>", description );
 		if matches is None:
-			raise PtpUploaderException( "Release name can't be found on page '%s'." % url );
+			raise PtpUploaderException( JobRunningState.Ignored_MissingInfo, "Release name can't be found on torrent page." );
 	
 		releaseName = matches.group( 1 );
 
@@ -91,7 +92,7 @@ class Gft(SourceBase):
 
 		# For some reason there are announced, but non visible releases on GFT that never start seeding. Ignore them.
 		if description.find( """<td class="heading" align="right" valign="top">Visible</td><td align="left" valign="top"><b>no</b> (dead)</td>""" ) != -1:
-			raise PtpUploaderException( "Ignoring release '%s' at '%s' because it is set to not visible." % ( releaseName, url ) ); 
+			raise PtpUploaderException( JobRunningState.Ignored, "Set to not visible on torrent page." )
 
 		return releaseName
 
@@ -128,8 +129,6 @@ class Gft(SourceBase):
 		releaseNameParser.GetSourceAndFormat( releaseInfo )
 		if releaseNameParser.Scene:
 			releaseInfo.SetSceneRelease()
-		
-		return releaseInfo
 
 	@staticmethod
 	def __HandleAutoCreatedJob(logger, releaseInfo):
@@ -137,8 +136,7 @@ class Gft(SourceBase):
 		# We know the release name from the announcement, so we can filter it without downloading anything (yet) from the source.
 		releaseNameParser = ReleaseNameParser( releaseInfo.ReleaseName )
 		if not releaseNameParser.IsAllowed():
-			logger.info( "Ignoring release '%s' because of its name." % releaseInfo.ReleaseName )
-			return None
+			raise PtpUploaderException( JobRunningState.Ignored, "Ignored release because of its name." )
 
 		releaseNameParser.GetSourceAndFormat( releaseInfo )
 		
@@ -153,16 +151,14 @@ class Gft(SourceBase):
 			releaseInfo.SetSceneRelease()
 
 		if ( not releaseInfo.IsSceneRelease() ) and Settings.GftAutomaticJobFilter == "SceneOnly":
-			raise PtpUploaderException( "Ignoring non-scene release: '%s'." % releaseInfo.ReleaseName )
-		
-		return releaseInfo
+			raise PtpUploaderException( JobRunningState.Ignored, "Non-scene release." )
 	
 	@staticmethod
 	def PrepareDownload(logger, releaseInfo):
 		if releaseInfo.IsUserCreatedJob():
-			return Gft.__HandleUserCreatedJob( logger, releaseInfo )
+			Gft.__HandleUserCreatedJob( logger, releaseInfo )
 		else:
-			return Gft.__HandleAutoCreatedJob( logger, releaseInfo )
+			Gft.__HandleAutoCreatedJob( logger, releaseInfo )
 	
 	@staticmethod
 	def DownloadTorrent(logger, releaseInfo, path):
