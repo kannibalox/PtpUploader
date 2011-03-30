@@ -19,35 +19,22 @@ class Gft:
 	@staticmethod
 	def Login():
 		Globals.Logger.info( "Loggin in to GFT." );
-		opener = urllib2.build_opener( urllib2.HTTPCookieProcessor( Globals.CookieJar ) );
+		# GFT stores a cookie when login.php is loaded that is needed for takelogin.php. 
+		opener = urllib2.build_opener( urllib2.HTTPCookieProcessor( Globals.CookieJar ) )
+		result = opener.open( "http://www.thegft.org/login.php" )
+		response = result.read()
+
+		opener = urllib2.build_opener( urllib2.HTTPCookieProcessor( Globals.CookieJar ) )
 		postData = urllib.urlencode( { "username": Settings.GftUserName, "password": Settings.GftPassword } )
-		request = urllib2.Request( "http://www.thegft.org/takelogin.php", postData );
-		result = opener.open( request );
-		response = result.read();
+		result = opener.open( "http://www.thegft.org/takelogin.php", postData )
+		response = result.read()
 		Gft.CheckIfLoggedInFromResponse( response );
 	
 	@staticmethod
 	def CheckIfLoggedInFromResponse(response):
-		if response.find( 'action="takelogin.php"' ) != -1:
+		if response.find( """action='takelogin.php'""" ) != -1 or response.find( """<a href='login.php'>Back to Login</a>""" ) != -1:
 			raise PtpUploaderException( "Looks like you are not logged in to GFT. Probably due to the bad user name or password in settings." )
 	
-	@staticmethod
-	def __IsPretimePresents(description):
-		return description.find( ">Too quick, bitches!!<" ) == -1 and description.find( ">Pre Offline<" ) == -1
-
-	@staticmethod
-	def __DownloadNfoFromDedicatedPage(logger, releaseInfo):
-		url = "http://www.thegft.org/viewnfo.php?id=%s" % releaseInfo.AnnouncementId
-		logger.info( "Downloading NFO from dedicated page '%s'." % url )
-		
-		opener = urllib2.build_opener( urllib2.HTTPCookieProcessor( Globals.CookieJar ) )
-		request = urllib2.Request( url )
-		result = opener.open( request )
-		response = result.read()
-		Gft.CheckIfLoggedInFromResponse( response )
-		
-		return response
-
 	@staticmethod
 	def __DownloadNfo(logger, releaseInfo, getReleaseName = False, checkPretime = True):
 		url = "http://www.thegft.org/details.php?id=%s" % releaseInfo.AnnouncementId;
@@ -60,14 +47,14 @@ class Gft:
 		Gft.CheckIfLoggedInFromResponse( response );
 
 		# Make sure we only get information from the description and not from the comments.
-		descriptionEndIndex = response.find( '<p><a name="startcomments"></a></p>' )
+		descriptionEndIndex = response.find( """<p><a name="startcomments"></a></p>""" )
 		if descriptionEndIndex == -1:
 			raise PtpUploaderException( "Description can't found on page '%s'. Probably the layout of the site has changed." % url )
 		
 		description = response[ :descriptionEndIndex ]			
 
 		# Get release name.
-		matches = re.search( r"<title>Details for torrent &quot;(.+)&quot; :: GFTracker </title>", description );
+		matches = re.search( r"<title>GFT 2011 :: Details for torrent &quot;(.+)&quot;</title>", description );
 		if matches is None:
 			raise PtpUploaderException( "Release name can't be found on page '%s'." % url );
 	
@@ -78,34 +65,10 @@ class Gft:
 			raise PtpUploaderException( "Announcement release name '%s' and release name '%s' on page '%s' are different." % ( releaseInfo.ReleaseName, releaseName, url ) );
 
 		# For some reason there are announced, but non visible releases on GFT that never start seeding. Ignore them.
-		# <td class="heading" valign="top" align="right">Visible</td><td valign="top" align=left><b>no</b> (dead)</td></tr>
-		if re.search( r'">Visible</td><td.+><b>no</b> \(dead\)', description ):
+		if description.find( """<td class="heading" align="right" valign="top">Visible</td><td align="left" valign="top"><b>no</b> (dead)</td>""" ) != -1:
 			raise PtpUploaderException( "Ignoring release '%s' at '%s' because it is set to not visible." % ( releaseName, url ) ); 
-	
-		# Check for pretime to ignore non scene releases.
-		if checkPretime and not Gft.__IsPretimePresents( description ):
-			raise PtpUploaderException( "Pretime can't be found on page '%s'. Possibly a P2P release." % url ); 
 
-		# Get the NFO.
-		descriptionStartText = '<tr><td class="heading" valign="top" align="right">Description</td><td valign="top" align=left>' 
-		nfoStartIndex = description.find( descriptionStartText )
-		if nfoStartIndex == -1:
-			raise PtpUploaderException( "NFO can't be found on page '%s'." % url ) 
-
-		nfoStartIndex += len( descriptionStartText ) 		
-		nfoEndIndex = description.find( '<tr><td class=rowhead>NFO</td>', nfoStartIndex )
-		if nfoStartIndex == -1:
-			raise PtpUploaderException( "NFO can't be found on page '%s'." % url ) 
-			
-		nfo = description[ nfoStartIndex : nfoEndIndex ]
-		
-		# Sometimes the Description field is empty but the NFO presents at the dedicated page.
-		nfo = nfo.replace( "</td></tr>", "" )
-		nfo = nfo.strip()
-		if len( nfo ) <= 0:
-			return Gft.__DownloadNfoFromDedicatedPage( logger, releaseInfo )
-		
-		return nfo
+		return description
 	
 	@staticmethod
 	def PrepareDownload(logger, releaseInfo):
@@ -116,6 +79,8 @@ class Gft:
 			nfoText = Gft.__DownloadNfo( logger, releaseInfo, getReleaseName = True, checkPretime = False )
 			releaseNameParser = ReleaseNameParser( releaseInfo.ReleaseName )
 			releaseNameParser.GetSourceAndFormat( releaseInfo )
+			if releaseNameParser.Scene:
+				releaseInfo.Scene = "on"
 		else:
 			# In case of automatic announcement we have to check the release name if it is valid.
 			# We know the release name from the announcement, so we can filter it without downloading anything (yet) from the source.
@@ -126,6 +91,9 @@ class Gft:
 
 			releaseNameParser.GetSourceAndFormat( releaseInfo )
 
+			if releaseNameParser.Scene:
+				releaseInfo.Scene = "on"
+
 			# TODO: temp
 			time.sleep( 30 ) # "Tactical delay" because of the not visible torrents. These should be rescheduled.
 
@@ -135,12 +103,11 @@ class Gft:
 			nfoText = Gft.__DownloadNfo( logger, releaseInfo, getReleaseName = False, checkPretime = not releaseNameParser.Scene )
 		
 		releaseInfo.ImdbId = NfoParser.GetImdbId( nfoText )
-		releaseInfo.Scene = "on"
 		return releaseInfo
 	
 	@staticmethod
 	def DownloadTorrent(logger, releaseInfo, path):
-		url = "http://www.thegft.org/download.php?id=%s" % releaseInfo.AnnouncementId;
+		url = "http://www.thegft.org/download.php?torrent=%s" % releaseInfo.AnnouncementId;
 		logger.info( "Downloading torrent file from '%s' to '%s'." % ( url, path ) );
 
 		opener = urllib2.build_opener( urllib2.HTTPCookieProcessor( Globals.CookieJar ) );		
