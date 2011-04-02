@@ -1,5 +1,5 @@
 from Job.CheckAnnouncement import CheckAnnouncement
-from Job.Download import Download
+from Job.JobRunningState import JobRunningState
 from Job.Upload import Upload
 from Source.SourceFactory import SourceFactory
 from Tool.Rtorrent import Rtorrent
@@ -9,32 +9,41 @@ from Database import Database
 from Logger import Logger
 
 import Queue
+import threading
 
+class JobManagerItem:
+	def __init__(self, releaseInfoId, releaseInfo):
+		self.ReleaseInfoId = releaseInfoId # This will be accessed from another thread in case of stop request.
+		self.ReleaseInfo = releaseInfo
+		
+		# So why this is not in ReleaseInfo? Because SQLAlchemy could possibly return with the same instance when restarting a canceled job.
+		# This will be accessed from another thread in case of stop request.
+		self.StopRequested = False
+
+# All public methods are thread-safe.
+# JobManager must be used from WorkerThread only (except the methods that state otherwise) because it deals with ReleaseInfo instances that can't pass thread boundaries because of SQLAlchemy.
+# Both PendingAnnouncements and PendingDownloads gets modified from different thread than WorkerThread when cancelling a job so we use JobManagerItem.
+# It makes the code really ugly...
 class JobManager:
 	def __init__(self):
+		self.Lock = threading.RLock()
 		self.SourceFactory = SourceFactory()
 		self.Rtorrent = Rtorrent()
-		self.PendingAnnouncements = [] # Contains ReleaseInfo
-		self.PendingDownloads = [] # Contains ReleaseInfo
-		self.DatabaseQueue = Queue.Queue() # Contains ReleaseInfo ids.
+		self.PendingAnnouncements = [] # Contains JobManagerItem.
+		self.PendingDownloads = [] # Contains JobManagerItem.
 		
-		# TODO: load WaitingForStart and InProgress jobs from database
-		
+	# Can be called from any thread.
+	def GetSourceFactory(self):
+		return self.SourceFactory
+
 	def __IsSourceAvailable(self, source):
 		runningDownloads = 0
-		for releaseInfo in self.PendingDownloads:
+		for item in self.PendingDownloads:
+			releaseInfo = self.__GetJobManagerItemAsReleaseInfo( item )
 			if releaseInfo.AnnouncementSource.Name == source.Name:
 				runningDownloads += 1
 		
 		return runningDownloads < source.MaximumParallelDownloads
-
-	def __GetAnnouncementFromPendingList(self):
-		for announcementIndex in range( len( self.PendingAnnouncements ) ):
-			if self.__IsSourceAvailable( self.PendingAnnouncements[ announcementIndex ].AnnouncementSource ):
-				announcementToHandle = self.PendingAnnouncements.pop( announcementIndex )
-				return announcementToHandle
-
-		return None
 
 	def __LoadReleaseInfoFromDatabase(self, releaseInfoId):
 		releaseInfo = Database.DbSession.query( ReleaseInfo ).filter( ReleaseInfo.Id == releaseInfoId ).first()
@@ -45,63 +54,111 @@ class JobManager:
 		
 		return releaseInfo
 	
-	# Get new announcements, check if we can process anything from it, and add the others to the pending list.		 
-	def __ProcessDatabaseQueue(self):
-		announcementToHandle = None
-		
-		while not self.DatabaseQueue.empty():
-			releaseInfoId = self.DatabaseQueue.get()
-			releaseInfo = self.__LoadReleaseInfoFromDatabase( releaseInfoId )
-			
-			if ( not announcementToHandle ) and self.__IsSourceAvailable( releaseInfo.AnnouncementSource ):
-				announcementToHandle = releaseInfo
-			else:
-				self.PendingAnnouncements.append( releaseInfo )
-
-		return announcementToHandle 
+	def __GetJobManagerItemAsReleaseInfo(self, item):
+		if item.ReleaseInfo is None:
+			item.ReleaseInfo = self.__LoadReleaseInfoFromDatabase( item.ReleaseInfoId )
+			return item.ReleaseInfo
+		else:
+			return item.ReleaseInfo
 
 	def __GetAnnouncementToProcess(self):
 		# First check if we can process anything from the pending announcments.
-		announcementToHandle = self.__GetAnnouncementFromPendingList()
-		if announcementToHandle:
-			return announcementToHandle
+		for announcementIndex in range( len( self.PendingAnnouncements ) ):
+			jobManagerItem = self.PendingAnnouncements[ announcementIndex ]
+			releaseInfo = self.__GetJobManagerItemAsReleaseInfo( jobManagerItem )
+			if self.__IsSourceAvailable( releaseInfo.AnnouncementSource ):
+				self.PendingAnnouncements.pop( announcementIndex )
+				return jobManagerItem
 
-		AnnouncementWatcher.LoadAnnouncementFilesIntoTheDatabase( self )
-		return self.__ProcessDatabaseQueue()
+		# Check if there is new automatic announcements in the watch directory.
+		announcementToHandle = None
+		releaseInfos = AnnouncementWatcher.LoadAnnouncementFilesIntoTheDatabase( self )
+		for releaseInfo in releaseInfos: 
+			jobManagerItem = JobManagerItem( releaseInfo.Id, releaseInfo )
+			if ( not announcementToHandle ) and self.__IsSourceAvailable( releaseInfo.AnnouncementSource ):
+				announcementToHandle = jobManagerItem
+			else:
+				self.PendingAnnouncements.append( jobManagerItem )
 
+		return announcementToHandle
+
+	# Must be called from the WorkerThread because of ReleaseInfo.
 	def AddToPendingDownloads(self, releaseInfo):
-		self.PendingDownloads.append( releaseInfo )
+		self.Lock.acquire()		
 
-	def AddToDatabaseQueue(self, releaseInfoId):
-		self.DatabaseQueue.put( releaseInfoId )
-		
+		try:
+			self.PendingDownloads.append( JobManagerItem( releaseInfo.Id, releaseInfo ) )
+		finally:
+			self.Lock.release()
+
 	def __GetFinishedDownloadToProcess(self):
 		if len( self.PendingDownloads ) > 0:
 			print "Pending downloads: %s" % len( self.PendingDownloads )
 		
 		# TODO: can we use a multicast RPC call get all the statuses in one call?
 		for downloadIndex in range( len( self.PendingDownloads ) ):
-			releaseInfo = self.PendingDownloads[ downloadIndex ]
+			jobManagerItem = self.PendingDownloads[ downloadIndex ]
+			releaseInfo = self.__GetJobManagerItemAsReleaseInfo( jobManagerItem )
 			logger = releaseInfo.Logger
 			if releaseInfo.AnnouncementSource.IsDownloadFinished( logger, releaseInfo, self.Rtorrent ):
 				return self.PendingDownloads.pop( downloadIndex )
 
 		return None
+
+	# Can be called from any thread.
+	def StartJob(self, releaseInfoId):
+		self.Lock.acquire()
+		
+		try:
+			self.PendingAnnouncements.append( JobManagerItem( releaseInfoId, None ) )
+		finally:
+			self.Lock.release()
+
+	def __StopJobInternal(self, releaseInfoId):
+		# Iterate the list backwards because we may delete from it.
+		for downloadIndex in reversed( xrange( len( self.PendingDownloads ) ) ):
+			item = self.PendingDownloads[ downloadIndex ]
+			if item.ReleaseInfoId == releaseInfoId:
+				self.__SetJobStopped( releaseInfoId )
+				self.PendingDownloads.pop( downloadIndex )
+		
+		# Iterate the list backwards because we may delete from it.
+		for announcementIndex in reversed( xrange( len( self.PendingAnnouncements ) ) ):
+			item = self.PendingAnnouncements[ announcementIndex ]
+			if item.ReleaseInfoId == releaseInfoId:
+				self.__SetJobStopped( releaseInfoId )
+				self.PendingAnnouncements.pop( announcementIndex )
 	
-	# Returns true, if an announcement or a download has been processed.
-	def ProcessJobs(self):
-		# If there is a finished download, then upload it.
-		releaseInfo = self.__GetFinishedDownloadToProcess()
-		if releaseInfo is not None: 
-			Upload.DoWork( releaseInfo, self.Rtorrent )
-			return True
+	def __SetJobStopped(self, releaseInfoId):
+		# We have to get a new instance of ReleaseInfo because this function could come from another thread.
+		releaseInfo = self.__LoadReleaseInfoFromDatabase( releaseInfoId )
+		releaseInfo.JobRunningState = JobRunningState.Paused
+		Database.DbSession.commit()
 
-		# If there is a new announcement, then check and start downloading it.
-		releaseInfo = self.__GetAnnouncementToProcess()
-		if releaseInfo is not None:
-			CheckAnnouncement.DoWork( releaseInfo )
-			Download.DoWork( releaseInfo, self, self.Rtorrent )
+	# Can be called from any thread.
+	def StopJob(self, releaseInfoId):
+		self.Lock.acquire()
 
-			return True
+		try:
+			self.__StopJobInternal( releaseInfoId )
+		finally:
+			self.Lock.release()
 
-		return False
+	# Must be called from the WorkerThread because of ReleaseInfo.
+	def GetJobPhaseToProcess(self):
+		self.Lock.acquire()
+
+		try:
+			# If there is a finished download, then upload it.
+			jobManagerItem = self.__GetFinishedDownloadToProcess()
+			if jobManagerItem is not None:
+				return Upload( self, jobManagerItem, self.Rtorrent ) 
+	
+			# If there is a new announcement, then check and start downloading it.
+			jobManagerItem = self.__GetAnnouncementToProcess()
+			if jobManagerItem is not None:
+				return CheckAnnouncement( self, jobManagerItem, self.Rtorrent )
+			
+			return None
+		finally:
+			self.Lock.release()

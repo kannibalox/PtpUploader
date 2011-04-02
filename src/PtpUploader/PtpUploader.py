@@ -1,40 +1,42 @@
-from Job.JobManager import JobManager
+from Job.WorkerThread import WorkerThread
 
-from MyGlobals import MyGlobals
-from PtpUploaderException import *
+from PtpUploaderMessage import *
 
+import Queue
 import threading
-import time
 
 class PtpUploader:
 	def __init__(self):
 		self.WaitEvent = threading.Event()
-		self.TheJobManager = JobManager()
-	
-	@staticmethod
-	def __GetLoggerFromException(exception):
-		if hasattr( exception, "Logger" ):
-			return exception.Logger
-		else:
-			return MyGlobals.Logger
+		self.StopRequested = False
+		self.MessageQueue = Queue.Queue() # Contains class instances from PtpUploaderMessage.
+		self.WorkerThread = WorkerThread()
 
-	def AddToDatabaseQueue(self, releaseInfoId):
-		self.TheJobManager.AddToDatabaseQueue( releaseInfoId )
+	def RequestStop(self):
+		self.StopRequested = True
 		self.WaitEvent.set()
 
-	def Work(self):
-		MyGlobals.Logger.info( "Entering into the main loop." )
+	def AddMessage(self, message):
+		self.MessageQueue.put( message )
+		self.WaitEvent.set()
+		
+	def __ProcessMessages(self):
+		while not self.MessageQueue.empty():
+			message = self.MessageQueue.get()
+			if isinstance( message, PtpUploaderMessageStartJob ):
+				self.WorkerThread.RequestStartJob( message.ReleaseInfoId )
+			elif isinstance( message, PtpUploaderMessageCancelJob ):
+				self.WorkerThread.RequestStopJob( message.ReleaseInfoId )
 
-		while True:
-			try:
-				if not self.TheJobManager.ProcessJobs():
-					# Sleep 30 seconds (or less if there is an event), if there was no work to do.
-					self.WaitEvent.clear()
-					self.WaitEvent.wait( 30 )
-			except ( KeyboardInterrupt, SystemExit ):
-				raise
-			except PtpUploaderInvalidLoginException, e:
-				self.__GetLoggerFromException( e ).exception( "Aborting." )
-				break
-			except Exception, e:
-				self.__GetLoggerFromException( e ).exception( "Caught exception in the main loop. Trying to continue." )
+	def __MessageLoop(self):
+		print "Entering into message loop."
+
+		while not self.StopRequested:
+			self.WaitEvent.wait()
+			self.WaitEvent.clear()
+			self.__ProcessMessages()
+
+	def Work(self):
+		self.WorkerThread.StartWorkerThread()
+		self.__MessageLoop()
+		self.WorkerThread.StopWorkerThread()

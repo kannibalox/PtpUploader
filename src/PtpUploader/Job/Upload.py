@@ -17,8 +17,22 @@ import os
 import subprocess
 
 class Upload(WorkerBase):
-	def __init__(self, releaseInfo, rtorrent):
-		WorkerBase.__init__( self, releaseInfo )
+	def __init__(self, jobManager, jobManagerItem, rtorrent):
+		phases = [
+			self.__CreateUploadPath,
+			self.__ExtractRelease,
+			self.__ValidateExtractedRelease,
+			self.__GetMediaInfo,
+			self.__TakeAndUploadScreenshots,
+			self.__MakeReleaseDescription,
+			self.__MakeTorrent,
+			self.__CheckIfExistsOnPtp,
+			self.__RehostPoster,
+			self.__StartTorrent,
+			self.__UploadMovie,
+			self.__ExecuteCommandOnSuccessfulUpload ]
+
+		WorkerBase.__init__( self, phases, jobManager, jobManagerItem )
 		
 		self.Rtorrent = rtorrent
 		self.VideoFiles = []
@@ -245,22 +259,3 @@ class Upload(WorkerBase):
 			raise
 		except Exception, e:
 			logger.exception( "Got exception while trying to run command '%s' after successful upload." % command )
-
-	def Work(self):
-		self.__CreateUploadPath()
-		self.__ExtractRelease()
-		self.__ValidateExtractedRelease()
-		self.__GetMediaInfo()
-		self.__TakeAndUploadScreenshots()
-		self.__MakeReleaseDescription()
-		self.__MakeTorrent()
-		self.__CheckIfExistsOnPtp()
-		self.__RehostPoster()
-		self.__StartTorrent()
-		self.__UploadMovie()
-		self.__ExecuteCommandOnSuccessfulUpload()
-	
-	@staticmethod
-	def DoWork(releaseInfo, rtorrent):
-		upload = Upload( releaseInfo, rtorrent )
-		upload.WorkGuarded()

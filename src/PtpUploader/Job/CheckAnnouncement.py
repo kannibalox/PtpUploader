@@ -1,5 +1,6 @@
 from InformationSource.Imdb import Imdb
 from InformationSource.MoviePoster import MoviePoster
+from Job.FinishedJobPhase import FinishedJobPhase
 from Job.JobRunningState import JobRunningState
 from Job.WorkerBase import WorkerBase
 
@@ -8,11 +9,33 @@ from Ptp import Ptp
 from PtpImdbInfo import PtpImdbInfo, PtpZeroImdbInfo
 from PtpUploaderException import *
 
+import os
+
 class CheckAnnouncement(WorkerBase):
-	def __init__(self, releaseInfo):
-		WorkerBase.__init__( self, releaseInfo )
+	def __init__(self, jobManager, jobManagerItem, rtorrent):
+		phases = [
+			self.__PrepareDownload,
+			self.__ValidateReleaseInfo,
+			self.__CheckIfExistsOnPtp,
+			self.__FillOutDetailsForNewMovieByPtpApi,
+			self.__FillOutDetailsForNewMovieByExternalSources ]
+
+		# Instead of this if, it would be possible to make a totally generic downloader system through SourceBase.
+		if jobManagerItem.ReleaseInfo.AnnouncementSourceName == "file":
+			phases.append( self.__AddToPendingDownloads() )
+		else:
+			phases.extend( [
+				self.__CreateReleaseDirectory,
+				self.__DownloadTorrentFile,
+				self.__DownloadTorrent,
+				self.__AddToPendingDownloads ] )
+
+		WorkerBase.__init__( self, phases, jobManager, jobManagerItem )
+		self.Rtorrent = rtorrent
 
 	def __PrepareDownload(self):
+		self.ReleaseInfo.Logger.info( "Working on announcement from '%s' with id '%s' and name '%s'." % ( self.ReleaseInfo.AnnouncementSource.Name, self.ReleaseInfo.AnnouncementId, self.ReleaseInfo.ReleaseName ) )
+		
 		self.ReleaseInfo.JobRunningState = JobRunningState.InProgress
 		self.ReleaseInfo.ErrorMessage = ""
 		
@@ -165,17 +188,43 @@ class CheckAnnouncement(WorkerBase):
 			self.ReleaseInfo.CoverArtUrl = imdbInfo.PosterUrl
 			if not self.ReleaseInfo.IsCoverArtUrlSet():
 				self.ReleaseInfo.CoverArtUrl = MoviePoster.Get( self.ReleaseInfo.Logger, self.ReleaseInfo.GetImdbId() )
-	
-	def Work(self):
-		self.ReleaseInfo.Logger.info( "Working on announcement from '%s' with id '%s' and name '%s'." % ( self.ReleaseInfo.AnnouncementSource.Name, self.ReleaseInfo.AnnouncementId, self.ReleaseInfo.ReleaseName ) )
+				
+	def __CreateReleaseDirectory(self):
+		if self.ReleaseInfo.IsJobPhaseFinished( FinishedJobPhase.Download_CreateReleaseDirectory ):
+			self.ReleaseInfo.Logger.info( "Release root path creation phase has been reached previously, not creating it again." )
+			return
 
-		self.__PrepareDownload()
-		self.__ValidateReleaseInfo()
-		self.__CheckIfExistsOnPtp()
-		self.__FillOutDetailsForNewMovieByPtpApi()
-		self.__FillOutDetailsForNewMovieByExternalSources()
+		releaseRootPath = self.ReleaseInfo.GetReleaseRootPath()
+		self.ReleaseInfo.Logger.info( "Creating release root directory at '%s'." % releaseRootPath )
 
-	@staticmethod
-	def DoWork(releaseInfo): 
-		checkAnnouncement = CheckAnnouncement( releaseInfo )
-		checkAnnouncement.WorkGuarded()
+		if os.path.exists( releaseRootPath ):
+			raise PtpUploaderException( "Release root directory '%s' already exists." % releaseRootPath )	
+
+		os.makedirs( releaseRootPath )
+
+		self.ReleaseInfo.SetJobPhaseFinished( FinishedJobPhase.Download_CreateReleaseDirectory )
+		Database.DbSession.commit()
+
+	def __DownloadTorrentFile(self):
+		if self.ReleaseInfo.IsSourceTorrentFilePathSet():
+			self.ReleaseInfo.Logger.info( "Source torrent file path is set, not download the file again." )
+			return
+
+		torrentName = self.ReleaseInfo.AnnouncementSource.Name + " " + self.ReleaseInfo.ReleaseName + ".torrent"
+		sourceTorrentFilePath = os.path.join( self.ReleaseInfo.GetReleaseRootPath(), torrentName )
+		self.ReleaseInfo.AnnouncementSource.DownloadTorrent( self.ReleaseInfo.Logger, self.ReleaseInfo, sourceTorrentFilePath )
+		
+		# Local variable is used temporarily to make sure that SourceTorrentFilePath is only gets stored in the database if DownloadTorrent succeeded. 
+		self.ReleaseInfo.SourceTorrentFilePath = sourceTorrentFilePath
+		Database.DbSession.commit()
+
+	def __DownloadTorrent(self):
+		if len( self.ReleaseInfo.SourceTorrentInfoHash ) > 0:
+			self.ReleaseInfo.Logger.info( "Source torrent info hash is set, not starting torent again." )
+		else:
+			self.Rtorrent.CleanTorrentFile( self.ReleaseInfo.Logger, self.ReleaseInfo.SourceTorrentFilePath )
+			self.ReleaseInfo.SourceTorrentInfoHash = self.Rtorrent.AddTorrent( self.ReleaseInfo.Logger, self.ReleaseInfo.SourceTorrentFilePath, self.ReleaseInfo.GetReleaseDownloadPath() )
+			Database.DbSession.commit()
+
+	def __AddToPendingDownloads(self):
+		self.JobManager.AddToPendingDownloads( self.ReleaseInfo )

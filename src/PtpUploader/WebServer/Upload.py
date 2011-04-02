@@ -6,6 +6,7 @@ from MyGlobals import MyGlobals
 from Database import Database
 from NfoParser import NfoParser
 from Ptp import Ptp
+from PtpUploaderMessage import *
 from ReleaseInfo import ReleaseInfo
 from Settings import Settings
 
@@ -72,7 +73,7 @@ def UploadTorrentSiteLink(releaseInfo, request):
 	if len( torrentPageLink ) <= 0:
 		return False
 		
-	source, id = MyGlobals.PtpUploader.TheJobManager.SourceFactory.GetSourceAndIdByUrl( torrentPageLink )
+	source, id = MyGlobals.PtpUploader.WorkerThread.JobManager.GetSourceFactory().GetSourceAndIdByUrl( torrentPageLink )
 	if source is None:
 		return False
 		
@@ -86,7 +87,7 @@ def UploadFile(releaseInfo, request):
 		return False
 
 	# TODO: implement me
-	return False
+	#return False
 
 	# TODO: support if path is a file
 	if os.path.isdir( path ):
@@ -191,7 +192,7 @@ def upload():
 		Database.DbSession.add( releaseInfo )
 		Database.DbSession.commit()
 		
-		MyGlobals.PtpUploader.AddToDatabaseQueue( releaseInfo.Id )
+		MyGlobals.PtpUploader.AddMessage( PtpUploaderMessageStartJob( releaseInfo.Id ) )
 	
 	# job parameter is needed because it uses the same template as edit job 
 	return render_template( "upload.html", job = {} )

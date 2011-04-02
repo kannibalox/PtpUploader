@@ -105,3 +105,9 @@ def checkIfExists():
 		return resultHtml
 
 	return render_template( "checkifexists.html" )
+
+@app.route( "/quit" )
+@requires_auth
+def quit():
+	MyGlobals.PtpUploader.RequestStop()
+	return "Quitting."

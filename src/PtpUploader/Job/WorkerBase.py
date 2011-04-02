@@ -1,16 +1,27 @@
+from Job.JobRunningState import JobRunningState
+
 from Database import Database
 from PtpUploaderException import *
 
 class WorkerBase:
-	def __init__(self, releaseInfo):
-		self.ReleaseInfo = releaseInfo
+	def __init__(self, phases, jobManager, jobManagerItem):
+		self.Phases = phases
+		self.JobManager = jobManager 
+		self.JobManagerItem = jobManagerItem
+		self.ReleaseInfo = jobManagerItem.ReleaseInfo
+
+	def __WorkInternal(self):
+		for phase in self.Phases:
+			if self.JobManagerItem.StopRequested:
+				self.ReleaseInfo.JobRunningState = JobRunningState.Paused
+				Database.DbSession.commit()
+				return
+				
+			phase()
 
 	def Work(self):
-		pass
-
-	def WorkGuarded(self):
 		try:
-			self.Work()
+			self.__WorkInternal()
 		except Exception, e:
 			if hasattr( e, "JobRunningState" ):
 				self.ReleaseInfo.JobRunningState = e.JobRunningState

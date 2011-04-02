@@ -9,8 +9,8 @@ import threading
 
 class MyWebServer(threading.Thread):
 	def __init__(self):
-		self.CherryPyServer = None 
 		threading.Thread.__init__( self, name = "WebServerThread" )
+		self.CherryPyServer = None 
 		
 	def run(self):
 		app.config[ "DEBUG" ] = True
@@ -23,7 +23,9 @@ class MyWebServer(threading.Thread):
 			port = int( port )
 		else:
 			port = 5000
-		
+
+		print "Starting webserver on %s:%s." % ( host, port )
+
 		# We are using CherryPy because there is no way to stop Flask's built-in test server.
 		# See: https://github.com/mitsuhiko/werkzeug/issues#issue/36
 		dispatcher = wsgiserver.WSGIPathInfoDispatcher( { '/': app } )
@@ -31,6 +33,8 @@ class MyWebServer(threading.Thread):
 		self.CherryPyServer.start()
 
 	def StopServer(self):
+		print "Stopping webserver."
+
 		self.CherryPyServer.stop()
 		self.join()
 

@@ -10,7 +10,6 @@ def Initialize():
 	MyGlobals.InitializeGlobals( Settings.WorkingPath )
 
 def Run():
-	print "Starting..."
 	InitDb()
 
 	MyGlobals.PtpUploader = PtpUploader()
@@ -26,7 +25,6 @@ def Run():
 	except (KeyboardInterrupt, SystemExit):
 		pass
 
-	print "Stopping..."
 	if webServerThread is not None:
 		webServerThread.StopServer()
 

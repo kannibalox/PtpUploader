@@ -5,6 +5,7 @@ from Authentication import requires_auth
 from MyGlobals import MyGlobals
 from Database import Database
 from Ptp import Ptp
+from PtpUploaderMessage import *
 from ReleaseInfo import ReleaseInfo
 from Settings import Settings
 
@@ -33,7 +34,11 @@ def EditJob(jobId):
 	if request.method == 'POST':
 		# TODO: copy values from the form
 		releaseInfo = Database.DbSession.query( ReleaseInfo ).filter( ReleaseInfo.Id == jobId ).first()
-		MyGlobals.PtpUploader.AddToDatabaseQueue( releaseInfo.Id )
+		MyGlobals.PtpUploader.AddMessage( PtpUploaderMessageStartJob( releaseInfo.Id ) )
+		
+		# TODO: set job's workingstate to waitingtostart
+		# Is this safe to do here? What if it already started? 
+		
 		return "OK"
 	
 	
