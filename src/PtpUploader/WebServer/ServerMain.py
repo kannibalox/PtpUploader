@@ -19,10 +19,8 @@ from NfoParser import NfoParser
 from Ptp import Ptp
 from PtpUploaderMessage import *
 from ReleaseInfo import ReleaseInfo
-from Settings import Settings
 
-from flask import jsonify, Module, render_template, request, redirect, url_for
-from werkzeug import secure_filename
+from flask import render_template, request, redirect, url_for
 
 import os
 import re
@@ -47,7 +45,9 @@ def index():
 			entry[ "PtpUrl" ] = "http://passthepopcorn.me/torrents.php?imdb=%s" % releaseInfo.GetImdbId()
 
 		entry[ "LogPageUrl" ] = url_for( "log", jobId = releaseInfo.Id )
-		entry[ "EditPageUrl" ] = url_for( "EditJob", jobId = releaseInfo.Id )
+
+		if releaseInfo.CanEdited():
+			entry[ "EditPageUrl" ] = url_for( "EditJob", jobId = releaseInfo.Id )
 		
 		entries.append( entry )
 

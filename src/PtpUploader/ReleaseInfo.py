@@ -184,6 +184,9 @@ class ReleaseInfo(Database.Base):
 	def SetSceneRelease(self):
 		self.Scene = "on"
 		
+	def CanEdited(self):
+		return self.JobRunningState != JobRunningState.WaitingForStart and self.JobRunningState != JobRunningState.InProgress and self.JobRunningState != JobRunningState.Finished
+
 	def IsJobPhaseFinished(self, jobPhase):
 		return ( self.FinishedJobPhase & jobPhase ) != 0 
 

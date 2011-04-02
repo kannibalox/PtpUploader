@@ -95,7 +95,7 @@ class WorkerThread(threading.Thread):
 			WorkerThread.__GetLoggerFromException( e ).exception( "Caught invalid login exception in the worker thread loop. Aborting." )
 			raise
 		except PtpUploaderException, e:
-			WorkerThread.__GetLoggerFromException( e ).info( "%s (PtpUploaderException)" % str( e ) )
+			WorkerThread.__GetLoggerFromException( e ).warning( "%s (PtpUploaderException)" % str( e ) )
 		except Exception, e:
 			WorkerThread.__GetLoggerFromException( e ).exception( "Caught exception in the worker thread loop. Trying to continue." )
 

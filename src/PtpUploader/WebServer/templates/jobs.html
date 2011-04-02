@@ -32,7 +32,9 @@
 					<a href="{{ entry.LogPageUrl }}">{{ entry.State }}</a>
 				</td>
 				<td>
-					<a href="{{ entry.EditPageUrl }}">Edit</a>
+					{% if entry.EditPageUrl %}
+						<a href="{{ entry.EditPageUrl }}">Edit</a>
+					{% endif %}
 				</td>
 			</tr>
 		{% else %}
