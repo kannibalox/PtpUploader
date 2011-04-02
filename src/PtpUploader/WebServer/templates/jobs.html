@@ -36,6 +36,9 @@
 					{% endif %}
 				</td>
 				<td>
+					{% if entry.StateIcon %}
+						<img src={{ entry.StateIcon }}>
+					{% endif %}
 					<a href="{{ entry.LogPageUrl }}">{{ entry.State }}</a>
 				</td>
 				<td>

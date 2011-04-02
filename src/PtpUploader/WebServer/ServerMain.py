@@ -26,6 +26,16 @@ import os
 import re
 import urlparse
 
+def GetStateIcon(state):
+	if state == JobRunningState.Finished: 
+		return "success.png"
+	elif state == JobRunningState.Failed: 
+		return "error.png"
+	elif state == JobRunningState.Ignored or state == JobRunningState.Ignored_AlreadyExists or state == JobRunningState.Ignored_Forbidden or state == JobRunningState.Ignored_MissingInfo or state == JobRunningState.Ignored_NotSupported:
+		return "warning.png"
+
+	return ""
+
 @app.route( '/' )
 @requires_auth
 def index():
@@ -35,6 +45,10 @@ def index():
 		entry[ "Id" ] = releaseInfo.Id
 		entry[ "ReleaseName" ] = releaseInfo.ReleaseName
 		entry[ "State" ] = JobRunningState.ToText( releaseInfo.JobRunningState )
+		
+		stateIcon = GetStateIcon( releaseInfo.JobRunningState )
+		if len( stateIcon ) > 0: 
+			entry[ "StateIcon" ] = url_for( "static", filename = stateIcon )
 		
 		if len( releaseInfo.ErrorMessage ) > 0:
 			entry[ "ErrorMessage" ] = releaseInfo.ErrorMessage
@@ -54,7 +68,7 @@ def index():
 			filename = "source_icon/%s.ico" % releaseInfo.AnnouncementSourceName
 			entry[ "SourceIcon" ] = url_for( "static", filename = filename )
 			entry[ "SourceUrl" ] = source.GetUrlFromId( releaseInfo.AnnouncementId )
-		
+
 		entries.append( entry )
 
 	return render_template( "jobs.html", entries = entries )
