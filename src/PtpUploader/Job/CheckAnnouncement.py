@@ -113,7 +113,7 @@ class CheckAnnouncement(WorkerBase):
 
 		# Title
 		if len( self.ReleaseInfo.Title ) > 0:
-			self.ReleaseInfo.Logger.info( "Title '%s' is already set, not getting from PTP's movie info." % self.ReleaseInfo.Title )
+			self.ReleaseInfo.Logger.info( u"Title '%s' is already set, not getting from PTP's movie info." % self.ReleaseInfo.Title )
 		else:
 			self.ReleaseInfo.Title = ptpImdbInfo.GetTitle()
 			if len( self.ReleaseInfo.Title ) <= 0: 
