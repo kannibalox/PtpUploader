@@ -98,7 +98,7 @@ def UploadFile(releaseInfo, request):
 		path = path.rstrip( "\\/" )
 	
 		# Release name will be the directory's name. Eg. it will be "anything" for "/something/anything"
-		releaseInfo.ReleaseName = os.path.split( path )
+		basePath, releaseInfo.ReleaseName = os.path.split( path )
 	
 		return True
 	else:

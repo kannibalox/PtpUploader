@@ -22,7 +22,7 @@ class CheckAnnouncement(WorkerBase):
 
 		# Instead of this if, it would be possible to make a totally generic downloader system through SourceBase.
 		if jobManagerItem.ReleaseInfo.AnnouncementSourceName == "file":
-			phases.append( self.__AddToPendingDownloads() )
+			phases.append( self.__AddToPendingDownloads )
 		else:
 			phases.extend( [
 				self.__CreateReleaseDirectory,
