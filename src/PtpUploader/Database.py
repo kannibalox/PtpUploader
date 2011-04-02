@@ -1,3 +1,4 @@
+from MyGlobals import MyGlobals
 from Settings import Settings
 
 from sqlalchemy import create_engine
@@ -22,7 +23,7 @@ def GetDatabaseUrl():
 	return "sqlite:///" + path
 
 def InitDb():
-	print "Initializing database."
+	MyGlobals.Logger.info( "Initializing database." )
 	
 	Database.DbEngine = create_engine( GetDatabaseUrl() )
 	Database.DbSession = scoped_session( sessionmaker( autocommit = False, autoflush = False, bind = Database.DbEngine ) )

@@ -9,6 +9,7 @@ class MyGlobalsClass:
 		self.CookieJar = None
 		self.Logger = None
 		self.PtpUploader = None
+		self.SourceFactory = None
 	
 	def InitializeGlobals(self, workingPath):
 		self.InitializeLogger( workingPath )

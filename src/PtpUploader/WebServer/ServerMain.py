@@ -17,6 +17,7 @@ from Database import Database
 from MyGlobals import MyGlobals
 from NfoParser import NfoParser
 from Ptp import Ptp
+from PtpUploaderMessage import *
 from ReleaseInfo import ReleaseInfo
 from Settings import Settings
 
@@ -109,5 +110,5 @@ def checkIfExists():
 @app.route( "/quit" )
 @requires_auth
 def quit():
-	MyGlobals.PtpUploader.RequestStop()
+	MyGlobals.PtpUploader.AddMessage( PtpUploaderMessageQuit() )
 	return "Quitting."

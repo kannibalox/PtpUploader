@@ -1,3 +1,4 @@
+from Source.SourceFactory import SourceFactory
 from WebServer.MyWebServer import MyWebServer
 
 from MyGlobals import MyGlobals
@@ -12,6 +13,7 @@ def Initialize():
 def Run():
 	InitDb()
 
+	MyGlobals.SourceFactory = SourceFactory()
 	MyGlobals.PtpUploader = PtpUploader()
 
 	# Do not start the web server if the username or the password is not set.
@@ -20,10 +22,7 @@ def Run():
 		webServerThread = MyWebServer()
 		webServerThread.start()
 
-	try:
-		MyGlobals.PtpUploader.Work()
-	except (KeyboardInterrupt, SystemExit):
-		pass
+	MyGlobals.PtpUploader.Work()
 
 	if webServerThread is not None:
 		webServerThread.StopServer()

@@ -1,7 +1,6 @@
 from Job.CheckAnnouncement import CheckAnnouncement
 from Job.JobRunningState import JobRunningState
 from Job.Upload import Upload
-from Source.SourceFactory import SourceFactory
 from Tool.Rtorrent import Rtorrent
 
 from AnnouncementWatcher import *
@@ -27,15 +26,10 @@ class JobManagerItem:
 class JobManager:
 	def __init__(self):
 		self.Lock = threading.RLock()
-		self.SourceFactory = SourceFactory()
 		self.Rtorrent = Rtorrent()
 		self.PendingAnnouncements = [] # Contains JobManagerItem.
 		self.PendingDownloads = [] # Contains JobManagerItem.
 		
-	# Can be called from any thread.
-	def GetSourceFactory(self):
-		return self.SourceFactory
-
 	def __IsSourceAvailable(self, source):
 		runningDownloads = 0
 		for item in self.PendingDownloads:
@@ -49,7 +43,7 @@ class JobManager:
 		releaseInfo = Database.DbSession.query( ReleaseInfo ).filter( ReleaseInfo.Id == releaseInfoId ).first()
 
 		releaseInfo.Logger = Logger( releaseInfo.GetLogFilePath() )
-		releaseInfo.AnnouncementSource = self.SourceFactory.GetSource( releaseInfo.AnnouncementSourceName )
+		releaseInfo.AnnouncementSource = MyGlobals.SourceFactory.GetSource( releaseInfo.AnnouncementSourceName )
 		# TODO: handle if announcement source is no longer presents
 		
 		return releaseInfo
@@ -72,7 +66,7 @@ class JobManager:
 
 		# Check if there is new automatic announcements in the watch directory.
 		announcementToHandle = None
-		releaseInfos = AnnouncementWatcher.LoadAnnouncementFilesIntoTheDatabase( self )
+		releaseInfos = AnnouncementWatcher.LoadAnnouncementFilesIntoTheDatabase()
 		for releaseInfo in releaseInfos: 
 			jobManagerItem = JobManagerItem( releaseInfo.Id, releaseInfo )
 			if ( not announcementToHandle ) and self.__IsSourceAvailable( releaseInfo.AnnouncementSource ):

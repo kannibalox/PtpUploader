@@ -4,6 +4,7 @@ from Source.Gft import Gft
 from Source.Torrent import Torrent
 from Source.TorrentLeech import TorrentLeech
 
+from MyGlobals import MyGlobals
 from Settings import Settings
 
 class SourceFactory:
@@ -24,6 +25,8 @@ class SourceFactory:
 
 		self.__AddSource( File() )
 		self.__AddSource( Torrent() )
+
+		MyGlobals.Logger.info( "Sources initialized." )
 
 	def __AddSource(self, source):
 		self.Sources[ source.Name ] = source

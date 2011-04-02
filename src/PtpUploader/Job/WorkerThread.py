@@ -15,12 +15,12 @@ class WorkerThread(threading.Thread):
 		self.JobManager = None
 
 	def StartWorkerThread(self):
-		print "Starting worker thread."
+		MyGlobals.Logger.info( "Starting worker thread." )
 
 		self.start()
 
 	def StopWorkerThread(self):
-		print "Stopping worker thread."
+		MyGlobals.Logger.info( "Stopping worker thread." )
 		
 		self.StopRequested = True
 		self.WaitEvent.set()

@@ -11,7 +11,7 @@ import re
 class AnnouncementWatcher:
 	# Example: [source=gft][id=44][title=Dark.City.1998.Directors.Cut.720p.BluRay.x264-SiNNERS]
 	@staticmethod
-	def __ProcessAnnouncementFile(jobManager, announcementFilePath):
+	def __ProcessAnnouncementFile(announcementFilePath):
 		announcementFilename = os.path.basename( announcementFilePath ) # Get the filename.
 		
 		matches = re.match( r"\[source=(.+)\]\[id=(\d+)\]\[title=(.+)\]", announcementFilename )			
@@ -23,7 +23,7 @@ class AnnouncementWatcher:
 		announcementId = matches.group( 2 )
 		releaseName = matches.group( 3 )
 			
-		announcementSource = jobManager.GetSourceFactory().GetSource( announcementSourceName )
+		announcementSource = MyGlobals.SourceFactory.GetSource( announcementSourceName )
 		if announcementSource is None:
 			MyGlobals.Logger.error( "Unknown announcement source: '%s'." % announcementSourceName )
 			return None
@@ -40,7 +40,7 @@ class AnnouncementWatcher:
 	
 	# No logging here because it would result in spamming.
 	@staticmethod
-	def LoadAnnouncementFilesIntoTheDatabase(jobManager):
+	def LoadAnnouncementFilesIntoTheDatabase():
 		announcements = []
 
 		announcementsPath = Settings.GetAnnouncementWatchPath()
@@ -56,7 +56,7 @@ class AnnouncementWatcher:
 		files.sort()
 		for item in files:
 			path = item[ 1 ] # First element is the modification time, second is the path.
-			releaseInfo = AnnouncementWatcher.__ProcessAnnouncementFile( jobManager, path )
+			releaseInfo = AnnouncementWatcher.__ProcessAnnouncementFile( path )
 			if releaseInfo is not None:
 				announcements.append( releaseInfo ) 
 

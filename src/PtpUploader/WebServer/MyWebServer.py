@@ -24,7 +24,7 @@ class MyWebServer(threading.Thread):
 		else:
 			port = 5000
 
-		print "Starting webserver on %s:%s." % ( host, port )
+		MyGlobals.Logger.info( "Starting webserver on %s:%s." % ( host, port ) )
 
 		# We are using CherryPy because there is no way to stop Flask's built-in test server.
 		# See: https://github.com/mitsuhiko/werkzeug/issues#issue/36
@@ -33,7 +33,7 @@ class MyWebServer(threading.Thread):
 		self.CherryPyServer.start()
 
 	def StopServer(self):
-		print "Stopping webserver."
+		MyGlobals.Logger.info( "Stopping webserver." )
 
 		self.CherryPyServer.stop()
 		self.join()

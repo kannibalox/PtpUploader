@@ -1,5 +1,6 @@
 from Job.WorkerThread import WorkerThread
 
+from MyGlobals import MyGlobals
 from PtpUploaderMessage import *
 
 import Queue
@@ -12,10 +13,6 @@ class PtpUploader:
 		self.MessageQueue = Queue.Queue() # Contains class instances from PtpUploaderMessage.
 		self.WorkerThread = WorkerThread()
 
-	def RequestStop(self):
-		self.StopRequested = True
-		self.WaitEvent.set()
-
 	def AddMessage(self, message):
 		self.MessageQueue.put( message )
 		self.WaitEvent.set()
@@ -27,16 +24,26 @@ class PtpUploader:
 				self.WorkerThread.RequestStartJob( message.ReleaseInfoId )
 			elif isinstance( message, PtpUploaderMessageCancelJob ):
 				self.WorkerThread.RequestStopJob( message.ReleaseInfoId )
+			elif isinstance( message, PtpUploaderMessageQuit ):
+				self.StopRequested = True
 
 	def __MessageLoop(self):
-		print "Entering into message loop."
+		MyGlobals.Logger.info( "Entering into message loop." )
 
 		while not self.StopRequested:
-			self.WaitEvent.wait()
+			# If there is no timeout for the wait call then KeyboardInterrupt exception is never sent. 
+			# http://stackoverflow.com/questions/1408356/keyboard-interrupts-with-pythons-multiprocessing-pool/1408476#1408476
+			# (We don't need the timeout.)
+			self.WaitEvent.wait( 60 ) 
 			self.WaitEvent.clear()
 			self.__ProcessMessages()
 
 	def Work(self):
 		self.WorkerThread.StartWorkerThread()
-		self.__MessageLoop()
+
+		try:
+			self.__MessageLoop()
+		except (KeyboardInterrupt, SystemExit):
+			MyGlobals.Logger.info( "Got keyboard interrupt or system exit exception." )
+			
 		self.WorkerThread.StopWorkerThread()

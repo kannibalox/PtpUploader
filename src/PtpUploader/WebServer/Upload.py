@@ -73,7 +73,7 @@ def UploadTorrentSiteLink(releaseInfo, request):
 	if len( torrentPageLink ) <= 0:
 		return False
 		
-	source, id = MyGlobals.PtpUploader.WorkerThread.JobManager.GetSourceFactory().GetSourceAndIdByUrl( torrentPageLink )
+	source, id = MyGlobals.SourceFactory.GetSourceAndIdByUrl( torrentPageLink )
 	if source is None:
 		return False
 		
