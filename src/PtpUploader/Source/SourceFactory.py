@@ -11,17 +11,17 @@ class SourceFactory:
 	def __init__(self):
 		self.Sources = {}
 		
-		if len( Settings.CinemageddonUserName ) > 0 and len( Settings.CinemageddonPassword ) > 0:
+		if Cinemageddon.IsEnabled():
 			Cinemageddon.Login()
-			self.__AddSource( Cinemageddon() )
+		self.__AddSource( Cinemageddon() )
 
-		if len( Settings.GftUserName ) > 0 and len( Settings.GftPassword ) > 0:
+		if Gft.IsEnabled():
 			Gft.Login()
-			self.__AddSource( Gft() )
+		self.__AddSource( Gft() )
 
-		if len( Settings.TorrentLeechUserName ) > 0 and len( Settings.TorrentLeechPassword ) > 0:
+		if TorrentLeech.IsEnabled():
 			TorrentLeech.Login()
-			self.__AddSource( TorrentLeech() )
+		self.__AddSource( TorrentLeech() )
 
 		self.__AddSource( File() )
 		self.__AddSource( Torrent() )

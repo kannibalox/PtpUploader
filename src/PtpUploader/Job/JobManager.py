@@ -31,6 +31,10 @@ class JobManager:
 		self.PendingDownloads = [] # Contains JobManagerItem.
 		
 	def __IsSourceAvailable(self, source):
+		# This is handled in CheckAnnouncement.
+		if source is None:
+			return True
+
 		runningDownloads = 0
 		for item in self.PendingDownloads:
 			releaseInfo = self.__GetJobManagerItemAsReleaseInfo( item )
@@ -41,11 +45,8 @@ class JobManager:
 
 	def __LoadReleaseInfoFromDatabase(self, releaseInfoId):
 		releaseInfo = Database.DbSession.query( ReleaseInfo ).filter( ReleaseInfo.Id == releaseInfoId ).first()
-
 		releaseInfo.Logger = Logger( releaseInfo.GetLogFilePath() )
 		releaseInfo.AnnouncementSource = MyGlobals.SourceFactory.GetSource( releaseInfo.AnnouncementSourceName )
-		# TODO: handle if announcement source is no longer presents
-		
 		return releaseInfo
 	
 	def __GetJobManagerItemAsReleaseInfo(self, item):

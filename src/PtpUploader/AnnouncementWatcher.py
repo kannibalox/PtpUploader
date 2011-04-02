@@ -11,9 +11,7 @@ import re
 class AnnouncementWatcher:
 	# Example: [source=gft][id=44][title=Dark.City.1998.Directors.Cut.720p.BluRay.x264-SiNNERS]
 	@staticmethod
-	def __ProcessAnnouncementFile(announcementFilePath):
-		announcementFilename = os.path.basename( announcementFilePath ) # Get the filename.
-		
+	def __ProcessAnnouncementFile(announcementFilename):
 		matches = re.match( r"\[source=(.+)\]\[id=(\d+)\]\[title=(.+)\]", announcementFilename )			
 		if not matches:
 			MyGlobals.Logger.info( "Invalid announcement name format: '%s'." % announcementFilename )
@@ -56,10 +54,13 @@ class AnnouncementWatcher:
 		files.sort()
 		for item in files:
 			path = item[ 1 ] # First element is the modification time, second is the path.
-			releaseInfo = AnnouncementWatcher.__ProcessAnnouncementFile( path )
-			if releaseInfo is not None:
+			filename = os.path.basename( path ) # Get the filename.
+			releaseInfo = AnnouncementWatcher.__ProcessAnnouncementFile( filename )
+			if releaseInfo is None:
+				invalidFilePath = os.path.join( Settings.GetAnnouncementInvalidPath(), filename )
+				os.rename( path, invalidFilePath )
+			else:
 				announcements.append( releaseInfo ) 
-
-			os.remove( path )
+				os.remove( path )
 
 		return announcements

@@ -17,7 +17,11 @@ class TorrentLeech(SourceBase):
 	def __init__(self):
 		self.Name = "tl"
 		self.MaximumParallelDownloads = Settings.TorrentLeechMaximumParallelDownloads
-	
+
+	@staticmethod
+	def IsEnabled():
+		return len( Settings.TorrentLeechUserName ) > 0 and len( Settings.TorrentLeechPassword ) > 0
+
 	@staticmethod
 	def Login():
 		MyGlobals.Logger.info( "Logging in to TorrentLeech." )
@@ -164,3 +168,7 @@ class TorrentLeech(SourceBase):
 			return ""
 		else:
 			return result.group( 1 )
+
+	@staticmethod
+	def GetUrlFromId(id):
+		return "http://www.torrentleech.org/torrent/" + id

@@ -16,6 +16,13 @@
 		{% for entry in entries %}
 			<tr>
 				<td>
+					{% if entry.SourceIcon %}
+						{% if entry.SourceUrl %}
+							<a href="{{ entry.SourceUrl }}"><img src={{ entry.SourceIcon }}></a>
+						{% else %}
+							<img src={{ entry.SourceIcon }}>
+						{% endif %}
+					{% endif %}
 					<b>
 					{% if entry.PtpUrl %}
 						<a href="{{ entry.PtpUrl }}">{{ entry.ReleaseName }}</a>

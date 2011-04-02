@@ -18,7 +18,11 @@ class Gft(SourceBase):
 	def __init__(self):
 		self.Name = "gft"
 		self.MaximumParallelDownloads = Settings.GftMaximumParallelDownloads
-	
+
+	@staticmethod
+	def IsEnabled():
+		len( Settings.GftUserName ) > 0 and len( Settings.GftPassword ) > 0
+
 	@staticmethod
 	def Login():
 		MyGlobals.Logger.info( "Loggin in to GFT." );
@@ -196,3 +200,7 @@ class Gft(SourceBase):
 			return ""
 		else:
 			return result.group( 1 )
+
+	@staticmethod
+	def GetUrlFromId(id):
+		return "http://www.thegft.org/details.php?id=" + id

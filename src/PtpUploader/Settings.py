@@ -61,6 +61,10 @@ class Settings(object):
 		return os.path.join( Settings.WorkingPath, "announcement" )
 
 	@staticmethod
+	def GetAnnouncementInvalidPath():
+		return os.path.join( Settings.WorkingPath, "announcement/invalid" )
+
+	@staticmethod
 	def GetJobLogPath():
 		return os.path.join( Settings.WorkingPath, "log/job" )
 
@@ -131,9 +135,10 @@ class Settings(object):
 		Settings.WebServerPassword = Settings.__GetDefault( configParser, "Settings", "WebServerPassword", "" )
 
 		# Create the announcement directory.
-		processedAnnouncementPath = Settings.GetAnnouncementWatchPath()
-		if not os.path.exists( processedAnnouncementPath ):
-			os.makedirs( processedAnnouncementPath )
+		# Invalid announcement directory is within the announcement directory, so we don't have to make the announcement directory separately.
+		announcementPath = Settings.GetAnnouncementInvalidPath()
+		if not os.path.exists( announcementPath ):
+			os.makedirs( announcementPath )
 
 		# Create the log directory.
 		# Job log directory is within the log directory, so we don't have to make the log directory separately.

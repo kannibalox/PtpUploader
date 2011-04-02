@@ -20,6 +20,10 @@ class Cinemageddon(SourceBase):
 		self.MaximumParallelDownloads = Settings.CinemageddonMaximumParallelDownloads
 	
 	@staticmethod
+	def IsEnabled():
+		return len( Settings.CinemageddonUserName ) > 0 and len( Settings.CinemageddonPassword ) > 0
+
+	@staticmethod
 	def Login():
 		MyGlobals.Logger.info( "Loggin in to Cinemageddon." )
 		opener = urllib2.build_opener( urllib2.HTTPCookieProcessor( MyGlobals.CookieJar ) )
@@ -223,3 +227,7 @@ class Cinemageddon(SourceBase):
 			return ""
 		else:
 			return result.group( 1 )	
+
+	@staticmethod
+	def GetUrlFromId(id):
+		return "http://cinemageddon.net/details.php?id=" + id

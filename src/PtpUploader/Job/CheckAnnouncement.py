@@ -14,6 +14,7 @@ import os
 class CheckAnnouncement(WorkerBase):
 	def __init__(self, jobManager, jobManagerItem, rtorrent):
 		phases = [
+			self.__CheckAnnouncementSource,
 			self.__PrepareDownload,
 			self.__ValidateReleaseInfo,
 			self.__CheckIfExistsOnPtp,
@@ -33,12 +34,19 @@ class CheckAnnouncement(WorkerBase):
 		WorkerBase.__init__( self, phases, jobManager, jobManagerItem )
 		self.Rtorrent = rtorrent
 
-	def __PrepareDownload(self):
-		self.ReleaseInfo.Logger.info( "Working on announcement from '%s' with id '%s' and name '%s'." % ( self.ReleaseInfo.AnnouncementSource.Name, self.ReleaseInfo.AnnouncementId, self.ReleaseInfo.ReleaseName ) )
-		
+	def __CheckAnnouncementSource(self):
+		self.ReleaseInfo.Logger.info( "Working on announcement from '%s' with id '%s' and name '%s'." % ( self.ReleaseInfo.AnnouncementSourceName, self.ReleaseInfo.AnnouncementId, self.ReleaseInfo.ReleaseName ) )
+
 		self.ReleaseInfo.JobRunningState = JobRunningState.InProgress
 		self.ReleaseInfo.ErrorMessage = ""
-		
+
+		if self.ReleaseInfo.AnnouncementSource is None:
+			raise PtpUploaderException( "Announcement source '%s' is unknown." % self.ReleaseInfo.AnnouncementSourceName )
+
+		if not self.ReleaseInfo.AnnouncementSource.IsEnabled():
+			raise PtpUploaderException( "Announcement source '%s' is disabled." % self.ReleaseInfo.AnnouncementSourceName )
+
+	def __PrepareDownload(self):
 		self.ReleaseInfo.AnnouncementSource.PrepareDownload( self.ReleaseInfo.Logger, self.ReleaseInfo )
 
 	def __ValidateReleaseInfo(self):

@@ -1,5 +1,9 @@
 class SourceBase:
 	@staticmethod
+	def IsEnabled():
+		return True
+
+	@staticmethod
 	def Login():
 		pass
 	
@@ -34,3 +38,7 @@ class SourceBase:
 	@staticmethod
 	def GetIdFromUrl(url):
 		return ""
+
+	@staticmethod
+	def GetUrlFromId(id):
+		return ""	

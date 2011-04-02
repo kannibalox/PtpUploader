@@ -48,6 +48,12 @@ def index():
 
 		if releaseInfo.CanEdited():
 			entry[ "EditPageUrl" ] = url_for( "EditJob", jobId = releaseInfo.Id )
+
+		source = MyGlobals.SourceFactory.GetSource( releaseInfo.AnnouncementSourceName )
+		if source is not None:
+			filename = "source_icon/%s.ico" % releaseInfo.AnnouncementSourceName
+			entry[ "SourceIcon" ] = url_for( "static", filename = filename )
+			entry[ "SourceUrl" ] = source.GetUrlFromId( releaseInfo.AnnouncementId )
 		
 		entries.append( entry )
 
