@@ -9,6 +9,7 @@ from Settings import Settings
 from sqlalchemy import Boolean, Column, Integer, orm, String
 
 import os
+import time
 
 class ReleaseInfo(Database.Base):
 	__tablename__ = "release"
@@ -62,6 +63,7 @@ class ReleaseInfo(Database.Base):
 	ReleaseUploadPath = Column( String )
 	ReleaseNotes = Column( String )
 	Screenshots = Column( String )
+	LastModificationTime = Column( Integer, default = int( time.time() ), onupdate = int( time.time() ) )
 	
 	def __init__(self):
 		self.AnnouncementSourceName = "" # A name of a class from the Source namespace.
@@ -111,6 +113,7 @@ class ReleaseInfo(Database.Base):
 		self.ReleaseUploadPath = "" # Empty if using the default path. See GetReleaseUploadPath.
 		self.ReleaseNotes = ""
 		self.Screenshots = ""
+		self.LastModificationTime = 0
 		
 		self.MyConstructor()
 

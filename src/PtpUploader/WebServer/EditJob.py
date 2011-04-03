@@ -26,7 +26,7 @@ def EditJob(jobId):
 		Database.DbSession.commit()
 		MyGlobals.PtpUploader.AddMessage( PtpUploaderMessageStartJob( releaseInfo.Id ) )
 
-		return redirect( url_for( "index") )
+		return redirect( url_for( "jobs" ) )
 
 	releaseInfo = Database.DbSession.query( ReleaseInfo ).filter( ReleaseInfo.Id == jobId ).first()
 	job = {}

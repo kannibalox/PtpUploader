@@ -16,7 +16,9 @@ body
 	background-color: #020C0E;
 
 	margin: 0 auto;  
-	width: 940px;  
+	width: 940px;
+
+	font-family: Arial,sans-serif;
 }
 
 /* Tell the browser to render HTML 5 elements as block */  
@@ -73,4 +75,16 @@ table.jobs td
 	border-bottom: 1px solid #151D1F;
 	padding-top: 5px;
 	padding-bottom: 5px;
+	font-size: 12px;
+}
+
+table.jobs td.name
+{
+	width: 580px;
+}
+
+div.pagination
+{
+	padding-top: 32px;
+	padding-bottom: 32px;
 }

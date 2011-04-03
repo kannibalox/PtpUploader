@@ -1,6 +1,5 @@
 from WebServer import app
 
-from Database import Database
 from MyGlobals import MyGlobals
 from Settings import Settings
 
@@ -37,8 +36,3 @@ class MyWebServer(threading.Thread):
 
 		self.CherryPyServer.stop()
 		self.join()
-
-@app.after_request
-def ShutdownSession(response):
-	Database.DbSession.remove()
-	return response
