@@ -21,7 +21,7 @@ class Gft(SourceBase):
 
 	@staticmethod
 	def IsEnabled():
-		len( Settings.GftUserName ) > 0 and len( Settings.GftPassword ) > 0
+		return len( Settings.GftUserName ) > 0 and len( Settings.GftPassword ) > 0
 
 	@staticmethod
 	def Login():
