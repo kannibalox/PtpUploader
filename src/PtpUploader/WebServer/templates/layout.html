@@ -1,18 +1,23 @@
-﻿<!doctype html>
+<!doctype html>
 <html>
 	<head>
-		{% block head %}
-		{% endblock %}
+		<link rel="stylesheet" type="text/css" href="{{ url_for( "static", filename = "style.css" ) }}">
 	</head>
-
 	<body>
-		<script type=text/javascript src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
-		<script type=text/javascript>
-			var $SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
-		</script>
-
-		<div id="body">
-			{% block body %}{% endblock %}
-		</div>
+		<section>
+			<header>
+				<nav>
+					<ul>
+						<li><a href="{{ url_for( "index" ) }}">Jobs</a></li>
+						<li><a href="{{ url_for( "upload" ) }}">Upload</a></li>
+						<li><a href="#"></a></li>
+						<li class="shutdown"><a href="{{ url_for( "quit" ) }}">Shutdown</a></li>
+					</ul>
+				</nav>
+			</header>
+			<section>
+				{% block body %}{% endblock %}
+			</section>
+		</section>
 	</body>
 </html>
