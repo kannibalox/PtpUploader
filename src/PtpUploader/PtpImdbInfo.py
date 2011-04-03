@@ -11,6 +11,7 @@ import urllib2
 class PtpImdbInfo:
 	def __init__(self, imdbId):
 		self.ImdbId = imdbId
+		self.JsonResponse = ""
 		self.JsonMovie = None
 		self.HtmlParser = None
 	
@@ -28,15 +29,15 @@ class PtpImdbInfo:
 		opener = urllib2.build_opener( urllib2.HTTPCookieProcessor( MyGlobals.CookieJar ) )
 		request = urllib2.Request( "http://passthepopcorn.me/ajax.php?action=torrent_info&imdb=%s" % self.ImdbId )
 		result = opener.open( request )
-		response = result.read()
-		Ptp.CheckIfLoggedInFromResponse( response )
+		self.JsonResponse = result.read()
+		Ptp.CheckIfLoggedInFromResponse( self.JsonResponse )
 
 		# The response is JSON.
 		# [{"title":"Devil's Playground","plot":"As the world succumbs to a zombie apocalypse, Cole a hardened mercenary, is chasing the one person who can provide a cure. Not only to the plague but to Cole's own incumbent destiny. DEVIL'S PLAYGROUND is a cutting edge British horror film that features zombies portrayed by free runners for a terrifyingly authentic representation of the undead","art":false,"year":"2010","director":[{"imdb":"1654324","name":"Mark McQueen","role":null}],"tags":"action, horror","writers":[{"imdb":"1057010","name":"Bart Ruspoli","role":" screenplay"}]}]
 
-		jsonResult = json.loads( response )
+		jsonResult = json.loads( self.JsonResponse )
 		if len( jsonResult ) != 1:
-			raise PtpUploaderException( "Bad PTP movie info JSON response: array length is not one.\nResponse:\n%s" % response )
+			raise PtpUploaderException( "Bad PTP movie info JSON response: array length is not one.\nFull response:\n%s" % self.JsonResponse )
 	
 		self.JsonMovie = jsonResult[ 0 ]
 
@@ -44,14 +45,14 @@ class PtpImdbInfo:
 		self.__LoadmdbInfo()
 		title = self.JsonMovie[ "title" ]
 		if ( title is None ) or len( title ) == 0:
-			raise PtpUploaderException( "Bad PTP movie info JSON response: title is empty.\nResponse:\n%s" % response )
+			raise PtpUploaderException( "Bad PTP movie info JSON response: title is empty.\nFull response:\n%s" % self.JsonResponse )
 		return self.HtmlParser.unescape( title ) # PTP doesn't decodes properly the text.
 
 	def GetYear(self):
 		self.__LoadmdbInfo()
 		year = self.JsonMovie[ "year" ]
 		if ( year is None ) or len( year ) == 0:
-			raise PtpUploaderException( "Bad PTP movie info JSON response: year is empty.\nReponse:\n%s" % response )
+			raise PtpUploaderException( "Bad PTP movie info JSON response: year is empty.\nFull response:\n%s" % self.JsonResponse )
 		return year
 
 	def GetMovieDescription(self):
@@ -66,14 +67,14 @@ class PtpImdbInfo:
 		self.__LoadmdbInfo()
 		tags = self.JsonMovie[ "tags" ]
 		if tags is None: 
-			raise PtpUploaderException( "Bad PTP movie info JSON response: tags key doesn't exists.\nReponse:\n%s" % response )
+			raise PtpUploaderException( "Bad PTP movie info JSON response: tags key doesn't exists.\nFull response:\n%s" % self.JsonResponse )
 		return tags
 
 	def GetCoverArtUrl(self):
 		self.__LoadmdbInfo()
 		coverArtUrl = self.JsonMovie[ "art" ]
 		if coverArtUrl is None:
-			raise PtpUploaderException( "Bad PTP movie info JSON response: art key doesn't exists.\nReponse:\n%s" % response )
+			raise PtpUploaderException( "Bad PTP movie info JSON response: art key doesn't exists.\nFull response:\n%s" % self.JsonResponse )
 
 		# It may be false... Eg.: "art": false
 		if isinstance( coverArtUrl, basestring ):
@@ -93,7 +94,7 @@ class PtpImdbInfo:
 			for jsonDirector in jsonDirectors:
 				directorName = jsonDirector[ "name" ]
 				if ( directorName is None ) or len( directorName ) == 0: 
-					raise PtpUploaderException( "Bad PTP movie info JSON response: director name is empty.\nReponse:\n%s" % response )
+					raise PtpUploaderException( "Bad PTP movie info JSON response: director name is empty.\nFull response:\n%s" % self.JsonResponse )
 	
 				directorName = self.HtmlParser.unescape( directorName ) # PTP doesn't decodes properly the text.
 				directorNames.append( directorName )
