@@ -7,11 +7,11 @@ from flask import Flask, request, url_for
 
 app = Flask( __name__ )
 
+import WebServer.MovieAvailabilityCheck
 import WebServer.EditJob
 import WebServer.Jobs
 import WebServer.ServerMain
 import WebServer.Upload
-
 
 @app.after_request
 def ShutdownSession(response):

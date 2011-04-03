@@ -30,6 +30,7 @@ header, section, nav
 nav
 {
 	background-color: #000C0E;
+	padding-bottom: 16px;
 }
 
 nav ul li
