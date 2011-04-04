@@ -77,6 +77,18 @@ class Settings(object):
 		return os.path.join( Settings.WorkingPath, "database.sqlite" )
 
 	@staticmethod
+	def __LoadSceneGroups(path):
+		groups = []
+		file = open( path, "r" )
+		for line in file:
+			groupName = line.strip()
+			if len( groupName ) > 0:
+				groupName = groupName.lower()
+				groups.append( groupName )
+		file.close()
+		return groups
+
+	@staticmethod
 	def __GetDefault(configParser, section, option, default, raw = False):
 		try:
 			return configParser.get( section, option, raw = raw )
@@ -94,7 +106,7 @@ class Settings(object):
 		fp = open( settingsPath, "r" )
 		configParser.readfp( fp )
 		fp.close()
-	
+		
 		Settings.VideoExtensionsToUpload = Settings.MakeListFromExtensionString( configParser.get( "Settings", "VideoExtensionsToUpload" ) )
 		Settings.SubtitleExtensionsToUpload = Settings.MakeListFromExtensionString( configParser.get( "Settings", "SubtitleExtensionsToUpload" ) )
 		Settings.IgnoreFile = Settings.MakeListFromExtensionString( Settings.__GetDefault( configParser, "Settings", "IgnoreFile", "" ) )
@@ -128,7 +140,7 @@ class Settings(object):
 		Settings.IgnoreReleaseTag = Settings.MakeListOfListsFromString( Settings.__GetDefault( configParser, "Settings", "IgnoreReleaseTag", "" ) )
 		Settings.IgnoreReleaseTagAfterYear = Settings.MakeListOfListsFromString( Settings.__GetDefault( configParser, "Settings", "IgnoreReleaseTagAfterYear", "" ) )
 		Settings.IgnoreReleaserGroup = Settings.MakeListFromExtensionString( Settings.__GetDefault( configParser, "Settings", "IgnoreReleaserGroup", "" ) )
-		Settings.SceneReleaserGroup = Settings.MakeListFromExtensionString( Settings.__GetDefault( configParser, "Settings", "SceneReleaserGroup", "" ) )
+		Settings.SceneReleaserGroup = Settings.__LoadSceneGroups( os.path.join( settingsDirectory, "SceneGroups.txt" ) )
 
 		Settings.WebServerAddress = Settings.__GetDefault( configParser, "Settings", "WebServerAddress", "" )
 		Settings.WebServerUsername = Settings.__GetDefault( configParser, "Settings", "WebServerUsername", "admin" )
