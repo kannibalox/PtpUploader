@@ -22,7 +22,7 @@ class PtpUploader:
 			message = self.MessageQueue.get()
 			if isinstance( message, PtpUploaderMessageStartJob ):
 				self.WorkerThread.RequestStartJob( message.ReleaseInfoId )
-			elif isinstance( message, PtpUploaderMessageCancelJob ):
+			elif isinstance( message, PtpUploaderMessageStopJob ):
 				self.WorkerThread.RequestStopJob( message.ReleaseInfoId )
 			elif isinstance( message, PtpUploaderMessageQuit ):
 				self.StopRequested = True

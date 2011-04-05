@@ -46,8 +46,14 @@
 					<a href="{{ entry.LogPageUrl }}">{{ entry.State }}</a>
 				</td>
 				<td>
-					{% if entry.EditPageUrl %}
-						<a href="{{ entry.EditPageUrl }}">Edit</a>
+					{% if entry.StartJobUrl %}
+						<a href="{{ entry.StartJobUrl }}">Start</a>
+					{% endif %}
+					{% if entry.StopJobUrl %}
+						<a href="{{ entry.StopJobUrl }}">Stop</a>
+					{% endif %}
+					{% if entry.EditJobUrl %}
+						<a href="{{ entry.EditJobUrl }}">Edit</a>
 					{% endif %}
 				</td>
 			</tr>

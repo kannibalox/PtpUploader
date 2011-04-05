@@ -189,6 +189,12 @@ class ReleaseInfo(Database.Base):
 	def CanEdited(self):
 		return self.JobRunningState != JobRunningState.WaitingForStart and self.JobRunningState != JobRunningState.InProgress and self.JobRunningState != JobRunningState.Finished
 
+	def CanResumed(self):
+		return self.CanEdited()
+
+	def CanStopped(self):
+		return self.JobRunningState == JobRunningState.WaitingForStart or self.JobRunningState == JobRunningState.InProgress
+
 	def IsJobPhaseFinished(self, jobPhase):
 		return ( self.FinishedJobPhase & jobPhase ) != 0 
 

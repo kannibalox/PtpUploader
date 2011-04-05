@@ -5,6 +5,7 @@ from WebServer.Pagination import Pagination
 
 from Database import Database
 from MyGlobals import MyGlobals
+from PtpUploaderMessage import *
 from ReleaseInfo import ReleaseInfo
 
 from flask import render_template, request, url_for
@@ -40,7 +41,11 @@ def ReleaseInfoToJobsPageData(releaseInfo, entry):
 	entry[ "LogPageUrl" ] = url_for( "log", jobId = releaseInfo.Id )
 
 	if releaseInfo.CanEdited():
-		entry[ "EditPageUrl" ] = url_for( "EditJob", jobId = releaseInfo.Id )
+		entry[ "EditJobUrl" ] = url_for( "EditJob", jobId = releaseInfo.Id )
+	if releaseInfo.CanStopped():
+		entry[ "StopJobUrl" ] = url_for( "StopJob", jobId = releaseInfo.Id )
+	if releaseInfo.CanResumed():
+		entry[ "StartJobUrl" ] = url_for( "StartJob", jobId = releaseInfo.Id )
 
 	source = MyGlobals.SourceFactory.GetSource( releaseInfo.AnnouncementSourceName )
 	if source is not None:
@@ -49,7 +54,7 @@ def ReleaseInfoToJobsPageData(releaseInfo, entry):
 		entry[ "SourceUrl" ] = source.GetUrlFromId( releaseInfo.AnnouncementId )
 
 @app.route( "/jobs/", defaults = { "page": 1 } )
-@app.route( "/jobs/page/<int:page>" )
+@app.route( "/jobs/page/<int:page>/" )
 @requires_auth
 def jobs(page):
 	jobsPerPage = 50
@@ -70,3 +75,29 @@ def jobs(page):
 		entries.append( entry )
 
 	return render_template( "jobs.html", entries = entries, pagination = pagination )
+
+@app.route( "/jobs/<int:jobId>/start/" )
+@requires_auth
+def StartJob(jobId):
+	# TODO: This is very far from perfect. There is no guarantee that the job didn't start meanwhile.
+	# Probably only the WorkerThred should change the running state.		
+	releaseInfo = Database.DbSession.query( ReleaseInfo ).filter( ReleaseInfo.Id == jobId ).first()
+	if not releaseInfo.CanResumed():
+		return "The job is already running!"
+
+	releaseInfo.JobRunningState = JobRunningState.WaitingForStart
+	Database.DbSession.commit()
+	MyGlobals.PtpUploader.AddMessage( PtpUploaderMessageStartJob( jobId ) )
+	return "OK"
+
+@app.route( "/jobs/<int:jobId>/stop/" )
+@requires_auth
+def StopJob(jobId):
+	# TODO: This is very far from perfect. There is no guarantee that the job didn't stop meanwhile.
+	# Probably only the WorkerThred should change the running state.		
+	releaseInfo = Database.DbSession.query( ReleaseInfo ).filter( ReleaseInfo.Id == jobId ).first()
+	if not releaseInfo.CanStopped():
+		return "The job is already stopped!"
+	
+	MyGlobals.PtpUploader.AddMessage( PtpUploaderMessageStopJob( jobId ) )
+	return "OK"

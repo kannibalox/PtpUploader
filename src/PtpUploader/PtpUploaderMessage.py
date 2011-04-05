@@ -2,7 +2,7 @@ class PtpUploaderMessageStartJob:
 	def __init__(self, releaseInfoId):
 		self.ReleaseInfoId = releaseInfoId
 		
-class PtpUploaderMessageCancelJob:
+class PtpUploaderMessageStopJob:
 	def __init__(self, releaseInfoId):
 		self.ReleaseInfoId = releaseInfoId
 		
