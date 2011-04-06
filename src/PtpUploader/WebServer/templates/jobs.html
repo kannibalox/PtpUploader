@@ -47,10 +47,10 @@
 				</td>
 				<td>
 					{% if entry.StartJobUrl %}
-						<a href="{{ entry.StartJobUrl }}">Start</a>
+						<a href="#" onclick='executeJobCommand( this, {{ entry.Id }}, "/start/" )'>Start</a>
 					{% endif %}
 					{% if entry.StopJobUrl %}
-						<a href="{{ entry.StopJobUrl }}">Stop</a>
+						<a href="#" onclick='executeJobCommand( this, {{ entry.Id }}, "/stop/" )'>Stop</a>
 					{% endif %}
 					{% if entry.EditJobUrl %}
 						<a href="{{ entry.EditJobUrl }}">Edit</a>
@@ -85,4 +85,25 @@
 	{% endif %}
 </div>
 
+<script type=text/javascript src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
+
+<script type="text/javascript">
+	var $SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
+
+	function executeJobCommand(linkNode, jobId, jobCommand)
+	{
+		$.ajax(
+		{
+			type: "GET",
+			url: $SCRIPT_ROOT + "/jobs/" + jobId + jobCommand,
+			context: linkNode,
+			success: function(msg)
+			{
+				$(this).text( msg );
+				if ( msg == "OK" )
+					$(this).fadeOut( "slow" );
+			}
+		} );
+	}
+</script>
 {% endblock %}
