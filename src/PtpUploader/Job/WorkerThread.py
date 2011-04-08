@@ -23,19 +23,19 @@ class WorkerThread(threading.Thread):
 		MyGlobals.Logger.info( "Stopping worker thread." )
 		
 		self.StopRequested = True
-		self.WaitEvent.set()
+		self.RequestStopJob( -1 ) # This sets the WaitEvent, there is no need set it again.
 		self.join()
 		
 	def RequestStartJob(self, releaseInfoId):
 		self.JobManager.StartJob( releaseInfoId )
 		self.WaitEvent.set()
 
-	def RequestStopJob(self):
+	def RequestStopJob(self, releaseInfoId):
 		self.Lock.acquire()		
 
 		try:
 			self.JobManager.StopJob( releaseInfoId )
-			if ( self.JobPhase is not None ) and self.JobPhase.JobManagerItem.ReleaseInfoId == releaseInfoId:
+			if ( self.JobPhase is not None ) and ( self.JobPhase.JobManagerItem.ReleaseInfoId == releaseInfoId or releaseInfoId == -1 ):
 				self.JobPhase.JobManagerItem.StopRequested = True
 		finally:
 			self.Lock.release()
