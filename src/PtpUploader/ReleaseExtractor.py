@@ -44,10 +44,11 @@ class ReleaseExtractor:
 				os.link( filePath, destinationFilePath )
 
 	# Extracts RAR files and creates hard links from supported files from the source to the destination directory.
-	# Returns with the path of the NFO file or None.
+	# Returns with the path of the NFO file or None. If there are multiple NFOs it returns with None.
 	@staticmethod
 	def Extract(sourcePath, destinationPath):
 		nfoPath = None
+		nfoFound = False
 
 		ReleaseExtractor.__ExtractDirectory( sourcePath, destinationPath )
 
@@ -64,7 +65,11 @@ class ReleaseExtractor:
 					ReleaseExtractor.__ExtractDirectory( entryPath, destinationPath )
 			elif os.path.isfile( entryPath ):
 				if fnmatch.fnmatch( entryLower, "*.nfo" ):
-					nfoPath = entryPath
+					if nfoFound:
+						nfoPath = None						
+					else:
+						nfoPath = entryPath
+						nfoFound = True
 
 		# Extract and delete RARs at the destination directory. Subtitles in scene releases usually are compressed twice. Yup, it is stupid.
 		rars = Unrar.GetRars( destinationPath )
