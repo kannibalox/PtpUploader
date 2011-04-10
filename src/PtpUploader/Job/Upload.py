@@ -220,7 +220,7 @@ class Upload(WorkerBase):
 		if url.find( "ptpimg.me" ) != -1 or url.find( "imageshack.us" ) != -1 or url.find( "photobucket.com" ) != -1:
 			return
 
-		self.ReleaseInfo.CoverArtUrl = ImageUploader.Upload( imageUrl = url )
+		self.ReleaseInfo.CoverArtUrl = ImageUploader.Upload( self.ReleaseInfo.Logger, imageUrl = url )
 
 	def __StartTorrent(self):
 		if len( self.ReleaseInfo.UploadTorrentInfoHash ) > 0:
