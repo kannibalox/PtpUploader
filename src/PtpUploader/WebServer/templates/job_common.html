@@ -3,14 +3,14 @@
 <tr>
 	<td class="label">Force upload</td>
 	<td>
-		<input id="force_upload" name="force_upload" type="checkbox">
+		<input id="force_upload" name="force_upload" type="checkbox" title="Check this to override duplicate, adult tag and series checking.">
 	</td>
 </tr>
 
 <tr>
 	<td class="label">Make torrent without directory if possible</td>
 	<td>
-		<input id="ForceDirectorylessSingleFileTorrent" name="ForceDirectorylessSingleFileTorrent" type="checkbox">
+		<input id="ForceDirectorylessSingleFileTorrent" name="ForceDirectorylessSingleFileTorrent" type="checkbox" title="If this is set and the release contains only a single video file then no directory will be created.">
 	</td>
 </tr>
 
@@ -29,7 +29,7 @@
 <tr id="imdb_tr">
 	<td class="label">IMDb or PTP link</td>
 	<td>
-		<input id="imdb" name="imdb" size="60" value="{{ job.imdb }}" type="text">
+		<input id="imdb" name="imdb" size="60" value="{{ job.imdb }}" type="text" title="Enter - or 0 if the movie is not on IMDb.">
 	</td>
 </tr>
 

@@ -11,7 +11,7 @@
 			<tr>
 				<td class="label">Upload a torrent file</td>
 				<td>
-					<input type="file" id="upload_field" />
+					<input type="file" id="upload_field" title="You have to specify an IMDB or PTP link too."/>
 					<div id="progress_report">
 						<div id="progress_report_name"></div>
 						<div id="progress_report_status" style="font-style: italic;"></div>
@@ -28,24 +28,24 @@
 				<td class="label">Or select an existing file or folder</td>
 			
 				<td>
-					<input id="existingfile" name="existingfile_input" size="60">
+					<input id="existingfile" name="existingfile_input" size="60" title="This is not yet functional.">
 				</td>
 			</tr>
 
 			<tr>
 				<td class="label">Or specify a torrent page link</td>
 				<td>
-					<input id="torrent_site_link" name="torrent_site_link" size="60" type="text">
+					<input id="torrent_site_link" name="torrent_site_link" size="60" type="text" title="Supported sites: CG, GFT, TL.">
 				</td>
 			</tr>
 
 			<tr>
 				<td class="label">Release name</td>
 				<td>
-					<input id="release_name" name="release_name" size="60" type="text">
+					<input id="release_name" name="release_name" size="60" type="text" title="Release name will be the name of the directory in the torrent.">
 				</td>
 			</tr>
-
+			
 			{% include "job_common.html" %}
 
 			<tr>
@@ -65,7 +65,7 @@
 <script>
 	$(function ()
 	{
-		$("#upload_field").html5_upload(
+		$( "#upload_field" ).html5_upload(
 		{
 				url: "{{ url_for( "ajaxUploadTorrentFile" ) }}",
 				sendBoundary: true,
