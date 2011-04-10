@@ -18,17 +18,23 @@ def GetStateIcon(state):
 		return "error.png"
 	elif state == JobRunningState.Ignored or state == JobRunningState.Ignored_AlreadyExists or state == JobRunningState.Ignored_Forbidden or state == JobRunningState.Ignored_MissingInfo or state == JobRunningState.Ignored_NotSupported:
 		return "warning.png"
+	elif state == JobRunningState.WaitingForStart: 
+		return "hourglass.png"
+	elif state == JobRunningState.InProgress: 
+		return "throbber.gif"
+	elif state == JobRunningState.Paused: 
+		return "pause.png"
+	elif state == JobRunningState.DownloadedAlreadyExists: 
+		return "sad.png"
 
-	return ""
+	# This is not possible.
+	return "error.png"
 
 def ReleaseInfoToJobsPageData(releaseInfo, entry):
 	entry[ "Id" ] = releaseInfo.Id
 	entry[ "ReleaseName" ] = releaseInfo.ReleaseName
-	entry[ "State" ] = JobRunningState.ToText( releaseInfo.JobRunningState )
-	
-	stateIcon = GetStateIcon( releaseInfo.JobRunningState )
-	if len( stateIcon ) > 0: 
-		entry[ "StateIcon" ] = url_for( "static", filename = stateIcon )
+	entry[ "State" ] = JobRunningState.ToText( releaseInfo.JobRunningState ) + ". (Click to see the log.)"
+	entry[ "StateIcon" ] = url_for( "static", filename = GetStateIcon( releaseInfo.JobRunningState ) )
 	
 	if len( releaseInfo.ErrorMessage ) > 0:
 		entry[ "ErrorMessage" ] = releaseInfo.ErrorMessage

@@ -8,7 +8,6 @@
 	<tr>
 		<th>Release name</th>
 		<th>Source</th>
-		<th>State</th>
 		<th>Edit</th>
 	</tr>
 
@@ -16,10 +15,8 @@
 		{% for entry in entries %}
 			<tr>
 				<td class="name">
-					{% if entry.StateIcon %}
-						<img src={{ entry.StateIcon }}>
-					{% endif %}
-				
+					<a href="{{ entry.LogPageUrl }}"><img src={{ entry.StateIcon }} title="{{ entry.State }}"></a>
+
 					<span class="title">
 					{% if entry.PtpUrl %}
 						<a href="{{ entry.PtpUrl }}">{{ entry.ReleaseName }}</a>
@@ -41,9 +38,6 @@
 							<img src={{ entry.SourceIcon }}>
 						{% endif %}
 					{% endif %}
-				</td>
-				<td>
-					<a href="{{ entry.LogPageUrl }}">{{ entry.State }}</a>
 				</td>
 				<td>
 					{% if entry.StartJobUrl %}
