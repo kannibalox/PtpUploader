@@ -2,8 +2,9 @@
 from Job.JobRunningState import JobRunningState
 from Source.SourceBase import SourceBase
 
-from NfoParser import NfoParser
+from Helper import GetSizeFromText
 from MyGlobals import MyGlobals
+from NfoParser import NfoParser
 from PtpUploaderException import PtpUploaderException
 from ReleaseExtractor import ReleaseExtractor;
 from ReleaseInfo import ReleaseInfo;
@@ -71,13 +72,24 @@ class Cinemageddon(SourceBase):
 		sourceType = matches.group( 3 )
 		formatType = matches.group( 4 )
 
-		# Get IMDb id
+		# Get IMDb id.
 		if ( not releaseInfo.HasImdbId() ) and ( not releaseInfo.HasPtpId() ):
 			matches = re.search( r'imdb\.com/title/tt(\d+)', description )
 			if matches is None:
 				raise PtpUploaderException( JobRunningState.Ignored_MissingInfo, "IMDb id can't be found on torrent page." )
 
 			releaseInfo.ImdbId = matches.group( 1 )
+
+		# Get size.
+		# Two possible formats:
+		# <tr><td class="rowhead" valign="top" align="right">Size</td><td valign="top" align="left">1.46 GB (1,570,628,119 bytes)</td></tr>
+		# <tr><td class="rowhead" valign="top" align="right">Size</td><td valign="top" align=left>1.46 GB (1,570,628,119 bytes)</td></tr>
+		matches = re.search( r"""<tr><td class="rowhead" valign="top" align="right">Size</td><td valign="top" align="?left"?>.+ \((.+ bytes)\)</td></tr>""", description )
+		if matches is None:
+			logger.warning( "Size not found on torrent page." )
+		else:
+			size = matches.group( 1 ).replace( ",", "" )
+			releaseInfo.Size = GetSizeFromText( size )
 
 		# Ignore XXX releases.
 		if description.find( '>Type</td><td valign="top" align=left>XXX<' ) != -1:

@@ -1,6 +1,7 @@
 from Job.JobRunningState import JobRunningState
 from Source.SourceBase import SourceBase
 
+from Helper import GetSizeFromText
 from MyGlobals import MyGlobals
 from NfoParser import NfoParser
 from PtpUploaderException import *
@@ -48,9 +49,9 @@ class TorrentLeech(SourceBase):
 	
 	# On TorrentLeech the torrent page doesn't contain the NFO, and the NFO page doesn't contain the release name so we have to read them separately. 
 	@staticmethod
-	def __GetReleaseName(logger, releaseInfo):
+	def __GetReleaseNameAndSize(logger, releaseInfo):
 		url = "http://www.torrentleech.org/torrent/%s" % releaseInfo.AnnouncementId
-		logger.info( "Downloading release name from page '%s'." % url )
+		logger.info( "Downloading release name and size from page '%s'." % url )
 		
 		opener = urllib2.build_opener( urllib2.HTTPCookieProcessor( MyGlobals.CookieJar ) )
 		request = urllib2.Request( url )
@@ -62,8 +63,18 @@ class TorrentLeech(SourceBase):
 		matches = re.search( "<title>Torrent Details for (.+) :: TorrentLeech.org</title>", response )
 		if matches is None:
 			raise PtpUploaderException( JobRunningState.Ignored_MissingInfo, "Release name can't be found on torrent page." )
+		releaseName = TorrentLeech.__RestoreReleaseName( matches.group( 1 ) )
 
-		return TorrentLeech.__RestoreReleaseName( matches.group( 1 ) )
+		# Get size.
+		# <td class="label">Size</td><td>5.47 GB</td></tr>
+		size = 0
+		matches = re.search( r"""<td class="label">Size</td><td>(.+)</td></tr>""", response )
+		if matches is None:
+			logger.warning( "Size not found on torrent page." )
+		else:
+			size = GetSizeFromText( matches.group( 1 ) )
+
+		return releaseName, size
 
 	# On TorrentLeech the torrent page doesn't contain the NFO, and the NFO page doesn't contain the release name so we have to read them separately. 
 	@staticmethod
@@ -84,8 +95,10 @@ class TorrentLeech(SourceBase):
 	
 	@staticmethod
 	def __HandleUserCreatedJob(logger, releaseInfo):
-		if not releaseInfo.IsReleaseNameSet():
-			releaseInfo.ReleaseName = TorrentLeech.__GetReleaseName( logger, releaseInfo )
+		if ( not releaseInfo.IsReleaseNameSet() ) or releaseInfo.Size == 0:
+			releaseName, releaseInfo.Size = TorrentLeech.__GetReleaseNameAndSize( logger, releaseInfo )
+			if not releaseInfo.IsReleaseNameSet():
+				releaseInfo.ReleaseName = releaseName
 
 		releaseNameParser = ReleaseNameParser( releaseInfo.ReleaseName )
 		releaseNameParser.GetSourceAndFormat( releaseInfo )
@@ -108,7 +121,7 @@ class TorrentLeech(SourceBase):
 
 		releaseNameParser.GetSourceAndFormat( releaseInfo )
 		
-		releaseName = TorrentLeech.__GetReleaseName( logger, releaseInfo )
+		releaseName, releaseInfo.Size = TorrentLeech.__GetReleaseNameAndSize( logger, releaseInfo )
 		if releaseName != releaseInfo.ReleaseName:
 			raise PtpUploaderException( "Announcement release name '%s' and release name '%s' on page '%s' are different." % ( releaseInfo.ReleaseName, releaseName, url ) )
 

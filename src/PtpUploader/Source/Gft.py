@@ -1,6 +1,7 @@
 from Job.JobRunningState import JobRunningState
 from Source.SourceBase import SourceBase
 
+from Helper import GetSizeFromText
 from MyGlobals import MyGlobals
 from NfoParser import NfoParser
 from PtpUploaderException import PtpUploaderException
@@ -94,6 +95,17 @@ class Gft(SourceBase):
 		# TODO: this is unreliable as the uploaders on GFT set this
 		#if description.find( """<td><img src='/pic/scene.jpg' alt='Scene' /></td>""" ) != -1:
 		#	releaseInfo.SetSceneRelease()
+		
+		# Get size.
+		# Two possible formats:
+		# <tr><td class="heading" valign="top" align="right">Size</td><td valign="top" align="left">4.47 GB (4,799,041,437bytes )</td></tr>
+		# <tr><td class='heading' valign='top' align='right'>Size</td><td valign='top' align='left'>4.47 GB (4,799,041,437bytes )</td></tr>
+		matches = re.search( r"""<tr><td class=.heading. valign=.top. align=.right.>Size</td><td valign=.top. align=.left.>.+ \((.+bytes) ?\)</td></tr>""", description )
+		if matches is None:
+			logger.warning( "Size not found on torrent page." )
+		else:
+			size = matches.group( 1 ).replace( ",", "" )
+			releaseInfo.Size = GetSizeFromText( size )
 
 		# For some reason there are announced, but non visible releases on GFT that never start seeding. Ignore them.
 		if description.find( """<td class="heading" align="right" valign="top">Visible</td><td align="left" valign="top"><b>no</b> (dead)</td>""" ) != -1:
