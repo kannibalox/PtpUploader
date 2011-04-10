@@ -4,21 +4,28 @@
 {% endblock %}
 
 {% block body %}
+
 <form action="" enctype="multipart/form-data" method="post" id="upload_table">
 	<table class="border" border="0" cellpadding="3" cellspacing="1">
 		<tbody>
 			<tr>
-				<td class="label">
-					Torrent file
-				</td>
-			
+				<td class="label">Upload a torrent file</td>
 				<td>
-					<input id="file" name="file_input" size="50" type="file">
+					<input type="file" id="upload_field" />
+					<div id="progress_report">
+						<div id="progress_report_name"></div>
+						<div id="progress_report_status" style="font-style: italic;"></div>
+						<div id="progress_report_bar_container" style="width: 90%; height: 5px;">
+							<div id="progress_report_bar" style="background-color: blue; width: 0; height: 100%;"></div>
+						</div>
+					</div>
+
+					<input id="uploaded_torrentfilename" name="uploaded_torrentfilename" type="hidden">
 				</td>
 			</tr>
 
 			<tr>
-				<td class="label">Existing file or folder</td>
+				<td class="label">Or select an existing file or folder</td>
 			
 				<td>
 					<input id="existingfile" name="existingfile_input" size="60">
@@ -26,9 +33,16 @@
 			</tr>
 
 			<tr>
-				<td class="label">Torrent site link</td>
+				<td class="label">Or specify a torrent page link</td>
 				<td>
-					<input id="torrent_site_link" name="torrent_site_link" size="60" value="" type="text">
+					<input id="torrent_site_link" name="torrent_site_link" size="60" type="text">
+				</td>
+			</tr>
+
+			<tr>
+				<td class="label">Release name</td>
+				<td>
+					<input id="release_name" name="release_name" size="60" type="text">
 				</td>
 			</tr>
 
@@ -45,4 +59,49 @@
 		</tbody>
 	</table>
 </form>
+
+<script src="{{ url_for( "static", filename = "script/jquery-1.5.2.min.js" ) }}"></script>
+<script src="{{ url_for( "static", filename = "script/jquery.html5_upload.js" ) }}"></script>
+<script>
+	$(function ()
+	{
+		$("#upload_field").html5_upload(
+		{
+				url: "{{ url_for( "uploadTorrentFile" ) }}",
+				sendBoundary: true,
+				fieldName: "file_input",
+				stopOnFirstError: true,
+				onStart: function(event, total) {
+					// $( "#progress_report" ).show();
+					return true;
+				},
+				setName: function(text) {
+					// $("#progress_report_name").text(text);
+				},
+				setStatus: function(text) {
+					// $("#progress_report_status").text(text);
+				},
+				setProgress: function(val) {
+					$("#progress_report_bar").css('width', Math.ceil(val*100)+"%");
+				},
+				onFinishOne: function(event, response, name, number, total) {
+					var jsonResponse = $.parseJSON( response )
+					var jsonResult = jsonResponse[ "result" ]
+					if ( jsonResult == "OK" )
+					{
+						var jsonTorrentFilename = jsonResponse[ "torrentFilename" ];
+						var jsonReleaseName = jsonResponse[ "releaseName" ];
+						$( "#uploaded_torrentfilename" ).text( jsonTorrentFilename );
+						$( "#release_name" ).val( jsonReleaseName );
+						// $( "#progress_report" ).fadeOut( "slow" );
+					}
+					else
+					{
+						alert( "Error!" );
+					}
+				}
+		});
+	});
+</script>
+
 {% endblock %}

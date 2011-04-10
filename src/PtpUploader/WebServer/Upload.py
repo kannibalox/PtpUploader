@@ -8,7 +8,8 @@ from PtpUploaderMessage import *
 from ReleaseInfo import ReleaseInfo
 from Settings import Settings
 
-from flask import render_template, request
+from flask import jsonify, render_template, request
+from pyrocore.util import bencode
 from werkzeug import secure_filename
 
 import os
@@ -19,17 +20,17 @@ def IsFileAllowed(filename):
 	return extension == ".torrent"
 
 def UploadTorrentFile(releaseInfo, request):
-	file = request.files.get( "file_input" )
-	# file is is not None even there is no file specified, but checking file as a boolean is OK. (As shown in the Flask example.) 
-	if ( not file ) or ( not IsFileAllowed( file.filename ) ):
+	torrentFilename = request.values[ "uploaded_torrentfilename" ]
+	if not IsFileAllowed( torrentFilename ):
 		return False
 		
-	filename = secure_filename( file.filename )
-	releaseInfo.SourceTorrentFilePath = os.path.join( Settings.GetTemporaryPath(), filename )
-	file.save( releaseInfo.SourceTorrentFilePath )
-
+	torrentFilename = secure_filename( torrentFilename )
+	torrentFilename = os.path.join( Settings.GetTemporaryPath(), torrentFilename )
+	if not os.path.isfile( torrentFilename ):
+		return False	
+	
+	releaseInfo.SourceTorrentFilePath = torrentFilename
 	releaseInfo.AnnouncementSourceName = "torrent"
-	releaseInfo.ReleaseName = file.filename.replace( ".torrent", "" ) # TODO
 	return True 
 
 def UploadTorrentSiteLink(releaseInfo, request):
@@ -68,6 +69,34 @@ def UploadFile(releaseInfo, request):
 	else:
 		return False
 
+
+def GetSuggestedReleaseNameFromTorrent(torrentPath):
+	data = bencode.bread( torrentPath )
+	name = data[ "info" ].get( "name", None )
+	files = data[ "info" ].get( "files", None )
+	if files is None:
+		# It is a single file torrent, remove the extension.
+		name, extension = os.path.splitext( name )
+		return name
+	else:
+		return name
+
+@app.route( "/uploadtorrentfile/", methods = [ "POST" ] )
+@requires_auth
+def uploadTorrentFile():
+	file = request.files.get( "file_input" )
+	# file is not None even there is no file specified, but checking file as a boolean is OK. (As shown in the Flask example.) 
+	if ( not file ) or ( not IsFileAllowed( file.filename ) ):
+		return jsonify( result = "ERROR" )
+		
+	filename = secure_filename( file.filename )
+	sourceTorrentFilePath = os.path.join( Settings.GetTemporaryPath(), filename )
+	file.save( sourceTorrentFilePath )
+	
+	releaseName = GetSuggestedReleaseNameFromTorrent( sourceTorrentFilePath )
+
+	return jsonify( result = "OK", torrentFilename = filename, releaseName = releaseName )
+
 @app.route( '/upload/', methods=[ 'GET', 'POST' ] )
 @requires_auth
 def upload():
@@ -84,6 +113,8 @@ def upload():
 			pass
 		else:
 			return "Select something to upload!"
+
+		releaseInfo.ReleaseName = request.values[ "release_name" ]
 
 		JobCommon.FillReleaseInfoFromRequestData( releaseInfo, request )
 		
