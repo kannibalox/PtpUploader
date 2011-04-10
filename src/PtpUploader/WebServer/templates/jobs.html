@@ -47,13 +47,13 @@
 				</td>
 				<td>
 					{% if entry.StartJobUrl %}
-						<a href="#" onclick='executeJobCommand( this, {{ entry.Id }}, "/start/" ); return false;'><img src={{ url_for( "static", filename = "start.png" ) }}></a>
+						<a href="#" onclick='executeJobCommand( this, {{ entry.Id }}, "/start/" ); return false;'><img src={{ url_for( "static", filename = "start.png" ) }} title="Start"></a>
 					{% endif %}
 					{% if entry.StopJobUrl %}
-						<a href="#" onclick='executeJobCommand( this, {{ entry.Id }}, "/stop/" ); return false;'><img src={{ url_for( "static", filename = "stop.png" ) }}></a>
+						<a href="#" onclick='executeJobCommand( this, {{ entry.Id }}, "/stop/" ); return false;'><img src={{ url_for( "static", filename = "stop.png" ) }} title="Stop"></a>
 					{% endif %}
 					{% if entry.EditJobUrl %}
-						<a href="{{ entry.EditJobUrl }}"><img src={{ url_for( "static", filename = "edit.png" ) }}></a>
+						<a href="{{ entry.EditJobUrl }}"><img src={{ url_for( "static", filename = "edit.png" ) }} title="Edit"></a>
 					{% endif %}
 				</td>
 			</tr>
