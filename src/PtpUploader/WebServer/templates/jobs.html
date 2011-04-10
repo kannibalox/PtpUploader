@@ -8,6 +8,7 @@
 	<tr>
 		<th>Release name</th>
 		<th>Source</th>
+		<th>Size</th>
 		<th>Edit</th>
 	</tr>
 
@@ -38,6 +39,9 @@
 							<img src={{ entry.SourceIcon }}>
 						{% endif %}
 					{% endif %}
+				</td>
+				<td>
+					{{ entry.Size }}
 				</td>
 				<td>
 					{% if entry.StartJobUrl %}
