@@ -47,13 +47,13 @@
 				</td>
 				<td>
 					{% if entry.StartJobUrl %}
-						<a href="#" onclick='executeJobCommand( this, {{ entry.Id }}, "/start/" ); return false;'>Start</a>
+						<a href="#" onclick='executeJobCommand( this, {{ entry.Id }}, "/start/" ); return false;'><img src={{ url_for( "static", filename = "start.png" ) }}></a>
 					{% endif %}
 					{% if entry.StopJobUrl %}
-						<a href="#" onclick='executeJobCommand( this, {{ entry.Id }}, "/stop/" ); return false;'>Stop</a>
+						<a href="#" onclick='executeJobCommand( this, {{ entry.Id }}, "/stop/" ); return false;'><img src={{ url_for( "static", filename = "stop.png" ) }}></a>
 					{% endif %}
 					{% if entry.EditJobUrl %}
-						<a href="{{ entry.EditJobUrl }}">Edit</a>
+						<a href="{{ entry.EditJobUrl }}"><img src={{ url_for( "static", filename = "edit.png" ) }}></a>
 					{% endif %}
 				</td>
 			</tr>
@@ -85,7 +85,7 @@
 	{% endif %}
 </div>
 
-<script type=text/javascript src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
+<script type=text/javascript src="{{ url_for( "static", filename = "script/jquery-1.5.2.min.js" ) }}"></script>
 
 <script type="text/javascript">
 	var $SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
