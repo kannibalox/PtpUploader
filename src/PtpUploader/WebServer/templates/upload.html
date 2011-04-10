@@ -11,7 +11,7 @@
 			<tr>
 				<td class="label">Upload a torrent file</td>
 				<td>
-					<input type="file" id="upload_field" title="You have to specify an IMDB or PTP link too."/>
+					<input type="file" id="upload_field" accept="application/x-bittorrent" title="You have to specify an IMDB or PTP link too."/>
 					<img src="{{ url_for( "static", filename = "throbber.gif" ) }}" style="display: none;" id="upload_throbber">
 					<input id="uploaded_torrentfilename" name="uploaded_torrentfilename" type="hidden">
 				</td>
