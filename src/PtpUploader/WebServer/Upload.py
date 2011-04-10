@@ -14,10 +14,43 @@ from werkzeug import secure_filename
 
 import os
 import re
+import uuid
 
 def IsFileAllowed(filename):
 	root, extension = os.path.splitext( filename )
 	return extension == ".torrent"
+
+def GetSuggestedReleaseNameFromTorrent(torrentPath):
+	data = bencode.bread( torrentPath )
+	name = data[ "info" ].get( "name", None )
+	files = data[ "info" ].get( "files", None )
+	if files is None:
+		# It is a single file torrent, remove the extension.
+		name, extension = os.path.splitext( name )
+		return name
+	else:
+		return name
+
+@app.route( "/ajaxuploadtorrentfile/", methods = [ "POST" ] )
+@requires_auth
+def ajaxUploadTorrentFile():
+	file = request.files.get( "file_input" )
+	# file is not None even there is no file specified, but checking file as a boolean is OK. (As shown in the Flask example.) 
+	if ( not file ) or ( not IsFileAllowed( file.filename ) ):
+		return jsonify( result = "ERROR" )
+		
+	filename = secure_filename( file.filename )
+	
+	# We add an UUID to the filename to make sure it is unique in the temporary folder.
+	filename, extension = os.path.splitext( filename )
+	filename += "." + str( uuid.uuid1() ) + extension
+
+	sourceTorrentFilePath = os.path.join( Settings.GetTemporaryPath(), filename )
+	file.save( sourceTorrentFilePath )
+	
+	releaseName = GetSuggestedReleaseNameFromTorrent( sourceTorrentFilePath )
+
+	return jsonify( result = "OK", torrentFilename = filename, releaseName = releaseName )
 
 def UploadTorrentFile(releaseInfo, request):
 	torrentFilename = request.values[ "uploaded_torrentfilename" ]
@@ -68,34 +101,6 @@ def UploadFile(releaseInfo, request):
 		return True
 	else:
 		return False
-
-
-def GetSuggestedReleaseNameFromTorrent(torrentPath):
-	data = bencode.bread( torrentPath )
-	name = data[ "info" ].get( "name", None )
-	files = data[ "info" ].get( "files", None )
-	if files is None:
-		# It is a single file torrent, remove the extension.
-		name, extension = os.path.splitext( name )
-		return name
-	else:
-		return name
-
-@app.route( "/uploadtorrentfile/", methods = [ "POST" ] )
-@requires_auth
-def uploadTorrentFile():
-	file = request.files.get( "file_input" )
-	# file is not None even there is no file specified, but checking file as a boolean is OK. (As shown in the Flask example.) 
-	if ( not file ) or ( not IsFileAllowed( file.filename ) ):
-		return jsonify( result = "ERROR" )
-		
-	filename = secure_filename( file.filename )
-	sourceTorrentFilePath = os.path.join( Settings.GetTemporaryPath(), filename )
-	file.save( sourceTorrentFilePath )
-	
-	releaseName = GetSuggestedReleaseNameFromTorrent( sourceTorrentFilePath )
-
-	return jsonify( result = "OK", torrentFilename = filename, releaseName = releaseName )
 
 @app.route( '/upload/', methods=[ 'GET', 'POST' ] )
 @requires_auth

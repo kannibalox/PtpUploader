@@ -67,7 +67,7 @@
 	{
 		$("#upload_field").html5_upload(
 		{
-				url: "{{ url_for( "uploadTorrentFile" ) }}",
+				url: "{{ url_for( "ajaxUploadTorrentFile" ) }}",
 				sendBoundary: true,
 				fieldName: "file_input",
 				stopOnFirstError: true,
