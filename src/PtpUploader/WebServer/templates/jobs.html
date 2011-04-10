@@ -47,10 +47,10 @@
 				</td>
 				<td>
 					{% if entry.StartJobUrl %}
-						<a href="#" onclick='executeJobCommand( this, {{ entry.Id }}, "/start/" )'>Start</a>
+						<a href="#" onclick='executeJobCommand( this, {{ entry.Id }}, "/start/" ); return false;'>Start</a>
 					{% endif %}
 					{% if entry.StopJobUrl %}
-						<a href="#" onclick='executeJobCommand( this, {{ entry.Id }}, "/stop/" )'>Stop</a>
+						<a href="#" onclick='executeJobCommand( this, {{ entry.Id }}, "/stop/" ); return false;'>Stop</a>
 					{% endif %}
 					{% if entry.EditJobUrl %}
 						<a href="{{ entry.EditJobUrl }}">Edit</a>
