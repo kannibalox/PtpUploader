@@ -91,7 +91,7 @@
 					{
 						var jsonTorrentFilename = jsonResponse[ "torrentFilename" ];
 						var jsonReleaseName = jsonResponse[ "releaseName" ];
-						$( "#uploaded_torrentfilename" ).text( jsonTorrentFilename );
+						$( "#uploaded_torrentfilename" ).val( jsonTorrentFilename );
 						$( "#release_name" ).val( jsonReleaseName );
 						// $( "#progress_report" ).fadeOut( "slow" );
 					}
