@@ -60,6 +60,11 @@ span.title, span.title a
 	font-weight: bold;
 }
 
+table.jobs
+{
+	border-spacing: 0px;
+}
+
 table.jobs th
 {
 	background-color: #0F2127;
@@ -67,15 +72,20 @@ table.jobs th
 	border-bottom: 5px solid #0F2127;
 }
 
-table.jobs tr
+table.jobs tr:nth-child(even)
 {
+	background-color: #071115;
+}
+
+table.jobs tr:hover
+{
+	background-color: #202020;
 } 
 
 table.jobs td
 {
-	border-bottom: 1px solid #151D1F;
-	padding-top: 5px;
-	padding-bottom: 5px;
+	/*border-bottom: 1px solid #151D1F;*/
+	padding: 5px;
 	font-size: 12px;
 }
 
