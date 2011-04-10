@@ -63,6 +63,7 @@ class ReleaseInfo(Database.Base):
 	ReleaseNotes = Column( String )
 	Screenshots = Column( String )
 	LastModificationTime = Column( Integer, default = Database.MakeTimeStamp, onupdate = Database.MakeTimeStamp )
+	Size = Column( Integer )
 	
 	def __init__(self):
 		self.AnnouncementSourceName = "" # A name of a class from the Source namespace.
@@ -113,6 +114,7 @@ class ReleaseInfo(Database.Base):
 		self.ReleaseNotes = ""
 		self.Screenshots = ""
 		self.LastModificationTime = 0
+		self.Size = 0
 		
 		self.MyConstructor()
 
