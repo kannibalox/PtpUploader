@@ -39,6 +39,7 @@ class CheckAnnouncement(WorkerBase):
 
 		self.ReleaseInfo.JobRunningState = JobRunningState.InProgress
 		self.ReleaseInfo.ErrorMessage = ""
+		Database.DbSession.commit()
 
 		if self.ReleaseInfo.AnnouncementSource is None:
 			raise PtpUploaderException( "Announcement source '%s' is unknown." % self.ReleaseInfo.AnnouncementSourceName )
