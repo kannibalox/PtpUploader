@@ -192,7 +192,7 @@ class ReleaseInfo(Database.Base):
 		return ( self.Flags & ReleaseInfoFlags.SceneRelease ) != 0
 
 	def SetSceneRelease(self):
-		self.Flags |= ReleaseInfoFlags.SceneReleaes
+		self.Flags |= ReleaseInfoFlags.SceneRelease
 
 	def IsHighDefinition(self):
 		return self.ResolutionType == "720p" or self.ResolutionType == "1080i" or self.ResolutionType == "1080p"
