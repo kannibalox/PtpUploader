@@ -99,6 +99,12 @@ def StartJob(jobId):
 		return "The job is already running!"
 
 	releaseInfo.JobRunningState = JobRunningState.WaitingForStart
+	
+	# Make sure that job is no longer handled as an automatically started job.
+	# Manual forced jobs will resumed as manual forced.
+	if releaseInfo.JobStartMode == JobStartMode.Automatic:
+		releaseInfo.JobStartMode = JobStartMode.Manual
+	
 	Database.DbSession.commit()
 	MyGlobals.PtpUploader.AddMessage( PtpUploaderMessageStartJob( jobId ) )
 	return "OK"
