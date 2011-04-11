@@ -1,16 +1,37 @@
-﻿- add timeout when waiting till the download to finish
+﻿- ignore non-English AVI scene releases that don't contain subtitle
+- add timeout when waiting till the download to finish
 	- announcement rescheduling while torrent is not visible on GFT (needed only when we will support more than one sources?)
 - PtpUploaderInvalidLoginException should just disable the source (if it is ptp it can quit)
 - check pending downloads too when checking for dupes
 - support of relogging, timeouts and retrying in all HTTP requests
 - per source filtering settings
 - limit ratio (and seeding time) on source
-- mininmal web interface
-	- cancel button to stop a torrent from uploading
-- replace pyWHATauto
-	- or at least make it capable of rejoining
-	- and handling custom commands
+- replace pyWHATauto or at least make it capable of rejoining
 - check available space before downloading 
-- automatically switching to imgur if ptpimg is down
+- automatically switching to an alternative host if ptpimg is down
 - replace file based communication between irc bot and the uploader (or keep it and add an alternative)
 - store Settings.ini elsewhere
+
+----
+- GFT: use pretime from IRC announcements to differentiate scene releases
+- CG: how do we let the user pick a release name?
+	-  instead of international title make a force release name boolean checkbox? 
+- add size checking: allow an ~1400 MB xvid if only a ~700 MB version exists
+- source: cinematik support
+- source: finish directory/file support
+- wizard interface for upload page: http://flowplayer.org/tools/demos/tabs/wizard.html
+- better layout for jobs page. Eg.: http://community.nuxeo.com/
+- add separate options for each settings that the force mode currently overrides
+	- so it would be possible to resume a torrent with multiple NFOs in it with a new setting
+- force instant start regardless of maximum simultaneous downloads. What about (manual) torrent source?
+- torrent file uploads: delete torrents from the temporary directory 
+- torrent file uploads: Firefox doesn't restrict the file selector to torrents files. Works in Chrome.
+	- jquery-html5-upload was used only because it doesn't create form. Any alternative that works inside a form?
+		- http://blog.insicdesigns.com/2010/02/10-best-ajax-file-uploader-for-your-web-application/
+		- https://github.com/blueimp/jQuery-File-Upload/ 
+- torrent site uploads: delete torrent file from release directory
+- optimization: torrent site uploads should contact the source site only when there is a missing info
+	- for example when resuming a torrent, there is a useless page load 
+- optimization: is expire_on_commit needed?
+	- during a work on a job, there are a lot of commits, that cause full reloads from the server
+- upload UI: support for user specified screens

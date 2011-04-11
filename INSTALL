@@ -1,23 +1,29 @@
 Needs Python. Only 2.5 or 2.6 is supported because of pyWHATauto.
 
 Depends on the following Python packages:
+	- CherryPy: http://www.cherrypy.org/
+		- 3.2.0 is buggy, use 3.1.2 instead. Install like this: easy_install cherrypy==3.1.2
+	- Flask: http://flask.pocoo.org/
 	- poster: http://atlee.ca/software/poster/
 	- PyroScope: http://code.google.com/p/pyroscope/
 	- simplejson: http://undefined.org/python/#simplejson
 		- Because Python 2.5 doesn't have the json module.
+	- SQLAlchemy: http://www.sqlalchemy.org/
 
 If you don't have root acces, use virtualenv ( http://pypi.python.org/pypi/virtualenv ) to install the required Python packages.
-		
-Required applications:
+
+Required programs:
 	- ffmpeg: http://www.ffmpeg.org/
-	- FlexGet (optional, needed for CG): http://flexget.com/
 	- MediaInfo: http://mediainfo.sourceforge.net/
 	- mktorrent: http://mktorrent.sourceforge.net/
-	- pyWHATauto (optional, needed for GFT): http://whatscripts.com/
 	- unrar: http://www.rarlab.com/rar_add.htm
 
+Optional programs:
+	- FlexGet: http://flexget.com/
+	- pyWHATauto: http://whatscripts.com/
+
 1. Extract PtpUploader and pyWHATauto
-	
+
 Recommended directory structure:
 	- PTP
 		- FlexGet
@@ -25,7 +31,13 @@ Recommended directory structure:
 		- pyWHATauto
 		- WorkingDirectory
 
+The easiest way is to get the source straight from Subversion:
+svn checkout http://ptpuploader.googlecode.com/svn/trunk/src/ /path to your PTP directory/
+
 2. Configure PyroScope.
+
+Simply run the following:
+pyroadmin --create-config
 
 3. Configure PtpUploader by renaming and editing PtpUploader/Settings.example.ini to Settings.ini.
 
