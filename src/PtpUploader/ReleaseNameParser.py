@@ -48,16 +48,13 @@ class ReleaseNameParser:
 		else:
 			raise PtpUploaderException( "Can't figure out source from release name '%s'." % releaseInfo.ReleaseName )
 
-		if releaseInfo.IsQualitySet() and releaseInfo.IsResolutionTypeSet():
-			releaseInfo.Logger.info( "Quality '%s' and resolution type '%s' are already set, not getting from release name." % ( releaseInfo.Quality, releaseInfo.ResolutionType ) )
+		if releaseInfo.IsResolutionTypeSet():
+			releaseInfo.Logger.info( "Resolution type '%s' is already set, not getting from release name." % releaseInfo.ResolutionType )
 		elif self.Tags.IsContainsTag( "720p" ):
-			releaseInfo.Quality = "High Definition"
 			releaseInfo.ResolutionType = "720p"
 		elif self.Tags.IsContainsTag( "1080p" ):
-			releaseInfo.Quality = "High Definition"
 			releaseInfo.ResolutionType = "1080p"
 		else:
-			releaseInfo.Quality = "Standard Definition"
 			releaseInfo.ResolutionType = "Other"
 
 	@staticmethod

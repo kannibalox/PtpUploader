@@ -130,7 +130,7 @@ class Upload(WorkerBase):
 		resolution = ""
 
 		# Indicate the exact resolution for standard definition releases.
-		if self.ReleaseInfo.IsStandardDefintion():
+		if self.ReleaseInfo.IsStandardDefinition():
 			resolution = "%sx%s" % ( mediaInfo.Width, mediaInfo.Height )
 			
 		if len( self.ReleaseInfo.Resolution ) > 0:
@@ -175,7 +175,7 @@ class Upload(WorkerBase):
 		uploadTorrentFilePath = os.path.join( self.ReleaseInfo.GetReleaseRootPath(), uploadTorrentName )
 
 		# Make torrent with the parent directory's name included if there is more than one file or requested by the source (it is a scene release).
-		if self.TotalFileCount > 1 or ( self.ReleaseInfo.AnnouncementSource.IsSingleFileTorrentNeedsDirectory() and not self.ReleaseInfo.ForceDirectorylessSingleFileTorrent ):
+		if self.TotalFileCount > 1 or ( self.ReleaseInfo.AnnouncementSource.IsSingleFileTorrentNeedsDirectory() and not self.ReleaseInfo.IsForceDirectorylessSingleFileTorrent() ):
 			MakeTorrent.Make( self.ReleaseInfo.Logger, self.ReleaseInfo.GetReleaseUploadPath(), uploadTorrentFilePath )
 		else: # Create the torrent including only the single video file.
 			MakeTorrent.Make( self.ReleaseInfo.Logger, self.VideoFiles[ 0 ], uploadTorrentFilePath )

@@ -60,10 +60,6 @@ class CheckAnnouncement(WorkerBase):
 		if len( self.ReleaseInfo.ReleaseName ) <= 0:
 			raise PtpUploaderException( JobRunningState.Ignored_MissingInfo, "Name of the release is not specified." )
 
-		# Make sure the source is providing release quality information.
-		if len( self.ReleaseInfo.Quality ) <= 0:
-			raise PtpUploaderException( JobRunningState.Ignored_MissingInfo, "Quality of the release is not specified." )
-
 		# Make sure the source is providing release source information.
 		if len( self.ReleaseInfo.Source ) <= 0:
 			raise PtpUploaderException( JobRunningState.Ignored_MissingInfo, "Source of the release is not specified." )
@@ -77,8 +73,8 @@ class CheckAnnouncement(WorkerBase):
 			raise PtpUploaderException( JobRunningState.Ignored_MissingInfo, "Resolution type of the release is not specified." )
 
 		# HD XviDs are not allowed.
-		if self.ReleaseInfo.Quality == "High Definition" and ( self.ReleaseInfo.Codec == "XviD" or self.ReleaseInfo.Codec == "DivX" ):
-			raise PtpUploaderException( JobRunningState.Ignored_Forbidden, "Forbidden combination of quality '%s' and codec '%s'." % ( self.ReleaseInfo.Quality, self.ReleaseInfo.Codec ) )
+		if self.ReleaseInfo.IsHighDefinition() and ( self.ReleaseInfo.Codec == "XviD" or self.ReleaseInfo.Codec == "DivX" ):
+			raise PtpUploaderException( JobRunningState.Ignored_Forbidden, "HD XviDs and DivXs are not allowed." )
 	
 	def __CheckIfExistsOnPtpInternal(self, movieOnPtpResult):
 		existingRelease = movieOnPtpResult.IsReleaseExists( self.ReleaseInfo )

@@ -109,10 +109,9 @@ class Cinemageddon(SourceBase):
 		# Adding BDrip support would be problematic because there is no easy way to decide if it is HD or SD.
 		# Maybe we could use the resolution and file size. But what about the oversized and upscaled releases? 
 		
-		if releaseInfo.IsQualitySet() and releaseInfo.IsResolutionTypeSet():
-			releaseInfo.Logger.info( "Quality '%s' and resolution type '%s' are already set, not getting from the torrent page." % ( releaseInfo.Quality, releaseInfo.ResolutionType ) )
+		if releaseInfo.IsResolutionTypeSet():
+			releaseInfo.Logger.info( "Resolution type '%s' is already set, not getting from the torrent page." % releaseInfo.ResolutionType )
 		else:
-			releaseInfo.Quality = "Standard Definition"
 			releaseInfo.ResolutionType = "Other"
 
 		if releaseInfo.IsSourceSet():

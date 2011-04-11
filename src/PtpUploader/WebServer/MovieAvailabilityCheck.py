@@ -19,25 +19,21 @@ def movieAvailabilityCheck():
 
 		format = request.values[ "format" ]
 		if format == "SD XviD":
-			releaseInfo.Quality = "Standard Definition"
 			releaseInfo.Codec = "XviD"
 			releaseInfo.Container = "AVI"
 			releaseInfo.ResolutionType = "Other"
 			releaseInfo.Source = "DVD"
 		elif format == "SD x264":
-			releaseInfo.Quality = "Standard Definition"
 			releaseInfo.Codec = "x264"
 			releaseInfo.Container = "MKV"
 			releaseInfo.ResolutionType = "Other"
 			releaseInfo.Source = "DVD"
 		elif format == "720p":
-			releaseInfo.Quality = "High Definition"
 			releaseInfo.Codec = "x264"
 			releaseInfo.Container = "MKV"
 			releaseInfo.ResolutionType = "720p"
 			releaseInfo.Source = "Blu-ray"
 		elif format == "1080p":
-			releaseInfo.Quality = "High Definition"
 			releaseInfo.Codec = "x264"
 			releaseInfo.Container = "MKV"
 			releaseInfo.ResolutionType = "1080p"

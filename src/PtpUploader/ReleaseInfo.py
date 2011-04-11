@@ -10,6 +10,17 @@ from sqlalchemy import Boolean, Column, Integer, orm, String
 
 import os
 
+class ReleaseInfoFlags:
+	# There are three categories on PTP: SD, HD and Other. The former two can figured out from the resolution type.
+	# This flag is for indicating the Other ("Not main movie") category. Extras, Rifftrax, etc. belong here.
+	SpecialRelease                      = 1 << 0
+
+	# Release made by a scene group.
+	SceneRelease                        = 1 << 1
+	
+	# If set, then it overrides the value returned by SourceBase.IsSingleFileTorrentNeedsDirectory.
+	ForceDirectorylessSingleFileTorrent = 1 << 2
+
 class ReleaseInfo(Database.Base):
 	__tablename__ = "release"
 
@@ -32,8 +43,6 @@ class ReleaseInfo(Database.Base):
 	YouTubeId = Column( String )
 	MetacriticUrl = Column( String )
 	RottenTomatoesUrl = Column( String )
-	Scene = Column( String )
-	Quality = Column( String )
 	Codec = Column( String )
 	CodecOther = Column( String )
 	Container = Column( String )
@@ -49,9 +58,9 @@ class ReleaseInfo(Database.Base):
 	JobStartMode = Column( Integer )
 	JobRunningState = Column( Integer )
 	FinishedJobPhase = Column( Integer )
+	Flags = Column( Integer )
 	ErrorMessage = Column( String )
 	PtpId = Column( String )
-	ForceDirectorylessSingleFileTorrent = Column( Boolean )
 	InternationalTitle = Column( String )
 	Nfo = Column( String )
 	SourceTorrentFilePath = Column( String )
@@ -82,8 +91,6 @@ class ReleaseInfo(Database.Base):
 		self.YouTubeId = "" # Eg.: FbdOnGNBMAo for http://www.youtube.com/watch?v=FbdOnGNBMAo
 		self.MetacriticUrl = ""
 		self.RottenTomatoesUrl = ""
-		self.Scene = "" # Empty string or "on" (wihout the quotes).
-		self.Quality = "" # Other, Standard Definition, High Definition
 		self.Codec = "" # Other, DivX, XviD, H.264, x264, DVD5, DVD9, BD25, BD50
 		self.CodecOther = "" # Codec type when Codec is Other.
 		self.Container = "" # Other, MPG, AVI, MP4, MKV, VOB IFO, ISO, m2ts
@@ -94,15 +101,17 @@ class ReleaseInfo(Database.Base):
 		self.SourceOther = "" # Source type when Source is Other.
 		self.RemasterTitle = "" # Eg.: Hardcoded English
 		self.RemasterYear = ""
-		# Release description text is also needed for PTP but we use the other members to fill that. 
+		# Release description text is also needed for PTP but we use the other members to fill that.
+		# Scene is needed too. Use IsSceneRelease.
+		# Special ("Not main movie") is needed too. Use SpecialRelease.
 		# Till this.
 
 		self.JobStartMode = JobStartMode.Automatic
 		self.JobRunningState = JobRunningState.WaitingForStart
 		self.FinishedJobPhase = 0 # Flag. Takes values from FinishedJobPhase.
+		self.Flags = 0 # Takes values from ReleaseInfoFlags.
 		self.ErrorMessage = ""
 		self.PtpId = ""
-		self.ForceDirectorylessSingleFileTorrent = False # If set to true, then it overrides the value returned by SourceBase.IsSingleFileTorrentNeedsDirectory.  
 		self.InternationalTitle = "" # International title of the movie. Eg.: The Secret in Their Eyes. Needed for renaming releases coming from Cinemageddon.
 		self.Nfo = u""
 		self.SourceTorrentFilePath = ""
@@ -163,9 +172,6 @@ class ReleaseInfo(Database.Base):
 	def IsSourceSet(self): 
 		return len( self.Source ) > 0
 
-	def IsQualitySet(self): 
-		return len( self.Quality ) > 0
-
 	def IsResolutionTypeSet(self): 
 		return len( self.ResolutionType ) > 0
 	
@@ -183,11 +189,31 @@ class ReleaseInfo(Database.Base):
 		self.Directors = ", ".join( list )
 
 	def IsSceneRelease(self):
-		return self.Scene == "on"
+		return ( self.Flags & ReleaseInfoFlags.SceneRelease ) != 0
 
 	def SetSceneRelease(self):
-		self.Scene = "on"
-		
+		self.Flags |= ReleaseInfoFlags.SceneReleaes
+
+	def IsHighDefinition(self):
+		return self.ResolutionType == "720p" or self.ResolutionType == "1080i" or self.ResolutionType == "1080p"
+
+	def IsStandardDefinition(self):
+		return not self.IsHighDefinition()
+
+	# See the description at the flag.
+	def IsSpecialRelease(self):
+		return ( self.Flags & ReleaseInfoFlags.SpecialRelease ) != 0
+
+	# See the description at the flag.
+	def SetSpecialRelease(self):
+		self.Flags |= ReleaseInfoFlags.SpecialRelease
+
+	def IsForceDirectorylessSingleFileTorrent(self):
+		return ( self.Flags & ReleaseInfoFlags.ForceDirectorylessSingleFileTorrent ) != 0
+
+	def SetForceDirectorylessSingleFileTorrent(self):
+		self.Flags |= ReleaseInfoFlags.ForceDirectorylessSingleFileTorrent
+
 	def CanEdited(self):
 		return self.JobRunningState != JobRunningState.WaitingForStart and self.JobRunningState != JobRunningState.InProgress and self.JobRunningState != JobRunningState.Finished
 
@@ -243,6 +269,3 @@ class ReleaseInfo(Database.Base):
 
 	def SetReleaseUploadPath(self, path):
 		self.ReleaseUploadPath = path
-	
-	def IsStandardDefintion(self):
-		return self.Quality == "Standard Definition"

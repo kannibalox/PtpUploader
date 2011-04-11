@@ -57,11 +57,10 @@ class JobCommon:
 		releaseInfo.RottenTomatoesUrl = request.values[ "tomatoes" ]
 		
 		if request.values.get( "scene" ) is not None:
-			releaseInfo.Scene = "on"
+			releaseInfo.SetSceneRelease()
 		
-		quality = request.values[ "quality" ]
-		if quality != "---":
-			releaseInfo.Quality = quality
+		if request.values.get( "special" ) is not None:
+			releaseInfo.SetSpecialRelease()
 	
 		codec = request.values[ "codec" ]
 		if codec != "---":
@@ -98,7 +97,7 @@ class JobCommon:
 			releaseInfo.JobStartMode = JobStartMode.ManualForced
 	
 		if request.values.get( "ForceDirectorylessSingleFileTorrent" ) is not None:
-			releaseInfo.ForceDirectorylessSingleFileTorrent = True
+			releaseInfo.SetForceDirectorylessSingleFileTorrent()
 	
 		releaseInfo.ReleaseNotes = request.values[ "ReleaseNotes" ]
 
@@ -139,7 +138,9 @@ class JobCommon:
 		if releaseInfo.IsSceneRelease():
 			job[ "scene" ] = "on"
 		
-		job[ "quality" ] = releaseInfo.Quality 
+		if releaseInfo.IsSpecialRelease():
+			job[ "special" ] = "on"
+		
 		job[ "codec" ] = releaseInfo.Codec
 		job[ "other_codec" ] = releaseInfo.CodecOther
 		job[ "container" ] = releaseInfo.Container
@@ -156,7 +157,7 @@ class JobCommon:
 		if releaseInfo.JobStartMode == JobStartMode.ManualForced:
 			job[ "force_upload" ] = "on"
 	
-		if releaseInfo.ForceDirectorylessSingleFileTorrent:
+		if releaseInfo.IsForceDirectorylessSingleFileTorrent():
 			 job[ "ForceDirectorylessSingleFileTorrent" ] = "on"
 	
 		job[ "ReleaseNotes" ] = releaseInfo.ReleaseNotes

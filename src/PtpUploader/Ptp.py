@@ -103,7 +103,6 @@ class Ptp:
 				"type": releaseInfo.Type,
 				"remaster_year": releaseInfo.RemasterYear,
 				"remaster_title": releaseInfo.RemasterTitle,
-				"quality": releaseInfo.Quality,
 				"codec": releaseInfo.Codec,
 				"other_codec": releaseInfo.CodecOther,
 				"container": releaseInfo.Container,
@@ -118,8 +117,12 @@ class Ptp:
 		paramList = commonParams.items()
 
 		# scene only needed if it is specified
-		if len( releaseInfo.Scene ) > 0:
+		if releaseInfo.IsSceneRelease():
 			paramList.append( poster.encode.MultipartParam( "scene", "on" ) )
+
+		# other category is only needed if it is specified
+		if releaseInfo.IsSpecialRelease():
+			paramList.append( poster.encode.MultipartParam( "special", "on" ) )
 
 		return paramList;
 	
