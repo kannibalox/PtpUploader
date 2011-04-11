@@ -14,7 +14,7 @@ class PtpMovieSearchResultItem:
 
 # Notes:
 # - We treat HD-DVD and Blu-ray as same quality.
-# - We treat DVD and Blu-ray rips equally in the standard defintion category.
+# - We treat DVD and Blu-ray rips equally in the standard definition category.
 # - We treat H.264 and x264 equally because of the uploading rules: "MP4 can only be trumped by MKV if the use of that container causes problems with video or audio".
 # - We treat XviD and DivX equally because of the uploading rules: "DivX may be trumped by XviD, if the latter improves on the quality of the former. In cases where the DivX is well distributed and the XviD offers no significant improvement in quality, the staff may decide to keep the former in order to preserve the availability of the movie."
 class PtpMovieSearchResult:
@@ -130,10 +130,13 @@ class PtpMovieSearchResult:
 			return PtpMovieSearchResult.__IsInList( self.SdList, [ "DivX", "XviD", "x264", "H.264" ], checkAgainstSources )
 
 		raise PtpUploaderException( "Can't check whether the release '%s' exist on PTP because its type is unsupported." % releaseInfo.ReleaseName );
-	
+
+	def IsMoviePageExists(self):
+		return len( self.PtpId ) > 0
+
 	def IsReleaseExists(self, releaseInfo):
-		if self.PtpId is None:
-			return None;
+		if not self.IsMoviePageExists():
+			return None
 
 		# If source is not DVD/HD-DVD/Blu-ray then we check if there is a release with any proper quality sources.
 		# If there is, we won't add this lower quality release.
@@ -146,13 +149,15 @@ class PtpMovieSearchResult:
 				if PtpMovieSearchResult.__IsFineSource( item.Source ):
 					return item
 
-		if releaseInfo.Quality == "High Definition":
-			if PtpMovieSearchResult.__IsFineSource( releaseInfo.Source ):
-				return self.__IsHdFineSourceReleaseExists( releaseInfo )
-		elif releaseInfo.Quality == "Standard Definition":
-			if PtpMovieSearchResult.__IsFineSource( releaseInfo.Source ):
-				return self.__IsSdFineSourceReleaseExists( releaseInfo )
-			else:
-				return self.__IsSdNonFineSourceReleaseExists( releaseInfo )
+		# We can't check special releases.
+		if not releaseInfo.IsSpecialRelease():
+			if releaseInfo.IsHighDefinition():
+				if PtpMovieSearchResult.__IsFineSource( releaseInfo.Source ):
+					return self.__IsHdFineSourceReleaseExists( releaseInfo )
+			elif releaseInfo.IsStandardDefinition():
+				if PtpMovieSearchResult.__IsFineSource( releaseInfo.Source ):
+					return self.__IsSdFineSourceReleaseExists( releaseInfo )
+				else:
+					return self.__IsSdNonFineSourceReleaseExists( releaseInfo )
 			
 		raise PtpUploaderException( "Can't check whether the release '%s' exists on PTP because its type is unsupported." % releaseInfo.ReleaseName );

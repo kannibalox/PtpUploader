@@ -108,7 +108,7 @@ class ScreenshotMaker:
 	# Returns with the URL of the uploaded image.
 	def __TakeAndUploadScreenshot(self, time, screenshotPath):
 		self.Make( time, screenshotPath )
-		imageUrl = ImageUploader.Upload( imagePath = screenshotPath )
+		imageUrl = ImageUploader.Upload( self.Logger, imagePath = screenshotPath )
 		os.remove( screenshotPath )
 		return imageUrl
 

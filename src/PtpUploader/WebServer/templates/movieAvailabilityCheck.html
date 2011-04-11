@@ -1,0 +1,42 @@
+{% extends "layout.html" %}
+
+{% block head %}
+{% endblock %}
+
+{% block body %}
+
+<form action="" enctype="multipart/form-data" method="post" id="upload_table">
+	<table class="border" border="0" cellpadding="3" cellspacing="1">
+		<tbody>
+			<tr>
+				<td class="label">Format</td>
+				<td>
+					<select id="format" name="format">
+							<option value="SD XviD">SD XviD or DivX</option>
+							<option value="SD x264">SD x264 or h264</option>
+							<option value="720p">720p</option>
+							<option value="1080p">1080p</option>
+					</select>
+				</td>
+			</tr>
+
+			<tr id="imdb_tr">
+				<td class="label">IMDb links</td>
+				<td>
+					<textarea name="imdb" id="imdb" cols="60" rows="8"></textarea>
+				</td>
+			</tr>
+
+			<tr>
+				<td colspan="2" style="text-align: center;">
+					<br/>
+					<br/>
+					<input id="post" value="Check" type="submit">
+				</td>
+			</tr>
+			
+		</tbody>
+	</table>
+</form>
+
+{% endblock %}

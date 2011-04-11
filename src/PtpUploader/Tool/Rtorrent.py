@@ -1,4 +1,4 @@
-from Globals import Globals
+from MyGlobals import MyGlobals
 from PtpUploaderException import PtpUploaderException;
 from Settings import Settings;
 
@@ -13,7 +13,7 @@ import xmlrpclib;
 
 class Rtorrent:
 	def __init__(self):
-		Globals.Logger.info( "Initializing PyroScope." )
+		MyGlobals.Logger.info( "Initializing PyroScope." )
 				
 		load_config.ConfigLoader().load()
 		self.proxy = config.engine.open()
@@ -69,3 +69,13 @@ class Rtorrent:
 			logger.exception( "Got exception while trying to check torrent's completion status. Info hash: '%s'." % infoHash );
 
 		return False
+	
+	# rTorrent can't download torrents with fast resume information in them, so we clean the torrents before starting the download.
+	# This can happen if the uploader uploaded the wrong torrent to the tracker.
+	def CleanTorrentFile(self, logger, torrentPath):
+		logger.info( "Cleaning torrent file '%s'." % torrentPath )		
+		
+		args = [ Settings.ChtorPath, "--clean", torrentPath ]
+		errorCode = subprocess.call( args )
+		if errorCode != 0:
+			raise PtpUploaderException( "Process execution '%s' returned with error code '%s'." % ( args, errorCode ) )

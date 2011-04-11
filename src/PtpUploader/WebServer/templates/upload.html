@@ -1,0 +1,93 @@
+{% extends "layout.html" %}
+
+{% block head %}
+{% endblock %}
+
+{% block body %}
+
+<form action="" enctype="multipart/form-data" method="post" id="upload_table">
+	<table class="border" border="0" cellpadding="3" cellspacing="1">
+		<tbody>
+			<tr>
+				<td class="label">Upload a torrent file</td>
+				<td>
+					<input type="file" id="upload_field" accept="application/x-bittorrent" title="You have to specify an IMDB or PTP link too."/>
+					<img src="{{ url_for( "static", filename = "throbber.gif" ) }}" style="display: none;" id="upload_throbber">
+					<input id="uploaded_torrentfilename" name="uploaded_torrentfilename" type="hidden">
+				</td>
+			</tr>
+
+			<tr>
+				<td class="label">Or select an existing file or folder</td>
+			
+				<td>
+					<input id="existingfile" name="existingfile_input" size="60" title="This is not yet functional.">
+				</td>
+			</tr>
+
+			<tr>
+				<td class="label">Or specify a torrent page link</td>
+				<td>
+					<input id="torrent_site_link" name="torrent_site_link" size="60" type="text" title="Supported sites: CG, GFT, TL.">
+				</td>
+			</tr>
+
+			<tr>
+				<td class="label">Release name</td>
+				<td>
+					<input id="release_name" name="release_name" size="60" type="text" title="The specified release name will be the name of the directory in the torrent uploaded to PTP. (Not supported yet on CG.)">
+				</td>
+			</tr>
+			
+			{% include "job_common.html" %}
+
+			<tr>
+				<td colspan="2" style="text-align: center;">
+					<br/>
+					<br/>
+					<input id="post" value="Upload torrent" type="submit">
+				</td>
+			</tr>
+			
+		</tbody>
+	</table>
+</form>
+
+<script src="{{ url_for( "static", filename = "script/jquery-1.5.2.min.js" ) }}"></script>
+<script src="{{ url_for( "static", filename = "script/jquery.html5_upload.js" ) }}"></script>
+<script>
+	$(function ()
+	{
+		$( "#upload_field" ).html5_upload(
+		{
+			url: "{{ url_for( "ajaxUploadTorrentFile" ) }}",
+			sendBoundary: true,
+			fieldName: "file_input",
+			stopOnFirstError: true,
+			onStart: function(event, total)
+			{
+				$( "#upload_throbber" ).show();
+				return true;
+			},
+			onFinishOne: function(event, response, name, number, total)
+			{
+				var jsonResponse = $.parseJSON( response )
+				var jsonResult = jsonResponse[ "result" ]
+				if ( jsonResult == "OK" )
+				{
+					var jsonTorrentFilename = jsonResponse[ "torrentFilename" ];
+					var jsonReleaseName = jsonResponse[ "releaseName" ];
+					$( "#uploaded_torrentfilename" ).val( jsonTorrentFilename );
+					$( "#release_name" ).val( jsonReleaseName );
+					$( "#upload_throbber" ).fadeOut( "slow" );
+				}
+				else
+				{
+					alert( "Error!" );
+				}
+			}
+		});
+	});
+</script>
+
+{% endblock %}

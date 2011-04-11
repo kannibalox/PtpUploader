@@ -1,0 +1,26 @@
+<!doctype html>
+<html>
+	<head>
+		<link rel="stylesheet" type="text/css" href="{{ url_for( "static", filename = "style.css" ) }}">
+		{% block head %}
+		{% endblock %}
+	</head>
+	<body>
+		<section>
+			<header>
+				<nav>
+					<ul>
+						<li><a href="{{ url_for( "jobs" ) }}">Jobs</a></li>
+						<li><a href="{{ url_for( "upload" ) }}">Upload</a></li>
+						<li><a href="{{ url_for( "movieAvailabilityCheck" ) }}">Availability check</a></li>
+						<li><a href="{{ url_for( "quit" ) }}">Shutdown</a></li>
+					</ul>
+				</nav>
+			</header>
+			<section>
+				{% block body %}
+				{% endblock %}
+			</section>
+		</section>
+	</body>
+</html>

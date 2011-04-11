@@ -1,13 +1,14 @@
-from Source.Manual import Manual
 from Tool.MakeTorrent import MakeTorrent
 from Tool.MediaInfo import MediaInfo
 from Tool.Rtorrent import Rtorrent
 from Tool.ScreenshotMaker import ScreenshotMaker
 
-from Globals import Globals
+from MyGlobals import MyGlobals
+from ReleaseDescriptionFormatter import ReleaseDescriptionFormatter
 from ReleaseInfo import ReleaseInfo
 from Settings import Settings
 
+import codecs
 import os
 import sys
 
@@ -56,8 +57,19 @@ class ReleaseInfoMaker:
 
 		return True
 
+	def SaveReleaseDescripionFile(self, logger, releaseDescriptionFilePath, screenshots, screenshotMaker, mediaInfos):
+		releaseInfo = ReleaseInfo()
+		releaseInfo.Logger = logger
+		releaseInfo.ReleaseName = self.ReleaseName
+		releaseInfo.SetScreenshotList( screenshots )
+		releaseDescription = ReleaseDescriptionFormatter.Format( releaseInfo, screenshotMaker.ScaleSize, mediaInfos, includeReleaseName = True )
+
+		releaseDescriptionFile = codecs.open( releaseDescriptionFilePath, encoding = "utf-8", mode = "w" )
+		releaseDescriptionFile.write( releaseDescription )
+		releaseDescriptionFile.close()
+
 	def MakeReleaseInfo(self, createTorrent):
-		logger = Globals.Logger
+		logger = MyGlobals.Logger
 		
 		if not self.CollectVideoFiles():
 			return
@@ -77,7 +89,7 @@ class ReleaseInfoMaker:
 		torrentName = "PTP " + self.ReleaseName + ".torrent";
 		torrentPath = os.path.join( self.WorkingDirectory, torrentName );
 		if createTorrent and os.path.exists( torrentPath ):
-			print "Can't create torrent because '%s' already exists!" % uploadTorrentPath
+			print "Can't create torrent because '%s' already exists!" % torrentPath
 			return
 
 		# Get the media info.
@@ -85,12 +97,10 @@ class ReleaseInfoMaker:
 
 		# Take and upload screenshots.
 		screenshotMaker = ScreenshotMaker( logger, self.VideoFiles[ 0 ] )
-		uploadedScreenshots = screenshotMaker.TakeAndUploadScreenshots( screenshotPath, mediaInfos[ 0 ].DurationInSec )
+		screenshots = screenshotMaker.TakeAndUploadScreenshots( screenshotPath, mediaInfos[ 0 ].DurationInSec )
 
-		# Make the release description.
-		manualSource = Manual()
-		releaseInfo = ReleaseInfo( announcementFilePath = "", announcementSource = manualSource, announcementId = "", releaseName = self.ReleaseName, logger = logger )
-		releaseInfo.FormatReleaseDescription( logger, releaseInfo, uploadedScreenshots, screenshotMaker.ScaleSize, mediaInfos, includeReleaseName = True, releaseDescriptionFilePath = releaseDescriptionFilePath )
+		# Save the release description.
+		self.SaveReleaseDescripionFile( logger, releaseDescriptionFilePath, screenshots, screenshotMaker, mediaInfos )
 
 		# Create the torrent
 		if createTorrent:
@@ -106,7 +116,7 @@ if __name__ == '__main__':
 	print ""
 
 	Settings.LoadSettings()
-	Globals.InitializeGlobals( Settings.WorkingPath )
+	MyGlobals.InitializeGlobals( Settings.WorkingPath )
 
 	if len( sys.argv ) == 2:
 		releaseInfoMaker = ReleaseInfoMaker( sys.argv[ 1 ] )

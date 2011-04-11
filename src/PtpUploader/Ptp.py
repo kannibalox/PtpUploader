@@ -1,12 +1,10 @@
-﻿from Globals import Globals
+﻿from MyGlobals import MyGlobals
 from PtpMovieSearchResult import PtpMovieSearchResult
 from PtpUploaderException import *
 from Settings import Settings
 
 import poster
-import simplejson as json
 
-import HTMLParser # For HTML entity reference decoding...
 import mimetypes
 import os
 import re
@@ -17,8 +15,8 @@ import urllib2
 class Ptp:
 	@staticmethod
 	def __LoginInternal():
-		Globals.Logger.info( "Loggin in to PTP." );
-		opener = urllib2.build_opener( urllib2.HTTPCookieProcessor( Globals.CookieJar ) );
+		MyGlobals.Logger.info( "Loggin in to PTP." );
+		opener = urllib2.build_opener( urllib2.HTTPCookieProcessor( MyGlobals.CookieJar ) );
 		postData = urllib.urlencode( { "username": Settings.PtpUserName, "password": Settings.PtpPassword } )
 		request = urllib2.Request( "http://passthepopcorn.me/login.php", postData );
 		result = opener.open( request );
@@ -52,14 +50,31 @@ class Ptp:
 		
 		if response.find( 'action="login.php"' ) != -1:
 			raise PtpUploaderException( "Looks like you are not logged in to PTP. Probably due to the bad user name or password." )
-				
+		
+	# ptpId must be a valid id		
+	# returns with PtpMovieSearchResult
+	@staticmethod
+	def GetMoviePageOnPtp(logger, ptpId):
+		logger.info( "Getting movie page for PTP id '%s'." % ptpId )
+		
+		opener = urllib2.build_opener( urllib2.HTTPCookieProcessor( MyGlobals.CookieJar ) )
+		request = urllib2.Request( "http://passthepopcorn.me/torrents.php?id=%s" % ptpId )
+		result = opener.open( request )
+		response = result.read()
+		Ptp.CheckIfLoggedInFromResponse( response )
+
+		if response.find( "<h2>Error 404</h2>" ) != -1:
+			raise PtpUploaderException( "Movie with PTP id '%s' doesn't exists." % ptpId )
+
+		return PtpMovieSearchResult( ptpId, response )
+
 	# imdbId: IMDb id. Eg.: 0137363 for http://www.imdb.com/title/tt0137363/
 	# returns with PtpMovieSearchResult
 	@staticmethod
-	def GetMoviePageOnPtp(logger, imdbId):
+	def GetMoviePageOnPtpByImdbId(logger, imdbId):
 		logger.info( "Trying to find movie with IMDb id '%s' on PTP." % imdbId );
 		
-		opener = urllib2.build_opener( urllib2.HTTPCookieProcessor( Globals.CookieJar ) );
+		opener = urllib2.build_opener( urllib2.HTTPCookieProcessor( MyGlobals.CookieJar ) );
 		request = urllib2.Request( "http://passthepopcorn.me/torrents.php?imdb=%s" % imdbId );
 		result = opener.open( request );
 		response = result.read();
@@ -74,107 +89,40 @@ class Ptp:
 			return PtpMovieSearchResult( ptpId, response );
 		elif response.find( "<h2>Error 404</h2>" ) != -1: # For some deleted movies PTP return with this error.
 			logger.info( "Movie with IMDb id '%s' doesn't exists on PTP. (Got error 404.)" % imdbId );
-			return PtpMovieSearchResult( ptpId = None, moviePageHtml = None );
+			return PtpMovieSearchResult( ptpId = "", moviePageHtml = None );
 		elif response.find( "<h2>Your search did not match anything.</h2>" ) == -1: # Multiple movies with the same IMDb id. 
 			raise PtpUploaderException( "There are multiple movies on PTP with IMDb id '%s'." % imdbId )
 		else:
 			logger.info( "Movie with IMDb id '%s' doesn't exists on PTP." % imdbId );
-			return PtpMovieSearchResult( ptpId = None, moviePageHtml = None );
+			return PtpMovieSearchResult( ptpId = "", moviePageHtml = None );
 
 	@staticmethod
-	def FillImdbInfo(logger, releaseInfo):
-		logger.info( "Downloading movie info from PTP for IMDb id '%s'." % releaseInfo.ImdbId );
-
-		# PTP doesn't decodes the HTML entity references (like "&#x26;" to "&") in the JSON response, so we have to.
-		# We are using an internal function of HTMLParser. 
-		# See this: http://fredericiana.com/2010/10/08/decoding-html-entities-to-text-in-python/
-		htmlParser = HTMLParser.HTMLParser()
- 
-		# Get IMDb info through PTP's ajax API used by the site when the user presses the auto fill button.
-		opener = urllib2.build_opener( urllib2.HTTPCookieProcessor( Globals.CookieJar ) );
-		request = urllib2.Request( "http://passthepopcorn.me/ajax.php?action=torrent_info&imdb=%s" % releaseInfo.ImdbId );
-		result = opener.open( request );
-		response = result.read();
-		Ptp.CheckIfLoggedInFromResponse( response );
-		
-		# The response is JSON.
-		# [{"title":"Devil's Playground","plot":"As the world succumbs to a zombie apocalypse, Cole a hardened mercenary, is chasing the one person who can provide a cure. Not only to the plague but to Cole's own incumbent destiny. DEVIL'S PLAYGROUND is a cutting edge British horror film that features zombies portrayed by free runners for a terrifyingly authentic representation of the undead","art":false,"year":"2010","director":[{"imdb":"1654324","name":"Mark McQueen","role":null}],"tags":"action, horror","writers":[{"imdb":"1057010","name":"Bart Ruspoli","role":" screenplay"}]}]
-
-		jsonResult = json.loads( response );
-		if len( jsonResult ) != 1:
-			raise PtpUploaderException( "Bad PTP movie info JSON response: array length is not one.\nResponse:\n%s" % response );
-	
-		movie = jsonResult[ 0 ];
-		releaseInfo.Title = movie[ "title" ];
-		if ( releaseInfo.Title is None ) or len( releaseInfo.Title ) == 0: 
-			raise PtpUploaderException( "Bad PTP movie info JSON response: title is empty.\nResponse:\n%s" % response );
-		releaseInfo.Title = htmlParser.unescape( releaseInfo.Title ) # PTP doesn't decodes properly the text.
-
-		releaseInfo.Year = movie[ "year" ];
-		if ( releaseInfo.Year is None ) or len( releaseInfo.Year ) == 0: 
-			raise PtpUploaderException( "Bad PTP movie info JSON response: year is empty.\nReponse:\n%s" % response );
-
-		releaseInfo.MovieDescription = movie[ "plot" ];
-		if releaseInfo.MovieDescription is None:
-			releaseInfo.MovieDescription = ""; 
-
-		releaseInfo.Tags = movie[ "tags" ];
-		if releaseInfo.Tags is None: 
-			raise PtpUploaderException( "Bad PTP movie info JSON response: tags key doesn't exists.\nReponse:\n%s" % response );
-
-		# PTP's upload page doesn't allows movies without tags. 
-		if len( releaseInfo.Tags ) <= 0:
-			raise PtpUploaderException( "PTP movie info returned without any tags." );
-
-		releaseInfo.CoverArtUrl = movie[ "art" ];
-		if releaseInfo.CoverArtUrl is None: 
-			raise PtpUploaderException( "Bad PTP movie info JSON response: art key doesn't exists.\nReponse:\n%s" % response );
-	
-		# It may be false... Eg.: "art": false
-		if not releaseInfo.CoverArtUrl:
-			releaseInfo.CoverArtUrl = "";
-
-		# Director's name may not be present. For example: http://www.imdb.com/title/tt0864336/
-		jsonDirectors = movie[ "director" ];
-		if ( jsonDirectors is None ) or len( jsonDirectors ) < 1:
-			releaseInfo.Directors = "None Listed"
-		else:
-			directorNames = []
-
-			for jsonDirector in jsonDirectors:
-				directorName = jsonDirector[ "name" ];
-				if ( directorName is None ) or len( directorName ) == 0: 
-					raise PtpUploaderException( "Bad PTP movie info JSON response: director name is empty.\nReponse:\n%s" % response );
-
-				directorName = htmlParser.unescape( directorName ) # PTP doesn't decodes properly the text.
-				directorNames.append( directorName )
-
-			releaseInfo.SetDirectors( directorNames )
-
-	@staticmethod
-	def __UploadMovieGetParamsCommon(releaseInfo):
+	def __UploadMovieGetParamsCommon(releaseInfo, releaseDescription):
 		commonParams = {
 				"submit": "true",
 				"type": releaseInfo.Type,
-				"remaster_year": "",
-				"remaster_title": "",
-				"quality": releaseInfo.Quality,
+				"remaster_year": releaseInfo.RemasterYear,
+				"remaster_title": releaseInfo.RemasterTitle,
 				"codec": releaseInfo.Codec,
-				"other_codec": "",
+				"other_codec": releaseInfo.CodecOther,
 				"container": releaseInfo.Container,
-				"other_container": "",
+				"other_container": releaseInfo.ContainerOther,
 				"resolution": releaseInfo.ResolutionType,
 				"other_resolution": releaseInfo.Resolution,
 				"source": releaseInfo.Source,
-				"other_source": "",
-				"release_desc": releaseInfo.ReleaseDescription
+				"other_source": releaseInfo.SourceOther,
+				"release_desc": releaseDescription
 				};
 
 		paramList = commonParams.items()
 
 		# scene only needed if it is specified
-		if len( releaseInfo.Scene ) > 0:
+		if releaseInfo.IsSceneRelease():
 			paramList.append( poster.encode.MultipartParam( "scene", "on" ) )
+
+		# other category is only needed if it is specified
+		if releaseInfo.IsSpecialRelease():
+			paramList.append( poster.encode.MultipartParam( "special", "on" ) )
 
 		return paramList;
 	
@@ -186,19 +134,23 @@ class Ptp:
 	@staticmethod
 	def __UploadMovieGetParamsForNewMovie(releaseInfo):
 		params = {
-			"imdb": releaseInfo.ImdbId,
-			"tomatoes": "",
-			"metacritic": "",
+			"tomatoes": releaseInfo.RottenTomatoesUrl,
+			"metacritic": releaseInfo.MetacriticUrl,
 			"title": releaseInfo.Title,
 			"year": releaseInfo.Year,
 			"image": releaseInfo.CoverArtUrl,
-			"genre_tags": "---",
 			"tags": releaseInfo.Tags,
 			"album_desc": releaseInfo.MovieDescription,
-			"trailer": "",
+			"trailer": releaseInfo.YouTubeId,
 			};
 			
 		paramList = params.items();
+
+		# Add the IMDb ID.
+		if releaseInfo.IsZeroImdbId():
+			paramList.append( poster.encode.MultipartParam( "imdb", "" ) )
+		else:
+			paramList.append( poster.encode.MultipartParam( "imdb", releaseInfo.GetImdbId() ) )
 
 		# Add the directors.
 		# These needs to be added in order because of the "importance" field follows them.
@@ -216,22 +168,20 @@ class Ptp:
 			
 		return paramList;
 	
-	# If ptpId is None then it will added as a new movie.
-	# If it is not None then it will be added as a new format to an existing movie.
 	@staticmethod
-	def UploadMovie(logger, releaseInfo, torrentPath, ptpId):
+	def UploadMovie(logger, releaseInfo, torrentPath, releaseDescription):
 		url = "";
-		paramList = Ptp.__UploadMovieGetParamsCommon( releaseInfo );
+		paramList = Ptp.__UploadMovieGetParamsCommon( releaseInfo, releaseDescription );
 		
 		# We always use HTTPS for uploading because if "Force HTTPS" is enabled in the profile then the HTTP upload is not working.
-		if ptpId is None:
+		if releaseInfo.HasPtpId():
+			logger.info( "Uploading torrent '%s' to PTP as a new format for 'http://passthepopcorn.me/torrents.php?id=%s'." % ( torrentPath, releaseInfo.PtpId ) );
+			url = "https://passthepopcorn.me/upload.php?groupid=%s" % releaseInfo.PtpId;
+			paramList.extend( Ptp.__UploadMovieGetParamsForAddFormat( releaseInfo.PtpId ) ); 	
+		else:
 			logger.info( "Uploading torrent '%s' to PTP as a new movie." % torrentPath );
 			url = "https://passthepopcorn.me/upload.php";
 			paramList.extend( Ptp.__UploadMovieGetParamsForNewMovie( releaseInfo ) );
-		else:
-			logger.info( "Uploading torrent '%s' to PTP as a new format for 'http://passthepopcorn.me/torrents.php?id=%s'." % ( torrentPath, ptpId ) );
-			url = "https://passthepopcorn.me/upload.php?groupid=%s" % ptpId;
-			paramList.extend( Ptp.__UploadMovieGetParamsForAddFormat( ptpId ) ); 	
 		
 		# Add the torrent file.
 		torrentFilename = os.path.basename( torrentPath ); # Filename without path.
@@ -240,7 +190,7 @@ class Ptp:
 		paramList.append( multipartParam );
 
 		opener = poster.streaminghttp.register_openers()
-		opener.add_handler( urllib2.HTTPCookieProcessor( Globals.CookieJar ) )
+		opener.add_handler( urllib2.HTTPCookieProcessor( MyGlobals.CookieJar ) )
 		datagen, headers = poster.encode.multipart_encode( paramList )
 		request = urllib2.Request( url, datagen, headers )
 		result = opener.open( request )
@@ -256,15 +206,13 @@ class Ptp:
 		if match is None:
 			raise PtpUploaderException( "Torrent upload to PTP failed: result url '%s' is not the expected one." % result.url )			
 
-		# Refresh data is not needed for new movies because PTP does this automatically.
+		# Refresh data is not needed for new movies because PTP refresh them automatically.
 		# So we only do a refresh when adding as a new format.
-		if ptpId is None:
-			ptpId = match.group( 1 )
-		else:
+		if releaseInfo.HasPtpId():
 			# response contains the movie page of the uploaded movie.
-			Ptp.TryRefreshMoviePage( logger, ptpId, response );
-
-		return ptpId;
+			Ptp.TryRefreshMoviePage( logger, releaseInfo.PtpId, response );
+		else:
+			releaseInfo.PtpId = match.group( 1 )
 
 	# ptpId: movie page id. For example: ptpId is 28622 for the movie with url: http://passthepopcorn.me/torrents.php?id=28622 	
 	# page: the html contents of the movie page.
@@ -282,19 +230,21 @@ class Ptp:
 		
 			auth = matches.group( 1 );
 		
-			opener = urllib2.build_opener( urllib2.HTTPCookieProcessor( Globals.CookieJar ) );
+			opener = urllib2.build_opener( urllib2.HTTPCookieProcessor( MyGlobals.CookieJar ) );
 			request = urllib2.Request( "http://passthepopcorn.me/torrents.php?action=imdb&groupid=%s&auth=%s" % ( ptpId, auth ) );
 			result = opener.open( request );
 			response = result.read();
+		except ( KeyboardInterrupt, SystemExit ):
+			raise
 		except Exception:
 			logger.exception( "Couldn't refresh data for 'http://passthepopcorn.me/torrents.php?id=%s'. Got exception." % ptpId );
 
 	@staticmethod
 	def SendPrivateMessage(userId, subject, message):
-		Globals.Logger.info( "Sending private message on PTP." );
+		MyGlobals.Logger.info( "Sending private message on PTP." );
 
 		# We need to load the send message page for the authentication key.
-		opener = urllib2.build_opener( urllib2.HTTPCookieProcessor( Globals.CookieJar ) )
+		opener = urllib2.build_opener( urllib2.HTTPCookieProcessor( MyGlobals.CookieJar ) )
 		request = urllib2.Request( "http://passthepopcorn.me/inbox.php?action=compose&to=%s" % userId )
 		result = opener.open( request )
 		response = result.read()
@@ -302,7 +252,7 @@ class Ptp:
 
 		matches = re.search( r"""<input type="hidden" name="auth" value="(.+)" />""", response )
 		if not matches:
-			Globals.Logger.info( "Authorization key couldn't be found." )
+			MyGlobals.Logger.info( "Authorization key couldn't be found." )
 			return
 
 		auth = matches.group( 1 )

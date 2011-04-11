@@ -1,4 +1,4 @@
-﻿from Globals import Globals
+﻿from MyGlobals import MyGlobals
 from TagList import TagList
 
 import ConfigParser
@@ -61,23 +61,39 @@ class Settings(object):
 		return os.path.join( Settings.WorkingPath, "announcement" )
 
 	@staticmethod
-	def GetPendingAnnouncementPath():
-		return os.path.join( Settings.WorkingPath, "announcement/pending" )
+	def GetAnnouncementInvalidPath():
+		return os.path.join( Settings.WorkingPath, "announcement/invalid" )
 
 	@staticmethod
-	def GetProcessedAnnouncementPath():
-		return os.path.join( Settings.WorkingPath, "announcement/processed" )
+	def GetJobLogPath():
+		return os.path.join( Settings.WorkingPath, "log/job" )
 
 	@staticmethod
-	def GetAnnouncementLogPath():
-		return os.path.join( Settings.WorkingPath, "log/announcement" )
+	def GetTemporaryPath():
+		return os.path.join( Settings.WorkingPath, "temporary" )
+
+	@staticmethod
+	def GetDatabaseFilePath():
+		return os.path.join( Settings.WorkingPath, "database.sqlite" )
+
+	@staticmethod
+	def __LoadSceneGroups(path):
+		groups = []
+		file = open( path, "r" )
+		for line in file:
+			groupName = line.strip()
+			if len( groupName ) > 0:
+				groupName = groupName.lower()
+				groups.append( groupName )
+		file.close()
+		return groups
 
 	@staticmethod
 	def __GetDefault(configParser, section, option, default, raw = False):
 		try:
 			return configParser.get( section, option, raw = raw )
-  		except ConfigParser.NoOptionError:
-  			return default
+		except ConfigParser.NoOptionError:
+			return default
 
 	@staticmethod
 	def LoadSettings():
@@ -90,7 +106,7 @@ class Settings(object):
 		fp = open( settingsPath, "r" )
 		configParser.readfp( fp )
 		fp.close()
-	
+		
 		Settings.VideoExtensionsToUpload = Settings.MakeListFromExtensionString( configParser.get( "Settings", "VideoExtensionsToUpload" ) )
 		Settings.SubtitleExtensionsToUpload = Settings.MakeListFromExtensionString( configParser.get( "Settings", "SubtitleExtensionsToUpload" ) )
 		Settings.IgnoreFile = Settings.MakeListFromExtensionString( Settings.__GetDefault( configParser, "Settings", "IgnoreFile", "" ) )
@@ -100,12 +116,14 @@ class Settings(object):
 		Settings.GftUserName = Settings.__GetDefault( configParser, "Settings", "GftUserName", "" )
 		Settings.GftPassword = Settings.__GetDefault( configParser, "Settings", "GftPassword", "" )
 		Settings.GftMaximumParallelDownloads = int( Settings.__GetDefault( configParser, "Settings", "GftMaximumParallelDownloads", "1" ) )
+		Settings.GftAutomaticJobFilter = Settings.__GetDefault( configParser, "Settings", "GftAutomaticJobFilter", "" )
 		Settings.CinemageddonUserName = Settings.__GetDefault( configParser, "Settings", "CinemageddonUserName", "" )
 		Settings.CinemageddonPassword = Settings.__GetDefault( configParser, "Settings", "CinemageddonPassword", "" )
 		Settings.CinemageddonMaximumParallelDownloads = int( Settings.__GetDefault( configParser, "Settings", "CinemageddonMaximumParallelDownloads", "1" ) )
 		Settings.TorrentLeechUserName = Settings.__GetDefault( configParser, "Settings", "TorrentLeechUserName", "" )
 		Settings.TorrentLeechPassword = Settings.__GetDefault( configParser, "Settings", "TorrentLeechPassword", "" )
 		Settings.TorrentLeechMaximumParallelDownloads = int( Settings.__GetDefault( configParser, "Settings", "TorrentLeechMaximumParallelDownloads", "1" ) )
+		Settings.TorrentLeechAutomaticJobFilter = Settings.__GetDefault( configParser, "Settings", "TorrentLeechAutomaticJobFilter", "" )
 		
 		Settings.ImgurApiKey = Settings.__GetDefault( configParser, "Settings", "ImgurApiKey", "" )
 		Settings.OnSuccessfulUpload = Settings.__GetDefault( configParser, "Settings", "OnSuccessfulUpload", "", raw = True )
@@ -122,15 +140,25 @@ class Settings(object):
 		Settings.IgnoreReleaseTag = Settings.MakeListOfListsFromString( Settings.__GetDefault( configParser, "Settings", "IgnoreReleaseTag", "" ) )
 		Settings.IgnoreReleaseTagAfterYear = Settings.MakeListOfListsFromString( Settings.__GetDefault( configParser, "Settings", "IgnoreReleaseTagAfterYear", "" ) )
 		Settings.IgnoreReleaserGroup = Settings.MakeListFromExtensionString( Settings.__GetDefault( configParser, "Settings", "IgnoreReleaserGroup", "" ) )
-		Settings.SceneReleaserGroup = Settings.MakeListFromExtensionString( Settings.__GetDefault( configParser, "Settings", "SceneReleaserGroup", "" ) )
+		Settings.SceneReleaserGroup = Settings.__LoadSceneGroups( os.path.join( settingsDirectory, "SceneGroups.txt" ) )
+
+		Settings.WebServerAddress = Settings.__GetDefault( configParser, "Settings", "WebServerAddress", "" )
+		Settings.WebServerUsername = Settings.__GetDefault( configParser, "Settings", "WebServerUsername", "admin" )
+		Settings.WebServerPassword = Settings.__GetDefault( configParser, "Settings", "WebServerPassword", "" )
 
 		# Create the announcement directory.
-		# Because the processed announcement directory is within the announcement directory, we don't need to create the announcement directory separately.
-		processedAnnouncementPath = Settings.GetProcessedAnnouncementPath()
-		if not os.path.exists( processedAnnouncementPath ):
-			os.makedirs( processedAnnouncementPath )
+		# Invalid announcement directory is within the announcement directory, so we don't have to make the announcement directory separately.
+		announcementPath = Settings.GetAnnouncementInvalidPath()
+		if not os.path.exists( announcementPath ):
+			os.makedirs( announcementPath )
 
-		# Create the pending announcement directory.
-		pendingAnnouncementPath = Settings.GetPendingAnnouncementPath()
-		if not os.path.exists( pendingAnnouncementPath ):
-			os.makedirs( pendingAnnouncementPath )
+		# Create the log directory.
+		# Job log directory is within the log directory, so we don't have to make the log directory separately.
+		jobLogPath = Settings.GetJobLogPath()
+		if not os.path.exists( jobLogPath ):
+			os.makedirs( jobLogPath )
+
+		# Create the temporary directory.
+		temporaryPath = Settings.GetTemporaryPath()
+		if not os.path.exists( temporaryPath ):
+			os.makedirs( temporaryPath )

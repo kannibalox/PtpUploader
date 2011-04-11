@@ -20,20 +20,25 @@ class Logger:
 
 		formattedMessage = None
 		if exceptionMessage is None:
-			formattedMessage = "[%s] %s %s" % ( messageTime, messageType, message ) 
+			formattedMessage = u"[%s] %s %s" % ( messageTime, messageType, message ) 
 		else:
-			formattedMessage = "[%s] %s %s\n%s" % ( messageTime, messageType, message, exceptionMessage )
+			formattedMessage = u"[%s] %s %s\n%s" % ( messageTime, messageType, message, exceptionMessage )
 
-		print formattedMessage
+		# To avoid "UnicodeEncodeError: 'ascii' codec can't encode character" errors...  
+		print formattedMessage.encode( sys.stdout.encoding, "ignore" )
+		
 		file.write( formattedMessage )
 		file.write( "\n" )
 		file.close()
 
 	def info(self, message):
-		self.__Log( "INFO", message )
+		self.__Log( u"INFO", message )
 		
 	def error(self, message):
-		self.__Log( "ERROR", message )
+		self.__Log( u"ERROR", message )
 		
 	def exception(self, message):
-		self.__Log( "ERROR", message, logException = True )
+		self.__Log( u"ERROR", message, logException = True )
+		
+	def warning(self, message):
+		self.__Log( u"WARNING", message )

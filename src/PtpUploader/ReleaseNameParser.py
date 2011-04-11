@@ -14,13 +14,9 @@ class ReleaseNameParser:
 		name, separator, self.Group = name.partition( "-" )
 		if len( name ) <= 0:
 			raise PtpUploaderException( "Release name '%s' is empty." % originalName )
-		if len( self.Group ) <= 0:
-			raise PtpUploaderException( "Release name '%s' contain no group name." % originalName )
 
 		name = name.replace( ".", " " )
 		self.Tags = TagList( name.split( " " ) )
-		if len( self.Tags.List ) <= 1:
-			raise PtpUploaderException( "Release name '%s' contain no tags." % originalName )
 
 		# This is not perfect (eg.: The Legend of 1900), but it doesn't matter if the real year will be included in the tags.
 		self.TagsAfterYear = TagList( [] )
@@ -32,7 +28,9 @@ class ReleaseNameParser:
 		self.Scene = self.Group in Settings.SceneReleaserGroup
 
 	def GetSourceAndFormat(self, releaseInfo):
-		if self.Tags.IsContainsTag( "xvid" ):
+		if releaseInfo.IsCodecSet():
+			releaseInfo.Logger.info( "Codec '%s' is already set, not getting from release name." % releaseInfo.Codec )
+		elif self.Tags.IsContainsTag( "xvid" ):
 			releaseInfo.Codec = "XviD"
 		elif self.Tags.IsContainsTag( "divx" ):
 			releaseInfo.Codec = "DivX"
@@ -41,8 +39,8 @@ class ReleaseNameParser:
 		else:
 			raise PtpUploaderException( "Can't figure out codec from release name '%s'." % releaseInfo.ReleaseName )
 
-		if self.Tags.IsContainsTag( "r5" ):
-			releaseInfo.Source = "R5"
+		if releaseInfo.IsSourceSet():
+			releaseInfo.Logger.info( "Source '%s' is already set, not getting from release name." % releaseInfo.Source )
 		elif self.Tags.IsContainsTag( "dvdrip" ):
 			releaseInfo.Source = "DVD"
 		elif self.Tags.IsContainsTag( "bdrip" ) or self.Tags.IsContainsTag( "brrip" ) or self.Tags.IsContainsTag( "bluray" ):
@@ -50,14 +48,13 @@ class ReleaseNameParser:
 		else:
 			raise PtpUploaderException( "Can't figure out source from release name '%s'." % releaseInfo.ReleaseName )
 
-		if self.Tags.IsContainsTag( "720p" ):
-			releaseInfo.Quality = "High Definition"
+		if releaseInfo.IsResolutionTypeSet():
+			releaseInfo.Logger.info( "Resolution type '%s' is already set, not getting from release name." % releaseInfo.ResolutionType )
+		elif self.Tags.IsContainsTag( "720p" ):
 			releaseInfo.ResolutionType = "720p"
 		elif self.Tags.IsContainsTag( "1080p" ):
-			releaseInfo.Quality = "High Definition"
 			releaseInfo.ResolutionType = "1080p"
 		else:
-			releaseInfo.Quality = "Standard Definition"
 			releaseInfo.ResolutionType = "Other"
 
 	@staticmethod
@@ -73,7 +70,7 @@ class ReleaseNameParser:
 
 		if self.Group in Settings.IgnoreReleaserGroup:
 			return False
-
+		
 		if len( Settings.AllowReleaseTag ) > 0 and not ReleaseNameParser.__IsTagListContainAnythingFromListOfTagList( self.Tags, Settings.AllowReleaseTag ):
 			return False
 

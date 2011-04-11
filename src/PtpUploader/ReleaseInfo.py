@@ -1,20 +1,85 @@
+from Job.FinishedJobPhase import FinishedJobPhase
+from Job.JobRunningState import JobRunningState
+from Job.JobStartMode import JobStartMode
+
+from Database import Database
 from PtpUploaderException import PtpUploaderException
 from Settings import Settings
 
-import codecs
+from sqlalchemy import Boolean, Column, Integer, orm, String
+
 import os
 
-class ReleaseInfo:
-	def __init__(self, announcementFilePath, announcementSource, announcementId, releaseName, logger):
-		self.AnnouncementFilePath = announcementFilePath
-		self.AnnouncementSource = announcementSource # A class from the Source namespace.
-		self.AnnouncementId = announcementId
-		self.ReleaseName = releaseName
-		self.Logger = logger
-		self.IsManualDownload = announcementSource.Name == "manual"
-		self.IsManualAnnouncement = self.IsManualDownload or self.ReleaseName == "ManualAnnouncement"
+class ReleaseInfoFlags:
+	# There are three categories on PTP: SD, HD and Other. The former two can figured out from the resolution type.
+	# This flag is for indicating the Other ("Not main movie") category. Extras, Rifftrax, etc. belong here.
+	SpecialRelease                      = 1 << 0
 
-		# These are the required fields needed for an upload to PTP.		
+	# Release made by a scene group.
+	SceneRelease                        = 1 << 1
+	
+	# If set, then it overrides the value returned by SourceBase.IsSingleFileTorrentNeedsDirectory.
+	ForceDirectorylessSingleFileTorrent = 1 << 2
+
+class ReleaseInfo(Database.Base):
+	__tablename__ = "release"
+
+	Id = Column( Integer, primary_key = True )
+	
+	# Announcement
+	AnnouncementSourceName = Column( String )
+	AnnouncementId = Column( String )
+	ReleaseName = Column( String )
+	
+	# For PTP
+	Type = Column( String )
+	ImdbId = Column( String )
+	Directors = Column( String )
+	Title = Column( String )
+	Year = Column( String )
+	Tags = Column( String )
+	MovieDescription = Column( String )
+	CoverArtUrl = Column( String )
+	YouTubeId = Column( String )
+	MetacriticUrl = Column( String )
+	RottenTomatoesUrl = Column( String )
+	Codec = Column( String )
+	CodecOther = Column( String )
+	Container = Column( String )
+	ContainerOther = Column( String )
+	ResolutionType = Column( String )
+	Resolution = Column( String )
+	Source = Column( String )
+	SourceOther = Column( String )
+	RemasterTitle = Column( String )
+	RemasterYear = Column( String )
+
+	# Other
+	JobStartMode = Column( Integer )
+	JobRunningState = Column( Integer )
+	FinishedJobPhase = Column( Integer )
+	Flags = Column( Integer )
+	ErrorMessage = Column( String )
+	PtpId = Column( String )
+	InternationalTitle = Column( String )
+	Nfo = Column( String )
+	SourceTorrentFilePath = Column( String )
+	SourceTorrentInfoHash = Column( String )
+	UploadTorrentFilePath = Column( String )
+	UploadTorrentInfoHash = Column( String )
+	ReleaseDownloadPath = Column( String )
+	ReleaseUploadPath = Column( String )
+	ReleaseNotes = Column( String )
+	Screenshots = Column( String )
+	LastModificationTime = Column( Integer, default = Database.MakeTimeStamp, onupdate = Database.MakeTimeStamp )
+	Size = Column( Integer )
+	
+	def __init__(self):
+		self.AnnouncementSourceName = "" # A name of a class from the Source namespace.
+		self.AnnouncementId = ""
+		self.ReleaseName = ""
+
+		# These are the required fields needed for an upload to PTP.
 		self.Type = "Movies" # Movies, Musicals, Standup Comedy, Concerts
 		self.ImdbId = "" # Just the number. Eg.: 0111161 for http://www.imdb.com/title/tt0111161/
 		self.Directors = "" # Stored as a comma separated list. PTP needs this as a list, use GetDirectors.
@@ -23,23 +88,95 @@ class ReleaseInfo:
 		self.Tags = ""
 		self.MovieDescription = u""
 		self.CoverArtUrl = ""
-		self.Scene = "" # Empty string or "on" (wihout the quotes).
-		self.Quality = "" # Other, Standard Definition, High Definition
+		self.YouTubeId = "" # Eg.: FbdOnGNBMAo for http://www.youtube.com/watch?v=FbdOnGNBMAo
+		self.MetacriticUrl = ""
+		self.RottenTomatoesUrl = ""
 		self.Codec = "" # Other, DivX, XviD, H.264, x264, DVD5, DVD9, BD25, BD50
+		self.CodecOther = "" # Codec type when Codec is Other.
 		self.Container = "" # Other, MPG, AVI, MP4, MKV, VOB IFO, ISO, m2ts
+		self.ContainerOther = "" # Container type when Container is Other.
 		self.ResolutionType = "" # Other, PAL, NTSC, 480p, 576p, 720p, 1080i, 1080p
 		self.Resolution = "" # Exact resolution when ResolutionType is Other. 
 		self.Source = "" # Other, CAM, TS, VHS, TV, DVD-Screener, TC, HDTV, R5, DVD, HD-DVD, Blu-ray
-		self.ReleaseDescription = u""
+		self.SourceOther = "" # Source type when Source is Other.
+		self.RemasterTitle = "" # Eg.: Hardcoded English
+		self.RemasterYear = ""
+		# Release description text is also needed for PTP but we use the other members to fill that.
+		# Scene is needed too. Use IsSceneRelease.
+		# Special ("Not main movie") is needed too. Use SpecialRelease.
 		# Till this.
-		
+
+		self.JobStartMode = JobStartMode.Automatic
+		self.JobRunningState = JobRunningState.WaitingForStart
+		self.FinishedJobPhase = 0 # Flag. Takes values from FinishedJobPhase.
+		self.Flags = 0 # Takes values from ReleaseInfoFlags.
+		self.ErrorMessage = ""
+		self.PtpId = ""
 		self.InternationalTitle = "" # International title of the movie. Eg.: The Secret in Their Eyes. Needed for renaming releases coming from Cinemageddon.
 		self.Nfo = u""
+		self.SourceTorrentFilePath = ""
 		self.SourceTorrentInfoHash = ""
+		self.UploadTorrentFilePath = ""
+		self.UploadTorrentInfoHash = ""
+		self.ReleaseDownloadPath = "" # Empty if using the default path. See GetReleaseDownloadPath.
 		self.ReleaseUploadPath = "" # Empty if using the default path. See GetReleaseUploadPath.
+		self.ReleaseNotes = ""
+		self.Screenshots = ""
+		self.LastModificationTime = 0
+		self.Size = 0
+		
+		self.MyConstructor()
+
+	# "The SQLAlchemy ORM does not call __init__ when recreating objects from database rows."
+	@orm.reconstructor
+	def MyConstructor(self):
+		self.AnnouncementSource = None # A class from the Source namespace.
+		self.Logger = None
 
 	def GetImdbId(self):
 		return self.ImdbId
+
+	def GetPtpId(self):
+		return self.PtpId
+
+	def HasImdbId(self):
+		return len( self.ImdbId ) > 0
+
+	def IsZeroImdbId(self):
+		return self.ImdbId == "0"
+
+	def SetZeroImdbId(self):
+		self.ImdbId = "0"
+
+	def HasPtpId(self):
+		return len( self.PtpId ) > 0
+
+	def IsUserCreatedJob(self):
+		return self.JobStartMode == JobStartMode.Manual or self.JobStartMode == JobStartMode.ManualForced
+
+	def IsForceUpload(self):
+		return self.JobStartMode == JobStartMode.ManualForced
+
+	def IsCoverArtUrlSet(self):
+		return len( self.CoverArtUrl ) > 0
+
+	def IsReleaseNameSet(self):
+		return len( self.ReleaseName ) > 0
+
+	def IsCodecSet(self): 
+		return len( self.Codec ) > 0
+
+	def IsContainerSet(self): 
+		return len( self.Container ) > 0
+
+	def IsSourceSet(self): 
+		return len( self.Source ) > 0
+
+	def IsResolutionTypeSet(self): 
+		return len( self.ResolutionType ) > 0
+	
+	def IsSourceTorrentFilePathSet(self):
+		return len( self.SourceTorrentFilePath ) > 0
 	
 	def GetDirectors(self):
 		return self.Directors.split( ", " )
@@ -51,24 +188,75 @@ class ReleaseInfo:
 		
 		self.Directors = ", ".join( list )
 
-	# Eg.: "working directory/release/Dark.City.1998.Directors.Cut.720p.BluRay.x264-SiNNERS/"
-	@staticmethod
-	def GetReleaseRootPathFromRelaseName(releaseName):
-		releasesPath = os.path.join( Settings.WorkingPath, "release" )
-		return os.path.join( releasesPath, releaseName )
+	def IsSceneRelease(self):
+		return ( self.Flags & ReleaseInfoFlags.SceneRelease ) != 0
+
+	def SetSceneRelease(self):
+		self.Flags |= ReleaseInfoFlags.SceneRelease
+
+	def IsHighDefinition(self):
+		return self.ResolutionType == "720p" or self.ResolutionType == "1080i" or self.ResolutionType == "1080p"
+
+	def IsStandardDefinition(self):
+		return not self.IsHighDefinition()
+
+	# See the description at the flag.
+	def IsSpecialRelease(self):
+		return ( self.Flags & ReleaseInfoFlags.SpecialRelease ) != 0
+
+	# See the description at the flag.
+	def SetSpecialRelease(self):
+		self.Flags |= ReleaseInfoFlags.SpecialRelease
+
+	def IsForceDirectorylessSingleFileTorrent(self):
+		return ( self.Flags & ReleaseInfoFlags.ForceDirectorylessSingleFileTorrent ) != 0
+
+	def SetForceDirectorylessSingleFileTorrent(self):
+		self.Flags |= ReleaseInfoFlags.ForceDirectorylessSingleFileTorrent
+
+	def CanEdited(self):
+		return self.JobRunningState != JobRunningState.WaitingForStart and self.JobRunningState != JobRunningState.InProgress and self.JobRunningState != JobRunningState.Finished
+
+	def CanResumed(self):
+		return self.CanEdited()
+
+	def CanStopped(self):
+		return self.JobRunningState == JobRunningState.WaitingForStart or self.JobRunningState == JobRunningState.InProgress
+
+	def IsJobPhaseFinished(self, jobPhase):
+		return ( self.FinishedJobPhase & jobPhase ) != 0 
+
+	def SetJobPhaseFinished(self, jobPhase):
+		self.FinishedJobPhase |= jobPhase
+
+	def GetScreenshotList(self):
+		return self.Screenshots.split( "|" )
+	
+	def SetScreenshotList(self, list):
+		for name in list:
+			if name.find( "|" ) != -1:
+				raise PtpUploaderException( "Screenshot URL '%s' contains |." % name )
 		
+		self.Screenshots = "|".join( list )
+
+	# Eg.: "working directory/log/job/1"
+	def GetLogFilePath(self):
+		return os.path.join( Settings.GetJobLogPath(), str( self.Id ) )
+
 	# Eg.: "working directory/release/Dark.City.1998.Directors.Cut.720p.BluRay.x264-SiNNERS/"
 	def GetReleaseRootPath(self):
-		return ReleaseInfo.GetReleaseRootPathFromRelaseName( self.ReleaseName )
-
-	# Eg.: "working directory/release/Dark.City.1998.Directors.Cut.720p.BluRay.x264-SiNNERS/download/"
-	@staticmethod
-	def GetReleaseDownloadPathFromRelaseName(releaseName):
-		return os.path.join( ReleaseInfo.GetReleaseRootPathFromRelaseName( releaseName ), "download" )
+		releasesPath = os.path.join( Settings.WorkingPath, "release" )
+		return os.path.join( releasesPath, self.ReleaseName )
 
 	# Eg.: "working directory/release/Dark.City.1998.Directors.Cut.720p.BluRay.x264-SiNNERS/download/"
 	def GetReleaseDownloadPath(self):
-		return ReleaseInfo.GetReleaseDownloadPathFromRelaseName( self.ReleaseName )
+		if len( self.ReleaseDownloadPath ) > 0:
+			return self.ReleaseDownloadPath
+		else:
+			return os.path.join( self.GetReleaseRootPath(), "download" )
+
+	def SetReleaseDownloadPath(self, path):
+		self.ReleaseDownloadPath = path
 	
 	# Eg.: "working directory/release/Dark.City.1998.Directors.Cut.720p.BluRay.x264-SiNNERS/upload/Dark.City.1998.Directors.Cut.720p.BluRay.x264-SiNNERS/"
 	# It must contain the final release name because of mktorrent.
@@ -81,84 +269,3 @@ class ReleaseInfo:
 
 	def SetReleaseUploadPath(self, path):
 		self.ReleaseUploadPath = path
-	
-	def IsStandardDefintion(self):
-		return self.Quality == "Standard Definition"		
-
-	# Fills container, codec and resolution from media info.
-	def GetDataFromMediaInfo(self, mediaInfo):
-		if mediaInfo.IsAvi():
-			self.Container = "AVI"
-		elif mediaInfo.IsMkv():
-			self.Container = "MKV"
-		else:
-			raise PtpUploaderException( "Unsupported container: '%s'." % mediaInfo.Container )
-
-		# TODO: check if set already and make sure it remains the same if it set
-		if mediaInfo.IsX264():
-			self.Codec = "x264"
-			if mediaInfo.IsAvi():
-				raise PtpUploaderException( "X264 in AVI is not allowed." )
-		elif mediaInfo.IsXvid():
-			self.Codec = "XviD"
-			if mediaInfo.IsMkv():
-				raise PtpUploaderException( "XviD in MKV is not allowed." )
-		elif mediaInfo.IsDivx():
-			self.Codec = "DivX"
-			if mediaInfo.IsMkv():
-				raise PtpUploaderException( "DivX in MKV is not allowed." )
-		else:
-			raise PtpUploaderException( "Unsupported codec: '%s'." % mediaInfo.Codec )
-
-		# Indicate the exact resolution for standard definition releases.
-		if self.IsStandardDefintion():
-			self.Resolution = "%sx%s" % ( mediaInfo.Width, mediaInfo.Height )
-		
-	# releaseDescriptionFilePath: optional. If given the description is written to file.
-	def FormatReleaseDescription(self, logger, releaseInfo, screenshots, scaleSize, mediaInfos, includeReleaseName = True, releaseDescriptionFilePath = None):
-		logger.info( "Making release description for release '%s' with screenshots at %s." % ( releaseInfo.ReleaseName, screenshots ) )
-
-		if includeReleaseName:
-			self.ReleaseDescription = u"[size=4][b]%s[/b][/size]\n\n" % releaseInfo.ReleaseName
-		else:
-			self.ReleaseDescription = u""
-
-		if scaleSize is not None:
-			self.ReleaseDescription += u"Screenshots are showing the display aspect ratio. Resolution: %s.\n\n" % scaleSize 
-
-		for screenshot in screenshots:
-			self.ReleaseDescription += u"[img=%s]\n\n" % screenshot
-
-		for mediaInfo in mediaInfos:
-			# Add file name before each media info if there are more than one videos in the release.
-			if len( mediaInfos ) > 1:
-				fileName = os.path.basename( mediaInfo.Path )
-				self.ReleaseDescription += u"[size=3][u]%s[/u][/size]\n\n" % fileName
-
-			self.ReleaseDescription += mediaInfo.FormattedMediaInfo
-
-		# Add NFO if presents
-		if len( releaseInfo.Nfo ) > 0:
-			self.ReleaseDescription += u"[size=3][u]NFO[/u][/size]:[pre]\n%s\n[/pre]" % releaseInfo.Nfo
-
-		# We don't use this file for anything, we just save it for convenience.
-		if releaseDescriptionFilePath is not None:
-			releaseDescriptionFile = codecs.open( releaseDescriptionFilePath, encoding = "utf-8", mode = "w" )
-			releaseDescriptionFile.write( self.ReleaseDescription )
-			releaseDescriptionFile.close()
-
-	@staticmethod
-	def MoveAnnouncement(announcementFilePath, targetDirectory):
-		# Move the announcement file to the processed directory.
-		# "On Unix, if dst exists and is a file, it will be replaced silently if the user has permission." -- this can happen in case of manual downloads.
-		# TODO: what happens if the announcement file is not yet been closed? 
-		announcementFilename = os.path.basename( announcementFilePath ) # Get the filename.
-		targetAnnouncementFilePath = os.path.join( targetDirectory, announcementFilename )
-		os.rename( announcementFilePath, targetAnnouncementFilePath )
-		return targetAnnouncementFilePath
-
-	def MoveToPending(self):
-		self.AnnouncementFilePath = ReleaseInfo.MoveAnnouncement( self.AnnouncementFilePath, Settings.GetPendingAnnouncementPath() )
-
-	def MoveToProcessed(self):
-		self.AnnouncementFilePath = ReleaseInfo.MoveAnnouncement( self.AnnouncementFilePath, Settings.GetProcessedAnnouncementPath() )

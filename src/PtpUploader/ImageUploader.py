@@ -9,7 +9,7 @@ import urllib2;
 
 class ImageUploader:
 	@staticmethod
-	def PtpImgUpload(imagePath = None, imageUrl = None):
+	def PtpImgUpload(logger, imagePath = None, imageUrl = None):
 		response = None;
 		
 		if imagePath is None: # Rehost image from url.
@@ -27,9 +27,15 @@ class ImageUploader:
 		
 		# Response is JSON.
 		# [{"status":1,"code":"8qy8is","ext":"jpg"}]
-		jsonLoad = json.loads( response );
+		jsonLoad = None
+		try:
+			jsonLoad = json.loads( response );
+		except json.JSONDecodeError:
+			logger.error( "Got exception while loading JSON response from ptpimg.me. Response: '%s'." % response )
+			raise
+
 		if ( jsonLoad is None ) or len( jsonLoad ) != 1:
-			raise PtpUploaderException( "Got bad JSON response from ptpimg.me: '%s'." % response );
+			raise PtpUploaderException( "Got bad JSON response from ptpimg.me. Response: '%s'." % response );
 		
 		jsonLoad = jsonLoad[ 0 ];
 		imageCode = jsonLoad[ "code" ];
@@ -45,7 +51,7 @@ class ImageUploader:
 	# Based on the imgur API documentation:
 	# http://api.imgur.com/resources_anon
 	@staticmethod
-	def ImgurUpload(imagePath = None, imageUrl = None):
+	def ImgurUpload(logger, imagePath = None, imageUrl = None):
 		datagen = None;
 		headers = None;
 		if imagePath is None: # Rehost image from url.
@@ -69,7 +75,7 @@ class ImageUploader:
 		return link;
 	
 	@staticmethod
-	def Upload(imagePath = None, imageUrl = None):
+	def Upload(logger, imagePath = None, imageUrl = None):
 		if ( imagePath is None ) and ( imageUrl is None ):
 			raise PtpUploaderException( "ImageUploader.Update error: both image path and image url are None." );
 				
@@ -78,5 +84,5 @@ class ImageUploader:
 
 		# TODO: fall back to imgur if the upload to ptpimg wasn't successful. Also start a 1 hour countdown and doesn't use ptpimg till it gets to 0.  
 
-		return ImageUploader.PtpImgUpload( imagePath, imageUrl );
-		#return ImageUploader.ImgurUpload( imagePath, imageUrl );
+		return ImageUploader.PtpImgUpload( logger, imagePath, imageUrl );
+		#return ImageUploader.ImgurUpload( logger, imagePath, imageUrl );

@@ -1,4 +1,4 @@
-from Globals import Globals
+from MyGlobals import MyGlobals
 from Ptp import Ptp
 from Settings import Settings
 
@@ -21,7 +21,7 @@ def LoadNotifierSettings():
 	return configParser.get( "Settings", "UserId" )
 
 def Notify(releaseName, uploadedTorrentUrl):
-	logger = Globals.Logger
+	logger = MyGlobals.Logger
 
 	userId = LoadNotifierSettings()
 	userId = userId.strip()
@@ -35,7 +35,7 @@ def Notify(releaseName, uploadedTorrentUrl):
 
 if __name__ == "__main__":
 	Settings.LoadSettings()
-	Globals.InitializeGlobals( Settings.WorkingPath )
+	MyGlobals.InitializeGlobals( Settings.WorkingPath )
 
 	if len( sys.argv ) == 3:
 		Notify( sys.argv[ 1 ], sys.argv[ 2 ] )

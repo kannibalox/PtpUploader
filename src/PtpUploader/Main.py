@@ -1,17 +1,32 @@
-from Globals import Globals
-from Ptp import Ptp
+from Source.SourceFactory import SourceFactory
+from WebServer.MyWebServer import MyWebServer
+
+from MyGlobals import MyGlobals
 from PtpUploader import PtpUploader
 from Settings import Settings
+from Database import InitDb
 
 def Initialize():
 	Settings.LoadSettings()
-	Globals.InitializeGlobals( Settings.WorkingPath )
+	MyGlobals.InitializeGlobals( Settings.WorkingPath )
 
-def MainBotMode():
-	Ptp.Login()
-	ptpUploader = PtpUploader()
-	ptpUploader.Work()
+def Run():
+	InitDb()
+
+	MyGlobals.SourceFactory = SourceFactory()
+	MyGlobals.PtpUploader = PtpUploader()
+
+	# Do not start the web server if the username or the password is not set.
+	webServerThread = None
+	if len( Settings.WebServerUsername ) > 0 and len( Settings.WebServerPassword ) > 0:
+		webServerThread = MyWebServer()
+		webServerThread.start()
+
+	MyGlobals.PtpUploader.Work()
+
+	if webServerThread is not None:
+		webServerThread.StopServer()
 
 if __name__ == '__main__':
 	Initialize()
-	MainBotMode()
+	Run()

@@ -5,6 +5,7 @@ from pyrocore.util import bencode
 import fnmatch 
 import os
 import re
+import textwrap
 
 class NfoParser:
 	# Read the NFO file from the specified directory.
@@ -15,8 +16,8 @@ class NfoParser:
 			entryPath = os.path.join( directoryPath, entry )
 			if os.path.isfile( entryPath ) and fnmatch.fnmatch( entry.lower(), "*.nfo" ):
 				return NfoParser.ReadNfoFileToUnicode( entryPath )
-		
-		raise PtpUploaderException( "Can't find NFO in directory '%s'." % directoryPath )
+
+		raise ""
 	
 	# Return with the IMDb id.
 	# Eg.: 0111161 for http://www.imdb.com/title/tt0111161/
@@ -42,10 +43,24 @@ class NfoParser:
 			if ( c >= '0' and c <= '9' ) or ( c >= 'a' and c <= 'z' ) or ( c >= 'A' and c <= 'Z' ):
 				return True
 		return False
-
-	# Reads an NFO file and convert it to Unicode.
+	
 	@staticmethod
-	def ReadNfoFileToUnicode(path):
+	def __IsUsefulLine(line):
+		# If a line doesn't contain any useful characters (digit or letter) then we throw the whole line away. 
+		if len( line ) <= 0 or ( not NfoParser.__IsLineContainsAnyUsefulCharacter( line ) ):
+			return False
+
+		# If the line doesn't contain spaces or a periods than it most likely doesn't contain any text, just drawing by text. (See an NFO of a Japhson release for example.)
+		# (Period is checked because some NFOs are padded by them instead of spaces.)
+		for c in line:
+			if c == ' ' or c == '.':
+				return True
+			
+		return False
+
+	# Reads an NFO file and converts it to Unicode.
+	@staticmethod
+	def ReadNfoFileToUnicodeWithoutAltering(path):
 		# Read as binary.
 		nfoFile = open( path, "rb" )
 		nfo = nfoFile.read()
@@ -54,21 +69,40 @@ class NfoParser:
 		# NFOs use codepage 437.
 		# http://en.wikipedia.org/wiki/.nfo
 		nfo = nfo.decode( "cp437", "ignore" )
+		return nfo
 
-		# Remove "graphics" from the NFO.
+	@staticmethod
+	def __ReadNfoProcessWrappedLines(wrappedLines):
+		nfo = u""
+		for wrappedLine in wrappedLines:
+			line = NfoParser.__StripNonAscii( wrappedLine )
+			line = line.strip()
+			if NfoParser.__IsUsefulLine( line ):
+				nfo += line + "\n"
+
+		return nfo
+
+	# Reads an NFO file and converts it to Unicode.
+	# Removes the graphics from NFO.
+	# Breaks too long lines (more than 100 character) to separate lines. 
+	@staticmethod
+	def ReadNfoFileToUnicode(path):
+		nfo = NfoParser.ReadNfoFileToUnicodeWithoutAltering( path )
+		
 		lines = nfo.split( "\n" )
 		nfo = u""
+		textWrapper = textwrap.TextWrapper( width = 100 )
 		previousLineWasEmpty = True
+		
 		for line in lines:
-			line = NfoParser.__StripNonAscii( line )
-			line = line.strip()
-			# If a line doesn't contains any useful characters (digit or letter) then we throw the whole line away. 
-			if len( line ) > 0 and NfoParser.__IsLineContainsAnyUsefulCharacter( line ):
+			wrappedLines = textWrapper.wrap( line )
+			nfoLine = NfoParser.__ReadNfoProcessWrappedLines( wrappedLines )
+			if len( nfoLine ) > 0:
+				nfo += nfoLine
 				previousLineWasEmpty = False
-				nfo += line + "\n"
 			elif not previousLineWasEmpty:
-				previousLineWasEmpty = True
 				nfo += "\n"
+				previousLineWasEmpty = True
 
 		return nfo
 
