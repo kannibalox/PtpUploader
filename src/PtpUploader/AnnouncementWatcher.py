@@ -31,9 +31,12 @@ class AnnouncementWatcher:
 		releaseInfo.AnnouncementSource = announcementSource
 		releaseInfo.AnnouncementSourceName = announcementSource.Name
 		releaseInfo.AnnouncementId = announcementId
-		releaseInfo.Logger = Logger( releaseInfo.GetLogFilePath() )
 		Database.DbSession.add( releaseInfo )
 		Database.DbSession.commit()
+
+		# This must be after the commit because GetLogFilePath uses the Id.
+		releaseInfo.Logger = Logger( releaseInfo.GetLogFilePath() )
+
 		return releaseInfo
 	
 	# No logging here because it would result in spamming.
