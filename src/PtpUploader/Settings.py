@@ -124,6 +124,7 @@ class Settings(object):
 		Settings.TorrentLeechPassword = Settings.__GetDefault( configParser, "Settings", "TorrentLeechPassword", "" )
 		Settings.TorrentLeechMaximumParallelDownloads = int( Settings.__GetDefault( configParser, "Settings", "TorrentLeechMaximumParallelDownloads", "1" ) )
 		Settings.TorrentLeechAutomaticJobFilter = Settings.__GetDefault( configParser, "Settings", "TorrentLeechAutomaticJobFilter", "" )
+		Settings.TorrentFileSourceMaximumParallelDownloads = int( Settings.__GetDefault( configParser, "Settings", "TorrentFileSourceMaximumParallelDownloads", "3" ) )
 		
 		Settings.ImgurApiKey = Settings.__GetDefault( configParser, "Settings", "ImgurApiKey", "" )
 		Settings.OnSuccessfulUpload = Settings.__GetDefault( configParser, "Settings", "OnSuccessfulUpload", "", raw = True )

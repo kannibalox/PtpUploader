@@ -11,7 +11,7 @@ from Settings import Settings
 class Torrent(SourceBase):
 	def __init__(self):
 		self.Name = "torrent"
-		self.MaximumParallelDownloads = 1
+		self.MaximumParallelDownloads = Settings.TorrentFileSourceMaximumParallelDownloads
 
 	@staticmethod
 	def PrepareDownload(logger, releaseInfo):
