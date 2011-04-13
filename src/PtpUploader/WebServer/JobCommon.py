@@ -98,6 +98,9 @@ class JobCommon:
 	
 		if request.values.get( "ForceDirectorylessSingleFileTorrent" ) is not None:
 			releaseInfo.SetForceDirectorylessSingleFileTorrent()
+
+		if request.values.get( "StartImmediately" ) is not None:
+			releaseInfo.SetStartImmediately()
 	
 		releaseInfo.ReleaseNotes = request.values[ "ReleaseNotes" ]
 
@@ -159,5 +162,8 @@ class JobCommon:
 	
 		if releaseInfo.IsForceDirectorylessSingleFileTorrent():
 			 job[ "ForceDirectorylessSingleFileTorrent" ] = "on"
+
+		if releaseInfo.IsStartImmediately():
+			 job[ "StartImmediately" ] = "on"
 	
 		job[ "ReleaseNotes" ] = releaseInfo.ReleaseNotes

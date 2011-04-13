@@ -20,6 +20,9 @@ class ReleaseInfoFlags:
 	
 	# If set, then it overrides the value returned by SourceBase.IsSingleFileTorrentNeedsDirectory.
 	ForceDirectorylessSingleFileTorrent = 1 << 2
+	
+	# If this is set then the job will be the next processed job and the download will start regardless the number of maximum parallel downloads set for the source.
+	StartImmediately                    = 1 << 3
 
 class ReleaseInfo(Database.Base):
 	__tablename__ = "release"
@@ -208,11 +211,21 @@ class ReleaseInfo(Database.Base):
 	def SetSpecialRelease(self):
 		self.Flags |= ReleaseInfoFlags.SpecialRelease
 
+	# See the description at the flag.
 	def IsForceDirectorylessSingleFileTorrent(self):
 		return ( self.Flags & ReleaseInfoFlags.ForceDirectorylessSingleFileTorrent ) != 0
 
+	# See the description at the flag.
 	def SetForceDirectorylessSingleFileTorrent(self):
 		self.Flags |= ReleaseInfoFlags.ForceDirectorylessSingleFileTorrent
+
+	# See the description at the flag.
+	def IsStartImmediately(self):
+		return ( self.Flags & ReleaseInfoFlags.StartImmediately ) != 0
+
+	# See the description at the flag.
+	def SetStartImmediately(self):
+		self.Flags |= ReleaseInfoFlags.StartImmediately
 
 	def CanEdited(self):
 		return self.JobRunningState != JobRunningState.WaitingForStart and self.JobRunningState != JobRunningState.InProgress and self.JobRunningState != JobRunningState.Finished

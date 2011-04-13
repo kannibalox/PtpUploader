@@ -57,13 +57,21 @@ class JobManager:
 			return item.ReleaseInfo
 
 	def __GetAnnouncementToProcess(self):
+		processIndex = -1
+		
 		# First check if we can process anything from the pending announcments.
+		# Jobs with immediate start option have priority over other jobs.
 		for announcementIndex in range( len( self.PendingAnnouncements ) ):
 			jobManagerItem = self.PendingAnnouncements[ announcementIndex ]
 			releaseInfo = self.__GetJobManagerItemAsReleaseInfo( jobManagerItem )
-			if self.__IsSourceAvailable( releaseInfo.AnnouncementSource ):
-				self.PendingAnnouncements.pop( announcementIndex )
-				return jobManagerItem
+			if releaseInfo.IsStartImmediately():
+				processIndex = announcementIndex
+				break
+			elif processIndex == -1 and self.__IsSourceAvailable( releaseInfo.AnnouncementSource ):
+				processIndex = announcementIndex
+
+		if processIndex != -1:		
+			return self.PendingAnnouncements.pop( processIndex )
 
 		# Check if there is new automatic announcements in the watch directory.
 		announcementToHandle = None
