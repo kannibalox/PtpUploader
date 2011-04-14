@@ -162,7 +162,7 @@ class Gft(SourceBase):
 
 		releaseName = Gft.__ReadTorrentPage( logger, releaseInfo )
 		if releaseName != releaseInfo.ReleaseName:
-			raise PtpUploaderException( "Announcement release name '%s' and release name '%s' on page '%s' are different." % ( releaseInfo.ReleaseName, releaseName, url ) )
+			raise PtpUploaderException( "Announcement release name '%s' and release name '%s' on GFT are different." % ( releaseInfo.ReleaseName, releaseName ) )
 
 		if releaseNameParser.Scene:
 			releaseInfo.SetSceneRelease()
