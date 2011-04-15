@@ -61,27 +61,30 @@ class ReleaseNameParser:
 	def __IsTagListContainAnythingFromListOfTagList(tagList, listOfTagList):
 		for listOfTagListElement in listOfTagList:
 			if tagList.IsContainsTags( listOfTagListElement ):
-				return True
+				return str( listOfTagListElement )
 
-		return False
+		return None
 
 	def IsAllowed(self):
-		# TODO: write to log what caused the return 
-
 		if self.Group in Settings.IgnoreReleaserGroup:
-			return False
+			return "Group '%s' is in your ignore list." % self.Group
 		
-		if len( Settings.AllowReleaseTag ) > 0 and not ReleaseNameParser.__IsTagListContainAnythingFromListOfTagList( self.Tags, Settings.AllowReleaseTag ):
-			return False
+		if len( Settings.AllowReleaseTag ) > 0:
+			match = ReleaseNameParser.__IsTagListContainAnythingFromListOfTagList( self.Tags, Settings.AllowReleaseTag )
+			if match is None:
+				return "Ignored because the release name didn't match against your allowed tags setting."
 
-		if ReleaseNameParser.__IsTagListContainAnythingFromListOfTagList( self.Tags, Settings.IgnoreReleaseTag ):
-			return False
+		match = ReleaseNameParser.__IsTagListContainAnythingFromListOfTagList( self.Tags, Settings.IgnoreReleaseTag )
+		if match is not None:
+			return "'%s' is on your ignore list." % match
 
 		if len( self.TagsAfterYear.List ) > 0:
-			if ReleaseNameParser.__IsTagListContainAnythingFromListOfTagList( self.TagsAfterYear, Settings.IgnoreReleaseTagAfterYear ):
-				return False
+			match = ReleaseNameParser.__IsTagListContainAnythingFromListOfTagList( self.TagsAfterYear, Settings.IgnoreReleaseTagAfterYear )
+			if match is not None:
+				return "'%s' is on your ignore list." % match
 		else:
-			if ReleaseNameParser.__IsTagListContainAnythingFromListOfTagList( self.Tags, Settings.IgnoreReleaseTagAfterYear ):
-				return False
+			match = ReleaseNameParser.__IsTagListContainAnythingFromListOfTagList( self.Tags, Settings.IgnoreReleaseTagAfterYear )
+			if match is not None:
+				return "'%s' is on your ignore list." % match
 
-		return True
+		return None

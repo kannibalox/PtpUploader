@@ -152,8 +152,9 @@ class Gft(SourceBase):
 		# In case of automatic announcement we have to check the release name if it is valid.
 		# We know the release name from the announcement, so we can filter it without downloading anything (yet) from the source.
 		releaseNameParser = ReleaseNameParser( releaseInfo.ReleaseName )
-		if not releaseNameParser.IsAllowed():
-			raise PtpUploaderException( JobRunningState.Ignored, "Ignored release because of its name." )
+		isAllowedMessage = releaseNameParser.IsAllowed()
+		if isAllowedMessage is not None:
+			raise PtpUploaderException( JobRunningState.Ignored, isAllowedMessage )
 
 		releaseNameParser.GetSourceAndFormat( releaseInfo )
 		
