@@ -3,15 +3,16 @@ from PtpUploaderException import PtpUploaderException
 import re
 
 class PtpMovieSearchResultItem:
-	def __init__(self, fullTitle, codec, container, source, resolution):
+	def __init__(self, fullTitle, codec, container, source, resolution, sizeText):
 		self.FullTitle = fullTitle
 		self.Codec = codec
 		self.Container = container
 		self.Source = source
 		self.Resolution = resolution
+		self.SizeText = sizeText
 		
 	def __repr__(self):
-		return self.FullTitle
+		return "%s | %s" % ( self.FullTitle, self.SizeText ) 
 
 # Notes:
 # - We treat HD-DVD and Blu-ray as same quality.
@@ -28,35 +29,29 @@ class PtpMovieSearchResult:
 		if moviePageHtml is not None:
 			self.__ParseMoviePage( moviePageHtml )
 
-	def __repr__(self):
-		result = ""
-		if len( self.SdList ) > 0:
-			result += "Standard Definition\n"
-			for item in self.SdList:
-				result += str( item ) + "\n"
-
-		if len( self.HdList ) > 0:
-			if len( result ) > 0:
-				result += "\n"
+	@staticmethod
+	def __ReprHelper(text, list, name):
+		if len( list ) > 0:
+			if len( text ) > 0:
+				text += "\n"
 			
-			result += "High Definition\n"
-			for item in self.HdList:
-				result += str( item ) + "\n"
+			text += name + "\n"
+			for item in list:
+				text += str( item ) + "\n"
+				
+		return text
 
-		if len( self.OtherList ) > 0:
-			if len( result ) > 0:
-				result += "\n"
-
-			result += "Other\n"
-			for item in self.OtherList:
-				result += str( item ) + "\n"
-
-		return result
+	def __repr__(self):
+		result = PtpMovieSearchResult.__ReprHelper( "", self.SdList, "Standard Definition" )
+		result = PtpMovieSearchResult.__ReprHelper( result, self.HdList, "High Definition" )
+		return PtpMovieSearchResult.__ReprHelper( result, self.OtherList, "Other" )
 
 	@staticmethod
 	def __ParseMoviePageMakeItems(itemList, regexFindList):
 		for regexFind in regexFindList:
-			elements = regexFind.split( " / " )
+			fullTitle = regexFind[ 0 ] 
+			sizeText = regexFind[ 1 ]
+			elements = fullTitle.split( " / " )
 			if len( elements ) < 4:
 				raise PtpUploaderException( "Error! Unknown torrent format on movie page: '%s'." % elements );
 
@@ -64,7 +59,7 @@ class PtpMovieSearchResult:
 			container = elements[ 1 ]
 			source = elements[ 2 ]
 			resolution = elements[ 3 ]
-			itemList.append( PtpMovieSearchResultItem( regexFind, codec, container, source, resolution ) )
+			itemList.append( PtpMovieSearchResultItem( fullTitle, codec, container, source, resolution, sizeText ) )
 
 	def __ParseMoviePage(self, html):
 		# We divide the HTML into three sections: SD, HD and Other type torrents.
@@ -88,9 +83,19 @@ class PtpMovieSearchResult:
 			
 		sortedSections.sort()
 
+		# Well, the following regular expression is a bit long. :)
+		# There are two variations for the address because the downloaded/seeding torrents are displayed differently: 
 		# <a href="#" onclick="$('#torrent_37673').toggle(); show_description('35555', '62113'); return false;">XviD / AVI / DVD / 720x420</a>
 		# <a href="#" onclick="$('#torrent_55714').toggle(); show_description('35555', '62113'); return false;"><span style="float:none;color:#E5B244;"><strong>XviD / AVI / DVD / 608x256 / Scene</strong></span></a>
-		regEx = re.compile( """<a href="#" onclick="\$\('#torrent_\d+'\)\.toggle\(\); show_description\('\d+', '\d+'\); return false;">(?:<span style=".+"><strong>)?(.+?)(?:</strong></span>)?</a>""" )
+		regEx = re.compile(
+			"""<tr class="group_torrent" style="font-weight: normal;">"""\
+			""".+?<a href="#" onclick="\$\('#torrent_\d+'\)\.toggle\(\);.+?">(?:<span style=".+?"><strong>)?(.+?)(?:</strong></span>)?</a>"""\
+			""".+?</td>"""\
+			""".+?<td class="nobr">(.+?)</td>"""\
+			""".+?<td>\d+</td>"""\
+			""".+?<td>\d+</td>"""\
+			""".+?<td>\d+</td>"""\
+			""".+?</tr>""", re.DOTALL )
 
 		# Get the list of torrents for each section.
 		for i in range( len( sortedSections ) ):
