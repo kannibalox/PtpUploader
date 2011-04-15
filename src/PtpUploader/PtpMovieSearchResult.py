@@ -3,14 +3,15 @@ from PtpUploaderException import PtpUploaderException
 import re
 
 class PtpMovieSearchResultItem:
-	def __init__(self, codec, container, source, resolution):
+	def __init__(self, fullTitle, codec, container, source, resolution):
+		self.FullTitle = fullTitle
 		self.Codec = codec
 		self.Container = container
 		self.Source = source
 		self.Resolution = resolution
 		
 	def __repr__(self):
-		return "%s / %s / %s / %s" % ( self.Codec, self.Container, self.Source, self.Resolution )
+		return self.FullTitle
 
 # Notes:
 # - We treat HD-DVD and Blu-ray as same quality.
@@ -27,6 +28,31 @@ class PtpMovieSearchResult:
 		if moviePageHtml is not None:
 			self.__ParseMoviePage( moviePageHtml )
 
+	def __repr__(self):
+		result = ""
+		if len( self.SdList ) > 0:
+			result += "Standard Definition\n"
+			for item in self.SdList:
+				result += str( item ) + "\n"
+
+		if len( self.HdList ) > 0:
+			if len( result ) > 0:
+				result += "\n"
+			
+			result += "High Definition\n"
+			for item in self.HdList:
+				result += str( item ) + "\n"
+
+		if len( self.OtherList ) > 0:
+			if len( result ) > 0:
+				result += "\n"
+
+			result += "Other\n"
+			for item in self.OtherList:
+				result += str( item ) + "\n"
+
+		return result
+
 	@staticmethod
 	def __ParseMoviePageMakeItems(itemList, regexFindList):
 		for regexFind in regexFindList:
@@ -38,7 +64,7 @@ class PtpMovieSearchResult:
 			container = elements[ 1 ]
 			source = elements[ 2 ]
 			resolution = elements[ 3 ]
-			itemList.append( PtpMovieSearchResultItem( codec, container, source, resolution ) )
+			itemList.append( PtpMovieSearchResultItem( regexFind, codec, container, source, resolution ) )
 
 	def __ParseMoviePage(self, html):
 		# We divide the HTML into three sections: SD, HD and Other type torrents.
