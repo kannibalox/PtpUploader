@@ -1,3 +1,4 @@
+from Helper import GetSizeFromText
 from PtpUploaderException import PtpUploaderException
 
 import re
@@ -10,6 +11,7 @@ class PtpMovieSearchResultItem:
 		self.Source = source
 		self.Resolution = resolution
 		self.SizeText = sizeText
+		self.Size = GetSizeFromText( sizeText )
 		
 	def __repr__(self):
 		return "%s | %s" % ( self.FullTitle, self.SizeText ) 
@@ -19,6 +21,7 @@ class PtpMovieSearchResultItem:
 # - We treat DVD and Blu-ray rips equally in the standard definition category.
 # - We treat H.264 and x264 equally because of the uploading rules: "MP4 can only be trumped by MKV if the use of that container causes problems with video or audio".
 # - We treat XviD and DivX equally because of the uploading rules: "DivX may be trumped by XviD, if the latter improves on the quality of the former. In cases where the DivX is well distributed and the XviD offers no significant improvement in quality, the staff may decide to keep the former in order to preserve the availability of the movie."
+# - We support the checking of possible co-existence for different sized SD XviD and SD x264 releases. (E.g.: an 1400 MB upload won't be treated as a duplicate of a 700 MB release.) 
 class PtpMovieSearchResult:
 	def __init__(self, ptpId, moviePageHtml):
 		self.PtpId = ptpId;
@@ -116,16 +119,21 @@ class PtpMovieSearchResult:
 		result = re.findall( """<a href="#" onclick="\$\('#torrent_\d+'\)\.toggle\(\);""", html )
 		if ( not result ) or len( result ) == 0 or len( result ) != ( len( self.SdList ) + len( self.HdList ) + len( self.OtherList ) ):
 			raise PtpUploaderException( "Error! Unknown torrent format on movie page." );  
-	
+
 	@staticmethod
-	def __IsInList(list, codecs, sources = None, resolutions = None):
+	def __GetListOfMatches(list, codecs, sources = None, resolutions = None):
+		result= []
 		for item in list:
 			if ( item.Codec in codecs ) \
 				and ( ( sources is None ) or ( item.Source in sources ) ) \
 				and ( ( resolutions is None ) or ( item.Resolution in resolutions ) ): 
-				return item
-				
-		return None 
+				result.append( item )
+
+		return result
+	
+	@staticmethod
+	def __IsInList(list, codecs, sources = None, resolutions = None):
+		return len( PtpMovieSearchResult.__GetListOfMatches( list, codecs, sources, resolutions ) ) > 0 
 	
 	@staticmethod
 	def __IsFineSource(source):
@@ -139,12 +147,36 @@ class PtpMovieSearchResult:
 		
 		raise PtpUploaderException( "Can't check whether the release '%s' exist on PTP because its type is unsupported." % releaseInfo.ReleaseName );
 
+	@staticmethod
+	def __CanCoExist(existingReleases, releaseInfo, minimumSizeDifferenceToCoExist):
+		if len( existingReleases ) <= 0:
+			return False
+		elif len( existingReleases ) >= 2:
+			return True
+
+		existingRelease = existingReleases[ 0 ]
+
+		# If size is not set, we can't compare.
+		if releaseInfo.Size == 0 or existingRelease.Size == 0:
+			return True
+
+		# If the current release is significantly larger than the existing one then we don't treat it as a duplicate.
+		return ( existingRelease.Size + minimumSizeDifferenceToCoExist ) > releaseInfo.Size 
+
+	# From the rules:
+	# "In general terms, 1CD (700MB) and 2CD (1400MB) XviD rips may always co-exist, same as 2CD (1400MB) and 3CD (2100MB) in the case of longer movies (2 hours+). Those sizes should only be used as general indicators as many rips may fall above or below them."
+	# "Along with two AVI rips, two x264 of varying qualities may coexist." 
 	def __IsSdFineSourceReleaseExists(self, releaseInfo):
+		# 600 MB seems like a good choice. Comparing by size ratio wouldn't be too effective.
+		minimumSizeDifferenceToCoExist = 600 * 1024 * 1024
+		
 		if releaseInfo.Source == "Blu-ray" or releaseInfo.Source == "HD-DVD" or releaseInfo.Source == "DVD":
 			if releaseInfo.Codec == "x264" or releaseInfo.Codec == "H.264":
-				return PtpMovieSearchResult.__IsInList( self.SdList, [ "x264", "H.264" ], [ "Blu-ray", "HD-DVD", "DVD" ] )
+				list = PtpMovieSearchResult.__GetListOfMatches( self.SdList, [ "x264", "H.264" ], [ "Blu-ray", "HD-DVD", "DVD" ] )
+				return PtpMovieSearchResult.__CanCoExist( list, releaseInfo, minimumSizeDifferenceToCoExist )
 			elif releaseInfo.Codec == "XviD" or releaseInfo.Codec == "DivX":
-				return PtpMovieSearchResult.__IsInList( self.SdList, [ "XviD", "DivX" ], [ "Blu-ray", "HD-DVD", "DVD" ] )
+				list = PtpMovieSearchResult.__GetListOfMatches( self.SdList, [ "XviD", "DivX" ], [ "Blu-ray", "HD-DVD", "DVD" ] )
+				return PtpMovieSearchResult.__CanCoExist( list, releaseInfo, minimumSizeDifferenceToCoExist )
 
 		raise PtpUploaderException( "Can't check whether the release '%s' exist on PTP because its type is unsupported." % releaseInfo.ReleaseName );
 		
