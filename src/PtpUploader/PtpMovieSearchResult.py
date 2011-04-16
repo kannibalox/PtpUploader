@@ -133,7 +133,11 @@ class PtpMovieSearchResult:
 	
 	@staticmethod
 	def __IsInList(list, codecs, sources = None, resolutions = None):
-		return len( PtpMovieSearchResult.__GetListOfMatches( list, codecs, sources, resolutions ) ) > 0 
+		existingReleases = PtpMovieSearchResult.__GetListOfMatches( list, codecs, sources, resolutions )
+		if len( existingReleases ) > 0:
+			return existingReleases[ 0 ]
+		else:
+			return None 
 	
 	@staticmethod
 	def __IsFineSource(source):
