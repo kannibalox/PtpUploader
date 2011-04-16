@@ -5,6 +5,7 @@ from WebServer.Authentication import requires_auth
 from WebServer.Pagination import Pagination
 
 from Database import Database
+from Helper import SizeToText
 from MyGlobals import MyGlobals
 from PtpUploaderMessage import *
 from ReleaseInfo import ReleaseInfo
@@ -31,12 +32,6 @@ def GetStateIcon(state):
 	# This is not possible.
 	return "error.png"
 
-def FormatSize(size):
-	if size < 1024 * 1024 * 1024:
-		return "%.2f MB" % ( float( size ) / ( 1024 * 1024 ) )
-	else:
-		return "%.2f GB" % ( float( size ) / ( 1024 * 1024 * 1024 ) )
-
 def ReleaseInfoToJobsPageData(releaseInfo, entry):
 	entry[ "Id" ] = releaseInfo.Id
 	entry[ "ReleaseName" ] = releaseInfo.ReleaseName
@@ -52,7 +47,7 @@ def ReleaseInfoToJobsPageData(releaseInfo, entry):
 		entry[ "PtpUrl" ] = "http://passthepopcorn.me/torrents.php?imdb=%s" % releaseInfo.GetImdbId()
 
 	entry[ "LogPageUrl" ] = url_for( "log", jobId = releaseInfo.Id )
-	entry[ "Size" ] = FormatSize( releaseInfo.Size )
+	entry[ "Size" ] = SizeToText( releaseInfo.Size )
 
 	if releaseInfo.CanEdited():
 		entry[ "EditJobUrl" ] = url_for( "EditJob", jobId = releaseInfo.Id )

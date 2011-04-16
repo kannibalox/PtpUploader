@@ -21,3 +21,9 @@ def GetSizeFromText(text):
 		return int( matches.group( 1 ) )
 
 	return 0
+
+def SizeToText(size):
+	if size < 1024 * 1024 * 1024:
+		return "%.2f MB" % ( float( size ) / ( 1024 * 1024 ) )
+	else:
+		return "%.2f GB" % ( float( size ) / ( 1024 * 1024 * 1024 ) )

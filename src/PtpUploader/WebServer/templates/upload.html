@@ -13,7 +13,9 @@
 				<td>
 					<input type="file" id="upload_field" accept="application/x-bittorrent" title="You have to specify an IMDB or PTP link too."/>
 					<img src="{{ url_for( "static", filename = "throbber.gif" ) }}" style="display: none;" id="upload_throbber">
+					<span id="uploaded_torrentcontentsizetext"></span>
 					<input id="uploaded_torrentfilename" name="uploaded_torrentfilename" type="hidden">
+					<input id="uploaded_torrentcontentsize" name="uploaded_torrentcontentsize" type="hidden">
 				</td>
 			</tr>
 
@@ -77,10 +79,10 @@
 				var jsonResult = jsonResponse[ "result" ]
 				if ( jsonResult == "OK" )
 				{
-					var jsonTorrentFilename = jsonResponse[ "torrentFilename" ];
-					var jsonReleaseName = jsonResponse[ "releaseName" ];
-					$( "#uploaded_torrentfilename" ).val( jsonTorrentFilename );
-					$( "#release_name" ).val( jsonReleaseName );
+					$( "#uploaded_torrentfilename" ).val( jsonResponse[ "torrentFilename" ] );
+					$( "#uploaded_torrentcontentsize" ).val( jsonResponse[ "torrentContentSize" ] );
+					$( "#uploaded_torrentcontentsizetext" ).text( jsonResponse[ "torrentContentSizeText" ] );
+					$( "#release_name" ).val( jsonResponse[ "releaseName" ] );
 					$( "#upload_throbber" ).fadeOut( "slow" );
 				}
 				else
