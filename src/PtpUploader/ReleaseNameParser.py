@@ -8,14 +8,19 @@ class ReleaseNameParser:
 	def __init__(self, name):
 		originalName = name
 
-		# Simply popping the last tag as a group name wouldn't work because of P2P releaes with multiple dashes in it:
+		# Simply popping the last tag as a group name wouldn't work because of P2P release with multiple dashes in it:
 		# Let Me In 2010 DVDRIP READNFO XViD-T0XiC-iNK
-		name = name.lower()
-		name, separator, self.Group = name.partition( "-" )
-		if len( name ) <= 0:
+		
+		self.NameWithoutGroup = name.lower()
+		self.Group = ""
+
+		if not self.__HandleSpecialGroupName( "t0xic-ink" ):
+			self.NameWithoutGroup, separator, self.Group = self.NameWithoutGroup.rpartition( "-" )
+			
+		if len( self.NameWithoutGroup ) <= 0:
 			raise PtpUploaderException( "Release name '%s' is empty." % originalName )
 
-		name = name.replace( ".", " " )
+		name = self.NameWithoutGroup.replace( ".", " " )
 		self.Tags = TagList( name.split( " " ) )
 
 		# This is not perfect (eg.: The Legend of 1900), but it doesn't matter if the real year will be included in the tags.
@@ -26,6 +31,16 @@ class ReleaseNameParser:
 				break
 
 		self.Scene = self.Group in Settings.SceneReleaserGroup
+		
+	def __HandleSpecialGroupName(self, groupName):
+		groupNameWithDash = "-" + groupName
+		index = self.NameWithoutGroup.rfind( groupNameWithDash )
+		if index == -1:
+			return False
+
+		self.NameWithoutGroup = self.NameWithoutGroup[ : index ]
+		self.Group = groupName
+		return True
 
 	def GetSourceAndFormat(self, releaseInfo):
 		if releaseInfo.IsCodecSet():
