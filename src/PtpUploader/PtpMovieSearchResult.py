@@ -150,18 +150,21 @@ class PtpMovieSearchResult:
 	@staticmethod
 	def __CanCoExist(existingReleases, releaseInfo, minimumSizeDifferenceToCoExist):
 		if len( existingReleases ) <= 0:
-			return False
+			return None
 		elif len( existingReleases ) >= 2:
-			return True
+			return existingReleases[ 0 ]
 
 		existingRelease = existingReleases[ 0 ]
 
 		# If size is not set, we can't compare.
 		if releaseInfo.Size == 0 or existingRelease.Size == 0:
-			return True
+			return existingRelease
 
 		# If the current release is significantly larger than the existing one then we don't treat it as a duplicate.
-		return ( existingRelease.Size + minimumSizeDifferenceToCoExist ) > releaseInfo.Size 
+		if releaseInfo.Size > ( existingRelease.Size + minimumSizeDifferenceToCoExist ):
+			return None
+		else:
+			return existingRelease
 
 	# From the rules:
 	# "In general terms, 1CD (700MB) and 2CD (1400MB) XviD rips may always co-exist, same as 2CD (1400MB) and 3CD (2100MB) in the case of longer movies (2 hours+). Those sizes should only be used as general indicators as many rips may fall above or below them."
