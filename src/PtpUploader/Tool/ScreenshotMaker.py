@@ -49,11 +49,12 @@ class ScreenshotMaker:
 		self.ScaleSize = "%sx%s" % ( width, height )
 
 	# time: string in hh:mm:ss format: "00:00:20"
-	def Make(self, time, outputImagePath):
+	def MakeScreenshotInPng(self, time, outputImagePath):
 		self.Logger.info( "Making screenshot from '%s' to '%s'." % ( self.InputVideoPath, outputImagePath ) )
 		
 		# -an: disable audio
 		# -sn: disable subtitle
+		args = []
 		if self.ScaleSize is None:
 			args = [ Settings.FfmpegPath, "-an", "-sn", "-ss", time, "-i", self.InputVideoPath, "-vcodec", "png", "-vframes", "1", outputImagePath ]
 		else:
@@ -63,6 +64,27 @@ class ScreenshotMaker:
 		errorCode = subprocess.call( args )
 		if errorCode != 0:
 			raise PtpUploaderException( "Process execution '%s' returned with error code '%s'." % ( args, errorCode ) )			
+
+	def ConvertImageToJpg(self, sourceImagePath, outputImagePath):
+		self.Logger.info( "Converting image from '%s' to '%s'." % ( sourceImagePath, outputImagePath ) )
+
+		args = [ Settings.ImageMagickConvertPath, sourceImagePath, "-quality", "97", outputImagePath ]
+		errorCode = subprocess.call( args )
+		if errorCode != 0:
+			raise PtpUploaderException( "Process execution '%s' returned with error code '%s'." % ( args, errorCode ) )
+
+	# time: string in hh:mm:ss format: "00:00:20"
+	def Make(self, time, outputImagePathWithoutExtension):
+		outputPngPath = outputImagePathWithoutExtension + ".png"
+		self.MakeScreenshotInPng( time, outputPngPath )
+		
+		if len( Settings.ImageMagickConvertPath ) > 0:
+			outputJpgPath = outputImagePathWithoutExtension + ".jpg"
+			self.ConvertImageToJpg( outputPngPath, outputJpgPath )
+			os.remove( outputPngPath )
+			return outputJpgPath
+		else:
+			return outputPngPath
 
 	# We sort video files by their size (less than 50 MB difference is ignored) and by their name.
 	# Sorting by name is needed to ensure that the screenshot is taken from the first video to avoid spoilers when a release contains multiple videos.
@@ -106,8 +128,8 @@ class ScreenshotMaker:
 		return files
 
 	# Returns with the URL of the uploaded image.
-	def __TakeAndUploadScreenshot(self, time, screenshotPath):
-		self.Make( time, screenshotPath )
+	def __TakeAndUploadScreenshot(self, time, screenshotPathWithoutExtension):
+		screenshotPath = self.Make( time, screenshotPathWithoutExtension )
 		imageUrl = ImageUploader.Upload( self.Logger, imagePath = screenshotPath )
 		os.remove( screenshotPath )
 		return imageUrl
@@ -118,11 +140,11 @@ class ScreenshotMaker:
 
 	# Takes five screenshots from the first 30% of the video.
 	# Returns with the URLs of the uploaded images.
-	def TakeAndUploadScreenshots(self, screenshotPath, durationInSec):
-		urls = [];
-		urls.append( self.__TakeAndUploadScreenshot( ScreenshotMaker.__SecondsToFfmpegTime( durationInSec * 0.10 ), screenshotPath ) )
-		urls.append( self.__TakeAndUploadScreenshot( ScreenshotMaker.__SecondsToFfmpegTime( durationInSec * 0.15 ), screenshotPath ) )
-		urls.append( self.__TakeAndUploadScreenshot( ScreenshotMaker.__SecondsToFfmpegTime( durationInSec * 0.20 ), screenshotPath ) )
-		urls.append( self.__TakeAndUploadScreenshot( ScreenshotMaker.__SecondsToFfmpegTime( durationInSec * 0.25 ), screenshotPath ) )
-		urls.append( self.__TakeAndUploadScreenshot( ScreenshotMaker.__SecondsToFfmpegTime( durationInSec * 0.30 ), screenshotPath ) )
+	def TakeAndUploadScreenshots(self, screenshotPathWithoutExtension, durationInSec):
+		urls = []
+		urls.append( self.__TakeAndUploadScreenshot( ScreenshotMaker.__SecondsToFfmpegTime( durationInSec * 0.10 ), screenshotPathWithoutExtension ) )
+		urls.append( self.__TakeAndUploadScreenshot( ScreenshotMaker.__SecondsToFfmpegTime( durationInSec * 0.15 ), screenshotPathWithoutExtension ) )
+		urls.append( self.__TakeAndUploadScreenshot( ScreenshotMaker.__SecondsToFfmpegTime( durationInSec * 0.20 ), screenshotPathWithoutExtension ) )
+		urls.append( self.__TakeAndUploadScreenshot( ScreenshotMaker.__SecondsToFfmpegTime( durationInSec * 0.25 ), screenshotPathWithoutExtension ) )
+		urls.append( self.__TakeAndUploadScreenshot( ScreenshotMaker.__SecondsToFfmpegTime( durationInSec * 0.30 ), screenshotPathWithoutExtension ) )
 		return urls

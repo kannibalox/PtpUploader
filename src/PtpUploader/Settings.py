@@ -134,6 +134,7 @@ class Settings(object):
 		Settings.MediaInfoPath = configParser.get( "Settings", "MediaInfoPath" )
 		Settings.MktorrentPath = configParser.get( "Settings", "MktorrentPath" )
 		Settings.UnrarPath = configParser.get( "Settings", "UnrarPath" )
+		Settings.ImageMagickConvertPath = Settings.__GetDefault( configParser, "Settings", "ImageMagickConvertPath", "" ) 
 		
 		Settings.WorkingPath = configParser.get( "Settings", "WorkingPath" )
 		

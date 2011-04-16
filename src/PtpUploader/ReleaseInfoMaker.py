@@ -76,10 +76,17 @@ class ReleaseInfoMaker:
 		
 		# Make sure the files we are generating are not present.
 
-		screenshotPath = os.path.join( self.WorkingDirectory, "screenshot.png" )
-		if os.path.exists( screenshotPath ):
-			print "Can't create screenshot because '%s' already exists!" % screenshotPath
+		screenshotPath = os.path.join( self.WorkingDirectory, "screenshot" )
+		screenshotPathWithExtension = screenshotPath + ".png"
+		if os.path.exists( screenshotPathWithExtension ):
+			print "Can't create screenshot because '%s' already exists!" % screenshotPathWithExtension
 			return
+
+		if len( Settings.ImageMagickConvertPath ) > 0:
+			screenshotPathWithExtension = screenshotPath + ".jpg"
+			if os.path.exists( screenshotPathWithExtension ):
+				print "Can't create screenshot because '%s' already exists!" % screenshotPathWithExtension
+				return
 		
 		releaseDescriptionFilePath = os.path.join( self.WorkingDirectory, "release description.txt" )
 		if os.path.exists( releaseDescriptionFilePath ):
