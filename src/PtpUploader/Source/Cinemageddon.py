@@ -48,6 +48,7 @@ class Cinemageddon(SourceBase):
 		request = urllib2.Request( url )
 		result = opener.open( request )
 		response = result.read()
+		response = response.decode( "ISO-8859-1", "ignore" )
 		Cinemageddon.__CheckIfLoggedInFromResponse( response )
 
 		# Make sure we only get information from the description and not from the comments.

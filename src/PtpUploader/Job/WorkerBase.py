@@ -28,7 +28,7 @@ class WorkerBase:
 			else:
 				self.ReleaseInfo.JobRunningState = JobRunningState.Failed
 
-			self.ReleaseInfo.ErrorMessage = str( e )
+			self.ReleaseInfo.ErrorMessage = unicode( e )
 			Database.DbSession.commit()
 			
 			e.Logger = self.ReleaseInfo.Logger
