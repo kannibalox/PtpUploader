@@ -87,7 +87,7 @@ class ReleaseNameParser:
 		if len( Settings.AllowReleaseTag ) > 0:
 			match = ReleaseNameParser.__IsTagListContainAnythingFromListOfTagList( self.Tags, Settings.AllowReleaseTag )
 			if match is None:
-				return "Ignored because the release name didn't match against your allowed tags setting."
+				return "Ignored because didn't match your allowed tags setting."
 
 		match = ReleaseNameParser.__IsTagListContainAnythingFromListOfTagList( self.Tags, Settings.IgnoreReleaseTag )
 		if match is not None:
