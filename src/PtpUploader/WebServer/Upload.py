@@ -92,8 +92,8 @@ def UploadTorrentSiteLink(releaseInfo, request):
 	return True 
 
 def UploadFile(releaseInfo, request):
-	path = request.values[ "existingfile_input" ]
-	if len( path ) <= 0:
+	path = request.values.get( "existingfile_input" )
+	if ( path is None ) or len( path ) <= 0:
 		return False
 
 	# TODO: implement me
