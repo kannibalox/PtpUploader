@@ -208,6 +208,10 @@ class PtpMovieSearchResult:
 		if not self.IsMoviePageExists():
 			return None
 
+		# We can't check if a special release is duplicate or not, but only manually edited jobs can be special releases so we allow them without checking.
+		if releaseInfo.IsSpecialRelease():
+			return None
+
 		# If source is not DVD/HD-DVD/Blu-ray then we check if there is a release with any proper quality sources.
 		# If there is, we won't add this lower quality release.
 		if not PtpMovieSearchResult.__IsFineSource( releaseInfo.Source ):
@@ -219,15 +223,13 @@ class PtpMovieSearchResult:
 				if PtpMovieSearchResult.__IsFineSource( item.Source ):
 					return item
 
-		# We can't check special releases.
-		if not releaseInfo.IsSpecialRelease():
-			if releaseInfo.IsHighDefinition():
-				if PtpMovieSearchResult.__IsFineSource( releaseInfo.Source ):
-					return self.__IsHdFineSourceReleaseExists( releaseInfo )
-			elif releaseInfo.IsStandardDefinition():
-				if PtpMovieSearchResult.__IsFineSource( releaseInfo.Source ):
-					return self.__IsSdFineSourceReleaseExists( releaseInfo )
-				else:
-					return self.__IsSdNonFineSourceReleaseExists( releaseInfo )
+		if releaseInfo.IsHighDefinition():
+			if PtpMovieSearchResult.__IsFineSource( releaseInfo.Source ):
+				return self.__IsHdFineSourceReleaseExists( releaseInfo )
+		elif releaseInfo.IsStandardDefinition():
+			if PtpMovieSearchResult.__IsFineSource( releaseInfo.Source ):
+				return self.__IsSdFineSourceReleaseExists( releaseInfo )
+			else:
+				return self.__IsSdNonFineSourceReleaseExists( releaseInfo )
 			
 		raise PtpUploaderException( "Can't check whether the release '%s' exists on PTP because its type is unsupported." % releaseInfo.ReleaseName );
