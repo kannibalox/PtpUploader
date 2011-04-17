@@ -27,3 +27,12 @@ def SizeToText(size):
 		return "%.2f MB" % ( float( size ) / ( 1024 * 1024 ) )
 	else:
 		return "%.2f GB" % ( float( size ) / ( 1024 * 1024 * 1024 ) )
+
+# Nice...
+try:
+	from urlparse import parse_qs
+except ImportError:
+	from cgi import parse_qs
+	
+def ParseQueryString(query):
+	return parse_qs( query )

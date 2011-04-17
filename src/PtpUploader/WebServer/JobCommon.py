@@ -1,3 +1,4 @@
+from Helper import ParseQueryString
 from Job.JobStartMode import JobStartMode
 from NfoParser import NfoParser
 
@@ -16,7 +17,7 @@ class JobCommon:
 	def __GetYouTubeId(text):
 		url = urlparse.urlparse( JobCommon.__AddHttpToUrl( text ) )
 		if url.netloc == "youtube.com" or url.netloc == "www.youtube.com":
-			params = urlparse.parse_qs( url.query )
+			params = ParseQueryString( url.query )
 			youTubeIdList = params.get( "v" )
 			if youTubeIdList is not None:
 				return youTubeIdList[ 0 ]
@@ -35,7 +36,7 @@ class JobCommon:
 			# https://passthepopcorn.me/torrents.php?id=9730&torrentid=72322
 			url = urlparse.urlparse( JobCommon.__AddHttpToUrl( text ) )
 			if url.netloc == "passthepopcorn.me" or url.netloc == "www.passthepopcorn.me":
-				params = urlparse.parse_qs( url.query )
+				params = ParseQueryString( url.query )
 				ptpIdList = params.get( "id" )
 				if ptpIdList is not None:
 					releaseInfo.PtpId = ptpIdList[ 0 ]
