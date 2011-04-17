@@ -6,6 +6,9 @@ class TagList:
 		return tag in self.List
 
 	def __IsMatchesAt(self, startIndex, tags):
+		if ( startIndex + len( tags.List ) ) > len( self.List ):
+			return False
+
 		for i in range( len( tags.List ) ): 
 			if self.List[ startIndex + i ] != tags.List[ i ]:
 				return False
@@ -14,12 +17,20 @@ class TagList:
 
 	def IsContainsTags(self, tags):
 		for i in range( len( self.List ) ):
-			if ( i + len( tags.List ) ) > len( self.List ):
-				return False
-
 			if self.__IsMatchesAt( i, tags ):
 				return True
 
+		return False
+	
+	def RemoveTagsFromEndIfPossible(self, tags):
+		if len( self.List ) <= 0 or len( tags.List ) <= 0 or len( tags.List ) > len( self.List ):
+			return False
+
+		index = len( self.List ) - len( tags.List )
+		if self.__IsMatchesAt( index, tags ):
+			self.List = self.List[ : index ] 
+			return True
+		
 		return False
 	
 	def __repr__(self):

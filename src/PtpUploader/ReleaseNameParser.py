@@ -10,18 +10,25 @@ class ReleaseNameParser:
 
 		# Simply popping the last tag as a group name wouldn't work because of P2P release with multiple dashes in it:
 		# Let Me In 2010 DVDRIP READNFO XViD-T0XiC-iNK
-		
-		self.NameWithoutGroup = name.lower()
+
 		self.Group = ""
+		
+		name = name.lower()
+		name = name.replace( ".", " " )
+		name = name.strip()
 
-		if not self.__HandleSpecialGroupName( "t0xic-ink" ):
-			self.NameWithoutGroup, separator, self.Group = self.NameWithoutGroup.rpartition( "-" )
-			
-		if len( self.NameWithoutGroup ) <= 0:
-			raise PtpUploaderException( "Release name '%s' is empty." % originalName )
+		# Check if there is a group name in the release name.
+		if name.rfind( '-' ) == -1 or name.endswith( "-" ):
+			self.Tags = TagList( name.split( " " ) )
+		else:
+			name = name.replace( "-", " " )
+			name = name.strip()
+			self.Tags = TagList( name.split( " " ) )
+			if not self.__HandleSpecialGroupName( TagList( [ "t0xic", "ink" ] ) ):
+				self.Group = self.Tags.List.pop()
 
-		name = self.NameWithoutGroup.replace( ".", " " )
-		self.Tags = TagList( name.split( " " ) )
+		if len( self.Tags.List ) <= 0:
+			raise PtpUploaderException( "Release name '%s' doesn't contain any tags." % originalName )
 
 		# This is not perfect (eg.: The Legend of 1900), but it doesn't matter if the real year will be included in the tags.
 		self.TagsAfterYear = TagList( [] )
@@ -32,15 +39,12 @@ class ReleaseNameParser:
 
 		self.Scene = self.Group in Settings.SceneReleaserGroup
 		
-	def __HandleSpecialGroupName(self, groupName):
-		groupNameWithDash = "-" + groupName
-		index = self.NameWithoutGroup.rfind( groupNameWithDash )
-		if index == -1:
-			return False
-
-		self.NameWithoutGroup = self.NameWithoutGroup[ : index ]
-		self.Group = groupName
-		return True
+	def __HandleSpecialGroupName(self, groupNameAsTagList):
+		if self.Tags.RemoveTagsFromEndIfPossible( groupNameAsTagList ):
+			self.Group = "-".join( groupNameAsTagList.List )
+			return True
+		
+		return False
 
 	def GetSourceAndFormat(self, releaseInfo):
 		if releaseInfo.IsCodecSet():
