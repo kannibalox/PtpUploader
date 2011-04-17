@@ -68,13 +68,14 @@ class ScreenshotMaker:
 	def ConvertImageToJpg(self, sourceImagePath, outputImagePath):
 		self.Logger.info( "Converting image from '%s' to '%s'." % ( sourceImagePath, outputImagePath ) )
 
+		# TODO: temp try catch
 		try:
 			args = [ Settings.ImageMagickConvertPath, sourceImagePath, "-quality", "97", outputImagePath ]
 			errorCode = subprocess.call( args )
 			if errorCode != 0:
 				raise PtpUploaderException( "Process execution '%s' returned with error code '%s'." % ( args, errorCode ) )
 		except Exception:
-			self.Logger( "Got exception while trying to execute process '%s'." % args )
+			self.Logger.info( "Got exception while trying to execute process '%s'." % args )
 			raise
 
 	# time: string in hh:mm:ss format: "00:00:20"
