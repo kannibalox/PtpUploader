@@ -33,18 +33,9 @@ def MyDownload(downloadID, downloadType, site, location=False, network=False, ta
 	
 	print "PtpUploaderIrcBot got a new announcement. Site: '%s'. Id: '%s'. Announcement text: '%s'." % ( site, downloadID, announce );
 
-	# Map from pyWA to our name.
-	if site == "thegft":
-		site = "gft";
-
 	if announce: # Automatic announcements come with the full announcement message.
-		if site == "gft":
+		if site == "thegft":
 			HandleGftAutoAnnouncement( announce );
-	else:
-		if site == "manual": # Manual announcement and manual download.
-			SendAnnouncementToPtpUploader( "manual", "0", downloadID ); # downloadID contains the release name
-		else: # Manual announcement and automatic download.
-			SendAnnouncementToPtpUploader( site, downloadID, "ManualAnnouncement" );
 
 def main(argv):
 	global AnnouncementDirectoryPath;
