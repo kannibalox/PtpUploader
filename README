@@ -1,45 +1,14 @@
-﻿PtpUploader v0.1 by TnS
+﻿PtpUploader by TnS
 
-The program does three things: watches for release announcements, downloads them and uploads them to PTP.
+With the PtpUploader's WebUI you can upload to PTP by specifying a torrent file and an IMDb or PTP link.
+There is also an automatic mode built-in that can check announcements from IRC or RSS and upload everything automatically.
 
-This is my first Python program ever, so sorry for the C-ish code and for the semicolons. :)
-
-Supported sources:
+Supported sites for automatic mode:
 	- Cinemageddon
 	- GFT
+	- TorrentLeech
 
-How it works:
-	1. Announcement watching
-		- it uses a wrapper for pyWHATauto to watch release announcements on IRC
-		- it uses FlexGet to watch release announcements on RSS
-		- checks release name and filters out the unwanted releases
-			- manual announcements are not checked
-		- gets IMDb id from NFO
-			- NFO is read from the source site
-			- in case of manual downloads, NFO is read from the downloaded release
-		- release type is figured out from release name (DVD rip, X264, ...)
-		- checks if the release exists on PTP
-			- manual announcements are not checked
-			- uses IMDb id and release type to check against the existing releases on PTP
-	2. Downloading
-		- in case of manual downloads it does nothing
-		- downloads the torrent file from the source
-		- torrent file is added to rTorrent and the bot waits till it finishes
-	3. Uploading
-		- the releases is extracted (including the subtitles) to a separate directory
-		- makes media info for all videos
-		- takes screenshots from the first (sorted by name) video and uploads to an image hoster (ptpimg or imgur)
-		- makes the torrent
-		- checks (again) if the release exists on PTP
-		- if there is no movie page for this movie on PTP, it uses PTP's IMDb info getter to fill out the required details
-			- rehosts the poster if it presents
-		- adds the torrent to rTorrent without hash checking
-		- fills out PTP's upload or add format form
-		- refreshes the movie page (needed to refresh the IMDb info)
-		
-Manual uploading:
-	PtpUploader can create release desription (with media info and screenshots) for manual uploading.
-
+PtpUploader can create release desription (with media info and screenshots) for manual uploading from command line.
 	Syntax:
 		- "ReleaseInfoMaker.py <target directory or filename>" creates the release description and starts seeding the torrent.
 		- "ReleaseInfoMaker.py --notorrent <target directory or filename>" creates the release description.
