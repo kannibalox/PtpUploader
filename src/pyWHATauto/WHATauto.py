@@ -62,22 +62,24 @@ def main():
     thread.start_new_thread(writeReport,(20,))
     out('DEBUG','Report thread started.\n')
     
-    out('DEBUG','Starting DB thread.\n')  
+	# TnS: we don't need the database.
+    #out('DEBUG','Starting DB thread.\n')  
     #Create the DB object
-    DB = db.sqlDB(G.SCRIPTDIR, G.Q)
-    DB.setDaemon(True)
-    DB.start()
-    out('DEBUG','DB thread started.\n')
+    #DB = db.sqlDB(G.SCRIPTDIR, G.Q)
+    #DB.setDaemon(True)
+    #DB.start()
+    #out('DEBUG','DB thread started.\n')
     
-    out('DEBUG','Starting web thread.\n')  
+	# TnS: we don't need the WebUI.
+    #out('DEBUG','Starting web thread.\n')  
     #Create the web object
-    try:
-        WEB = web.WebServer(G.SCRIPTDIR, SETUP.get('setup','password'), SETUP.get('setup','port'))
-    except Exception, e:
-        print e.message
-    WEB.setDaemon(True)
-    WEB.start()
-    out('DEBUG','Web thread started.\n')
+    #try:
+    #    WEB = web.WebServer(G.SCRIPTDIR, SETUP.get('setup','password'), SETUP.get('setup','port'))
+    #except Exception, e:
+    #    print e.message
+    #WEB.setDaemon(True)
+    #WEB.start()
+    #out('DEBUG','Web thread started.\n')
     
     irc = irclib.IRC()
     out('INFO','Main program loaded. Starting bots.\n')
@@ -1880,10 +1882,14 @@ class autoBOT( ):
             elif switch[0] in self.aliases:
                 self.sendMsg('Downloading %s from %s.    [pyWHATauto]'%(switch[1], self.aliases[switch[0]]), target)
                 if G.TESTING:
-                    download(switch[1], G.NETWORKS[self.aliases[switch[0]]]['regex']['downloadtype'], self.aliases[switch[0]], network=self, target=target)
+					# TnS
+					#download(switch[1], G.NETWORKS[self.aliases[switch[0]]]['regex']['downloadtype'], self.aliases[switch[0]], network=self, target=target)
+                    download(switch[1], "1", self.aliases[switch[0]], network=self, target=target)
                 else:
                     kwargs = {'network':self,'target':target}
-                    thread.start_new_thread(download, (switch[1], G.NETWORKS[self.aliases[switch[0]]]['regex']['downloadtype'], self.aliases[switch[0]]),kwargs)
+                    # TnS
+                    #thread.start_new_thread(download, (switch[1], G.NETWORKS[self.aliases[switch[0]]]['regex']['downloadtype'], self.aliases[switch[0]]),kwargs)
+                    thread.start_new_thread(download, (switch[1], "1", self.aliases[switch[0]]),kwargs)
             else:
                 self.sendMsg('That site name does not seem valid. Type %sites to see a full list.   [pyWHATauto]',target)
 #            except Exception, e:

@@ -39,9 +39,26 @@ svn checkout http://ptpuploader.googlecode.com/svn/trunk/src/ /path to your PTP 
 Simply run the following:
 pyroadmin --create-config
 
-3. Configure PtpUploader by renaming and editing PtpUploader/Settings.example.ini to Settings.ini.
+3. Configure PtpUploader by copying PtpUploader/Settings.example.ini to Settings.ini and editing the latter.
 
 4. Configure pyWHATauto. This is optional and needed only for GFT.
+	- Copy every .confg file from pyWHATauto/config_example/ to pyWHATauto/
+	- in pyWHATauto/setup.conf
+		- edit torrentDir
+			- it is not used not for anything, so you can simply point to a temporary folder
+		- edit drive
+	- in pyWHATauto/credentials.conf
+		- edit the following keys under [thegft]
+			- nickowner
+				- register a virtual host yourself on GFT's IRC network and set your host address here
+			- username
+			- botnick
+			- nickservpass
+			- cmd
+				- Replace YourBotName with the name that you set to botnick.
+	- Starting pyWHATauto in the background:
+		- from command line: screen -S pywa python /path to pyWHATauto/PtpUploaderIrcBot.py /path to WorkingDirectory/
+		- Use Ctrl+A, D to disconnect from screen. You can use "screen -r PtpUploader" from command line to reconnect.
 
 5. Configure FlexGet. This is optional and needed only for CG.
 
@@ -52,8 +69,3 @@ FlexGet needs to run peridically to update the RSS feeds. See FlexGet's document
 screen -S PtpUploader python /path to PtpUploader/Main.py
 
 Use Ctrl+A, D to disconnect from screen. You can use "screen -r PtpUploader" to reconnect.
-
-7. Start pyWHATauto in the background
-screen -S pywa python /path to pyWHATauto/PtpUploaderIrcBot.py /path to WorkingDirectory/
-
-Disconnect from screen.
