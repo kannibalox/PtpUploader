@@ -24,7 +24,9 @@ class ReleaseNameParser:
 			name = name.replace( "-", " " )
 			name = name.strip()
 			self.Tags = TagList( name.split( " " ) )
-			if self.__HandleSpecialGroupName( TagList( [ "t0xic", "ink" ] ) ):
+			if self.__HandleSpecialGroupName( TagList( [ "d", "z0n3" ] ) ):
+				pass
+			elif self.__HandleSpecialGroupName( TagList( [ "t0xic", "ink" ] ) ):
 				pass
 			elif self.__HandleSpecialGroupName( TagList( [ "vh", "prod" ] ) ):
 				pass
