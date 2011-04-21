@@ -5,6 +5,7 @@ import re
 # Returns with 0 if size can't be found. 
 def GetSizeFromText(text):
 	text = text.replace( " ", "" )
+	text = text.replace( ",", "" ) # For sizes like this: 1,471,981,530bytes
 	
 	matches = re.match( "(.+)GB", text )
 	if matches is not None:
