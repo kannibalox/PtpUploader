@@ -104,7 +104,7 @@ class Gft(SourceBase):
 		if matches is None:
 			logger.warning( "Size not found on torrent page." )
 		else:
-			size = matches.group( 1 ).replace( ",", "" )
+			size = matches.group( 1 )
 			releaseInfo.Size = GetSizeFromText( size )
 
 		# For some reason there are announced, but non visible releases on GFT that never start seeding. Ignore them.

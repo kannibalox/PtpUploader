@@ -89,7 +89,7 @@ class Cinemageddon(SourceBase):
 		if matches is None:
 			logger.warning( "Size not found on torrent page." )
 		else:
-			size = matches.group( 1 ).replace( ",", "" )
+			size = matches.group( 1 )
 			releaseInfo.Size = GetSizeFromText( size )
 
 		# Ignore XXX releases.
