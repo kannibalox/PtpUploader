@@ -172,7 +172,8 @@ class PtpMovieSearchResult:
 
 	# From the rules:
 	# "In general terms, 1CD (700MB) and 2CD (1400MB) XviD rips may always co-exist, same as 2CD (1400MB) and 3CD (2100MB) in the case of longer movies (2 hours+). Those sizes should only be used as general indicators as many rips may fall above or below them."
-	# "Along with two AVI rips, two x264 of varying qualities may coexist." 
+	# "Along with two AVI rips, two x264 of varying qualities may coexist."
+	# "PAL and NTSC may co-exist, as may DVD5 and DVD9." 
 	def __IsSdFineSourceReleaseExists(self, releaseInfo):
 		# 600 MB seems like a good choice. Comparing by size ratio wouldn't be too effective.
 		minimumSizeDifferenceToCoExist = 600 * 1024 * 1024
@@ -184,6 +185,8 @@ class PtpMovieSearchResult:
 			elif releaseInfo.Codec == "XviD" or releaseInfo.Codec == "DivX":
 				list = PtpMovieSearchResult.__GetListOfMatches( self.SdList, [ "XviD", "DivX" ], [ "Blu-ray", "HD-DVD", "DVD" ] )
 				return PtpMovieSearchResult.__CanCoExist( list, releaseInfo, minimumSizeDifferenceToCoExist )
+			elif ( releaseInfo.Codec == "DVD5" or releaseInfo.Codec == "DVD9" ) and ( releaseInfo.ResolutionType == "NTSC" or releaseInfo.ResolutionType == "PAL" ):
+				return PtpMovieSearchResult.__IsInList( self.SdList, [ releaseInfo.Codec ], [ "DVD" ], [ releaseInfo.ResolutionType ] )
 
 		raise PtpUploaderException( "Can't check whether the release '%s' exist on PTP because its type is unsupported." % releaseInfo.ReleaseName );
 		
