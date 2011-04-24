@@ -113,7 +113,7 @@ class NfoParser:
 
 		entries = os.listdir( directoryPath )
 		for entry in entries:
-			entryPath = os.path.join( sourcePath, entry );
+			entryPath = os.path.join( directoryPath, entry );
 			entryLower = entry.lower()
 			if os.path.isfile( entryPath ) and fnmatch.fnmatch( entryLower, "*.nfo" ):
 				if nfoFound:

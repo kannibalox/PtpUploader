@@ -1,5 +1,5 @@
 from Source.Cinemageddon import Cinemageddon
-from Source.Cinematik import Cinematiks
+from Source.Cinematik import Cinematik
 from Source.File import File
 from Source.Gft import Gft
 from Source.Torrent import Torrent
