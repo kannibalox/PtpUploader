@@ -1,6 +1,5 @@
+from Helper import GetFileListFromTorrent
 from PtpUploaderException import PtpUploaderException
-
-from pyrocore.util import bencode
 
 import fnmatch 
 import os
@@ -106,18 +105,36 @@ class NfoParser:
 
 		return nfo
 
+	# If there are multiple NFOs it returns with empty string.
+	@staticmethod
+	def FindAndReadNfoFileToUnicode(directoryPath):
+		nfoPath = None
+		nfoFound = False
+
+		entries = os.listdir( directoryPath )
+		for entry in entries:
+			entryPath = os.path.join( sourcePath, entry );
+			entryLower = entry.lower()
+			if os.path.isfile( entryPath ) and fnmatch.fnmatch( entryLower, "*.nfo" ):
+				if nfoFound:
+					nfoPath = None
+				else:
+					nfoPath = entryPath
+					nfoFound = True
+
+		if nfoPath is None:
+			return u""
+		else:
+			return NfoParser.ReadNfoFileToUnicode( nfoPath )
+
 	@staticmethod
 	def IsTorrentContainsMultipleNfos(torrentPath):
-		data = bencode.bread( torrentPath )
-		files = data[ "info" ].get( "files", None )
-		nfoCount = 0
-		if files is not None:
-			for fileInfo in files:
-				path = os.sep.join( fileInfo[ "path" ] )
-				path = path.lower();  
-				if path.endswith( ".nfo" ):
-					nfoCount += 1
-					if nfoCount > 1:
-						return True
+		files = GetFileListFromTorrent( torrentPath )
+		for file in files:
+			file = file.lower();  
+			if file.endswith( ".nfo" ):
+				nfoCount += 1
+				if nfoCount > 1:
+					return True
 
 		return False

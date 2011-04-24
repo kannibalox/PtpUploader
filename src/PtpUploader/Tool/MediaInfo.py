@@ -5,8 +5,10 @@ import re;
 import subprocess;
 
 class MediaInfo:
-	def __init__(self, logger, path):
+	# removePathFromCompleteName: this part will be removed from the path listed at "Complete Name". If removePathFromCompleteName is empty then it will be left as it is.
+	def __init__(self, logger, path, removePathFromCompleteName):
 		self.Path = path;
+		self.RemovePathFromCompleteName = removePathFromCompleteName
 		self.FormattedMediaInfo = "";
 		self.DurationInSec = 0;
 		self.Container = "";
@@ -30,15 +32,25 @@ class MediaInfo:
 		
 		return stdout.decode( "utf-8", "ignore" );
 	
-	# Returns with the media infos.
+	# removePathFromCompleteName: see MediaInfo's constructor
+	# keepOnlyTheFirstVob: there is no point of making MediaInfo for all VOBs, so if this is true then only first VOB will be parsed.
+	# Returns with the media infos for all files in videoFiles. If keepOnlyTheFirstVob is true, then returned list may not have the same length as videoFiles.
 	@staticmethod
-	def ReadAndParseMediaInfos(logger, videoFiles):
-		mediaInfos = [];
+	def ReadAndParseMediaInfos(logger, videoFiles, removePathFromCompleteName, keepOnlyTheFirstVob = True):
+		firstVobFound = False
+		mediaInfos = []
 		for video in videoFiles:
-			mediaInfo = MediaInfo( logger, video );
-			mediaInfos.append( mediaInfo );
+			# We could use MediaInfo.IsVob() after reading, but this is faster.
+			if video.lower().endswith( ".vob" ) and keepOnlyTheFirstVob:
+				if firstVobFound:
+					continue
+				else:
+					firstVobFound = True
+
+			mediaInfo = MediaInfo( logger, video, removePathFromCompleteName )
+			mediaInfos.append( mediaInfo )
 			
-		return mediaInfos;
+		return mediaInfos
 
 	@staticmethod
 	def __ParseSize(mediaPropertyValue):
@@ -67,6 +79,17 @@ class MediaInfo:
 		
 		return duration;		
 
+	def __MakeCompleteNameRelative(self, path):
+		if len( self.RemovePathFromCompleteName ) > 0:
+			removePathFromCompleteName = self.RemovePathFromCompleteName.replace( "\\", "/" )
+			if not removePathFromCompleteName.endswith( "/" ):
+				removePathFromCompleteName += "/"
+	
+			path = path.replace( "\\", "/" )
+			path = path.replace( removePathFromCompleteName, "" )
+			
+		return path
+
 	def __ParseMediaInfo(self, logger):
 		mediaInfoText = MediaInfo.ReadMediaInfo( logger, self.Path );
 
@@ -77,12 +100,13 @@ class MediaInfo:
 					section = line;
 					line = "[b]" + line + "[/b]";
 			else:
-				mediaPropertyName, separator, mediaPropertyValue = line.partition( ": " );
-				mediaPropertyName = mediaPropertyName.strip();
+				mediaPropertyName, separator, mediaPropertyValue = line.partition( ": " )
+				originalMediaPropertyName = mediaPropertyName
+				mediaPropertyName = mediaPropertyName.strip()
 
 				if section == "General":
 					if mediaPropertyName == "Complete name":
-						continue; # Do not include complete name. Filename will be before the media info dump.
+						line = originalMediaPropertyName + separator + self.__MakeCompleteNameRelative( mediaPropertyValue )
 					elif mediaPropertyName == "Format":
 						self.Container = mediaPropertyValue.lower();
 					elif mediaPropertyName == "Duration":
@@ -102,6 +126,9 @@ class MediaInfo:
 
 	def IsMkv(self):
 		return self.Container == "matroska";
+
+	def IsVob(self):
+		return self.Container == "mpeg-ps";
 
 	def IsDivx(self):
 		return self.Codec == "dx50";

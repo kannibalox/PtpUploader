@@ -2,7 +2,7 @@
 from Job.JobRunningState import JobRunningState
 from Source.SourceBase import SourceBase
 
-from Helper import GetSizeFromText
+from Helper import GetSizeFromText, GetFileListFromTorrent
 from MyGlobals import MyGlobals
 from NfoParser import NfoParser
 from PtpUploaderException import PtpUploaderException
@@ -15,41 +15,40 @@ import re
 import urllib
 import urllib2
 
-class Cinemageddon(SourceBase):
+class Cinematik(SourceBase):
 	def __init__(self):
-		self.Name = "cg"
-		self.MaximumParallelDownloads = Settings.CinemageddonMaximumParallelDownloads
+		self.Name = "tik"
+		self.MaximumParallelDownloads = Settings.CinematikMaximumParallelDownloads
 	
 	@staticmethod
 	def IsEnabled():
-		return len( Settings.CinemageddonUserName ) > 0 and len( Settings.CinemageddonPassword ) > 0
+		return len( Settings.CinematikUserName ) > 0 and len( Settings.CinematikPassword ) > 0
 
 	@staticmethod
 	def Login():
-		MyGlobals.Logger.info( "Loggin in to Cinemageddon." )
+		MyGlobals.Logger.info( "Loggin in to Cinematik." )
+
 		opener = urllib2.build_opener( urllib2.HTTPCookieProcessor( MyGlobals.CookieJar ) )
-		postData = urllib.urlencode( { "username": Settings.CinemageddonUserName, "password": Settings.CinemageddonPassword } )
-		request = urllib2.Request( "http://cinemageddon.net/takelogin.php", postData )
-		result = opener.open( request )
+		postData = urllib.urlencode( { "username": Settings.CinematikUserName, "password": Settings.CinematikPassword } )
+		result = opener.open( "http://cinematik.net/takelogin.php", postData )
 		response = result.read()
-		Cinemageddon.__CheckIfLoggedInFromResponse( response )
+		Cinematik.__CheckIfLoggedInFromResponse( response )
 	
 	@staticmethod
 	def __CheckIfLoggedInFromResponse(response):
-		if response.find( 'action="takelogin.php"' ) != -1:
-			raise PtpUploaderException( "Looks like you are not logged in to Cinemageddon. Probably due to the bad user name or password in settings." )
+		if response.find( 'action="takelogin.php"' ) != -1 or response.find( "<h2>Login failed!</h2>" ) != -1:
+			raise PtpUploaderException( "Looks like you are not logged in to Cinematik. Probably due to the bad user name or password in settings." )
 
 	@staticmethod
 	def __DownloadNfo(logger, releaseInfo):
-		url = "http://cinemageddon.net/details.php?id=%s&filelist=1" % releaseInfo.AnnouncementId
+		url = "http://cinematik.net/details.php?id=%s&filelist=1" % releaseInfo.AnnouncementId
 		logger.info( "Collecting info from torrent page '%s'." % url )
 		
 		opener = urllib2.build_opener( urllib2.HTTPCookieProcessor( MyGlobals.CookieJar ) )
-		request = urllib2.Request( url )
-		result = opener.open( request )
+		result = opener.open( url )
 		response = result.read()
 		response = response.decode( "ISO-8859-1", "ignore" )
-		Cinemageddon.__CheckIfLoggedInFromResponse( response )
+		Cinematik.__CheckIfLoggedInFromResponse( response )
 
 		# Make sure we only get information from the description and not from the comments.
 		descriptionEndIndex = response.find( '<p><a name="startcomments"></a></p>' )
@@ -59,116 +58,117 @@ class Cinemageddon(SourceBase):
 		description = response[ :descriptionEndIndex ]			
 
 		# We will use the torrent's name as release name.
-		matches = re.search( r'href="download.php\?id=(\d+)&name=.+">(.+)\.torrent</a>', description )
+		matches = re.search( r'href="download.php\?id=(\d+)".+?>(.+)\.torrent</a>', description )
 		if matches is None:
 			raise PtpUploaderException( JobRunningState.Ignored_MissingInfo, "Can't get release name from torrent page." )
 		
 		releaseInfo.ReleaseName = matches.group( 2 )
 
 		# Get source and format type
-		matches = re.search( r"torrent details for &quot;(.+) \[(\d+)/(.+)/(.+)\]&quot;", description )
+		# <title>Cinematik :: Behind the Mask: The Rise of Leslie Vernon (2006) NTSC DVD9 VIDEO_TS</title>
+		matches = re.search( r"<title>Cinematik :: .+? \(\d+\) (.+?) (.+?) (.+?)</title>", description )
 		if matches is None:
-			raise PtpUploaderException( JobRunningState.Ignored_MissingInfo, "Can't get release source and format type from torrent page." )
-		
-		sourceType = matches.group( 3 )
-		formatType = matches.group( 4 )
+			raise PtpUploaderException( JobRunningState.Ignored_MissingInfo, "Can't get resolution type, codec and container from torrent page." )
+
+		resolutionType = matches.group( 1 )
+		codec = matches.group( 2 )
+		container = matches.group( 3 )
 
 		# Get IMDb id.
 		if ( not releaseInfo.HasImdbId() ) and ( not releaseInfo.HasPtpId() ):
-			matches = re.search( r'imdb\.com/title/tt(\d+)', description )
+			matches = re.search( r"imdb\.com/title/tt(\d+)", description )
 			if matches is None:
 				raise PtpUploaderException( JobRunningState.Ignored_MissingInfo, "IMDb id can't be found on torrent page." )
 
 			releaseInfo.ImdbId = matches.group( 1 )
 
 		# Get size.
-		# Two possible formats:
-		# <tr><td class="rowhead" valign="top" align="right">Size</td><td valign="top" align="left">1.46 GB (1,570,628,119 bytes)</td></tr>
-		# <tr><td class="rowhead" valign="top" align="right">Size</td><td valign="top" align=left>1.46 GB (1,570,628,119 bytes)</td></tr>
-		matches = re.search( r"""<tr><td class="rowhead" valign="top" align="right">Size</td><td valign="top" align="?left"?>.+ \((.+ bytes)\)</td></tr>""", description )
+		# <td class="heading" align="right" valign="top">Size</td><td align="left" valign="top">6.81 GB &nbsp;&nbsp;&nbsp;(7,313,989,632 bytes)</td>
+		matches = re.search( r"""<td class="heading" align="right" valign="top">Size</td><td align="left" valign="top">.+\((.+ bytes)\)</td>""", description )
 		if matches is None:
 			logger.warning( "Size not found on torrent page." )
 		else:
 			size = matches.group( 1 )
 			releaseInfo.Size = GetSizeFromText( size )
 
-		# Ignore XXX releases.
-		if description.find( '>Type</td><td valign="top" align=left>XXX<' ) != -1:
-			raise PtpUploaderException( JobRunningState.Ignored_Forbidden, "Marked as XXX." )
-		
-		# Make sure that this is not a wrongly categorized DVDR.
-		if re.search( ".vob</td>", description, re.IGNORECASE ) or re.search( ".iso</td>", description, re.IGNORECASE ):
-			raise PtpUploaderException( JobRunningState.Ignored_NotSupported, "Wrongly categorized DVDR." )
-		
-		return sourceType, formatType
+		return resolutionType, codec, container
 
 	@staticmethod
-	def __MapSourceAndFormatToPtp(releaseInfo, sourceType, formatType):
-		sourceType = sourceType.lower()
-		formatType = formatType.lower()
+	def __MapInfoFromTorrentDescriptionToPtp(releaseInfo, resolutionType, codec, container):
+		resolutionType = resolutionType.lower()
+		codec = codec.lower()
+		container = container.lower()
 
-		# Adding BDrip support would be problematic because there is no easy way to decide if it is HD or SD.
-		# Maybe we could use the resolution and file size. But what about the oversized and upscaled releases? 
-		
 		if releaseInfo.IsResolutionTypeSet():
 			releaseInfo.Logger.info( "Resolution type '%s' is already set, not getting from the torrent page." % releaseInfo.ResolutionType )
+		elif resolutionType == "ntsc":
+			releaseInfo.ResolutionType = "NTSC"
+		elif resolutionType == "pal":
+			releaseInfo.ResolutionType = "PAL"
 		else:
-			releaseInfo.ResolutionType = "Other"
+			raise PtpUploaderException( JobRunningState.Ignored_NotSupported, "Unsupported resolution type '%s'." % resolutionType )
 
-		if releaseInfo.IsSourceSet():
-			releaseInfo.Logger.info( "Source '%s' is already set, not getting from the torrent page." % releaseInfo.Source )
-		elif sourceType == "dvdrip":
+		if releaseInfo.IsCodecSet() and releaseInfo.IsSourceSet():
+			releaseInfo.Logger.info( "Codec '%s' and source '%s' are already set, not getting from the torrent page." % ( releaseInfo.Codec, releaseInfo.Source ) )
+		elif codec == "dvd5":
+			releaseInfo.Codec = "DVD5"
 			releaseInfo.Source = "DVD"
-		elif sourceType == "vhsrip":
-			releaseInfo.Source = "VHS"
-		elif sourceType == "tvrip":
-			releaseInfo.Source = "TV"
+		elif codec == "dvd9":
+			releaseInfo.Codec = "DVD9"
+			releaseInfo.Source = "DVD"
 		else:
-			raise PtpUploaderException( JobRunningState.Ignored_NotSupported, "Unsupported source type '%s'." % sourceType )
+			raise PtpUploaderException( JobRunningState.Ignored_NotSupported, "Unsupported codec type '%s'." % codec )
 
-		if releaseInfo.IsCodecSet():
-			releaseInfo.Logger.info( "Codec '%s' is already set, not getting from the torrent page." % releaseInfo.Codec )
-		elif formatType == "x264":
-			releaseInfo.Codec = "x264"
-		elif formatType == "xvid":
-			releaseInfo.Codec = "XviD"
-		elif formatType == "divx":
-			releaseInfo.Codec = "DivX"
+		if releaseInfo.IsContainerSet():
+			releaseInfo.Logger.info( "Container '%s' is already set, not getting from the torrent page." % releaseInfo.Container )
+		elif container == "video_ts":
+			releaseInfo.Container = "VOB IFO"
 		else:
-			raise PtpUploaderException( JobRunningState.Ignored_NotSupported, "Unsupported format type '%s'." % formatType )
+			raise PtpUploaderException( JobRunningState.Ignored_NotSupported, "Unsupported container type '%s'." % container )
 	
 	@staticmethod
 	def PrepareDownload(logger, releaseInfo):
-		sourceType = ""
-		formatType = ""
+		resolutionType = ""
+		codec = ""
+		container = ""
 		
 		if releaseInfo.IsUserCreatedJob():
-			sourceType, formatType = Cinemageddon.__DownloadNfo( logger, releaseInfo )
+			resolutionType, codec, container = Cinematik.__DownloadNfo( logger, releaseInfo )
 		else:
-			# TODO: add filterting support for Cinemageddon
-			# In case of automatic announcement we have to check the release name if it is valid.
-			# We know the release name from the announcement, so we can filter it without downloading anything (yet) from the source. 
-			#if not ReleaseFilter.IsValidReleaseName( releaseInfo.ReleaseName ):
-			#	logger.info( "Ignoring release '%s' because of its name." % releaseInfo.ReleaseName )
-			#	return None
-			sourceType, formatType = Cinemageddon.__DownloadNfo( logger, releaseInfo )
+			# TODO: add filterting support for Cinematik
+			resolutionType, codec, container = Cinematik.__DownloadNfo( logger, releaseInfo )
 
-		Cinemageddon.__MapSourceAndFormatToPtp( releaseInfo, sourceType, formatType )		
+		Cinematik.__MapInfoFromTorrentDescriptionToPtp( releaseInfo, resolutionType, codec, container )
+
+	@staticmethod
+	def __ValidateTorrentFile(torrrentPath):
+		files = GetFileListFromTorrent( torrentPath )
+		for file in files:
+			file = file.lower();
+			
+			# Make sure it doesn't contains ISO files.  
+			if file.endswith( ".iso" ):
+				raise PtpUploaderException( JobRunningState.Ignored_NotSupported, "Found an ISO file in the torrent." )
+
+			# Make sure that all files are in the VIDEO_TS folder. (This is needed because of the uploading rules on PTP.)  
+			if file.startswith( "video_ts" ):
+				raise PtpUploaderException( JobRunningState.Ignored_NotSupported, "Files are not in the VIDEO_TS folder in the torrent." )
 
 	@staticmethod
 	def DownloadTorrent(logger, releaseInfo, path):
-		url = "http://cinemageddon.net/download.php?id=%s" % releaseInfo.AnnouncementId
+		url = "http://cinematik.net/download.php?id=%s" % releaseInfo.AnnouncementId
 		logger.info( "Downloading torrent file from '%s' to '%s'." % ( url, path ) )
 
 		opener = urllib2.build_opener( urllib2.HTTPCookieProcessor( MyGlobals.CookieJar ) )
-		request = urllib2.Request( url )
-		result = opener.open( request )
+		result = opener.open( url )
 		response = result.read()
-		Cinemageddon.__CheckIfLoggedInFromResponse( response )
+		Cinematik.__CheckIfLoggedInFromResponse( response )
 		
 		file = open( path, "wb" )
 		file.write( response )
 		file.close()
+
+		Cinematik.__ValidateTorrentFile( path )
 		
 	@staticmethod
 	def ExtractRelease(logger, releaseInfo):
@@ -176,6 +176,7 @@ class Cinemageddon(SourceBase):
 		ReleaseExtractor.Extract( releaseInfo.GetReleaseDownloadPath(), releaseInfo.GetReleaseUploadPath() )
 		releaseInfo.Nfo = NfoParser.FindAndReadNfoFileToUnicode( releaseInfo.GetReleaseDownloadPath() )
 
+	# TODO: Cinematik: move this to helper.py
 	@staticmethod
 	def __RemoveNonAllowedCharacters(text):
 		newText = text
@@ -201,13 +202,14 @@ class Cinemageddon(SourceBase):
 		else:
 			raise PtpUploaderException( "New name for '%s' resulted in empty string." % text )
 
-	# Because some of the releases on CG do not contain the full name of the movie, we have to rename them because of the uploading rules on PTP.
+	# TODO: Cinematik: use a shared function with Cinemageddon
+	# Because some of the releases on Cinematik do not contain the full name of the movie, we have to rename them because of the uploading rules on PTP.
 	# The new name will be formatted like this: Movie Name Year
 	@staticmethod
 	def GetCustomUploadPath(logger, releaseInfo):
 		# TODO: if the user forced a release name, then let it upload by that name.
 		if releaseInfo.IsZeroImdbId():
-			raise PtpUploaderException( "Uploading to CG with zero IMDb ID is not yet supported." % text ) 		
+			raise PtpUploaderException( "Uploading to Cinematik with zero IMDb ID is not yet supported." % text ) 		
 		
 		# If the movie already exists on PTP then the IMDb info is not populated in ReleaseInfo.
 		if len( releaseInfo.InternationalTitle ) <= 0 or len( releaseInfo.Year ) <= 0:
@@ -218,7 +220,7 @@ class Cinemageddon(SourceBase):
 				releaseInfo.Year = imdbInfo.Year
 
 		name = "%s (%s)" % ( releaseInfo.InternationalTitle, releaseInfo.Year )
-		name = Cinemageddon.__RemoveNonAllowedCharacters( name )
+		name = Cinematik.__RemoveNonAllowedCharacters( name )
 
 		logger.info( "Upload directory will be named '%s' instead of '%s'." % ( name, releaseInfo.ReleaseName ) )
 		
@@ -233,7 +235,7 @@ class Cinemageddon(SourceBase):
 	
 	@staticmethod
 	def GetIdFromUrl(url):
-		result = re.match( r".*cinemageddon\.net/details.php\?id=(\d+).*", url )
+		result = re.match( r".*cinematik\.net/details.php\?id=(\d+).*", url )
 		if result is None:
 			return ""
 		else:
@@ -241,4 +243,4 @@ class Cinemageddon(SourceBase):
 
 	@staticmethod
 	def GetUrlFromId(id):
-		return "http://cinemageddon.net/details.php?id=" + id
+		return "http://cinematik.net/details.php?id=" + id

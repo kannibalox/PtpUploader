@@ -94,7 +94,8 @@ class ScreenshotMaker:
 	# We sort video files by their size (less than 50 MB difference is ignored) and by their name.
 	# Sorting by name is needed to ensure that the screenshot is taken from the first video to avoid spoilers when a release contains multiple videos.
 	# Sorting by size is needed to ensure that we don't take the screenshots from the sample or extras included.
-	# Ignoring less than 50 MB differnece is needed to make sure that CD1 will be sorted before CD2 even if CD2 is larger than CD1 by 49 MB.   
+	# Ignoring less than 50 MB differnece is needed to make sure that CD1 will be sorted before CD2 even if CD2 is larger than CD1 by 49 MB.
+	# For VOBs the ignored size difference is 150 MB.   
 	@staticmethod
 	def SortVideoFiles(files):
 		class SortItem:
@@ -105,8 +106,12 @@ class ScreenshotMaker:
 
 			@staticmethod
 			def Compare( item1, item2 ):
+				ignoreSizeDifference = 50 * 1024 * 1024
+				if item1.LowerPath.endswith( ".vob" ) and item2.LowerPath.endswith( ".vob" ):
+					ignoreSizeDifference = 150 * 1024 * 1024
+				
 				sizeDifference = item1.Size - item2.Size 
-				if abs( sizeDifference ) > ( 50 * 1024 * 1024 ):
+				if abs( sizeDifference ) > ignoreSizeDifference:
 					if item1.Size > item2.Size:
 						return -1
 					else:

@@ -203,6 +203,9 @@ class ReleaseInfo(Database.Base):
 	def IsStandardDefinition(self):
 		return not self.IsHighDefinition()
 
+	def IsDvdImage(self):
+		return self.Codec == "DVD5" or self.Codec == "DVD9"
+
 	# See the description at the flag.
 	def IsSpecialRelease(self):
 		return ( self.Flags & ReleaseInfoFlags.SpecialRelease ) != 0

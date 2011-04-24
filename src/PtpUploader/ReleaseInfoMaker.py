@@ -100,10 +100,10 @@ class ReleaseInfoMaker:
 			return
 
 		# Get the media info.
-		mediaInfos = MediaInfo.ReadAndParseMediaInfos( logger, self.VideoFiles )
+		mediaInfos = MediaInfo.ReadAndParseMediaInfos( logger, self.VideoFiles, self.TorrentDataPath )
 
 		# Take and upload screenshots.
-		screenshotMaker = ScreenshotMaker( logger, self.VideoFiles[ 0 ] )
+		screenshotMaker = ScreenshotMaker( logger, mediaInfos[ 0 ].Path )
 		screenshots = screenshotMaker.TakeAndUploadScreenshots( screenshotPath, mediaInfos[ 0 ].DurationInSec )
 
 		# Save the release description.

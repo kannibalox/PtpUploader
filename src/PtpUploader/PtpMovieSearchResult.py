@@ -185,7 +185,7 @@ class PtpMovieSearchResult:
 			elif releaseInfo.Codec == "XviD" or releaseInfo.Codec == "DivX":
 				list = PtpMovieSearchResult.__GetListOfMatches( self.SdList, [ "XviD", "DivX" ], [ "Blu-ray", "HD-DVD", "DVD" ] )
 				return PtpMovieSearchResult.__CanCoExist( list, releaseInfo, minimumSizeDifferenceToCoExist )
-			elif ( releaseInfo.Codec == "DVD5" or releaseInfo.Codec == "DVD9" ) and ( releaseInfo.ResolutionType == "NTSC" or releaseInfo.ResolutionType == "PAL" ):
+			elif releaseInfo.IsDvdImage() and ( releaseInfo.ResolutionType == "NTSC" or releaseInfo.ResolutionType == "PAL" ):
 				return PtpMovieSearchResult.__IsInList( self.SdList, [ releaseInfo.Codec ], [ "DVD" ], [ releaseInfo.ResolutionType ] )
 
 		raise PtpUploaderException( "Can't check whether the release '%s' exist on PTP because its type is unsupported." % releaseInfo.ReleaseName );

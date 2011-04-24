@@ -85,6 +85,8 @@ class Upload(WorkerBase):
 			container = "AVI"
 		elif mediaInfo.IsMkv():
 			container = "MKV"
+		elif mediaInfo.IsVob():
+			container = "VOB IFO"
 		
 		if self.ReleaseInfo.IsContainerSet():
 			if container != self.ReleaseInfo.Container:
@@ -113,6 +115,9 @@ class Upload(WorkerBase):
 			codec = "DivX"
 			if mediaInfo.IsMkv():
 				raise PtpUploaderException( "DivX in MKV is not allowed." )
+		elif self.ReleaseInfo.IsDvdImage():
+			# Codec type DVD5 and DVD9 can't be figured out from MediaInfo.
+			codec = self.ReleaseInfo.Codec
 
 		if self.ReleaseInfo.IsCodecSet():
 			if codec != self.ReleaseInfo.Codec:
@@ -130,7 +135,8 @@ class Upload(WorkerBase):
 		resolution = ""
 
 		# Indicate the exact resolution for standard definition releases.
-		if self.ReleaseInfo.IsStandardDefinition():
+		# It is not needed for DVD images.
+		if self.ReleaseInfo.IsStandardDefinition() and ( not self.ReleaseInfo.IsDvdImage() ):
 			resolution = "%sx%s" % ( mediaInfo.Width, mediaInfo.Height )
 			
 		if len( self.ReleaseInfo.Resolution ) > 0:
@@ -144,14 +150,14 @@ class Upload(WorkerBase):
 
 	def __GetMediaInfo(self):
 		self.VideoFiles = ScreenshotMaker.SortVideoFiles( self.VideoFiles )
-		self.MediaInfos = MediaInfo.ReadAndParseMediaInfos( self.ReleaseInfo.Logger, self.VideoFiles )
+		self.MediaInfos = MediaInfo.ReadAndParseMediaInfos( self.ReleaseInfo.Logger, self.VideoFiles, self.ReleaseInfo.GetReleaseUploadPath() )
 		self.__GetMediaInfoContainer( self.MediaInfos[ 0 ] )
 		self.__GetMediaInfoCodec( self.MediaInfos[ 0 ] )
 		self.__GetMediaInfoResolution( self.MediaInfos[ 0 ] )
 
 	def __TakeAndUploadScreenshots(self):
 		screenshotPathWithoutExtension = os.path.join( self.ReleaseInfo.GetReleaseRootPath(), "screenshot" )
-		screenshotMaker = ScreenshotMaker( self.ReleaseInfo.Logger, self.VideoFiles[ 0 ] )
+		screenshotMaker = ScreenshotMaker( self.ReleaseInfo.Logger, self.MediaInfos[ 0 ].Path )
 		self.ScaleSize = screenshotMaker.ScaleSize
 
 		if len( self.ReleaseInfo.Screenshots ) > 0:
@@ -178,7 +184,7 @@ class Upload(WorkerBase):
 		if self.TotalFileCount > 1 or ( self.ReleaseInfo.AnnouncementSource.IsSingleFileTorrentNeedsDirectory() and not self.ReleaseInfo.IsForceDirectorylessSingleFileTorrent() ):
 			MakeTorrent.Make( self.ReleaseInfo.Logger, self.ReleaseInfo.GetReleaseUploadPath(), uploadTorrentFilePath )
 		else: # Create the torrent including only the single video file.
-			MakeTorrent.Make( self.ReleaseInfo.Logger, self.VideoFiles[ 0 ], uploadTorrentFilePath )
+			MakeTorrent.Make( self.ReleaseInfo.Logger, self.MediaInfos[ 0 ].Path, uploadTorrentFilePath )
 			
 		# Local variable is used temporarily to make sure that UploadTorrentFilePath is only gets stored in the database if MakeTorrent.Make succeeded.
 		self.ReleaseInfo.UploadTorrentFilePath = uploadTorrentFilePath

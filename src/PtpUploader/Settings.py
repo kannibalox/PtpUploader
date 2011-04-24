@@ -31,7 +31,7 @@ class Settings(object):
 		return list 
 	
 	@staticmethod
-	def HasValidExtensionToUpload(path, extensions):
+	def __HasValidExtensionToUpload(path, extensions):
 		tempPath = path.lower()
 		for extension in extensions:
 			if fnmatch.fnmatch( tempPath, "*." + extension ):
@@ -41,11 +41,11 @@ class Settings(object):
 
 	@staticmethod
 	def HasValidVideoExtensionToUpload(path):
-		return Settings.HasValidExtensionToUpload( path, Settings.VideoExtensionsToUpload )
+		return Settings.__HasValidExtensionToUpload( path, Settings.VideoExtensionsToUpload )
 
 	@staticmethod
-	def HasValidSubtitleExtensionToUpload(path):
-		return Settings.HasValidExtensionToUpload( path, Settings.SubtitleExtensionsToUpload )
+	def HasValidAdditionalExtensionToUpload(path):
+		return Settings.__HasValidExtensionToUpload( path, Settings.AdditionalExtensionsToUpload )
 
 	@staticmethod
 	def IsFileOnIgnoreList(path):
@@ -108,7 +108,7 @@ class Settings(object):
 		fp.close()
 		
 		Settings.VideoExtensionsToUpload = Settings.MakeListFromExtensionString( configParser.get( "Settings", "VideoExtensionsToUpload" ) )
-		Settings.SubtitleExtensionsToUpload = Settings.MakeListFromExtensionString( configParser.get( "Settings", "SubtitleExtensionsToUpload" ) )
+		Settings.AdditionalExtensionsToUpload = Settings.MakeListFromExtensionString( Settings.__GetDefault( configParser, "Settings", "AdditionalExtensionsToUpload", "bup, idx, ifo, srt, sub" ) )
 		Settings.IgnoreFile = Settings.MakeListFromExtensionString( Settings.__GetDefault( configParser, "Settings", "IgnoreFile", "" ) )
 		Settings.PtpAnnounceUrl = configParser.get( "Settings", "PtpAnnounceUrl" )
 		Settings.PtpUserName = configParser.get( "Settings", "PtpUserName" )

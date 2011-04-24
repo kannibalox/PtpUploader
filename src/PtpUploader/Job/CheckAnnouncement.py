@@ -75,6 +75,10 @@ class CheckAnnouncement(WorkerBase):
 		# HD XviDs are not allowed.
 		if self.ReleaseInfo.IsHighDefinition() and ( self.ReleaseInfo.Codec == "XviD" or self.ReleaseInfo.Codec == "DivX" ):
 			raise PtpUploaderException( JobRunningState.Ignored_Forbidden, "HD XviDs and DivXs are not allowed." )
+
+		# We only support VOB IFO container for DVD images. 
+		if self.ReleaseInfo.IsDvdImage() and self.ReleaseInfo.Container != "VOB IFO":
+			raise PtpUploaderException( JobRunningState.Ignored_NotSupported, "Only VOB IFO container is supported for DVD images." )
 	
 	def __CheckIfExistsOnPtpInternal(self, movieOnPtpResult):
 		existingRelease = movieOnPtpResult.IsReleaseExists( self.ReleaseInfo )

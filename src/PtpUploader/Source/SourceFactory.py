@@ -1,4 +1,5 @@
 from Source.Cinemageddon import Cinemageddon
+from Source.Cinematik import Cinematiks
 from Source.File import File
 from Source.Gft import Gft
 from Source.Torrent import Torrent
@@ -14,6 +15,10 @@ class SourceFactory:
 		if Cinemageddon.IsEnabled():
 			Cinemageddon.Login()
 		self.__AddSource( Cinemageddon() )
+
+		if Cinematik.IsEnabled():
+			Cinematik.Login()
+		self.__AddSource( Cinematik() )
 
 		if Gft.IsEnabled():
 			Gft.Login()

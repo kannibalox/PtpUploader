@@ -171,9 +171,8 @@ class TorrentLeech(SourceBase):
 	@staticmethod
 	def ExtractRelease(logger, releaseInfo):
 		# Extract the release.
-		nfoPath = ReleaseExtractor.Extract( releaseInfo.GetReleaseDownloadPath(), releaseInfo.GetReleaseUploadPath() )
-		if nfoPath is not None:
-			releaseInfo.Nfo = NfoParser.ReadNfoFileToUnicode( nfoPath )
+		ReleaseExtractor.Extract( releaseInfo.GetReleaseDownloadPath(), releaseInfo.GetReleaseUploadPath() )
+		releaseInfo.Nfo = NfoParser.FindAndReadNfoFileToUnicode( releaseInfo.GetReleaseDownloadPath() )
 
 	@staticmethod
 	def GetIdFromUrl(url):

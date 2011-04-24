@@ -1,3 +1,5 @@
+from pyrocore.util import bencode
+
 import re
 
 # Supported formats: "100 GB", "100 MB", "100 bytes". (Space is optional.)
@@ -37,3 +39,19 @@ except ImportError:
 	
 def ParseQueryString(query):
 	return parse_qs( query )
+
+# Always uses / as path separator.
+def GetFileListFromTorrent(torrentPath):
+	data = bencode.bread( torrentPath )
+	name = data[ "info" ].get( "name", None )
+	files = data[ "info" ].get( "files", None )
+
+	if files is None:
+		return [ name ]
+	else:
+		fileList = []
+		for fileInfo in files:
+			path = "/".join( fileInfo[ "path" ] )
+			fileList.append( path )
+
+		return fileList
