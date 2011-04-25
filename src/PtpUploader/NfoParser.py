@@ -130,6 +130,7 @@ class NfoParser:
 	@staticmethod
 	def IsTorrentContainsMultipleNfos(torrentPath):
 		files = GetFileListFromTorrent( torrentPath )
+		nfoCount = 0
 		for file in files:
 			file = file.lower();  
 			if file.endswith( ".nfo" ):
