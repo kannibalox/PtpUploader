@@ -74,7 +74,7 @@ class Upload(WorkerBase):
 		Database.DbSession.commit()
 
 	def __ValidateExtractedRelease(self):
-		self.VideoFiles, self.TotalFileCount = ReleaseExtractor.ValidateDirectory( self.ReleaseInfo.GetReleaseUploadPath() )
+		self.VideoFiles, self.TotalFileCount = ReleaseExtractor.ValidateDirectory( self.ReleaseInfo.Logger, self.ReleaseInfo.GetReleaseUploadPath() )
 		if len( self.VideoFiles ) < 1:
 			raise PtpUploaderException( "Upload path '%s' doesn't contains any video files." % self.ReleaseInfo.GetReleaseUploadPath() )
 
