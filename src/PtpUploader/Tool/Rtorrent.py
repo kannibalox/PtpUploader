@@ -1,9 +1,11 @@
-from MyGlobals import MyGlobals
-from PtpUploaderException import PtpUploaderException;
-from Settings import Settings;
+from Tool.PyrocoreBencode import bencode
 
-from pyrocore.util import bencode, load_config, metafile;
-from pyrocore import config;
+from MyGlobals import MyGlobals
+from PtpUploaderException import PtpUploaderException
+from Settings import Settings
+
+from pyrocore.util import load_config, metafile
+from pyrocore import config
 
 import os;
 import shutil;

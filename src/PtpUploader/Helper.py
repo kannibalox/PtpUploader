@@ -1,4 +1,4 @@
-from pyrocore.util import bencode
+from Tool.PyrocoreBencode import bencode
 
 import re
 

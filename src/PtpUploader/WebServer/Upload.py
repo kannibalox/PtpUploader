@@ -1,3 +1,4 @@
+from Tool.PyrocoreBencode import bencode
 from WebServer import app
 from WebServer.JobCommon import JobCommon
 
@@ -10,7 +11,6 @@ from ReleaseInfo import ReleaseInfo
 from Settings import Settings
 
 from flask import jsonify, render_template, request
-from pyrocore.util import bencode
 from werkzeug import secure_filename
 
 import os
