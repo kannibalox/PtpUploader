@@ -103,6 +103,7 @@ class Settings(object):
 		# Load Settings.ini from the same directory where PtpUploader is.
 		settingsDirectory, moduleFilename = os.path.split( __file__ ) # __file__ contains the full path of the current running module
 		settingsPath = os.path.join( settingsDirectory, "Settings.ini" )
+		print "Loading settings from '%s'." % settingsPath # MyGlobals.Logger is not initalized yet. 
 		fp = open( settingsPath, "r" )
 		configParser.readfp( fp )
 		fp.close()
