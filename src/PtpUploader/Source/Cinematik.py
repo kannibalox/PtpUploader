@@ -83,8 +83,10 @@ class Cinematik(SourceBase):
 			releaseInfo.ImdbId = matches.group( 1 )
 
 		# Get size.
+		# Two formats:
 		# <td class="heading" align="right" valign="top">Size</td><td align="left" valign="top">6.81 GB &nbsp;&nbsp;&nbsp;(7,313,989,632 bytes)</td>
-		matches = re.search( r"""<td class="heading" align="right" valign="top">Size</td><td align="left" valign="top">.+\((.+ bytes)\)</td>""", description )
+		# <td class="heading" valign="top" align="right">Size</td><td valign="top" align="left">4.38 GB    (4,699,117,568 bytes)</td>
+		matches = re.search( r"""<td class="heading" v?align=".+?" v?align=".+?">Size</td><td v?align=".+?" v?align=".+?">.+\((.+ bytes)\)</td>""", description )
 		if matches is None:
 			logger.warning( "Size not found on torrent page." )
 		else:
