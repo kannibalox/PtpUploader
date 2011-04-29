@@ -153,7 +153,7 @@ class Cinematik(SourceBase):
 				raise PtpUploaderException( JobRunningState.Ignored_NotSupported, "Found an ISO file in the torrent." )
 
 			# Make sure that all files are in the VIDEO_TS folder. (This is needed because of the uploading rules on PTP.)  
-			if file.startswith( "video_ts" ):
+			if not file.startswith( "video_ts" ):
 				raise PtpUploaderException( JobRunningState.Ignored_NotSupported, "Files are not in the VIDEO_TS folder in the torrent." )
 
 	@staticmethod
