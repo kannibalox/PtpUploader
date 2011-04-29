@@ -108,7 +108,10 @@ class Gft(SourceBase):
 			releaseInfo.Size = GetSizeFromText( size )
 
 		# For some reason there are announced, but non visible releases on GFT that never start seeding. Ignore them.
-		if description.find( """<td class="heading" align="right" valign="top">Visible</td><td align="left" valign="top"><b>no</b> (dead)</td>""" ) != -1:
+		# Two possible formats:
+		# <td class="heading" valign="top" align="right">Visible</td><td valign="top" align="left"><b>no</b> (dead)</td>
+		# <td class="heading" align="right" valign="top">Visible</td><td align="left" valign="top"><b>no</b> (dead)</td>
+		if description.find( """<td class="heading" v?align=".+?" v?align=".+?">Visible</td><td v?align=".+?" v?align=".+?"><b>no</b> (dead)</td>""" ) != -1:
 			raise PtpUploaderException( JobRunningState.Ignored, "Set to not visible on torrent page." )
 
 		return releaseName
