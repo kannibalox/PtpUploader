@@ -95,9 +95,9 @@ class Cinematik(SourceBase):
 
 	@staticmethod
 	def __MapInfoFromTorrentDescriptionToPtp(releaseInfo, resolutionType, codec, container):
-		resolutionType = resolutionType.lower()
-		codec = codec.lower()
-		container = container.lower()
+		resolutionType = resolutionType.lower().strip()
+		codec = codec.lower().strip()
+		container = container.lower().strip()
 
 		if releaseInfo.IsResolutionTypeSet():
 			releaseInfo.Logger.info( "Resolution type '%s' is already set, not getting from the torrent page." % releaseInfo.ResolutionType )
