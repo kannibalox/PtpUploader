@@ -57,22 +57,20 @@ class Cinematik(SourceBase):
 		
 		description = response[ :descriptionEndIndex ]			
 
-		# We will use the torrent's name as release name.
-		matches = re.search( r'href="download.php\?id=(\d+)".+?>(.+)\.torrent</a>', description )
-		if matches is None:
-			raise PtpUploaderException( JobRunningState.Ignored_MissingInfo, "Can't get release name from torrent page." )
-		
-		releaseInfo.ReleaseName = matches.group( 2 )
-
 		# Get source and format type
 		# <title>Cinematik :: Behind the Mask: The Rise of Leslie Vernon (2006) NTSC DVD9 VIDEO_TS</title>
-		matches = re.search( r"<title>Cinematik :: .+? \(\d+\) (.+?) (.+?) (.+?)</title>", description )
+		matches = re.search( r"<title>Cinematik :: (.+?) \((\d+)\) (.+?) (.+?) (.+?)</title>", description )
 		if matches is None:
 			raise PtpUploaderException( JobRunningState.Ignored_MissingInfo, "Can't get resolution type, codec and container from torrent page." )
 
-		resolutionType = matches.group( 1 )
-		codec = matches.group( 2 )
-		container = matches.group( 3 )
+		title = matches.group( 1 ).strip()
+		year = matches.group( 2 ).strip()
+		resolutionType = matches.group( 3 ).strip()
+		codec = matches.group( 4 ).strip()
+		container = matches.group( 5 ).strip()
+
+		releaseName = "%s (%s) %s %s" % ( title, year, resolutionType, codec )
+		releaseInfo.ReleaseName = RemoveDisallowedCharactersFromPath( releaseName )
 
 		# Get IMDb id.
 		if ( not releaseInfo.HasImdbId() ) and ( not releaseInfo.HasPtpId() ):
@@ -97,9 +95,9 @@ class Cinematik(SourceBase):
 
 	@staticmethod
 	def __MapInfoFromTorrentDescriptionToPtp(releaseInfo, resolutionType, codec, container):
-		resolutionType = resolutionType.lower().strip()
-		codec = codec.lower().strip()
-		container = container.lower().strip()
+		resolutionType = resolutionType.lower()
+		codec = codec.lower()
+		container = container.lower()
 
 		if releaseInfo.IsResolutionTypeSet():
 			releaseInfo.Logger.info( "Resolution type '%s' is already set, not getting from the torrent page." % releaseInfo.ResolutionType )
@@ -183,6 +181,9 @@ class Cinematik(SourceBase):
 	# The new name will be formatted like this: Movie Name Year
 	@staticmethod
 	def GetCustomUploadPath(logger, releaseInfo):
+		# TODO: TEMP HACK BECAUSE OF IMDB
+		return ""
+		
 		# TODO: if the user forced a release name, then let it upload by that name.
 		if releaseInfo.IsZeroImdbId():
 			raise PtpUploaderException( "Uploading to Cinematik with zero IMDb ID is not yet supported." % text ) 		
