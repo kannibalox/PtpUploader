@@ -55,3 +55,18 @@ def GetFileListFromTorrent(torrentPath):
 			fileList.append( path )
 
 		return fileList
+	
+def RemoveDisallowedCharactersFromPath(text):
+	newText = text
+
+	# These characters can't be in filenames on Windows.
+	forbiddenCharacters = r"""\/:*?"<>|"""
+	for c in forbiddenCharacters:
+		newText = newText.replace( c, "" )
+
+	newText = newText.strip()
+
+	if len( newText ) > 0:
+		return newText
+	else:
+		raise PtpUploaderException( "New name for '%s' resulted in empty string." % text )

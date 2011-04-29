@@ -2,7 +2,7 @@
 from Job.JobRunningState import JobRunningState
 from Source.SourceBase import SourceBase
 
-from Helper import GetSizeFromText
+from Helper import GetSizeFromText, RemoveDisallowedCharactersFromPath
 from MyGlobals import MyGlobals
 from NfoParser import NfoParser
 from PtpUploaderException import PtpUploaderException
@@ -176,31 +176,6 @@ class Cinemageddon(SourceBase):
 		ReleaseExtractor.Extract( releaseInfo.GetReleaseDownloadPath(), releaseInfo.GetReleaseUploadPath() )
 		releaseInfo.Nfo = NfoParser.FindAndReadNfoFileToUnicode( releaseInfo.GetReleaseDownloadPath() )
 
-	@staticmethod
-	def __RemoveNonAllowedCharacters(text):
-		newText = text
-
-		# This would butcher titles with non-English characters in it.
-		# Eg.: Indul a bakterház -> Indul a bakterhz
-		# Stripping accents would help a bit, but it still wouldn't perfect. 
-				
-		#newText = ""
-		#for c in text:
-		#	if ( c >= '0' and c <= '9' ) or ( c >= 'a' and c <= 'z' ) or ( c >= 'A' and c <= 'Z' ):
-		#		newText += c
-		#	elif c == ' ':
-		#		newText += '.'
-		
-		# These characters can't be in filenames on Windows.
-		forbiddenCharacters = r"""\/:*?"<>|"""
-		for c in forbiddenCharacters:
-			newText = newText.replace( c, "" )
-
-		if len( newText ) > 0:
-			return newText
-		else:
-			raise PtpUploaderException( "New name for '%s' resulted in empty string." % text )
-
 	# Because some of the releases on CG do not contain the full name of the movie, we have to rename them because of the uploading rules on PTP.
 	# The new name will be formatted like this: Movie Name Year
 	@staticmethod
@@ -224,7 +199,7 @@ class Cinemageddon(SourceBase):
 			raise PtpUploaderException( "Can't rename release because year is empty." )			
 
 		name = "%s (%s)" % ( releaseInfo.InternationalTitle, releaseInfo.Year )
-		name = Cinemageddon.__RemoveNonAllowedCharacters( name )
+		name = RemoveDisallowedCharactersFromPath( name )
 
 		logger.info( "Upload directory will be named '%s' instead of '%s'." % ( name, releaseInfo.ReleaseName ) )
 		
