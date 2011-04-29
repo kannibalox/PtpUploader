@@ -221,6 +221,12 @@ class Cinematik(SourceBase):
 			if len( releaseInfo.Year ) <= 0:
 				releaseInfo.Year = imdbInfo.Year
 
+		if len( releaseInfo.InternationalTitle ) <= 0:
+			raise PtpUploaderException( "Can't rename release because international title is empty." )			
+
+		if len( releaseInfo.Year ) <= 0:
+			raise PtpUploaderException( "Can't rename release because year is empty." )			
+
 		name = "%s (%s)" % ( releaseInfo.InternationalTitle, releaseInfo.Year )
 		name = Cinematik.__RemoveNonAllowedCharacters( name )
 
