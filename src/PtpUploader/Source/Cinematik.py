@@ -141,7 +141,7 @@ class Cinematik(SourceBase):
 		Cinematik.__MapInfoFromTorrentDescriptionToPtp( releaseInfo, resolutionType, codec, container )
 
 	@staticmethod
-	def __ValidateTorrentFile(torrrentPath):
+	def __ValidateTorrentFile(torrentPath):
 		files = GetFileListFromTorrent( torrentPath )
 		for file in files:
 			file = file.lower();
