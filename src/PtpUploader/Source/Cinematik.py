@@ -121,7 +121,7 @@ class Cinematik(SourceBase):
 
 		if releaseInfo.IsContainerSet():
 			releaseInfo.Logger.info( "Container '%s' is already set, not getting from the torrent page." % releaseInfo.Container )
-		elif container == "video_ts":
+		elif container == "video_ts" or container == "video_ts [widescreen]":
 			releaseInfo.Container = "VOB IFO"
 		else:
 			raise PtpUploaderException( JobRunningState.Ignored_NotSupported, "Unsupported container type '%s'." % container )
