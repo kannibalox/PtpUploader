@@ -198,7 +198,7 @@ class Cinemageddon(SourceBase):
 		if len( releaseInfo.Year ) <= 0:
 			raise PtpUploaderException( "Can't rename release because year is empty." )			
 
-		name = "%s (%s)" % ( releaseInfo.InternationalTitle, releaseInfo.Year )
+		name = "%s (%s) %s %s" % ( releaseInfo.InternationalTitle, releaseInfo.Year, releaseInfo.Source, releaseInfo.Codec )
 		name = RemoveDisallowedCharactersFromPath( name )
 
 		logger.info( "Upload directory will be named '%s' instead of '%s'." % ( name, releaseInfo.ReleaseName ) )
