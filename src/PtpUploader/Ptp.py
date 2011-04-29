@@ -205,12 +205,21 @@ class Ptp:
 		
 		# If the repsonse contains our announce url then we are on the upload page and the upload wasn't successful.
 		if response.find( Settings.PtpAnnounceUrl ) != -1:
-			raise PtpUploaderException( "Torrent upload to PTP failed: we are still at the upload page." )
-		
+			# Get the error message.
+			# Possible formats:
+			# <p style="color: red; text-align: center;">No torrent file uploaded, or file is empty.</p>
+			# <p style="color: red;text-align:center;">Please enter at least one director</p>
+			errorMessage = ""
+			match = re.search( r"""<p style="color: ?red; ?text-align: ?center;">(.+?)</p>""", response )
+			if match is not None:
+				errorMessage = match.group( 1 )
+
+			raise PtpUploaderException( "Upload to PTP failed: '%s'. (We are still on the upload page.)" % errorMessage )
+
 		# Response format in case of success: http://passthepopcorn.me/torrents.php?id=28622
 		match = re.match( r"https?://passthepopcorn\.me/torrents\.php\?id=(\d+)", result.url );
 		if match is None:
-			raise PtpUploaderException( "Torrent upload to PTP failed: result url '%s' is not the expected one." % result.url )			
+			raise PtpUploaderException( "Upload to PTP failed: result url '%s' is not the expected one." % result.url )			
 
 		# Refresh data is not needed for new movies because PTP refresh them automatically.
 		# So we only do a refresh when adding as a new format.
