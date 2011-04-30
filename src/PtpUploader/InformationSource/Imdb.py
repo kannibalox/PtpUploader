@@ -2,8 +2,12 @@ from PtpUploaderException import PtpUploaderException
 
 import simplejson as json
 
+import hashlib
+import hmac
+import time
 import urllib
 import urllib2
+import uuid
 
 # Uses the undocumented iPhone IMDb API.
 # See:
@@ -21,7 +25,18 @@ class ImdbInfo:
 class Imdb:
 	@staticmethod
 	def __GetInfoInternal(imdbId):
-		url = "http://app.imdb.com/title/maindetails?api=v1&appid=iphone1&locale=en_US&tconst=tt%s" % imdbId 
+		# timestamp is needed
+		# device is needed but can be anything
+		# appid is needed but can be anything
+		# sig must be "and2" and it must be the last parameter
+		timeStamp = int( time.time() )
+		device = uuid.uuid1()
+		url = "http://app.imdb.com/title/maindetails?tconst=tt%s&timestamp=%s&device=%s&locale=en_US&appid=android2&sig=and2" % ( imdbId, timeStamp, device )
+
+		# Sign the URL.
+		# "eRnAYqbvj2JWXyPcu62yCA" comes from the disassembled "IMDb Movies & TV" Android application by IMDb. 
+		url += "-%s" % hmac.HMAC( "eRnAYqbvj2JWXyPcu62yCA", url, hashlib.sha1 ).hexdigest()
+		
 		request = urllib2.Request( url )
 		result = urllib2.urlopen( request )
 		response = result.read()
