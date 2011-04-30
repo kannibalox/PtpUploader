@@ -7,16 +7,17 @@ import subprocess;
 class MediaInfo:
 	# removePathFromCompleteName: this part will be removed from the path listed at "Complete Name". If removePathFromCompleteName is empty then it will be left as it is.
 	def __init__(self, logger, path, removePathFromCompleteName):
-		self.Path = path;
+		self.Path = path
 		self.RemovePathFromCompleteName = removePathFromCompleteName
-		self.FormattedMediaInfo = "";
-		self.DurationInSec = 0;
-		self.Container = "";
-		self.Codec = "";
-		self.Width = 0;
-		self.Height = 0;
+		self.FormattedMediaInfo = ""
+		self.DurationInSec = None
+		self.Container = ""
+		self.Codec = ""
+		self.Width = 0
+		self.Height = 0
 		
 		self.__ParseMediaInfo( logger )
+		self.__ValidateParsedMediaInfo()
 
 	# Returns with the media info.
 	@staticmethod
@@ -120,6 +121,24 @@ class MediaInfo:
 						self.Height = MediaInfo.__ParseSize( mediaPropertyValue );
 
 			self.FormattedMediaInfo += line + "\n";
+			
+	def __ValidateParsedMediaInfo(self):
+		# We don't check codec because it not present for VOBs.
+		
+		if self.DurationInSec is None:
+			raise PtpUploaderException( "MediaInfo couldn't parse the file '%s'." % self.Path )
+
+		if self.DurationInSec <= 0:
+			raise PtpUploaderException( "MediaInfo returned with invalid duration: '%s'." % self.DurationInSec )
+
+		if len( self.Container ) <= 0:
+			raise PtpUploaderException( "MediaInfo returned with no container." )
+
+		if self.Width <= 0:
+			raise PtpUploaderException( "MediaInfo returned with invalid width: '%s'." % self.Width )
+
+		if self.Height <= 0:
+			raise PtpUploaderException( "MediaInfo returned with invalid height: '%s'." % self.Height )
 			
 	def IsAvi(self):
 		return self.Container == "avi";
