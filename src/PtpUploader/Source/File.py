@@ -9,6 +9,8 @@ from ReleaseInfo import ReleaseInfo
 from ReleaseNameParser import ReleaseNameParser
 from Settings import Settings
 
+# TODO: support if GetReleaseDownloadPath is a file
+
 class File(SourceBase):
 	def __init__(self):
 		self.Name = "file"
@@ -34,11 +36,3 @@ class File(SourceBase):
 	@staticmethod
 	def IsDownloadFinished(logger, releaseInfo, rtorrent):
 		return True
-		
-	@staticmethod
-	def ExtractRelease(logger, releaseInfo):
-		# TODO: support if GetReleaseDownloadPath is a file
-		
-		# Extract the release.
-		ReleaseExtractor.Extract( releaseInfo.GetReleaseDownloadPath(), releaseInfo.GetReleaseUploadPath() )
-		releaseInfo.Nfo = NfoParser.FindAndReadNfoFileToUnicode( releaseInfo.GetReleaseDownloadPath() )

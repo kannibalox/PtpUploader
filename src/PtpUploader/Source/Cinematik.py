@@ -170,12 +170,6 @@ class Cinematik(SourceBase):
 
 		Cinematik.__ValidateTorrentFile( path )
 		
-	@staticmethod
-	def ExtractRelease(logger, releaseInfo):
-		# Extract the release.
-		ReleaseExtractor.Extract( releaseInfo.GetReleaseDownloadPath(), releaseInfo.GetReleaseUploadPath() )
-		releaseInfo.Nfo = NfoParser.FindAndReadNfoFileToUnicode( releaseInfo.GetReleaseDownloadPath() )
-
 	# TODO: Cinematik: use a shared function with Cinemageddon
 	# Because some of the releases on Cinematik do not contain the full name of the movie, we have to rename them because of the uploading rules on PTP.
 	# The new name will be formatted like this: Movie Name Year

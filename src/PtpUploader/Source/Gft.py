@@ -203,12 +203,6 @@ class Gft(SourceBase):
 			raise PtpUploaderException( "Torrent '%s' contains multiple NFO files." % path )  
 
 	@staticmethod
-	def ExtractRelease(logger, releaseInfo):
-		# Extract the release.
-		ReleaseExtractor.Extract( releaseInfo.GetReleaseDownloadPath(), releaseInfo.GetReleaseUploadPath() )
-		releaseInfo.Nfo = NfoParser.FindAndReadNfoFileToUnicode( releaseInfo.GetReleaseDownloadPath() )
-
-	@staticmethod
 	def GetIdFromUrl(url):
 		result = re.match( r".*thegft\.org/details.php\?id=(\d+).*", url )
 		if result is None:

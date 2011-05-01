@@ -10,7 +10,7 @@ class MediaInfo:
 		self.Path = path
 		self.RemovePathFromCompleteName = removePathFromCompleteName
 		self.FormattedMediaInfo = ""
-		self.DurationInSec = None
+		self.DurationInSec = 0
 		self.Container = ""
 		self.Codec = ""
 		self.Width = 0
@@ -34,20 +34,11 @@ class MediaInfo:
 		return stdout.decode( "utf-8", "ignore" );
 	
 	# removePathFromCompleteName: see MediaInfo's constructor
-	# keepOnlyTheFirstVob: there is no point of making MediaInfo for all VOBs, so if this is true then only first VOB will be parsed.
-	# Returns with the media infos for all files in videoFiles. If keepOnlyTheFirstVob is true, then returned list may not have the same length as videoFiles.
+	# Returns with the media infos for all files in videoFiles.
 	@staticmethod
-	def ReadAndParseMediaInfos(logger, videoFiles, removePathFromCompleteName, keepOnlyTheFirstVob = True):
-		firstVobFound = False
+	def ReadAndParseMediaInfos(logger, videoFiles, removePathFromCompleteName):
 		mediaInfos = []
 		for video in videoFiles:
-			# We could use MediaInfo.IsVob() after reading, but this is faster.
-			if video.lower().endswith( ".vob" ) and keepOnlyTheFirstVob:
-				if firstVobFound:
-					continue
-				else:
-					firstVobFound = True
-
 			mediaInfo = MediaInfo( logger, video, removePathFromCompleteName )
 			mediaInfos.append( mediaInfo )
 			
@@ -123,16 +114,16 @@ class MediaInfo:
 			self.FormattedMediaInfo += line + "\n";
 			
 	def __ValidateParsedMediaInfo(self):
-		# We don't check codec because it not present for VOBs.
-		
-		if self.DurationInSec is None:
-			raise PtpUploaderException( "MediaInfo couldn't parse the file '%s'." % self.Path )
-
-		if self.DurationInSec <= 0:
-			raise PtpUploaderException( "MediaInfo returned with invalid duration: '%s'." % self.DurationInSec )
-
 		if len( self.Container ) <= 0:
 			raise PtpUploaderException( "MediaInfo returned with no container." )
+
+		# IFOs and VOBs don't have codec.
+		if len( self.Codec ) <= 0 and ( not self.IsIfo() ) and ( not self.IsVob() ):
+			raise PtpUploaderException( "MediaInfo returned with no codec." )
+
+		# IFOs may have zero duration.
+		if self.DurationInSec <= 0 and ( not self.IsIfo() ):
+			raise PtpUploaderException( "MediaInfo returned with invalid duration: '%s'." % self.DurationInSec )
 
 		if self.Width <= 0:
 			raise PtpUploaderException( "MediaInfo returned with invalid width: '%s'." % self.Width )
@@ -141,19 +132,22 @@ class MediaInfo:
 			raise PtpUploaderException( "MediaInfo returned with invalid height: '%s'." % self.Height )
 			
 	def IsAvi(self):
-		return self.Container == "avi";
+		return self.Container == "avi"
+
+	def IsIfo(self):
+		return self.Container == "dvd video"
 
 	def IsMkv(self):
-		return self.Container == "matroska";
+		return self.Container == "matroska"
 
 	def IsVob(self):
-		return self.Container == "mpeg-ps";
+		return self.Container == "mpeg-ps"
 
 	def IsDivx(self):
-		return self.Codec == "dx50";
+		return self.Codec == "dx50"
 	
 	def IsXvid(self):
-		return self.Codec == "xvid";
+		return self.Codec == "xvid"
 
 	def IsX264(self):
-		return self.Codec == "v_mpeg4/iso/avc";
+		return self.Codec == "v_mpeg4/iso/avc"

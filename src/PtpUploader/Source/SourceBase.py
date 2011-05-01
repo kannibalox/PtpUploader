@@ -1,3 +1,6 @@
+from NfoParser import NfoParser
+from ReleaseExtractor import ReleaseExtractor
+
 class SourceBase:
 	@staticmethod
 	def IsEnabled():
@@ -21,7 +24,8 @@ class SourceBase:
 
 	@staticmethod
 	def ExtractRelease(logger, releaseInfo):
-		pass
+		ReleaseExtractor.Extract( logger, releaseInfo.GetReleaseDownloadPath(), releaseInfo.GetReleaseUploadPath() )
+		releaseInfo.Nfo = NfoParser.FindAndReadNfoFileToUnicode( releaseInfo.GetReleaseDownloadPath() )
 
 	@staticmethod
 	def GetCustomUploadPath(logger, releaseInfo):

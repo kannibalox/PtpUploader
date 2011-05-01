@@ -72,30 +72,31 @@ class ReleaseExtractorInternal:
 
 class ReleaseExtractor:
 	# Makes sure that path only contains supported extensions.
-	# Return with a tuple of list of the video files and the number of total files.
+	# Returns with a tuple of list of the video files and the list of additional files.
 	@staticmethod
 	def ValidateDirectory(logger, path):
 		logger.info( "Validating directory '%s'." % path )
 			
 		videos = []
-		fileCount = 0
+		additionalFiles = []
 		for root, dirs, files in os.walk( path ):
 			for file in files:
 				filePath = os.path.join( root, file )
-				logger.info( "Found file '%s'." % filePath )
-				fileCount += 1
 				if Settings.HasValidVideoExtensionToUpload( filePath ):
-					logger.info( "Found video file '%s'." % filePath )
 					videos.append( filePath )
-				elif not Settings.HasValidAdditionalExtensionToUpload( filePath ):
+				elif Settings.HasValidAdditionalExtensionToUpload( filePath ):
+					additionalFiles.append( filePath )
+				else:
 					raise PtpUploaderException( "File '%s' has unsupported extension." % filePath )
 
-		return videos, fileCount
+		return videos, additionalFiles
 
 	# Extracts RAR files and creates hard links from supported files from the source to the destination directory.
 	# Except of special scene folders (CD*, Subs) in the root, the directory hierarchy is kept.  
 	@staticmethod
-	def Extract(sourcePath, destinationPath):
+	def Extract(logger, sourcePath, destinationPath):
+		logger.info( "Extracting directory '%s' to '%s'." % ( sourcePath, destinationPath ) )
+
 		releaseExtractor = ReleaseExtractorInternal( sourcePath, destinationPath, handleSceneFolders = True )
 		releaseExtractor.Extract()
 

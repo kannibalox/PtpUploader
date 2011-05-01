@@ -24,10 +24,4 @@ class Torrent(SourceBase):
 		releaseNameParser = ReleaseNameParser( releaseInfo.ReleaseName )
 		releaseNameParser.GetSourceAndFormat( releaseInfo )
 		if releaseNameParser.Scene: 
-			releaseInfo.SetSceneRelease() 
-		
-	@staticmethod
-	def ExtractRelease(logger, releaseInfo):
-		# Extract the release.
-		ReleaseExtractor.Extract( releaseInfo.GetReleaseDownloadPath(), releaseInfo.GetReleaseUploadPath() )
-		releaseInfo.Nfo = NfoParser.FindAndReadNfoFileToUnicode( releaseInfo.GetReleaseDownloadPath() )
+			releaseInfo.SetSceneRelease()
