@@ -175,9 +175,6 @@ class Cinematik(SourceBase):
 	# The new name will be formatted like this: Movie Name Year
 	@staticmethod
 	def GetCustomUploadPath(logger, releaseInfo):
-		# TODO: TEMP HACK BECAUSE OF IMDB
-		return ""
-		
 		# TODO: if the user forced a release name, then let it upload by that name.
 		if releaseInfo.IsZeroImdbId():
 			raise PtpUploaderException( "Uploading to Cinematik with zero IMDb ID is not yet supported." % text ) 		
@@ -200,7 +197,7 @@ class Cinematik(SourceBase):
 		name = RemoveDisallowedCharactersFromPath( name )
 
 		logger.info( "Upload directory will be named '%s' instead of '%s'." % ( name, releaseInfo.ReleaseName ) )
-		
+
 		newUploadPath = releaseInfo.GetReleaseUploadPath()
 		newUploadPath = os.path.dirname( newUploadPath )
 		newUploadPath = os.path.join( newUploadPath, name )
