@@ -13,17 +13,20 @@ Depends on the following Python packages:
 If you don't have root acces, use virtualenv ( http://pypi.python.org/pypi/virtualenv ) to install the required Python packages.
 
 Required programs:
-	- ffmpeg: http://www.ffmpeg.org/
 	- MediaInfo: http://mediainfo.sourceforge.net/
 	- mktorrent: http://mktorrent.sourceforge.net/
 	- unrar: http://www.rarlab.com/rar_add.htm
 
+One of them is required:
+	- ffmpeg: http://www.ffmpeg.org/
+	- MPlayer: http://www.mplayerhq.hu/
+
 Optional programs:
 	- FlexGet: http://flexget.com/
-	- ImageMagick: http://www.imagemagick.org/
+	- ImageMagick (for JPG making with ffmpeg): http://www.imagemagick.org/
 	- pyWHATauto: http://whatscripts.com/
 
-1. Extract PtpUploader and pyWHATauto
+1. Extract PtpUploader
 
 Recommended directory structure:
 	- PTP

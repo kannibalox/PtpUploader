@@ -62,7 +62,7 @@ class ReleaseInfoMaker:
 		releaseInfo.Logger = logger
 		releaseInfo.ReleaseName = self.ReleaseName
 		releaseInfo.SetScreenshotList( screenshots )
-		releaseDescription = ReleaseDescriptionFormatter.Format( releaseInfo, screenshotMaker.ScaleSize, mediaInfos, includeReleaseName = True )
+		releaseDescription = ReleaseDescriptionFormatter.Format( releaseInfo, screenshotMaker.GetScaleSize(), mediaInfos, includeReleaseName = True )
 
 		releaseDescriptionFile = codecs.open( releaseDescriptionFilePath, encoding = "utf-8", mode = "w" )
 		releaseDescriptionFile.write( releaseDescription )
@@ -76,18 +76,6 @@ class ReleaseInfoMaker:
 		
 		# Make sure the files we are generating are not present.
 
-		screenshotPath = os.path.join( self.WorkingDirectory, "screenshot" )
-		screenshotPathWithExtension = screenshotPath + ".png"
-		if os.path.exists( screenshotPathWithExtension ):
-			print "Can't create screenshot because '%s' already exists!" % screenshotPathWithExtension
-			return
-
-		if len( Settings.ImageMagickConvertPath ) > 0:
-			screenshotPathWithExtension = screenshotPath + ".jpg"
-			if os.path.exists( screenshotPathWithExtension ):
-				print "Can't create screenshot because '%s' already exists!" % screenshotPathWithExtension
-				return
-		
 		releaseDescriptionFilePath = os.path.join( self.WorkingDirectory, "release description.txt" )
 		if os.path.exists( releaseDescriptionFilePath ):
 			print "Can't create release description because '%s' already exists!" % releaseDescriptionFilePath
@@ -104,7 +92,8 @@ class ReleaseInfoMaker:
 
 		# Take and upload screenshots.
 		screenshotMaker = ScreenshotMaker( logger, mediaInfos[ 0 ].Path )
-		screenshots = screenshotMaker.TakeAndUploadScreenshots( screenshotPath, mediaInfos[ 0 ].DurationInSec )
+		outputImageDirectory = self.WorkingDirectory
+		screenshots = screenshotMaker.TakeAndUploadScreenshots( outputImageDirectory, mediaInfos[ 0 ].DurationInSec )
 
 		# Save the release description.
 		self.SaveReleaseDescripionFile( logger, releaseDescriptionFilePath, screenshots, screenshotMaker, mediaInfos )

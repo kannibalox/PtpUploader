@@ -134,8 +134,9 @@ class Settings(object):
 		Settings.OnSuccessfulUpload = Settings.__GetDefault( configParser, "Settings", "OnSuccessfulUpload", "", raw = True )
 
 		Settings.ChtorPath = configParser.get( "Settings", "ChtorPath" )
-		Settings.FfmpegPath = configParser.get( "Settings", "FfmpegPath" )
+		Settings.FfmpegPath = Settings.__GetDefault( configParser, "Settings", "FfmpegPath", "" )
 		Settings.MediaInfoPath = configParser.get( "Settings", "MediaInfoPath" )
+		Settings.MplayerPath = Settings.__GetDefault( configParser, "Settings", "MplayerPath", "" )
 		Settings.MktorrentPath = configParser.get( "Settings", "MktorrentPath" )
 		Settings.UnrarPath = configParser.get( "Settings", "UnrarPath" )
 		Settings.ImageMagickConvertPath = Settings.__GetDefault( configParser, "Settings", "ImageMagickConvertPath", "" ) 

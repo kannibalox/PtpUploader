@@ -200,14 +200,14 @@ class Upload(WorkerBase):
 		self.__GetMediaInfoResolution( self.ScreenshotMediaInfo )
 
 	def __TakeAndUploadScreenshots(self):
-		screenshotPathWithoutExtension = os.path.join( self.ReleaseInfo.GetReleaseRootPath(), "screenshot" )
 		screenshotMaker = ScreenshotMaker( self.ReleaseInfo.Logger, self.ScreenshotMediaInfo.Path )
-		self.ScaleSize = screenshotMaker.ScaleSize
+		self.ScaleSize = screenshotMaker.GetScaleSize()
 
 		if len( self.ReleaseInfo.Screenshots ) > 0:
 			self.ReleaseInfo.Logger.info( "Screenshots are set, not making new ones." )			
 		else:
-			screens = screenshotMaker.TakeAndUploadScreenshots( screenshotPathWithoutExtension, self.ScreenshotMediaInfo.DurationInSec )
+			outputImageDirectory = self.ReleaseInfo.GetReleaseRootPath()
+			screens = screenshotMaker.TakeAndUploadScreenshots( outputImageDirectory, self.ScreenshotMediaInfo.DurationInSec )
 			self.ReleaseInfo.SetScreenshotList( screens )
 
 	def __MakeReleaseDescription(self):
