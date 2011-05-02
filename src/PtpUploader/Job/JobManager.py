@@ -122,14 +122,14 @@ class JobManager:
 		for downloadIndex in reversed( xrange( len( self.PendingDownloads ) ) ):
 			item = self.PendingDownloads[ downloadIndex ]
 			if item.ReleaseInfoId == releaseInfoId or releaseInfoId == -1:
-				self.__SetJobStopped( releaseInfoId )
+				self.__SetJobStopped( item.ReleaseInfoId )
 				self.PendingDownloads.pop( downloadIndex )
 		
 		# Iterate the list backwards because we may delete from it.
 		for announcementIndex in reversed( xrange( len( self.PendingAnnouncements ) ) ):
 			item = self.PendingAnnouncements[ announcementIndex ]
 			if item.ReleaseInfoId == releaseInfoId or releaseInfoId == -1:
-				self.__SetJobStopped( releaseInfoId )
+				self.__SetJobStopped( item.ReleaseInfoId )
 				self.PendingAnnouncements.pop( announcementIndex )
 	
 	def __SetJobStopped(self, releaseInfoId):
