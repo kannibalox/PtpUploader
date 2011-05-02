@@ -49,14 +49,13 @@ class PtpMovieSearchResult:
 		result = PtpMovieSearchResult.__ReprHelper( result, self.HdList, "High Definition" )
 		return PtpMovieSearchResult.__ReprHelper( result, self.OtherList, "Other" )
 
-	@staticmethod
-	def __ParseMoviePageMakeItems(itemList, regexFindList):
+	def __ParseMoviePageMakeItems(self, itemList, regexFindList):
 		for regexFind in regexFindList:
 			fullTitle = regexFind[ 0 ] 
 			sizeText = regexFind[ 1 ]
 			elements = fullTitle.split( " / " )
 			if len( elements ) < 4:
-				raise PtpUploaderException( "Error! Unknown torrent format on movie page: '%s'." % elements );
+				raise PtpUploaderException( "Unknown torrent format ('%s') on movie page 'https://passthepopcorn.me/torrents.php?id=%s'." % ( elements, self.PtpId ) )
 
 			codec = elements[ 0 ]
 			container = elements[ 1 ]
@@ -95,9 +94,9 @@ class PtpMovieSearchResult:
 			""".+?<a href="#" onclick="\$\('#torrent_\d+'\)\.toggle\(\);.+?">(?:<span style=".+?"><strong>)?(.+?)(?:</strong></span>)?</a>"""\
 			""".+?</td>"""\
 			""".+?<td class="nobr">(.+?)</td>"""\
-			""".+?<td>\d+</td>"""\
-			""".+?<td>\d+</td>"""\
-			""".+?<td>\d+</td>"""\
+			""".+?<td>.+?</td>"""\
+			""".+?<td>.+?</td>"""\
+			""".+?<td>.+?</td>"""\
 			""".+?</tr>""", re.DOTALL )
 
 		# Get the list of torrents for each section.
@@ -113,12 +112,12 @@ class PtpMovieSearchResult:
 				endIndex = nextSection[ 0 ]
 	
 			result = regEx.findall( html, currentIndex, endIndex )
-			PtpMovieSearchResult.__ParseMoviePageMakeItems( currentList, result )
+			self.__ParseMoviePageMakeItems( currentList, result )
 
-		# Just for absolute safety we compare the number of results with the first regulary expression.
+		# Just for absolute safety we compare the number of results with number of results produced by this subset of the regular expression.
 		result = re.findall( """<a href="#" onclick="\$\('#torrent_\d+'\)\.toggle\(\);""", html )
 		if ( not result ) or len( result ) == 0 or len( result ) != ( len( self.SdList ) + len( self.HdList ) + len( self.OtherList ) ):
-			raise PtpUploaderException( "Error! Unknown torrent format on movie page." );  
+			raise PtpUploaderException( "Unknown torrent format on movie page 'https://passthepopcorn.me/torrents.php?id=%s'." % self.PtpId )
 
 	@staticmethod
 	def __GetListOfMatches(list, codecs, sources = None, resolutions = None):
