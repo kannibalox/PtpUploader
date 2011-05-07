@@ -1,4 +1,35 @@
-Needs Python. Only 2.5 or 2.6 is supported because of pyWHATauto.
+=====================================================================================================================================================
+Quick installation
+=====================================================================================================================================================
+
+Run these commands from Linux's shell. (Most likely you have to use PuTTY.)
+
+svn checkout http://ptpuploader.googlecode.com/svn/trunk/src/ PTP
+cd PTP
+
+wget --no-check-certificate https://github.com/pypa/virtualenv/raw/master/virtualenv.py
+python virtualenv.py -v --distribute MyEnv
+
+MyEnv/bin/easy_install simplejson
+MyEnv/bin/easy_install poster
+MyEnv/bin/easy_install pyrocore
+MyEnv/bin/easy_install --upgrade sqlalchemy
+MyEnv/bin/easy_install cherrypy==3.1.2
+MyEnv/bin/easy_install flask
+MyEnv/bin/pyroadmin --create-config
+
+mkdir WorkingDirectory
+cp PtpUploader/Settings.example.ini PtpUploader/Settings.ini
+
+Edit and fill out the details in PtpUploader/Settings.ini.
+
+See the "Starting PtpUploader in the background" section for how to start it.
+
+=====================================================================================================================================================
+Installation details
+=====================================================================================================================================================
+
+PtpUploader needs Python. Only version 2.5 and 2.6 are supported because of pyWHATauto.
 
 Depends on the following Python packages:
 	- CherryPy: http://www.cherrypy.org/
@@ -26,7 +57,9 @@ Optional programs:
 	- ImageMagick (for JPG making with ffmpeg): http://www.imagemagick.org/
 	- pyWHATauto: http://whatscripts.com/
 
-1. Extract PtpUploader
+=====================================================================================================================================================
+Extracting PtpUploader
+=====================================================================================================================================================
 
 Recommended directory structure:
 	- PTP
@@ -38,14 +71,25 @@ Recommended directory structure:
 The easiest way is to get the source straight from Subversion:
 svn checkout http://ptpuploader.googlecode.com/svn/trunk/src/ /path to your PTP directory/
 
-2. Configure PyroScope.
+=====================================================================================================================================================
+Configuring PyroScope
+=====================================================================================================================================================
 
 Simply run the following:
 pyroadmin --create-config
 
-3. Configure PtpUploader by copying PtpUploader/Settings.example.ini to Settings.ini and editing the latter.
+=====================================================================================================================================================
+Configuring PtpUploader
+=====================================================================================================================================================
 
-4. Configure pyWHATauto. This is optional and needed only for GFT.
+Copy PtpUploader/Settings.example.ini to Settings.ini and edit the latter.
+
+=====================================================================================================================================================
+Configuring pyWHATauto (optional)
+=====================================================================================================================================================
+
+This is optional and needed only for GFT.
+
 	- Copy every .confg file from pyWHATauto/config_example/ to pyWHATauto/
 	- in pyWHATauto/setup.conf
 		- edit torrentDir
@@ -61,15 +105,22 @@ pyroadmin --create-config
 			- cmd
 				- Replace YourBotName with the name that you set to botnick.
 	- Starting pyWHATauto in the background:
-		- from command line: screen -S pywa python /path to pyWHATauto/PtpUploaderIrcBot.py /path to WorkingDirectory/
+		- from command line: screen -S pywa MyEnv/bin/python /path to pyWHATauto/PtpUploaderIrcBot.py /path to WorkingDirectory/
 		- Use Ctrl+A, D to disconnect from screen. You can use "screen -r PtpUploader" from command line to reconnect.
 
-5. Configure FlexGet. This is optional and needed only for CG.
+=====================================================================================================================================================
+Configuring FlexGet (optional)
+=====================================================================================================================================================
 
-You have to rename FlexGet/config.example.yml to config.example.yml. Make sure you change the path of the working directory in the config file.
-FlexGet needs to run peridically to update the RSS feeds. See FlexGet's documentation for details: http://flexget.com/wiki/InstallWizard/Linux/NoRoot/Virtualenv/Scheduling
+Copy FlexGet/config.example.yml to config.yml.
+Make sure you change the path of the working directory in the config file.
+FlexGet needs to run peridically to update the RSS feeds.
+See FlexGet's documentation for details: http://flexget.com/wiki/InstallWizard/Linux/NoRoot/Virtualenv/Scheduling
 
-6. Start PtpUploader  in the background
-screen -S PtpUploader python /path to PtpUploader/Main.py
+=====================================================================================================================================================
+Starting PtpUploader in the background
+=====================================================================================================================================================
+
+screen -S PtpUploader MyEnv/bin/python /path to PtpUploader/Main.py
 
 Use Ctrl+A, D to disconnect from screen. You can use "screen -r PtpUploader" to reconnect.
