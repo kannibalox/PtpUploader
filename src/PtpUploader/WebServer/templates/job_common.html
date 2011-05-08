@@ -3,21 +3,36 @@
 <tr>
 	<td class="label">Start immediately</td>
 	<td>
-		<input id="StartImmediately" name="StartImmediately" type="checkbox" title="If this is set then the job will be the next processed job and the download will start regardless the number of maximum parallel downloads set for the source.">
+		<input id="StartImmediately" name="StartImmediately" type="checkbox" title="If this is set then the job will be the next processed job and the download will start regardless the number of maximum parallel downloads set for the source."
+
+			{% if job.StartImmediately %}
+				checked
+			{% endif %}
+		>
 	</td>
 </tr>
 
 <tr>
 	<td class="label">Force upload</td>
 	<td>
-		<input id="force_upload" name="force_upload" type="checkbox" title="Check this to override duplicate, adult tag and series checking.">
+		<input id="force_upload" name="force_upload" type="checkbox" title="Check this to override duplicate, adult tag and series checking."
+		
+			{% if job.force_upload %}
+				checked
+			{% endif %}
+		>
 	</td>
 </tr>
 
 <tr>
 	<td class="label">Make torrent without directory</td>
 	<td>
-		<input id="ForceDirectorylessSingleFileTorrent" name="ForceDirectorylessSingleFileTorrent" type="checkbox" title="If this is set and the release contains only a single video file then no directory will be created.">
+		<input id="ForceDirectorylessSingleFileTorrent" name="ForceDirectorylessSingleFileTorrent" type="checkbox" title="If this is set and the release contains only a single video file then no directory will be created."
+		
+			{% if job.ForceDirectorylessSingleFileTorrent %}
+				checked
+			{% endif %}
+		>
 	</td>
 </tr>
 
@@ -117,14 +132,24 @@
 <tr>
 	<td class="label">Scene</td>
 	<td>
-		<input id="scene" name="scene" type="checkbox">
+		<input id="scene" name="scene" type="checkbox"
+
+			{% if job.scene %}
+				checked
+			{% endif %}
+		>
 	</td>
 </tr>
 
 <tr>
 	<td class="label">Special release (not main movie)</td>
 	<td>
-		<input id="special" name="special" type="checkbox">
+		<input id="special" name="special" type="checkbox"
+
+			{% if job.special %}
+				checked
+			{% endif %}
+		>
 	</td>
 </tr>
 
