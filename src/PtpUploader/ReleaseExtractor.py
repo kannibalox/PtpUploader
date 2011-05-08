@@ -46,8 +46,9 @@ class ReleaseExtractorInternal:
 			# Special scene folders in the root will be extracted without making a directory for them in the destination.
 			releaseExtractor = ReleaseExtractorInternal( entryPath, self.DestinationPath )
 			releaseExtractor.Extract()
-		elif self.HandleSceneFolders and ( entryLower == "sample" or entryLower == "proof" ):
+		elif self.HandleSceneFolders and ( entryLower == "sample" or entryLower == "!sample" or entryLower == "proof" ):
 			# We don't need these.
+			# !sample is used in ESiR releases.
 			# (The if is nicer this way than combining this and the next block.)
 			pass
 		else:
@@ -57,10 +58,10 @@ class ReleaseExtractorInternal:
 			releaseExtractor.Extract()
 
 	def __HandleFile(self, entryName, entryPath):
-		if Settings.IsFileOnIgnoreList( entryPath ):
+		if Settings.IsFileOnIgnoreList( entryName ):
 			return
 
-		if ( not Settings.HasValidVideoExtensionToUpload( entryPath ) ) and ( not Settings.HasValidAdditionalExtensionToUpload( entryPath ) ):
+		if ( not Settings.HasValidVideoExtensionToUpload( entryName ) ) and ( not Settings.HasValidAdditionalExtensionToUpload( entryName ) ):
 		 	return
 
 		# Make hard link from supported files.
