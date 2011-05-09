@@ -167,9 +167,12 @@ class Upload(WorkerBase):
 
 			# Use the longest.
 			ifo = sortedIfos[ 0 ][ 1 ]
+			if ifo.DurationInSec <= 0:
+				raise PtpUploaderException( "None of the IFOs have duration. MediaInfo is probably too old." )
+
 			ifoPathLower = ifo.Path.lower()
 			if not ifoPathLower.endswith( "_0.ifo" ):
-				raise PtpUploaderException( "Unsupported VIDEO_TS layout. The longest IFO is: '%s'." % ifo.Path )
+				raise PtpUploaderException( "Unsupported VIDEO_TS layout. The longest IFO is '%s' with duration '%'." % ( ifo.Path, ifo.DurationInSec ) )
 			
 			# Get the next VOB.
 			# (This could be a simple replace but Linux's filesystem is case-sensitive...)
