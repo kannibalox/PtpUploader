@@ -83,7 +83,7 @@ class ReleaseInfo(Database.Base):
 		self.ReleaseName = ""
 
 		# These are the required fields needed for an upload to PTP.
-		self.Type = "Movies" # Movies, Musicals, Standup Comedy, Concerts
+		self.Type = "Feature Film" # Feature Film, Short Film, Miniseries, Stand-up Comedy, Concert
 		self.ImdbId = "" # Just the number. Eg.: 0111161 for http://www.imdb.com/title/tt0111161/
 		self.Directors = "" # Stored as a comma separated list. PTP needs this as a list, use GetDirectors.
 		self.Title = "" # Eg.: El Secreto de Sus Ojos AKA The Secret in Their Eyes
