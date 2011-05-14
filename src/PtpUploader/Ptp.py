@@ -201,6 +201,7 @@ class Ptp:
 		request = urllib2.Request( url, datagen, headers )
 		result = opener.open( request )
 		response = result.read();
+		response = response.decode( "utf-8", "ignore" )
 		Ptp.CheckIfLoggedInFromResponse( response );
 		
 		# If the repsonse contains our announce url then we are on the upload page and the upload wasn't successful.
