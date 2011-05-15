@@ -28,6 +28,7 @@ DvF
 EPiSODE
 ESPiSE
 EXViD
+FASTHD
 Felony
 FiCO
 FiEND
