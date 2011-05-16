@@ -48,6 +48,12 @@ class AnnouncementWatcher:
 		entries = os.listdir( announcementsPath )
 		files = [];
 		for entry in entries:
+			# We can't do anything with undecodable filenames because we can't even join the paths (to move the file to the invalid directory) without getting an UnicodeDecodeError...
+			# "Undecodable filenames will still be returned as string objects."
+			# http://stackoverflow.com/questions/3409381/how-to-handle-undecodable-filenames-in-python
+			if not isinstance( entry, unicode ):
+				continue
+			
 			filePath = os.path.join( announcementsPath, entry )
 			if os.path.isfile( filePath ):
 				modificationTime = os.path.getmtime( filePath )
