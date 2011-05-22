@@ -85,21 +85,22 @@ class PtpImdbInfo:
 	def GetDirectors(self):
 		# Director's name may not be present. For example: http://www.imdb.com/title/tt0864336/
 		self.__LoadmdbInfo()
-		jsonDirectors = self.JsonMovie[ "director" ]
-		if ( jsonDirectors is None ) or len( jsonDirectors ) <= 0:
-			return [ "None Listed" ]
-		else:
-			directorNames = []
-	
-			for jsonDirector in jsonDirectors:
-				directorName = jsonDirector[ "name" ]
-				if ( directorName is None ) or len( directorName ) == 0: 
-					raise PtpUploaderException( "Bad PTP movie info JSON response: director name is empty.\nFull response:\n%s" % self.JsonResponse )
-	
-				directorName = self.HtmlParser.unescape( directorName ) # PTP doesn't decodes properly the text.
-				directorNames.append( directorName )
-	
-			return directorNames
+		jsonArtists = self.JsonMovie[ "artists" ]
+		if ( jsonArtists is not None ) and len( jsonArtists ) > 0:
+			jsonDirectors = jsonArtists[ 0 ]
+			if len( jsonDirectors ) > 0:
+				directorNames = []
+				for jsonDirector in jsonDirectors:
+					directorName = jsonDirector[ "name" ]
+					if ( directorName is None ) or len( directorName ) == 0: 
+						raise PtpUploaderException( "Bad PTP movie info JSON response: director name is empty.\nFull response:\n%s" % self.JsonResponse )
+		
+					directorName = self.HtmlParser.unescape( directorName ) # PTP doesn't decodes properly the text.
+					directorNames.append( directorName )
+		
+				return directorNames
+
+		return [ "None Listed" ]
 
 class PtpZeroImdbInfo:
 	def __init__(self):
