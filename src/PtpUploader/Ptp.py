@@ -96,11 +96,11 @@ class Ptp:
 		elif response.find( "<h2>Error 404</h2>" ) != -1: # For some deleted movies PTP return with this error.
 			logger.info( "Movie with IMDb id '%s' doesn't exists on PTP. (Got error 404.)" % imdbId );
 			return PtpMovieSearchResult( ptpId = "", moviePageHtml = None );
-		elif response.find( "<h2>Your search did not match anything.</h2>" ) == -1: # Multiple movies with the same IMDb id. 
-			raise PtpUploaderException( "There are multiple movies on PTP with IMDb id '%s'." % imdbId )
-		else:
+		elif response.find( "<h2>Your search did not match anything.</h2>" ) != -1: 
 			logger.info( "Movie with IMDb id '%s' doesn't exists on PTP." % imdbId );
 			return PtpMovieSearchResult( ptpId = "", moviePageHtml = None );
+		else: # Multiple movies with the same IMDb id.
+			raise PtpUploaderException( "There are multiple movies on PTP with IMDb id '%s'." % imdbId )
 
 	@staticmethod
 	def __UploadMovieGetParamsCommon(releaseInfo, releaseDescription):
