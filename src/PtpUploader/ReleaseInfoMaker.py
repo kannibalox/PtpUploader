@@ -68,7 +68,7 @@ class ReleaseInfoMaker:
 		releaseDescriptionFile.write( releaseDescription )
 		releaseDescriptionFile.close()
 
-	def MakeReleaseInfo(self, createTorrent):
+	def MakeReleaseInfo(self, createTorrent = True, createScreens = True):
 		logger = MyGlobals.Logger
 		
 		if not self.CollectVideoFiles():
@@ -93,7 +93,9 @@ class ReleaseInfoMaker:
 		# Take and upload screenshots.
 		screenshotMaker = ScreenshotMaker( logger, mediaInfos[ 0 ].Path )
 		outputImageDirectory = self.WorkingDirectory
-		screenshots = screenshotMaker.TakeAndUploadScreenshots( outputImageDirectory, mediaInfos[ 0 ].DurationInSec )
+		screenshots = []
+		if createScreens:
+			screenshots = screenshotMaker.TakeAndUploadScreenshots( outputImageDirectory, mediaInfos[ 0 ].DurationInSec )
 
 		# Save the release description.
 		self.SaveReleaseDescripionFile( logger, releaseDescriptionFilePath, screenshots, screenshotMaker, mediaInfos )
@@ -109,6 +111,7 @@ if __name__ == '__main__':
 	print "Usage:"
 	print "\"ReleaseInfoMaker.py <target directory or filename>\" creates the release description and starts seeding the torrent."
 	print "\"ReleaseInfoMaker.py --notorrent <target directory or filename>\" creates the release description."
+	print "\"ReleaseInfoMaker.py --noscreens <target directory or filename>\" creates the release description without screens and starts seeding the torrent."
 	print ""
 
 	Settings.LoadSettings()
@@ -116,7 +119,10 @@ if __name__ == '__main__':
 
 	if len( sys.argv ) == 2:
 		releaseInfoMaker = ReleaseInfoMaker( sys.argv[ 1 ] )
-		releaseInfoMaker.MakeReleaseInfo( createTorrent = True )
+		releaseInfoMaker.MakeReleaseInfo()
 	elif len( sys.argv ) == 3 and sys.argv[ 1 ] == "--notorrent":
 		releaseInfoMaker = ReleaseInfoMaker( sys.argv[ 2 ] )
 		releaseInfoMaker.MakeReleaseInfo( createTorrent = False )
+	elif len( sys.argv ) == 3 and sys.argv[ 1 ] == "--noscreens":
+		releaseInfoMaker = ReleaseInfoMaker( sys.argv[ 2 ] )
+		releaseInfoMaker.MakeReleaseInfo( createScreens = False )
