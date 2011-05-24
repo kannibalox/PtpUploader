@@ -132,7 +132,12 @@ class NfoParser:
 		files = GetFileListFromTorrent( torrentPath )
 		nfoCount = 0
 		for file in files:
-			file = file.lower();  
+			file = file.lower();
+
+			# Only check in the root folder.
+			if file.find( "/" ) != -1 or file.find( "\\" ) != -1:
+				continue
+
 			if file.endswith( ".nfo" ):
 				nfoCount += 1
 				if nfoCount > 1:
