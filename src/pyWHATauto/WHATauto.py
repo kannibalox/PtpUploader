@@ -1195,7 +1195,9 @@ class autoBOT( ):
         if self.regex['server'] == connection.server:
             cleanedmsg = self.stripIRCColors(e.arguments()[0])
             #make sure that we always use lower case!
-            if e.source()[e.source().index('!')+1:].lower() == self.regex['botwho'].lower() and e.target().lower() in self.regex['announcechannel'].lower():
+            # TnS: We simply check the nick of GFT's announcer because its whois often changes.
+            #if e.source()[e.source().index('!')+1:].lower() == self.regex['botwho'].lower() and e.target().lower() in self.regex['announcechannel'].lower():
+            if e.source()[:e.source().index('!')].lower() == self.regex['botname'].lower() and e.target().lower() in self.regex['announcechannel'].lower():
                 handlePubMSG.announce(self, connection, e, cleanedmsg)
             else:
                 handlePubMSG.pubMSG(self, connection, e, cleanedmsg)
