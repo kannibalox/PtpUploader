@@ -102,6 +102,8 @@ This is optional and needed only for GFT.
 			- username
 			- botnick
 			- nickservpass
+			- irckey
+				- The IRC password that you set at your control panel on GFT.
 			- cmd
 				- Replace YourBotName with the name that you set to botnick.
 	- Starting pyWHATauto in the background:

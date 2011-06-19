@@ -1183,7 +1183,9 @@ class autoBOT( ):
     
     def handleInvite(self, connection, e):
         if self.regex['server'] == connection.server:
-            if e.source()[e.source().index('!')+1:].lower() == self.regex['botwho'].lower() and e.arguments()[0] == self.regex['announcechannel']:
+			# TnS: We simply check the nick of GFT's authorization bot not its whois.
+			#if e.source()[e.source().index('!')+1:].lower() == self.regex['botwho'].lower() and e.arguments()[0] == self.regex['announcechannel']:
+            if e.source()[:e.source().index('!'):].lower() == self.regex['authbotname'].lower() and e.arguments()[0] == self.regex['announcechannel']:
                 self.connection.join(e.arguments()[0])
                 self.joined = True
                 if self.name == 'waffles':
@@ -1270,7 +1272,9 @@ class autoBOT( ):
                             out('INFO',"Joining channel: %s by logging in with %s" %(self.regex['authchan'],self.regex['botname'].capitalize()),site=self.name)
                         else:
                             out('INFO',"Joining channel: %s by logging in with %s" %(self.regex['announcechannel'],self.regex['botname'].capitalize()),site=self.name)
-                        self.connection.privmsg(self.regex['botname'],"%s"%authstring)   
+						# TnS: had to change botname to authbotname because the announcement and the authentication bots are different on GFT.
+                        #self.connection.privmsg(self.regex['botname'],"%s"%authstring)   
+                        self.connection.privmsg(self.regex['authbotname'],"%s"%authstring)   
                     else:
                         out('INFO',"Joining channel: %s" %(self.regex['announcechannel']),site=self.name)
                         self.connection.join(self.regex['announcechannel'])
