@@ -1,7 +1,14 @@
 '''
 
-jQuery File Tree
-http://abeautifulsite.net/blog/2008/03/jquery-file-tree/
+TODO:
+
+File selector:
+	- jQuery File Tree -- http://abeautifulsite.net/blog/2008/03/jquery-file-tree/
+	- jfiletree -- http://code.google.com/p/jfiletree/
+	- dirlister -- http://plugins.jquery.com/node/2257/release
+	- tree
+		- http://www.jstree.com/ -- with json data source
+		- http://bassistance.de/jquery-plugins/jquery-plugin-treeview/
 
 jQuery File Upload
 https://github.com/blueimp/jQuery-File-Upload/

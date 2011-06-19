@@ -153,6 +153,9 @@ class Settings(object):
 		Settings.WebServerAddress = Settings.__GetDefault( configParser, "Settings", "WebServerAddress", "" )
 		Settings.WebServerUsername = Settings.__GetDefault( configParser, "Settings", "WebServerUsername", "admin" )
 		Settings.WebServerPassword = Settings.__GetDefault( configParser, "Settings", "WebServerPassword", "" )
+		
+		Settings.TakeScreenshotOfAdditionalFiles = Settings.__GetDefault( configParser, "Settings", "TakeScreenshotOfAdditionalFiles", "" )
+		Settings.TakeScreenshotOfAdditionalFiles = Settings.TakeScreenshotOfAdditionalFiles.lower() == "yes"
 
 		# Create the announcement directory.
 		# Invalid announcement directory is within the announcement directory, so we don't have to make the announcement directory separately.

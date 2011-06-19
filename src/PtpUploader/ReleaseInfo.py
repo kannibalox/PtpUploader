@@ -124,7 +124,7 @@ class ReleaseInfo(Database.Base):
 		self.ReleaseDownloadPath = "" # Empty if using the default path. See GetReleaseDownloadPath.
 		self.ReleaseUploadPath = "" # Empty if using the default path. See GetReleaseUploadPath.
 		self.ReleaseNotes = ""
-		self.Screenshots = ""
+		self.Screenshots = "" # JSON encode of a ScreenshotList class
 		self.LastModificationTime = 0
 		self.Size = 0
 		
@@ -244,16 +244,6 @@ class ReleaseInfo(Database.Base):
 
 	def SetJobPhaseFinished(self, jobPhase):
 		self.FinishedJobPhase |= jobPhase
-
-	def GetScreenshotList(self):
-		return self.Screenshots.split( "|" )
-	
-	def SetScreenshotList(self, list):
-		for name in list:
-			if name.find( "|" ) != -1:
-				raise PtpUploaderException( "Screenshot URL '%s' contains |." % name )
-		
-		self.Screenshots = "|".join( list )
 
 	# Eg.: "working directory/log/job/1"
 	def GetLogFilePath(self):

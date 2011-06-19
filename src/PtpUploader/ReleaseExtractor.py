@@ -75,7 +75,7 @@ class ReleaseExtractor:
 	# Makes sure that path only contains supported extensions.
 	# Returns with a tuple of list of the video files and the list of additional files.
 	@staticmethod
-	def ValidateDirectory(logger, path):
+	def ValidateDirectory(logger, path, throwExceptionForUnsupportedFiles = True):
 		logger.info( "Validating directory '%s'." % path )
 			
 		videos = []
@@ -87,7 +87,7 @@ class ReleaseExtractor:
 					videos.append( filePath )
 				elif Settings.HasValidAdditionalExtensionToUpload( filePath ):
 					additionalFiles.append( filePath )
-				else:
+				elif throwExceptionForUnsupportedFiles:
 					raise PtpUploaderException( "File '%s' has unsupported extension." % filePath )
 
 		return videos, additionalFiles

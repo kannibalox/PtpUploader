@@ -2,8 +2,6 @@ from Job.FinishedJobPhase import FinishedJobPhase
 from Job.JobRunningState import JobRunningState
 from Job.WorkerBase import WorkerBase
 from Tool.MakeTorrent import MakeTorrent
-from Tool.MediaInfo import MediaInfo
-from Tool.ScreenshotMaker import ScreenshotMaker
 
 from Database import Database
 from ImageUploader import ImageUploader
@@ -22,8 +20,6 @@ class Upload(WorkerBase):
 			self.__CreateUploadPath,
 			self.__ExtractRelease,
 			self.__ValidateExtractedRelease,
-			self.__GetMediaInfo,
-			self.__TakeAndUploadScreenshots,
 			self.__MakeReleaseDescription,
 			self.__MakeTorrent,
 			self.__CheckIfExistsOnPtp,
@@ -37,9 +33,7 @@ class Upload(WorkerBase):
 		self.Rtorrent = rtorrent
 		self.VideoFiles = []
 		self.AdditionalFiles = []
-		self.MediaInfos = []
-		self.ScreenshotMediaInfo = None
-		self.ScaleSize = ""
+		self.MainMediaInfo = None
 		self.ReleaseDescription = u""
 
 	def __CreateUploadPath(self):
@@ -149,74 +143,16 @@ class Upload(WorkerBase):
 		else:
 			self.ReleaseInfo.Resolution = resolution
 
-	def __GetMediaInfoHandleDvdImage(self):
-			# Get all IFOs.
-			ifos = []
-			for file in self.AdditionalFiles:
-				if file.lower().endswith( ".ifo" ):
-					mediaInfo = MediaInfo( self.ReleaseInfo.Logger, file, self.ReleaseInfo.GetReleaseUploadPath() )
-					ifos.append( mediaInfo )
-			
-			# Sort them by duration.
-			sortedIfos = []
-			for ifo in ifos:
-				item = ifo.DurationInSec, ifo # Add as a tuple.
-				sortedIfos.append( item )
-	
-			sortedIfos.sort( reverse = True )
-
-			# Use the longest.
-			ifo = sortedIfos[ 0 ][ 1 ]
-			if ifo.DurationInSec <= 0:
-				raise PtpUploaderException( "None of the IFOs have duration. MediaInfo is probably too old." )
-
-			ifoPathLower = ifo.Path.lower()
-			if not ifoPathLower.endswith( "_0.ifo" ):
-				raise PtpUploaderException( "Unsupported VIDEO_TS layout. The longest IFO is '%s' with duration '%'." % ( ifo.Path, ifo.DurationInSec ) )
-			
-			# Get the next VOB.
-			# (This could be a simple replace but Linux's filesystem is case-sensitive...)
-			vobPath = None
-			ifoPathLower = ifoPathLower.replace( "_0.ifo", "_1.vob" )
-			for file in self.VideoFiles:
-				if file.lower() == ifoPathLower:
-					vobPath = file
-					break
-
-			if vobPath is None:
-				raise PtpUploaderException( "Unsupported VIDEO_TS layout. Can't find the next VOB for IFO '%s'." % ifo.Path )
-
-			vobMediaInfo = MediaInfo( self.ReleaseInfo.Logger, vobPath, self.ReleaseInfo.GetReleaseUploadPath() )
-			self.MediaInfos = [ ifo, vobMediaInfo ]
-			self.ScreenshotMediaInfo = vobMediaInfo
-
-	def __GetMediaInfo(self):
-		if self.ReleaseInfo.IsDvdImage():
-			self.__GetMediaInfoHandleDvdImage()
-		else:
-			self.VideoFiles = ScreenshotMaker.SortVideoFiles( self.VideoFiles )
-			self.MediaInfos = MediaInfo.ReadAndParseMediaInfos( self.ReleaseInfo.Logger, self.VideoFiles, self.ReleaseInfo.GetReleaseUploadPath() )
-			self.ScreenshotMediaInfo = self.MediaInfos[ 0 ] 
-		
-		self.__GetMediaInfoContainer( self.ScreenshotMediaInfo )
-		self.__GetMediaInfoCodec( self.ScreenshotMediaInfo )
-		self.__GetMediaInfoResolution( self.ScreenshotMediaInfo )
-
-	def __TakeAndUploadScreenshots(self):
-		screenshotMaker = ScreenshotMaker( self.ReleaseInfo.Logger, self.ScreenshotMediaInfo.Path )
-		self.ScaleSize = screenshotMaker.GetScaleSize()
-
-		if len( self.ReleaseInfo.Screenshots ) > 0:
-			self.ReleaseInfo.Logger.info( "Screenshots are set, not making new ones." )			
-		else:
-			outputImageDirectory = self.ReleaseInfo.GetReleaseRootPath()
-			screens = screenshotMaker.TakeAndUploadScreenshots( outputImageDirectory, self.ScreenshotMediaInfo.DurationInSec )
-			self.ReleaseInfo.SetScreenshotList( screens )
-
 	def __MakeReleaseDescription(self):
-		releaseDescriptionFilePath = os.path.join( self.ReleaseInfo.GetReleaseRootPath(), "release description.txt" )
 		includeReleaseName = self.ReleaseInfo.AnnouncementSource.IncludeReleaseNameInReleaseDescription()
-		self.ReleaseDescription = ReleaseDescriptionFormatter.Format( self.ReleaseInfo, self.ScaleSize, self.MediaInfos, includeReleaseName )
+		outputImageDirectory = self.ReleaseInfo.GetReleaseRootPath()
+		releaseDescriptionFormatter = ReleaseDescriptionFormatter( self.ReleaseInfo, self.VideoFiles, self.AdditionalFiles, outputImageDirectory )
+		self.ReleaseDescription = releaseDescriptionFormatter.Format( includeReleaseName )
+		self.MainMediaInfo = releaseDescriptionFormatter.GetMainMediaInfo()
+
+		self.__GetMediaInfoContainer( self.MainMediaInfo )
+		self.__GetMediaInfoCodec( self.MainMediaInfo )
+		self.__GetMediaInfoResolution( self.MainMediaInfo )
 
 	def __MakeTorrent(self):
 		if len( self.ReleaseInfo.UploadTorrentFilePath ) > 0:
@@ -232,7 +168,7 @@ class Upload(WorkerBase):
 		if totalFileCount > 1 or ( self.ReleaseInfo.AnnouncementSource.IsSingleFileTorrentNeedsDirectory() and not self.ReleaseInfo.IsForceDirectorylessSingleFileTorrent() ):
 			MakeTorrent.Make( self.ReleaseInfo.Logger, self.ReleaseInfo.GetReleaseUploadPath(), uploadTorrentFilePath )
 		else: # Create the torrent including only the single video file.
-			MakeTorrent.Make( self.ReleaseInfo.Logger, self.ScreenshotMediaInfo.Path, uploadTorrentFilePath )
+			MakeTorrent.Make( self.ReleaseInfo.Logger, self.MainMediaInfo.Path, uploadTorrentFilePath )
 			
 		# Local variable is used temporarily to make sure that UploadTorrentFilePath is only gets stored in the database if MakeTorrent.Make succeeded.
 		self.ReleaseInfo.UploadTorrentFilePath = uploadTorrentFilePath

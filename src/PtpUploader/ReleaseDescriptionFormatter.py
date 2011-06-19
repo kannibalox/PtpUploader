@@ -1,35 +1,178 @@
+from Tool.MediaInfo import MediaInfo
+from Tool.ScreenshotMaker import ScreenshotMaker
+
+from PtpUploaderException import *
+from ScreenshotList import ScreenshotList
+from Settings import Settings
+
 import os
 
-class ReleaseDescriptionFormatter:
-	@staticmethod	
-	def Format(releaseInfo, scaleSize, mediaInfos, includeReleaseName):
-		screenshots = releaseInfo.GetScreenshotList()
+class ReleaseDescriptionVideoEntry:
+	def __init__(self, mediaInfo, numberOfScreenshotsToTake = 5):
+		self.MediaInfo = mediaInfo
+		self.NumberOfScreenshotsToTake = numberOfScreenshotsToTake
+		self.Screenshots = []
+		self.ScaleSize = None
+		
+	def HaveScreenshots(self):
+		return len( self.Screenshots ) > 0
 
-		releaseInfo.Logger.info( "Making release description for release '%s' with screenshots at %s." % ( releaseInfo.ReleaseName, screenshots ) )
+	def ToReleaseDescription(self):
+		releaseDescription = u""
+
+		if self.HaveScreenshots():
+			if self.ScaleSize is not None:
+				releaseDescription += u"Showing the display aspect ratio. Resolution: %s.\n\n" % self.ScaleSize
+
+			for screenshot in self.Screenshots:
+				releaseDescription += u"[img=%s]\n\n" % screenshot
+
+		return releaseDescription
+
+class ReleaseDescriptionFormatter:
+	def __init__(self, releaseInfo, videoFiles, additionalFiles, outputImageDirectory, makeScreenshots = True):
+		self.ReleaseInfo = releaseInfo
+		self.VideoFiles = videoFiles
+		self.AdditionalFiles = additionalFiles
+		self.OutputImageDirectory = outputImageDirectory
+		self.MakeScreenshots = makeScreenshots
+		self.VideoEntries = []
+		self.MainMediaInfo = None
+		
+		self.__GetMediaInfo()
+		self.__TakeAndUploadScreenshots()
+	
+	def __GetMediaInfoHandleDvdImage(self):
+			# Get all IFOs.
+			ifos = []
+			for file in self.AdditionalFiles:
+				if file.lower().endswith( ".ifo" ):
+					mediaInfo = MediaInfo( self.ReleaseInfo.Logger, file, self.ReleaseInfo.GetReleaseUploadPath() )
+					ifos.append( mediaInfo )
+			
+			# Sort them by duration.
+			sortedIfos = []
+			for ifo in ifos:
+				item = ifo.DurationInSec, ifo # Add as a tuple.
+				sortedIfos.append( item )
+	
+			sortedIfos.sort( reverse = True )
+
+			# Use the longest.
+			ifo = sortedIfos[ 0 ][ 1 ]
+			if ifo.DurationInSec <= 0:
+				raise PtpUploaderException( "None of the IFOs have duration. MediaInfo is probably too old." )
+
+			ifoPathLower = ifo.Path.lower()
+			if not ifoPathLower.endswith( "_0.ifo" ):
+				raise PtpUploaderException( "Unsupported VIDEO_TS layout. The longest IFO is '%s' with duration '%'." % ( ifo.Path, ifo.DurationInSec ) )
+			
+			# Get the next VOB.
+			# (This could be a simple replace but Linux's filesystem is case-sensitive...)
+			vobPath = None
+			ifoPathLower = ifoPathLower.replace( "_0.ifo", "_1.vob" )
+			for file in self.VideoFiles:
+				if file.lower() == ifoPathLower:
+					vobPath = file
+					break
+
+			if vobPath is None:
+				raise PtpUploaderException( "Unsupported VIDEO_TS layout. Can't find the next VOB for IFO '%s'." % ifo.Path )
+
+			vobMediaInfo = MediaInfo( self.ReleaseInfo.Logger, vobPath, self.ReleaseInfo.GetReleaseUploadPath() )
+			self.MainMediaInfo = vobMediaInfo
+			self.VideoEntries.append( ReleaseDescriptionVideoEntry( ifo, numberOfScreenshotsToTake = 0 ) )
+			self.VideoEntries.append( ReleaseDescriptionVideoEntry( vobMediaInfo ) )
+
+	def __GetMediaInfoHandleNonDvdImage(self):
+		self.VideoFiles = ScreenshotMaker.SortVideoFiles( self.VideoFiles )
+		mediaInfos = MediaInfo.ReadAndParseMediaInfos( self.ReleaseInfo.Logger, self.VideoFiles, self.ReleaseInfo.GetReleaseUploadPath() )
+		self.MainMediaInfo = mediaInfos[ 0 ]
+		
+		for i in range( len( mediaInfos ) ):
+			if i == 0:
+				self.VideoEntries.append( ReleaseDescriptionVideoEntry( mediaInfos[ i ] ) )
+			else:
+				numberOfScreenshotsToTake = 0
+				if Settings.TakeScreenshotOfAdditionalFiles:
+					numberOfScreenshotsToTake = 1
+
+				self.VideoEntries.append( ReleaseDescriptionVideoEntry( mediaInfos[ i ], numberOfScreenshotsToTake ) )
+
+	def __GetMediaInfo(self):
+		if self.ReleaseInfo.IsDvdImage():
+			self.__GetMediaInfoHandleDvdImage()
+		else:
+			self.__GetMediaInfoHandleNonDvdImage()
+
+	def __TakeAndUploadScreenshotsForEntry(self, screenshotList, videoEntry):
+		if videoEntry.NumberOfScreenshotsToTake <= 0:
+			return
+
+		screenshotMaker = ScreenshotMaker( self.ReleaseInfo.Logger, videoEntry.MediaInfo.Path )
+		videoEntry.ScaleSize = screenshotMaker.GetScaleSize()
+
+		screenshots = screenshotList.GetScreenshotsByName( videoEntry.MediaInfo.Path )
+		if screenshots is None:
+			takeSingleScreenshot = videoEntry.NumberOfScreenshotsToTake == 1
+			videoEntry.Screenshots = screenshotMaker.TakeAndUploadScreenshots( self.OutputImageDirectory, videoEntry.MediaInfo.DurationInSec, takeSingleScreenshot )
+			screenshotList.SetScreenshots( videoEntry.MediaInfo.Path, videoEntry.Screenshots )
+
+	def __TakeAndUploadScreenshots(self):
+		if not self.MakeScreenshots:
+			return
+
+		screenshotList = ScreenshotList()
+		screenshotList.LoadFromString( self.ReleaseInfo.Screenshots )
+
+		for videoEntry in self.VideoEntries:
+			self.__TakeAndUploadScreenshotsForEntry( screenshotList, videoEntry )
+				
+		self.ReleaseInfo.Screenshots = screenshotList.GetAsString()
+
+	def __GetFirstEntryWithScreenshotsIfThereIsOnlyOne(self):
+		first = None
+
+		for entry in self.VideoEntries:
+			if entry.HaveScreenshots():
+				if first is None:
+					first = entry
+				else:
+					return None
+
+		return first
+
+	def Format(self, includeReleaseName):
+		self.ReleaseInfo.Logger.info( "Making release description" )
 		releaseDescription = u""
 
 		if includeReleaseName:
-			releaseDescription = u"[size=4][b]%s[/b][/size]\n\n" % releaseInfo.ReleaseName
+			releaseDescription = u"[size=4][b]%s[/b][/size]\n\n" % self.ReleaseInfo.ReleaseName
 
-		if len( releaseInfo.ReleaseNotes ) > 0:
-			releaseDescription += u"%s\n\n" % releaseInfo.ReleaseNotes
+		if len( self.ReleaseInfo.ReleaseNotes ) > 0:
+			releaseDescription += u"%s\n\n" % self.ReleaseInfo.ReleaseNotes
 
-		if scaleSize is not None:
-			releaseDescription += u"Screenshots are showing the display aspect ratio. Resolution: %s.\n\n" % scaleSize 
+		# Show screens before the file name if only one video have screenshots.
+		firstEntryWithScreenshots = self.__GetFirstEntryWithScreenshotsIfThereIsOnlyOne()
+		if firstEntryWithScreenshots is not None:
+			releaseDescription += firstEntryWithScreenshots.ToReleaseDescription()
 
-		for screenshot in screenshots:
-			releaseDescription += u"[img=%s]\n\n" % screenshot
-
-		for mediaInfo in mediaInfos:
+		for entry in self.VideoEntries:
 			# Add file name before each media info if there are more than one videos in the release.
-			if len( mediaInfos ) > 1:
-				fileName = os.path.basename( mediaInfo.Path )
+			if len( self.VideoEntries ) > 1:
+				fileName = os.path.basename( entry.MediaInfo.Path )
 				releaseDescription += u"[size=3][u]%s[/u][/size]\n\n" % fileName
 
-			releaseDescription += mediaInfo.FormattedMediaInfo
+			if firstEntryWithScreenshots is None:
+				releaseDescription += entry.ToReleaseDescription()
+
+			releaseDescription += entry.MediaInfo.FormattedMediaInfo
 
 		# Add NFO if presents
-		if len( releaseInfo.Nfo ) > 0:
-			releaseDescription += u"[size=3][u]NFO[/u][/size]:[pre]\n%s\n[/pre]" % releaseInfo.Nfo
+		if len( self.ReleaseInfo.Nfo ) > 0:
+			releaseDescription += u"[size=3][u]NFO[/u][/size]:[pre]\n%s\n[/pre]" % self.ReleaseInfo.Nfo
 
 		return releaseDescription
+	
+	def GetMainMediaInfo(self):
+		return self.MainMediaInfo

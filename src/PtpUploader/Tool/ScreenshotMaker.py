@@ -54,13 +54,16 @@ class ScreenshotMaker:
 
 	# Takes five screenshots from the first 30% of the video.
 	# Returns with the URLs of the uploaded images.
-	def TakeAndUploadScreenshots(self, outputImageDirectory, durationInSec):
+	def TakeAndUploadScreenshots(self, outputImageDirectory, durationInSec, takeSingleScreenshot):
 		urls = []
 		urls.append( self.__TakeAndUploadScreenshot( int( durationInSec * 0.10 ), outputImageDirectory ) )
-		urls.append( self.__TakeAndUploadScreenshot( int( durationInSec * 0.15 ), outputImageDirectory ) )
-		urls.append( self.__TakeAndUploadScreenshot( int( durationInSec * 0.20 ), outputImageDirectory ) )
-		urls.append( self.__TakeAndUploadScreenshot( int( durationInSec * 0.25 ), outputImageDirectory ) )
-		urls.append( self.__TakeAndUploadScreenshot( int( durationInSec * 0.30 ), outputImageDirectory ) )
+
+		if not takeSingleScreenshot:
+			urls.append( self.__TakeAndUploadScreenshot( int( durationInSec * 0.15 ), outputImageDirectory ) )
+			urls.append( self.__TakeAndUploadScreenshot( int( durationInSec * 0.20 ), outputImageDirectory ) )
+			urls.append( self.__TakeAndUploadScreenshot( int( durationInSec * 0.25 ), outputImageDirectory ) )
+			urls.append( self.__TakeAndUploadScreenshot( int( durationInSec * 0.30 ), outputImageDirectory ) )
+
 		return urls
 
 	# We sort video files by their size (less than 50 MB difference is ignored) and by their name.

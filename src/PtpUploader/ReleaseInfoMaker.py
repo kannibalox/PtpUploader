@@ -1,10 +1,10 @@
 from Tool.MakeTorrent import MakeTorrent
-from Tool.MediaInfo import MediaInfo
 from Tool.Rtorrent import Rtorrent
-from Tool.ScreenshotMaker import ScreenshotMaker
 
 from MyGlobals import MyGlobals
+from PtpUploaderException import *
 from ReleaseDescriptionFormatter import ReleaseDescriptionFormatter
+from ReleaseExtractor import ReleaseExtractor
 from ReleaseInfo import ReleaseInfo
 from Settings import Settings
 
@@ -19,6 +19,7 @@ class ReleaseInfoMaker:
 		self.WorkingDirectory = None
 		self.TorrentDataPath = None
 		self.VideoFiles = []
+		self.AdditionalFiles = []
 
 	def CollectVideoFiles(self):
 		self.Path = os.path.abspath( self.Path )
@@ -27,18 +28,10 @@ class ReleaseInfoMaker:
 			# Make sure that path doesn't ends with a trailing slash or else os.path.split would return with wrong values.
 			self.Path = self.Path.rstrip( "\\/" )
 
-			# If path is a directory we search for video files.
-			files = os.listdir( self.Path );
-			for file in files:
-				filePath = os.path.join( self.Path, file );
-				if os.path.isfile( filePath ) and Settings.HasValidVideoExtensionToUpload( filePath ):
-					self.VideoFiles.append( filePath );
-
+			self.VideoFiles, self.AdditionalFiles = ReleaseExtractor.ValidateDirectory( MyGlobals.Logger, self.Path, throwExceptionForUnsupportedFiles = False )
 			if len( self.VideoFiles ) <= 0:
 				print "Path '%s' doesn't contains any videos!" % self.Path
 				return False
-
-			self.VideoFiles = ScreenshotMaker.SortVideoFiles( self.VideoFiles )
 
 			# We use the parent directory of the path as the working directory.
 			# Release name will be the directory's name. Eg. it will be "anything" for "/something/anything"
@@ -57,12 +50,26 @@ class ReleaseInfoMaker:
 
 		return True
 
-	def SaveReleaseDescripionFile(self, logger, releaseDescriptionFilePath, screenshots, screenshotMaker, mediaInfos):
+	def MarkAsDvdImageIfNeeded(self, releaseInfo):
+		for file in self.AdditionalFiles:
+			if file.lower().endswith( ".ifo" ):
+				releaseInfo.Codec = "DVD5"
+				# Make sure that ReleaseDescriptionFormatter will recognize this as a DVD image.
+				if not releaseInfo.IsDvdImage():
+					raise PtpUploaderException( "Codec is set to DVD5, yet release info says that this is not a DVD image." )
+				
+				return
+
+	def SaveReleaseDescripionFile(self, logger, releaseDescriptionFilePath, createScreens):
 		releaseInfo = ReleaseInfo()
 		releaseInfo.Logger = logger
 		releaseInfo.ReleaseName = self.ReleaseName
-		releaseInfo.SetScreenshotList( screenshots )
-		releaseDescription = ReleaseDescriptionFormatter.Format( releaseInfo, screenshotMaker.GetScaleSize(), mediaInfos, includeReleaseName = True )
+		releaseInfo.ReleaseUploadPath = self.TorrentDataPath
+		self.MarkAsDvdImageIfNeeded( releaseInfo )
+
+		outputImageDirectory = self.WorkingDirectory
+		releaseDescriptionFormatter = ReleaseDescriptionFormatter( releaseInfo, self.VideoFiles, self.AdditionalFiles, outputImageDirectory, createScreens )
+		releaseDescription = releaseDescriptionFormatter.Format( includeReleaseName = True )
 
 		releaseDescriptionFile = codecs.open( releaseDescriptionFilePath, encoding = "utf-8", mode = "w" )
 		releaseDescriptionFile.write( releaseDescription )
@@ -87,18 +94,8 @@ class ReleaseInfoMaker:
 			print "Can't create torrent because '%s' already exists!" % torrentPath
 			return
 
-		# Get the media info.
-		mediaInfos = MediaInfo.ReadAndParseMediaInfos( logger, self.VideoFiles, self.TorrentDataPath )
-
-		# Take and upload screenshots.
-		screenshotMaker = ScreenshotMaker( logger, mediaInfos[ 0 ].Path )
-		outputImageDirectory = self.WorkingDirectory
-		screenshots = []
-		if createScreens:
-			screenshots = screenshotMaker.TakeAndUploadScreenshots( outputImageDirectory, mediaInfos[ 0 ].DurationInSec )
-
 		# Save the release description.
-		self.SaveReleaseDescripionFile( logger, releaseDescriptionFilePath, screenshots, screenshotMaker, mediaInfos )
+		self.SaveReleaseDescripionFile( logger, releaseDescriptionFilePath, createScreens )
 
 		# Create the torrent
 		if createTorrent:
@@ -106,23 +103,30 @@ class ReleaseInfoMaker:
 			rtorrent = Rtorrent()
 			rtorrent.AddTorrentSkipHashCheck( logger, torrentPath, self.TorrentDataPath )
 
-if __name__ == '__main__':
+def Main(argv):
 	print "PtpUploader Release Description Maker by TnS"
-	print "Usage:"
-	print "\"ReleaseInfoMaker.py <target directory or filename>\" creates the release description and starts seeding the torrent."
-	print "\"ReleaseInfoMaker.py --notorrent <target directory or filename>\" creates the release description."
-	print "\"ReleaseInfoMaker.py --noscreens <target directory or filename>\" creates the release description without screens and starts seeding the torrent."
+	
+	if len( argv ) <= 1:
+		print "Usage:"
+		print "\"ReleaseInfoMaker.py <target directory or filename>\" creates the release description and starts seeding the torrent."
+		print "\"ReleaseInfoMaker.py --notorrent <target directory or filename>\" creates the release description."
+		print "\"ReleaseInfoMaker.py --noscreens <target directory or filename>\" creates the release description without screens and starts seeding the torrent."
+		return
+
 	print ""
 
 	Settings.LoadSettings()
 	MyGlobals.InitializeGlobals( Settings.WorkingPath )
 
-	if len( sys.argv ) == 2:
-		releaseInfoMaker = ReleaseInfoMaker( sys.argv[ 1 ] )
+	if len( argv ) == 2:
+		releaseInfoMaker = ReleaseInfoMaker( argv[ 1 ] )
 		releaseInfoMaker.MakeReleaseInfo()
-	elif len( sys.argv ) == 3 and sys.argv[ 1 ] == "--notorrent":
-		releaseInfoMaker = ReleaseInfoMaker( sys.argv[ 2 ] )
+	elif len( argv ) == 3 and argv[ 1 ] == "--notorrent":
+		releaseInfoMaker = ReleaseInfoMaker( argv[ 2 ] )
 		releaseInfoMaker.MakeReleaseInfo( createTorrent = False )
-	elif len( sys.argv ) == 3 and sys.argv[ 1 ] == "--noscreens":
-		releaseInfoMaker = ReleaseInfoMaker( sys.argv[ 2 ] )
+	elif len( argv ) == 3 and argv[ 1 ] == "--noscreens":
+		releaseInfoMaker = ReleaseInfoMaker( argv[ 2 ] )
 		releaseInfoMaker.MakeReleaseInfo( createScreens = False )
+
+if __name__ == '__main__':
+	Main( sys.argv )
