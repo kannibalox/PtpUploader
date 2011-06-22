@@ -13,7 +13,7 @@ class ScreenshotList:
 	def LoadFromString(self, screenshotListString):
 		try:
 			self.Items = json.loads( screenshotListString )
-		except json.JSONDecodeError:
+		except Exception:
 			self.Items = []
 	
 	def __GetItemByName(self, name):

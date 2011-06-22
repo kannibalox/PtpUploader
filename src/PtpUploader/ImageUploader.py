@@ -30,7 +30,7 @@ class ImageUploader:
 		jsonLoad = None
 		try:
 			jsonLoad = json.loads( response );
-		except json.JSONDecodeError:
+		except Exception:
 			logger.error( "Got exception while loading JSON response from ptpimg.me. Response: '%s'." % response )
 			raise
 
