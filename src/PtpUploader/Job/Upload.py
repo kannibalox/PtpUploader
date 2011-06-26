@@ -149,6 +149,9 @@ class Upload(WorkerBase):
 		releaseDescriptionFormatter = ReleaseDescriptionFormatter( self.ReleaseInfo, self.VideoFiles, self.AdditionalFiles, outputImageDirectory )
 		self.ReleaseDescription = releaseDescriptionFormatter.Format( includeReleaseName )
 		self.MainMediaInfo = releaseDescriptionFormatter.GetMainMediaInfo()
+		
+		# To not waste the uploaded screenshots we commit them to the database because the following function calls can all throw exceptions.
+		Database.DbSession.commit()
 
 		self.__GetMediaInfoContainer( self.MainMediaInfo )
 		self.__GetMediaInfoCodec( self.MainMediaInfo )

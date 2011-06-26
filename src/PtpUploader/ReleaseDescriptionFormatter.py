@@ -115,8 +115,10 @@ class ReleaseDescriptionFormatter:
 		screenshots = screenshotList.GetScreenshotsByName( videoEntry.MediaInfo.Path )
 		if screenshots is None:
 			takeSingleScreenshot = videoEntry.NumberOfScreenshotsToTake == 1
-			videoEntry.Screenshots = screenshotMaker.TakeAndUploadScreenshots( self.OutputImageDirectory, videoEntry.MediaInfo.DurationInSec, takeSingleScreenshot )
-			screenshotList.SetScreenshots( videoEntry.MediaInfo.Path, videoEntry.Screenshots )
+			screenshots = screenshotMaker.TakeAndUploadScreenshots( self.OutputImageDirectory, videoEntry.MediaInfo.DurationInSec, takeSingleScreenshot )
+			screenshotList.SetScreenshots( videoEntry.MediaInfo.Path, screenshots )
+
+		videoEntry.Screenshots = screenshots
 
 	def __TakeAndUploadScreenshots(self):
 		if not self.MakeScreenshots:
@@ -127,7 +129,7 @@ class ReleaseDescriptionFormatter:
 
 		for videoEntry in self.VideoEntries:
 			self.__TakeAndUploadScreenshotsForEntry( screenshotList, videoEntry )
-				
+
 		self.ReleaseInfo.Screenshots = screenshotList.GetAsString()
 
 	def __GetFirstEntryWithScreenshotsIfThereIsOnlyOne(self):
