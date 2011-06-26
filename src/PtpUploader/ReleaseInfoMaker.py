@@ -2,6 +2,7 @@ from Tool.MakeTorrent import MakeTorrent
 from Tool.Rtorrent import Rtorrent
 
 from MyGlobals import MyGlobals
+from NfoParser import NfoParser
 from PtpUploaderException import *
 from ReleaseDescriptionFormatter import ReleaseDescriptionFormatter
 from ReleaseExtractor import ReleaseExtractor
@@ -20,6 +21,7 @@ class ReleaseInfoMaker:
 		self.TorrentDataPath = None
 		self.VideoFiles = []
 		self.AdditionalFiles = []
+		self.Nfo = u""
 
 	def CollectVideoFiles(self):
 		self.Path = os.path.abspath( self.Path )
@@ -37,13 +39,21 @@ class ReleaseInfoMaker:
 			# Release name will be the directory's name. Eg. it will be "anything" for "/something/anything"
 			self.WorkingDirectory, self.ReleaseName = os.path.split( self.Path )
 			self.TorrentDataPath = self.Path
+			
+			self.Nfo = NfoParser.FindAndReadNfoFileToUnicode( self.TorrentDataPath )
 		elif os.path.isfile( self.Path ):
 			self.VideoFiles.append( self.Path )
 			
 			# We use same the directory where the file is as the working directory.
-			# Release name will be the file's name.
+			# Release name will be the file's name without extension.
 			self.WorkingDirectory, self.ReleaseName = os.path.split( self.Path )
+			self.ReleaseName, extension = os.path.splitext( self.ReleaseName )
 			self.TorrentDataPath = self.WorkingDirectory
+			
+			# Try to read the NFO.
+			nfoPath = self.ReleaseName + ".nfo"
+			if os.path.isfile( nfoPath ):
+				self.Nfo = NfoParser.ReadNfoFileToUnicode( nfoPath )
 		else:
 			print "Path '%s' doesn't exists!" % self.Path
 			return False
@@ -65,6 +75,7 @@ class ReleaseInfoMaker:
 		releaseInfo.Logger = logger
 		releaseInfo.ReleaseName = self.ReleaseName
 		releaseInfo.ReleaseUploadPath = self.TorrentDataPath
+		releaseInfo.Nfo = self.Nfo
 		self.MarkAsDvdImageIfNeeded( releaseInfo )
 
 		outputImageDirectory = self.WorkingDirectory
