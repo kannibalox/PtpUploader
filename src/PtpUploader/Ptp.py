@@ -140,8 +140,6 @@ class Ptp:
 	@staticmethod
 	def __UploadMovieGetParamsForNewMovie(releaseInfo):
 		params = {
-			"tomatoes": releaseInfo.RottenTomatoesUrl,
-			"metacritic": releaseInfo.MetacriticUrl,
 			"title": releaseInfo.Title,
 			"year": releaseInfo.Year,
 			"image": releaseInfo.CoverArtUrl,

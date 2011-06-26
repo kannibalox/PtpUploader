@@ -92,8 +92,8 @@ class ReleaseInfo(Database.Base):
 		self.MovieDescription = u""
 		self.CoverArtUrl = ""
 		self.YouTubeId = "" # Eg.: FbdOnGNBMAo for http://www.youtube.com/watch?v=FbdOnGNBMAo
-		self.MetacriticUrl = ""
-		self.RottenTomatoesUrl = ""
+		self.MetacriticUrl = "" # TODO: no longer used. Only here because of SQLite.
+		self.RottenTomatoesUrl = "" # TODO: no longer used. Only here because of SQLite.
 		self.Codec = "" # Other, DivX, XviD, H.264, x264, DVD5, DVD9, BD25, BD50
 		self.CodecOther = "" # Codec type when Codec is Other.
 		self.Container = "" # Other, MPG, AVI, MP4, MKV, VOB IFO, ISO, m2ts

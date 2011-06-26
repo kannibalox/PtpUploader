@@ -54,8 +54,6 @@ class JobCommon:
 		releaseInfo.MovieDescription = request.values[ "album_desc" ]
 		releaseInfo.CoverArtUrl = request.values[ "image" ]
 		releaseInfo.YouTubeId = JobCommon.__GetYouTubeId( request.values[ "trailer" ] )
-		releaseInfo.MetacriticUrl = request.values[ "metacritic" ]
-		releaseInfo.RottenTomatoesUrl = request.values[ "tomatoes" ]
 		
 		if request.values.get( "scene" ) is not None:
 			releaseInfo.SetSceneRelease()
@@ -136,8 +134,6 @@ class JobCommon:
 		job[ "album_desc" ] = releaseInfo.MovieDescription
 		job[ "image" ] = releaseInfo.CoverArtUrl
 		job[ "trailer" ] = JobCommon.__GetYouTubeLink( releaseInfo )
-		job[ "metacritic" ] = releaseInfo.MetacriticUrl
-		job[ "tomatoes" ] = releaseInfo.RottenTomatoesUrl
 		
 		if releaseInfo.IsSceneRelease():
 			job[ "scene" ] = "on"
