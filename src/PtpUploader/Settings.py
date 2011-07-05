@@ -10,8 +10,11 @@ import re
 class Settings(object):
 	@staticmethod
 	def MakeListFromExtensionString(extensions):
+		# Make sure everything is in lower case in the settings.
+		extensions = extensions.lower()
+
 		# If extensions is empty then we need an empty list. Splitting an empty string with a specified separator returns [''].
-		extensions = extensions.strip() 
+		extensions = extensions.strip()
 		if len( extensions ) > 0:
 			list = extensions.split( "," )
 			for i in range( len( list ) ):
