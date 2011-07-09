@@ -20,7 +20,7 @@ feeds:
       # Create TorrentId field by extracting the id from the URL.
       - TorrentId:
           from: url
-          extract: 'http://cinemageddon\.net/details\.php\?id=(\d+).+'
+          extract: 'http://cinemageddon\.net/details\.php\?id=(\d+).*'
     exec: echo >> "/path to WorkingDirectory/announcement/[source=cg][id=%(TorrentId)s][title=none]"
 
 # Cinematik
@@ -34,7 +34,7 @@ feeds:
       # Create TorrentId field by extracting the id from the URL.
       - TorrentId:
           from: url
-          extract: 'http://cinematik\.net/details\.php\?id=(\d+).+'
+          extract: 'http://cinematik\.net/details\.php\?id=(\d+).*'
     exec: echo >> "/path to WorkingDirectory/announcement/[source=tik][id=%(TorrentId)s][title=none]"
 
 # TorrentLeech
@@ -56,5 +56,5 @@ feeds:
       # Create TorrentId field by extracting the ID from the URL.
       - TorrentId:
           from: url
-          extract: 'http://www\.torrentleech\.org/rss/download/(\d+)/.+'
+          extract: 'http://www\.torrentleech\.org/rss/download/(\d+)/.*'
     exec: echo >> "/path to WorkingDirectory/announcement/[source=tl][id=%(TorrentId)s][title=%(title)s]"
