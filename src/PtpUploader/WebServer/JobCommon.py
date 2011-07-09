@@ -102,11 +102,15 @@ class JobCommon:
 			releaseInfo.SetStartImmediately()
 	
 		releaseInfo.ReleaseNotes = request.values[ "ReleaseNotes" ]
+		releaseInfo.SetSubtitles( request.form.getlist( "subtitle[]" ) )
 
 	@staticmethod
 	def __GetPtpOrImdbLink(releaseInfo):
 		if releaseInfo.HasPtpId():
-			return "https://passthepopcorn.me/torrents.php?id=%s" % releaseInfo.PtpId
+			if releaseInfo.HasPtpTorrentId():
+				return "https://passthepopcorn.me/torrents.php?id=%storrentid=%s" % ( releaseInfo.GetPtpId(), releaseInfo.GetPtpTorrentId() )
+			else:
+				return "https://passthepopcorn.me/torrents.php?id=%s" % releaseInfo.GetPtpId()
 		elif releaseInfo.HasImdbId():
 			if releaseInfo.IsZeroImdbId():
 				return "0"
@@ -164,3 +168,5 @@ class JobCommon:
 			 job[ "StartImmediately" ] = "on"
 	
 		job[ "ReleaseNotes" ] = releaseInfo.ReleaseNotes
+		
+		job[ "Subtitles" ] = releaseInfo.GetSubtitles()

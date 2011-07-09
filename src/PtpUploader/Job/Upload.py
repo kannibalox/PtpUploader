@@ -26,6 +26,7 @@ class Upload(WorkerBase):
 			self.__RehostPoster,
 			self.__StartTorrent,
 			self.__UploadMovie,
+			self.__AddSubtitles,
 			self.__ExecuteCommandOnSuccessfulUpload ]
 
 		WorkerBase.__init__( self, phases, jobManager, jobManagerItem )
@@ -35,6 +36,7 @@ class Upload(WorkerBase):
 		self.AdditionalFiles = []
 		self.MainMediaInfo = None
 		self.ReleaseDescription = u""
+		self.AuthKey = u""
 
 	def __CreateUploadPath(self):
 		if self.ReleaseInfo.IsJobPhaseFinished( FinishedJobPhase.Upload_CreateUploadPath ):
@@ -230,12 +232,22 @@ class Upload(WorkerBase):
 			self.ReleaseInfo.Logger.info( "Upload movie phase has been reached previously, not uploading it again." )
 			return
 
-		Ptp.UploadMovie( self.ReleaseInfo.Logger, self.ReleaseInfo, self.ReleaseInfo.UploadTorrentFilePath, self.ReleaseDescription )
+		self.AuthKey = Ptp.UploadMovie( self.ReleaseInfo.Logger, self.ReleaseInfo, self.ReleaseInfo.UploadTorrentFilePath, self.ReleaseDescription )
 		self.ReleaseInfo.Logger.info( "'%s' has been successfully uploaded to PTP." % self.ReleaseInfo.ReleaseName )
 
 		self.ReleaseInfo.SetJobPhaseFinished( FinishedJobPhase.Upload_UploadMovie )
 		self.ReleaseInfo.JobRunningState = JobRunningState.Finished
 		Database.DbSession.commit()
+
+	def __AddSubtitles(self):
+		if len( self.ReleaseInfo.Subtitles ) <= 0:
+			return
+		
+		self.ReleaseInfo.Logger.info( "Adding subtitles: '%s'." % self.ReleaseInfo.Subtitles )
+
+		subtitles = self.ReleaseInfo.GetSubtitles()
+		for subtitle in subtitles:
+			Ptp.AddSubtitle( self.AuthKey, self.ReleaseInfo.GetPtpTorrentId(), subtitle )
 
 	def __ExecuteCommandOnSuccessfulUpload(self):
 		# Execute command on successful upload.

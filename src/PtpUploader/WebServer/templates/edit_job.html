@@ -31,6 +31,8 @@
 	</table>
 </form>
 
+{% include "job_common_javascript.html" %}
+
 {# Is not there an easier way than this? #}
 <script type='text/javascript'>
 	document.getElementById ( "categories" ).value = "{{ job.type }}";

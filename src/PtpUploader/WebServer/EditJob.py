@@ -34,6 +34,6 @@ def EditJob(jobId):
 	JobCommon.FillDictionaryFromReleaseInfo( job, releaseInfo )
 
 	if releaseInfo.CanEdited():
-		job[ "CanBeEdited" ] = True 
-		
+		job[ "CanBeEdited" ] = True
+
 	return render_template( "edit_job.html", job = job )

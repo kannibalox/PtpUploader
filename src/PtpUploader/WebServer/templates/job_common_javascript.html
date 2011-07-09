@@ -1,0 +1,23 @@
+{% block job_common_javascript %}
+
+<script src="{{ url_for( "static", filename = "script/jquery-1.5.2.min.js" ) }}"></script>
+<script src="{{ url_for( "static", filename = "script/jquery.multiSelect/jquery.multiSelect.js" ) }}"></script>
+<link href="{{ url_for( "static", filename = "script/jquery.multiSelect/jquery.multiSelect.css" ) }}" rel="stylesheet" type="text/css" />
+
+<script>
+	$(function ()
+	{
+		// Select subtitles that are specified in the job.
+		$( "#subtitle" ).val( {{ job.Subtitles }} );
+		
+		$( "#subtitle" ).multiSelect(
+		{
+			selectAll: false,
+			noneSelected: "No subtitle",
+			oneOrMoreSelected: "% subtitle(s)",
+			listHeight: 350
+		} );
+	});
+</script>
+
+{% endblock %}

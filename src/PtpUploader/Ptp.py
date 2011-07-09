@@ -172,6 +172,7 @@ class Ptp:
 			
 		return paramList;
 	
+	# Returns with the auth key.
 	@staticmethod
 	def UploadMovie(logger, releaseInfo, torrentPath, releaseDescription):
 		url = "";
@@ -215,10 +216,19 @@ class Ptp:
 
 			raise PtpUploaderException( "Upload to PTP failed: '%s'. (We are still on the upload page.)" % errorMessage )
 
-		# Response format in case of success: http://passthepopcorn.me/torrents.php?id=28622
-		match = re.match( r"https?://passthepopcorn\.me/torrents\.php\?id=(\d+)", result.url );
+		# URL format in case of successful upload: http://passthepopcorn.me/torrents.php?id=9329&torrentid=91868 
+		match = re.match( r"https?://passthepopcorn\.me/torrents\.php\?id=(\d+)&torrentid=(\d+)", result.url )
 		if match is None:
-			raise PtpUploaderException( "Upload to PTP failed: result url '%s' is not the expected one." % result.url )			
+			raise PtpUploaderException( "Upload to PTP failed: result URL '%s' is not the expected one." % result.url )
+		
+		ptpId = match.group( 1 )
+		releaseInfo.PtpTorrentId = match.group( 2 )
+
+		# We store the the auth key becaues it will be needed for adding the subtitles.
+		match = re.search( r"""var authkey = "(.+?)";""", response )
+		if match is None:
+			raise PtpUploaderException( "Authentication key can't be found in the response." )
+		authKey = match.group( 1 )
 
 		# Refresh data is not needed for new movies because PTP refresh them automatically.
 		# So we only do a refresh when adding as a new format.
@@ -226,7 +236,9 @@ class Ptp:
 			# response contains the movie page of the uploaded movie.
 			Ptp.TryRefreshMoviePage( logger, releaseInfo.PtpId, response );
 		else:
-			releaseInfo.PtpId = match.group( 1 )
+			releaseInfo.PtpId = ptpId
+
+		return authKey
 
 	# ptpId: movie page id. For example: ptpId is 28622 for the movie with url: http://passthepopcorn.me/torrents.php?id=28622 	
 	# page: the html contents of the movie page.
@@ -275,6 +287,16 @@ class Ptp:
 		# We always use HTTPS for sending message because if "Force HTTPS" is enabled in the profile then the HTTP message sending is not working.
 		postData = urllib.urlencode( { "toid": userId, "subject": subject, "body": message, "auth": auth, "action": "takecompose" } )
 		request = urllib2.Request( "https://passthepopcorn.me/inbox.php", postData )
+		result = opener.open( request )
+		response = result.read()
+		Ptp.CheckIfLoggedInFromResponse( response )
+		
+	# languageId: see the source of the Subtitle manager page on PTP 
+	@staticmethod
+	def AddSubtitle(authKey, torrentId, languageId):
+		opener = urllib2.build_opener( urllib2.HTTPCookieProcessor( MyGlobals.CookieJar ) )
+		postData = urllib.urlencode( { "action": "takesubtitle", "auth": authKey, "torrentid": torrentId, "languageid": languageId, "included": "1" } )
+		request = urllib2.Request( "https://passthepopcorn.me/torrents.php", postData )
 		result = opener.open( request )
 		response = result.read()
 		Ptp.CheckIfLoggedInFromResponse( response )

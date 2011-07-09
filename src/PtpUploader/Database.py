@@ -30,6 +30,17 @@ def GetDatabaseUrl():
 
 	return "sqlite:///" + path
 
+def MigrateSchema():
+	# The user-version is not used internally by SQLite. It may be used by applications for any purpose.
+	databaseVersion = int( Database.DbSession.execute( "pragma user_version" ).scalar() )
+	if databaseVersion >= 1:
+		return
+	
+	Database.DbSession.execute( """ALTER TABLE release ADD COLUMN PtpTorrentId VARCHAR DEFAULT "";""" )
+	Database.DbSession.execute( """ALTER TABLE release ADD COLUMN Subtitles VARCHAR DEFAULT "";""" )
+	
+	Database.DbSession.execute( "pragma user_version = 1" )
+
 def InitDb():
 	MyGlobals.Logger.info( "Initializing database." )
 	
@@ -37,8 +48,7 @@ def InitDb():
 	Database.DbSession = scoped_session( sessionmaker( autocommit = False, autoflush = False, bind = Database.DbEngine ) )
 	Database.Base.query = Database.DbSession.query_property()
 	
-	# Schema migration
-	# Database.DbSession.execute( """ALTER TABLE release ADD COLUMN ReleaseDownloadPath VARCHAR DEFAULT "";""" )
+	MigrateSchema()
 	
 	# import all modules here that might define models so that
 	# they will be registered properly on the metadata. Otherwise

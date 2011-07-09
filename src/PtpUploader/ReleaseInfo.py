@@ -64,6 +64,7 @@ class ReleaseInfo(Database.Base):
 	Flags = Column( Integer )
 	ErrorMessage = Column( String )
 	PtpId = Column( String )
+	PtpTorrentId = Column( String )
 	InternationalTitle = Column( String )
 	Nfo = Column( String )
 	SourceTorrentFilePath = Column( String )
@@ -76,13 +77,14 @@ class ReleaseInfo(Database.Base):
 	Screenshots = Column( String )
 	LastModificationTime = Column( Integer, default = Database.MakeTimeStamp, onupdate = Database.MakeTimeStamp )
 	Size = Column( Integer )
+	Subtitles = Column( String )
 	
 	def __init__(self):
 		self.AnnouncementSourceName = "" # A name of a class from the Source namespace.
 		self.AnnouncementId = ""
 		self.ReleaseName = ""
 
-		# These are the required fields needed for an upload to PTP.
+		# <<< These are the required fields needed for an upload to PTP.
 		self.Type = "Feature Film" # Feature Film, Short Film, Miniseries, Stand-up Comedy, Concert
 		self.ImdbId = "" # Just the number. Eg.: 0111161 for http://www.imdb.com/title/tt0111161/
 		self.Directors = "" # Stored as a comma separated list. PTP needs this as a list, use GetDirectors.
@@ -107,7 +109,7 @@ class ReleaseInfo(Database.Base):
 		# Release description text is also needed for PTP but we use the other members to fill that.
 		# Scene is needed too. Use IsSceneRelease.
 		# Special ("Not main movie") is needed too. Use SpecialRelease.
-		# Till this.
+		# >>> Till this.
 
 		self.JobStartMode = JobStartMode.Automatic
 		self.JobRunningState = JobRunningState.WaitingForStart
@@ -115,6 +117,7 @@ class ReleaseInfo(Database.Base):
 		self.Flags = 0 # Takes values from ReleaseInfoFlags.
 		self.ErrorMessage = ""
 		self.PtpId = ""
+		self.PtpTorrentId = ""
 		self.InternationalTitle = "" # International title of the movie. Eg.: The Secret in Their Eyes. Needed for renaming releases coming from Cinemageddon.
 		self.Nfo = u""
 		self.SourceTorrentFilePath = ""
@@ -127,6 +130,7 @@ class ReleaseInfo(Database.Base):
 		self.Screenshots = "" # JSON encode of a ScreenshotList class
 		self.LastModificationTime = 0
 		self.Size = 0
+		self.Subtitles = "" # Comma separated list of PTP language IDs. Eg.: "1, 2"
 		
 		self.MyConstructor()
 
@@ -142,6 +146,9 @@ class ReleaseInfo(Database.Base):
 	def GetPtpId(self):
 		return self.PtpId
 
+	def GetPtpTorrentId(self):
+		return self.PtpTorrentId
+
 	def HasImdbId(self):
 		return len( self.ImdbId ) > 0
 
@@ -153,6 +160,9 @@ class ReleaseInfo(Database.Base):
 
 	def HasPtpId(self):
 		return len( self.PtpId ) > 0
+
+	def HasPtpTorrentId(self):
+		return len( self.PtpTorrentId ) > 0
 
 	def IsUserCreatedJob(self):
 		return self.JobStartMode == JobStartMode.Manual or self.JobStartMode == JobStartMode.ManualForced
@@ -182,7 +192,10 @@ class ReleaseInfo(Database.Base):
 		return len( self.SourceTorrentFilePath ) > 0
 	
 	def GetDirectors(self):
-		return self.Directors.split( ", " )
+		if len( self.Directors ) > 0:
+			return self.Directors.split( ", " )
+		else:
+			return []
 	
 	def SetDirectors(self, list):
 		for name in list:
@@ -190,6 +203,19 @@ class ReleaseInfo(Database.Base):
 				raise PtpUploaderException( "Director name '%s' contains a comma." % name )
 		
 		self.Directors = ", ".join( list )
+		
+	def GetSubtitles(self):
+		if len( self.Subtitles ) > 0:
+			return self.Subtitles.split( ", " )
+		else:
+			return []
+
+	def SetSubtitles(self, list):
+		for id in list:
+			if id.find( "," ) != -1:
+				raise PtpUploaderException( "Language id '%s' contains a comma." % name )
+		
+		self.Subtitles = ", ".join( list )
 
 	def IsSceneRelease(self):
 		return ( self.Flags & ReleaseInfoFlags.SceneRelease ) != 0

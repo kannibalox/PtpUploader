@@ -60,8 +60,10 @@
 	</table>
 </form>
 
-<script src="{{ url_for( "static", filename = "script/jquery-1.5.2.min.js" ) }}"></script>
+{% include "job_common_javascript.html" %}
+
 <script src="{{ url_for( "static", filename = "script/jquery.html5_upload.js" ) }}"></script>
+
 <script>
 	$(function ()
 	{
