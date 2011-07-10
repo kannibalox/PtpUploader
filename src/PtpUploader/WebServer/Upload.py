@@ -142,5 +142,7 @@ def upload():
 		
 		MyGlobals.PtpUploader.AddMessage( PtpUploaderMessageStartJob( releaseInfo.Id ) )
 	
-	# job parameter is needed because it uses the same template as edit job 
-	return render_template( "upload.html", job = {} )
+	# job parameter is needed because it uses the same template as edit job
+	job = {}
+	job[ "Subtitles" ] = [] 
+	return render_template( "upload.html", job = job )
