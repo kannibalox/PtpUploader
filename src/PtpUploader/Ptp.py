@@ -130,6 +130,10 @@ class Ptp:
 		if releaseInfo.IsSpecialRelease():
 			paramList.append( poster.encode.MultipartParam( "special", "on" ) )
 
+		# remaster is only needed if it is specified
+		if len( releaseInfo.RemasterYear ) > 0 or len( releaseInfo.RemasterTitle ) > 0:
+			paramList.append( poster.encode.MultipartParam( "remaster", "on" ) )
+
 		return paramList;
 	
 	@staticmethod
