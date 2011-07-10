@@ -8,7 +8,7 @@
 	$(function ()
 	{
 		// Select subtitles that are specified in the job.
-		$( "#subtitle" ).val( {{ job.Subtitles }} );
+		$( "#subtitle" ).val( {{ job.Subtitles|tojson|safe }} );
 		
 		$( "#subtitle" ).multiSelect(
 		{
