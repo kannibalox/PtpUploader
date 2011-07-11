@@ -140,6 +140,9 @@ class MediaInfo:
 	def IsMkv(self):
 		return self.Container == "matroska"
 
+	def IsMp4(self):
+		return self.Container == "mpeg-4"
+
 	def IsVob(self):
 		return self.Container == "mpeg-ps"
 

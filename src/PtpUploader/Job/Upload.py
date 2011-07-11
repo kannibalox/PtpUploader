@@ -82,6 +82,8 @@ class Upload(WorkerBase):
 			container = "AVI"
 		elif mediaInfo.IsMkv():
 			container = "MKV"
+		elif mediaInfo.IsMp4():
+			container = "MP4"
 		elif mediaInfo.IsVob():
 			container = "VOB IFO"
 		
