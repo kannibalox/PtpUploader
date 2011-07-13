@@ -3,7 +3,7 @@ from Job.JobRunningState import JobRunningState
 from MyGlobals import MyGlobals
 from Settings import Settings
 
-from sqlalchemy import create_engine, or_
+from sqlalchemy import create_engine, exc, or_
 from sqlalchemy.orm import scoped_session, sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
 
@@ -31,15 +31,14 @@ def GetDatabaseUrl():
 	return "sqlite:///" + path
 
 def MigrateSchema():
-	# The user-version is not used internally by SQLite. It may be used by applications for any purpose.
-	databaseVersion = int( Database.DbSession.execute( "pragma user_version" ).scalar() )
-	if databaseVersion >= 1:
-		return
-	
-	Database.DbSession.execute( """ALTER TABLE release ADD COLUMN PtpTorrentId VARCHAR DEFAULT "";""" )
-	Database.DbSession.execute( """ALTER TABLE release ADD COLUMN Subtitles VARCHAR DEFAULT "";""" )
-	
-	Database.DbSession.execute( "pragma user_version = 1" )
+	# There are two possible reasons for the exception:
+	# - column already exists, no need for schema migration: "duplicate column name"
+	# - the database has just been created, the table is not yet exists, no need for schema migration: "no such table"
+	try:
+		Database.DbSession.execute( """ALTER TABLE release ADD COLUMN PtpTorrentId VARCHAR DEFAULT "";""" )
+		Database.DbSession.execute( """ALTER TABLE release ADD COLUMN Subtitles VARCHAR DEFAULT "";""" )
+	except exc.OperationalError:
+		pass
 
 def InitDb():
 	MyGlobals.Logger.info( "Initializing database." )
