@@ -20,7 +20,7 @@ class SourceBase:
 	
 	@staticmethod
 	def CheckSizeLimit(logger, releaseInfo):
-		if releaseInfo.Size > Settings.SizeLimitForAutomaticJobs and ( not releaseInfo.IsUserCreatedJob() ):
+		if ( not releaseInfo.IsUserCreatedJob() ) and Settings.SizeLimitForAutomaticJobs > 0.0 and releaseInfo.Size > Settings.SizeLimitForAutomaticJobs:
 			raise PtpUploaderException( JobRunningState.Ignored, "Ignored because of its size." )
 		
 	@staticmethod
