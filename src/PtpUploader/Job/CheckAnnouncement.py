@@ -8,6 +8,7 @@ from Database import Database
 from Ptp import Ptp
 from PtpImdbInfo import PtpImdbInfo, PtpZeroImdbInfo
 from PtpUploaderException import *
+from Settings import Settings
 
 import os
 
@@ -20,7 +21,8 @@ class CheckAnnouncement(WorkerBase):
 			self.__ValidateReleaseInfo,
 			self.__CheckIfExistsOnPtp,
 			self.__FillOutDetailsForNewMovieByPtpApi,
-			self.__FillOutDetailsForNewMovieByExternalSources ]
+			self.__FillOutDetailsForNewMovieByExternalSources,
+			self.__CheckCoverArt ]
 
 		# Instead of this if, it would be possible to make a totally generic downloader system through SourceBase.
 		if jobManagerItem.ReleaseInfo.AnnouncementSourceName == "file":
@@ -52,7 +54,8 @@ class CheckAnnouncement(WorkerBase):
 		self.ReleaseInfo.AnnouncementSource.PrepareDownload( self.ReleaseInfo.Logger, self.ReleaseInfo )
 
 	def __CheckSizeLimit(self):
-		self.ReleaseInfo.AnnouncementSource.CheckSizeLimit( self.ReleaseInfo.Logger, self.ReleaseInfo )
+		if ( not self.ReleaseInfo.IsUserCreatedJob() ) and Settings.SizeLimitForAutomaticJobs > 0.0 and self.ReleaseInfo.Size > Settings.SizeLimitForAutomaticJobs:
+			raise PtpUploaderException( JobRunningState.Ignored, "Ignored because of its size." )
 
 	def __ValidateReleaseInfo(self):
 		# Make sure we have IMDb or PTP id.
@@ -202,6 +205,10 @@ class CheckAnnouncement(WorkerBase):
 			if not self.ReleaseInfo.IsCoverArtUrlSet():
 				self.ReleaseInfo.CoverArtUrl = MoviePoster.Get( self.ReleaseInfo.Logger, self.ReleaseInfo.GetImdbId() )
 				
+	def __CheckCoverArt(self):
+		if Settings.StopIfCoverArtIsMissing.lower() == "beforedownloading":
+			self.ReleaseInfo.AnnouncementSource.CheckCoverArt( self.ReleaseInfo.Logger, self.ReleaseInfo )
+
 	def __CreateReleaseDirectory(self):
 		if self.ReleaseInfo.IsJobPhaseFinished( FinishedJobPhase.Download_CreateReleaseDirectory ):
 			self.ReleaseInfo.Logger.info( u"Release root path creation phase has been reached previously, not creating it again." )

@@ -23,6 +23,7 @@ class Upload(WorkerBase):
 			self.__MakeReleaseDescription,
 			self.__MakeTorrent,
 			self.__CheckIfExistsOnPtp,
+			self.__CheckCoverArt,
 			self.__RehostPoster,
 			self.__StartTorrent,
 			self.__UploadMovie,
@@ -206,6 +207,10 @@ class Upload(WorkerBase):
 			existingRelease = movieOnPtpResult.IsReleaseExists( self.ReleaseInfo )
 			if existingRelease is not None:
 				raise PtpUploaderException( JobRunningState.DownloadedAlreadyExists, "Got uploaded to PTP while we were working on it. Skipping upload because of format '%s'." % existingRelease )
+
+	def __CheckCoverArt(self):
+		if Settings.StopIfCoverArtIsMissing.lower() == "beforeuploading":
+			self.ReleaseInfo.AnnouncementSource.CheckCoverArt( self.ReleaseInfo.Logger, self.ReleaseInfo )
 
 	def __RehostPoster(self):
 		# If this movie has no page yet on PTP then we will need the cover, so we rehost the image to an image hoster.

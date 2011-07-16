@@ -1,9 +1,6 @@
-from Job.JobRunningState import JobRunningState
-
 from NfoParser import NfoParser
 from PtpUploaderException import PtpUploaderException
 from ReleaseExtractor import ReleaseExtractor
-from Settings import Settings
 
 class SourceBase:
 	@staticmethod
@@ -17,12 +14,13 @@ class SourceBase:
 	@staticmethod
 	def PrepareDownload(logger, releaseInfo):
 		pass
-	
+
 	@staticmethod
-	def CheckSizeLimit(logger, releaseInfo):
-		if ( not releaseInfo.IsUserCreatedJob() ) and Settings.SizeLimitForAutomaticJobs > 0.0 and releaseInfo.Size > Settings.SizeLimitForAutomaticJobs:
-			raise PtpUploaderException( JobRunningState.Ignored, "Ignored because of its size." )
-		
+	def CheckCoverArt(logger, releaseInfo):
+		# If it exists on PTP then we don't need a cover.
+		if ( not releaseInfo.IsCoverArtUrlSet() ) and ( not releaseInfo.HasPtpId() ):
+			raise PtpUploaderException( "Cover art is not set." )
+
 	@staticmethod
 	def DownloadTorrent(logger, releaseInfo, path):
 		pass
