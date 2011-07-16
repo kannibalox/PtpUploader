@@ -1,5 +1,9 @@
+from Job.JobRunningState import JobRunningState
+
 from NfoParser import NfoParser
+from PtpUploaderException import PtpUploaderException
 from ReleaseExtractor import ReleaseExtractor
+from Settings import Settings
 
 class SourceBase:
 	@staticmethod
@@ -13,6 +17,11 @@ class SourceBase:
 	@staticmethod
 	def PrepareDownload(logger, releaseInfo):
 		pass
+	
+	@staticmethod
+	def CheckSizeLimit(logger, releaseInfo):
+		if releaseInfo.Size > Settings.SizeLimitForAutomaticJobs and ( not releaseInfo.IsUserCreatedJob() ):
+			raise PtpUploaderException( JobRunningState.Ignored, "Ignored because of its size." )
 		
 	@staticmethod
 	def DownloadTorrent(logger, releaseInfo, path):

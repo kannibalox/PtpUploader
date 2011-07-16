@@ -16,6 +16,7 @@ class CheckAnnouncement(WorkerBase):
 		phases = [
 			self.__CheckAnnouncementSource,
 			self.__PrepareDownload,
+			self.__CheckSizeLimit,
 			self.__ValidateReleaseInfo,
 			self.__CheckIfExistsOnPtp,
 			self.__FillOutDetailsForNewMovieByPtpApi,
@@ -49,6 +50,9 @@ class CheckAnnouncement(WorkerBase):
 
 	def __PrepareDownload(self):
 		self.ReleaseInfo.AnnouncementSource.PrepareDownload( self.ReleaseInfo.Logger, self.ReleaseInfo )
+
+	def __CheckSizeLimit(self):
+		self.ReleaseInfo.AnnouncementSource.CheckSizeLimit( self.ReleaseInfo.Logger, self.ReleaseInfo )
 
 	def __ValidateReleaseInfo(self):
 		# Make sure we have IMDb or PTP id.

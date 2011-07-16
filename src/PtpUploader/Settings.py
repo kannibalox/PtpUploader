@@ -159,6 +159,7 @@ class Settings(object):
 		
 		Settings.TakeScreenshotOfAdditionalFiles = Settings.__GetDefault( configParser, "Settings", "TakeScreenshotOfAdditionalFiles", "" )
 		Settings.TakeScreenshotOfAdditionalFiles = Settings.TakeScreenshotOfAdditionalFiles.lower() == "yes"
+		Settings.SizeLimitForAutomaticJobs = float( Settings.__GetDefault( configParser, "Settings", "SizeLimitForAutomaticJobs", "0" ) ) * 1024 * 1024 * 1024
 
 		# Create the announcement directory.
 		# Invalid announcement directory is within the announcement directory, so we don't have to make the announcement directory separately.
