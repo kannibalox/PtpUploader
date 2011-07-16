@@ -4,9 +4,10 @@ With the PtpUploader's WebUI you can upload to PTP by specifying a torrent file 
 There is also an automatic mode built-in that can check announcements from IRC or RSS and upload everything automatically.
 
 Supported sites for automatic mode:
-	- Cinemageddon
-	- GFT
-	- TorrentLeech
+	- Cinemageddon (RSS)
+	- Cinematik (RSS)
+	- GFT (IRC)
+	- TorrentLeech (IRC, RSS)
 
 PtpUploader can create release desription (with media info and screenshots) for manual uploading from command line.
 	Syntax:
