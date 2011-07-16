@@ -159,7 +159,7 @@ class Settings(object):
 		
 		Settings.TakeScreenshotOfAdditionalFiles = Settings.__GetDefault( configParser, "Settings", "TakeScreenshotOfAdditionalFiles", "" )
 		Settings.TakeScreenshotOfAdditionalFiles = Settings.TakeScreenshotOfAdditionalFiles.lower() == "yes"
-		Settings.SizeLimitForAutomaticJobs = float( Settings.__GetDefault( configParser, "Settings", "SizeLimitForAutomaticJobs", "0" ) ) * 1024 * 1024 * 1024
+		Settings.SizeLimitForAutoCreatedJobs = float( Settings.__GetDefault( configParser, "Settings", "SizeLimitForAutoCreatedJobs", "0" ) ) * 1024 * 1024 * 1024
 		Settings.StopIfCoverArtIsMissing = Settings.__GetDefault( configParser, "Settings", "StopIfCoverArtIsMissing", "" )
 
 		# Create the announcement directory.
