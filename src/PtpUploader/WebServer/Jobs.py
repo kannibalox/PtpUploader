@@ -42,7 +42,10 @@ def ReleaseInfoToJobsPageData(releaseInfo, entry):
 		entry[ "ErrorMessage" ] = releaseInfo.ErrorMessage
 
 	if releaseInfo.HasPtpId():
-		entry[ "PtpUrl" ] = "https://passthepopcorn.me/torrents.php?id=%s" % releaseInfo.GetPtpId()
+		if releaseInfo.HasPtpTorrentId():
+			entry[ "PtpUrl" ] = "https://passthepopcorn.me/torrents.php?id=%s&torrentid=%s" % ( releaseInfo.GetPtpId(), releaseInfo.GetPtpTorrentId() )
+		else:
+			entry[ "PtpUrl" ] = "https://passthepopcorn.me/torrents.php?id=%s" % releaseInfo.GetPtpId()
 	elif releaseInfo.HasImdbId() and ( not releaseInfo.IsZeroImdbId() ):
 		entry[ "PtpUrl" ] = "http://passthepopcorn.me/torrents.php?imdb=%s" % releaseInfo.GetImdbId()
 

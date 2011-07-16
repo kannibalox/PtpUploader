@@ -107,10 +107,7 @@ class JobCommon:
 	@staticmethod
 	def __GetPtpOrImdbLink(releaseInfo):
 		if releaseInfo.HasPtpId():
-			if releaseInfo.HasPtpTorrentId():
-				return "https://passthepopcorn.me/torrents.php?id=%storrentid=%s" % ( releaseInfo.GetPtpId(), releaseInfo.GetPtpTorrentId() )
-			else:
-				return "https://passthepopcorn.me/torrents.php?id=%s" % releaseInfo.GetPtpId()
+			return "https://passthepopcorn.me/torrents.php?id=%s" % releaseInfo.GetPtpId()
 		elif releaseInfo.HasImdbId():
 			if releaseInfo.IsZeroImdbId():
 				return "0"
