@@ -88,7 +88,7 @@ Copy PtpUploader/Settings.example.ini to Settings.ini and edit the latter.
 Configuring pyWHATauto (optional)
 =====================================================================================================================================================
 
-This is optional and can be used only for GFT and TL. The steps here are for GFT.
+This is optional and can be used for GFT, SCC and TL. The steps here are for GFT.
 
 	- Make sure that on your control panel on GFT the #GFTracker-spam channel is checked.
 	- Copy every .confg file from pyWHATauto/config_example/ to pyWHATauto/
@@ -96,6 +96,7 @@ This is optional and can be used only for GFT and TL. The steps here are for GFT
 		- edit torrentDir
 			- it is not used not for anything, so you can simply point to a temporary folder
 		- edit drive
+		- under [sites] enable thegft
 	- in pyWHATauto/credentials.conf
 		- edit the following keys under [thegft]
 			- nickowner
@@ -111,6 +112,10 @@ This is optional and can be used only for GFT and TL. The steps here are for GFT
 		- from command line: screen -S pywa MyEnv/bin/python /path to pyWHATauto/PtpUploaderIrcBot.py /path to WorkingDirectory/
 		- Use Ctrl+A, D to disconnect from screen. You can use "screen -r PtpUploader" from command line to reconnect.
 
+Please note that SCC works a bit differently. pyWHATauto can't automatically join its announcement channel.
+You either use the Invite button on their IRC page.
+Or set the SceneAccessIrcEnabled property to yes in Settings.ini and then PtpUploader will do the inviting upon starting.
+		
 =====================================================================================================================================================
 Configuring FlexGet (optional)
 =====================================================================================================================================================

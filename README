@@ -6,7 +6,8 @@ There is also an automatic mode built-in that can check announcements from IRC o
 Supported sites for automatic mode:
 	- Cinemageddon (RSS)
 	- Cinematik (RSS)
-	- GFT (IRC)
+	- GFT (IRC, RSS)
+	- SceneAccess (IRC, RSS)
 	- TorrentLeech (IRC, RSS)
 
 PtpUploader can create release desription (with media info and screenshots) for manual uploading from command line.
