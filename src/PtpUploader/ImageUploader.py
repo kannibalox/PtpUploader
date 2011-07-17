@@ -1,11 +1,12 @@
-from PtpUploaderException import PtpUploaderException;
-from Settings import Settings;
+from PtpUploaderException import PtpUploaderException
+from Settings import Settings
 
-import poster;
-import simplejson as json;
+import poster
+import simplejson as json
 
-import urllib;
-import urllib2;
+import re
+import urllib
+import urllib2
 
 class ImageUploader:
 	@staticmethod
@@ -48,7 +49,8 @@ class ImageUploader:
 
 		return "http://ptpimg.me/" + imageCode + "." + imageExtension;
 	
-	def ImageShackUpload(imagePath = None, imageUrl = None):
+	@staticmethod
+	def ImageShackUpload(logger, imagePath = None, imageUrl = None):
 		# Key is from the official ImageShackUploader. Was lazy to register one. Sorry. :)
 		opener = poster.streaminghttp.register_openers()
 		data = { "public" : "yes", "rembar": "1", "key": "BXT1Z35V8f6ee0522939d8d7852dbe67b1eb9595" }
