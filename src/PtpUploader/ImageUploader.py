@@ -48,16 +48,41 @@ class ImageUploader:
 
 		return "http://ptpimg.me/" + imageCode + "." + imageExtension;
 	
+	def ImageShackUpload(imagePath = None, imageUrl = None):
+		# Key is from the official ImageShackUploader. Was lazy to register one. Sorry. :)
+		opener = poster.streaminghttp.register_openers()
+		data = { "public" : "yes", "rembar": "1", "key": "BXT1Z35V8f6ee0522939d8d7852dbe67b1eb9595" }
+		
+		if imagePath is None: # Rehost image from url.
+			data[ "url" ] = imageUrl
+		else: # Upload image from file. 
+			data[ "fileupload" ] = open( imagePath, "rb" )
+	
+		datagen, headers = poster.encode.multipart_encode( data );
+		request = urllib2.Request( "http://imageshack.us/upload_api.php", datagen, headers )
+		result = opener.open( request )
+		response = result.read();
+		
+		# Response is XML but we won't bother parsing it. A simple regular expression will do.
+		match = re.search( r"<image_link>(.+?)</image_link>", response )
+		if match is None:
+			raise PtpUploaderException( "Got unexpected response from ImageShack. Response: '%s'." % response )
+
+		return match.group( 1 )
+
 	# Based on the imgur API documentation:
 	# http://api.imgur.com/resources_anon
 	@staticmethod
 	def ImgurUpload(logger, imagePath = None, imageUrl = None):
+		# Our registered key. Don't use in other programs. :)
+		key = "da0a59f9e801a075d5b8b8a40a3204d1"
+
 		datagen = None;
 		headers = None;
 		if imagePath is None: # Rehost image from url.
-			datagen, headers = poster.encode.multipart_encode( { "key": Settings.ImgurApiKey, "image": imageUrl } );
+			datagen, headers = poster.encode.multipart_encode( { "key": key, "image": imageUrl } );
 		else: # Upload image from file.
-			datagen, headers = poster.encode.multipart_encode( { "key": Settings.ImgurApiKey, "image": open( imagePath, "rb" ) } );
+			datagen, headers = poster.encode.multipart_encode( { "key": key, "image": open( imagePath, "rb" ) } );
 		
 		opener = poster.streaminghttp.register_openers()
 		request = urllib2.Request( "http://api.imgur.com/2/upload.json", datagen, headers )
@@ -82,7 +107,13 @@ class ImageUploader:
 		if ( imagePath is not None ) and ( imageUrl is not None ):
 			raise PtpUploaderException( "ImageUploader.Update error: both image path and image url are given." );			
 
-		# TODO: fall back to imgur if the upload to ptpimg wasn't successful. Also start a 1 hour countdown and doesn't use ptpimg till it gets to 0.  
+		# TODO: fall back to ImageShack or imgur if the upload to ptpimg wasn't successful. Also start a 1 hour countdown and doesn't use ptpimg till it gets to 0.
+		
+		if Settings.ImageHost == "ptpimg.me":
+			return ImageUploader.PtpImgUpload( logger, imagePath, imageUrl )
+		elif Settings.ImageHost == "imageshack":
+			return ImageUploader.ImageShackUpload( logger, imagePath, imageUrl )
+		elif Settings.ImageHost == "imgur":
+			return ImageUploader.ImgurUpload( logger, imagePath, imageUrl )
 
-		return ImageUploader.PtpImgUpload( logger, imagePath, imageUrl );
-		#return ImageUploader.ImgurUpload( logger, imagePath, imageUrl );
+		raise PtpUploaderException( "Unknown image host: '%'." % Settings.ImageHost )

@@ -138,7 +138,7 @@ class Settings(object):
 		Settings.SceneAccessIrcEnabled = Settings.__GetDefault( configParser, "Settings", "SceneAccessIrcEnabled", "" ).lower() == "yes"
 		Settings.TorrentFileSourceMaximumParallelDownloads = int( Settings.__GetDefault( configParser, "Settings", "TorrentFileSourceMaximumParallelDownloads", "3" ) )
 		
-		Settings.ImgurApiKey = Settings.__GetDefault( configParser, "Settings", "ImgurApiKey", "" )
+		Settings.ImageHost = Settings.__GetDefault( configParser, "Settings", "ImageHost", "ptpimg.me" ).lower()
 		Settings.OnSuccessfulUpload = Settings.__GetDefault( configParser, "Settings", "OnSuccessfulUpload", "", raw = True )
 
 		Settings.ChtorPath = configParser.get( "Settings", "ChtorPath" )
