@@ -150,7 +150,7 @@ class SceneAccess(SourceBase):
 
 	@staticmethod
 	def GetIdFromUrl(url):
-		result = re.match( r".*sceneaccess.org/details?id=(\d+).*", url )
+		result = re.match( r".*sceneaccess\.org/details\?id=(\d+).*", url )
 		if result is None:
 			return ""
 		else:
