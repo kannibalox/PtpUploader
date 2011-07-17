@@ -17,7 +17,20 @@
 			oneOrMoreSelected: "% subtitle(s)",
 			listHeight: 350
 		} );
-	});
+		
+		$( "#ConvertComparisonCode" ).click( function()
+		{
+			var releaseNotes = $( "#ReleaseNotes" );
+
+			var text = releaseNotes.val().replace( /<b>/gi, "" );
+			text = text.replace( /<\/b>/gi, "" );
+			text = text.replace( /<br>/gi, "\n" );
+			// E.g.: <a href="http://www.imagebam.com/image/50a6ce137826241" target="_blank"><img id="ncode_imageresizer_container_1" src="http://thumbnails43.imagebam.com/13783/50a6ce137826241.jpg" alt="" onload="NcodeImageResizer.createOn(this);" border="0"></a>
+			text = text.replace( /<a.*?href="(.+?)".*?><img.*?src="(.+?)".*?><\/a>/gi, "[url=$1][img=$2][/url]" );
+
+			releaseNotes.val( text );
+		} );
+	} );
 </script>
 
 {% endblock %}
