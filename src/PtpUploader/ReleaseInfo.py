@@ -139,6 +139,7 @@ class ReleaseInfo(Database.Base):
 	def MyConstructor(self):
 		self.AnnouncementSource = None # A class from the Source namespace.
 		self.Logger = None
+		self.SceneAccessDownloadUrl = "" # Temporary store for SceneAccess.DownloadTorrent method.
 
 	def GetImdbId(self):
 		return self.ImdbId

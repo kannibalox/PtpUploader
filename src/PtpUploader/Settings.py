@@ -132,6 +132,9 @@ class Settings(object):
 		Settings.TorrentLeechPassword = Settings.__GetDefault( configParser, "Settings", "TorrentLeechPassword", "" )
 		Settings.TorrentLeechMaximumParallelDownloads = int( Settings.__GetDefault( configParser, "Settings", "TorrentLeechMaximumParallelDownloads", "1" ) )
 		Settings.TorrentLeechAutomaticJobFilter = Settings.__GetDefault( configParser, "Settings", "TorrentLeechAutomaticJobFilter", "" )
+		Settings.SceneAccessUserName = Settings.__GetDefault( configParser, "Settings", "SceneAccessUserName", "" )
+		Settings.SceneAccessPassword = Settings.__GetDefault( configParser, "Settings", "SceneAccessPassword", "" )
+		Settings.SceneAccessMaximumParallelDownloads = int( Settings.__GetDefault( configParser, "Settings", "SceneAccessMaximumParallelDownloads", "1" ) )
 		Settings.TorrentFileSourceMaximumParallelDownloads = int( Settings.__GetDefault( configParser, "Settings", "TorrentFileSourceMaximumParallelDownloads", "3" ) )
 		
 		Settings.ImgurApiKey = Settings.__GetDefault( configParser, "Settings", "ImgurApiKey", "" )

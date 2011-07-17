@@ -2,6 +2,7 @@ from Source.Cinemageddon import Cinemageddon
 from Source.Cinematik import Cinematik
 from Source.File import File
 from Source.Gft import Gft
+from Source.SceneAccess import SceneAccess
 from Source.Torrent import Torrent
 from Source.TorrentLeech import TorrentLeech
 
@@ -23,6 +24,10 @@ class SourceFactory:
 		if Gft.IsEnabled():
 			Gft.Login()
 		self.__AddSource( Gft() )
+
+		if SceneAccess.IsEnabled():
+			SceneAccess.Login()
+		self.__AddSource( SceneAccess() )
 
 		if TorrentLeech.IsEnabled():
 			TorrentLeech.Login()
