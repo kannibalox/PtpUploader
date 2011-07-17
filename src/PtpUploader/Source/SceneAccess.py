@@ -159,3 +159,16 @@ class SceneAccess(SourceBase):
 	@staticmethod
 	def GetUrlFromId(id):
 		return "http://www.sceneaccess.org/details?id=" + id
+	
+	@staticmethod
+	def InviteToIrc():
+		if not Settings.SceneAccessIrcEnabled:
+			return
+
+		MyGlobals.Logger.info( "Requesting IRC invite on SceneAccess." );
+		
+		opener = urllib2.build_opener( urllib2.HTTPCookieProcessor( MyGlobals.CookieJar ) )
+		postData = urllib.urlencode( { "announce": "yes" } )
+		result = opener.open( "http://www.sceneaccess.org/irc", postData )
+		response = result.read()
+		SceneAccess.CheckIfLoggedInFromResponse( response );

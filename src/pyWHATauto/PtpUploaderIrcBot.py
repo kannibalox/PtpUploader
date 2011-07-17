@@ -45,7 +45,15 @@ def HandleGftAutoAnnouncement(announcement):
 
 	SendAnnouncementToPtpUploader( "gft", id = match.group( 3 ), releaseName = match.group( 1 ) );
 
-def HandleTlAutoAnnouncement(announcement):
+def HandleSceneAccessAutoAnnouncement(announcement):
+	match = re.match( r"""NEW in (.*?): -> (.*?) \(Uploaded (.*?) after pre\) - \((.*?)\) - .*?id=(\d+)""", announcement )
+	if match is None:
+		print "PtpUploaderIrcBot can't parse SCC announcement: '%s'." % announcement
+		return;
+
+	SendAnnouncementToPtpUploader( "scc", id = match.group( 5 ), releaseName = match.group( 2 ) )
+
+def HandleTorrentLeechAutoAnnouncement(announcement):
 	match = re.match( r"New Torrent Announcement: <([^>]*)>[\W]*Name:'([^']*)[\W]*uploaded by '([^']*)' -\W+http://www.torrentleech.org/torrent/(\d+)", announcement );
 	if match is None:
 		print "PtpUploaderIrcBot can't parse TL announcement: '%s'." % announcement;
@@ -61,9 +69,11 @@ def MyDownload(downloadID, downloadType, site, location=False, network=False, ta
 
 	if announce: # Automatic announcements come with the full announcement message.
 		if site == "thegft":
-			HandleGftAutoAnnouncement( announce );
+			HandleGftAutoAnnouncement( announce )
+		elif site == "sceneaccess":
+			HandleSceneAccessAutoAnnouncement( announce )
 		elif site == "torrentleech":
-			HandleTlAutoAnnouncement( announce );
+			HandleTorrentLeechAutoAnnouncement( announce )
 
 def main(argv):
 	global AnnouncementDirectoryPath;
@@ -90,4 +100,5 @@ def main(argv):
 	WHATauto.main();
 
 if __name__ == '__main__':
-	main( sys.argv );
+	#main( sys.argv );
+	main( [ "", "d:\\source\\ptp test\\WorkingDirectory" ] );

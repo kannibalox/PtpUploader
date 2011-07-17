@@ -135,6 +135,7 @@ class Settings(object):
 		Settings.SceneAccessUserName = Settings.__GetDefault( configParser, "Settings", "SceneAccessUserName", "" )
 		Settings.SceneAccessPassword = Settings.__GetDefault( configParser, "Settings", "SceneAccessPassword", "" )
 		Settings.SceneAccessMaximumParallelDownloads = int( Settings.__GetDefault( configParser, "Settings", "SceneAccessMaximumParallelDownloads", "1" ) )
+		Settings.SceneAccessIrcEnabled = Settings.__GetDefault( configParser, "Settings", "SceneAccessIrcEnabled", "" ).lower() == "yes"
 		Settings.TorrentFileSourceMaximumParallelDownloads = int( Settings.__GetDefault( configParser, "Settings", "TorrentFileSourceMaximumParallelDownloads", "3" ) )
 		
 		Settings.ImgurApiKey = Settings.__GetDefault( configParser, "Settings", "ImgurApiKey", "" )

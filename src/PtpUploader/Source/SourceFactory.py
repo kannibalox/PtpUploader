@@ -27,6 +27,7 @@ class SourceFactory:
 
 		if SceneAccess.IsEnabled():
 			SceneAccess.Login()
+			SceneAccess.InviteToIrc()
 		self.__AddSource( SceneAccess() )
 
 		if TorrentLeech.IsEnabled():
