@@ -100,5 +100,4 @@ def main(argv):
 	WHATauto.main();
 
 if __name__ == '__main__':
-	#main( sys.argv );
-	main( [ "", "d:\\source\\ptp test\\WorkingDirectory" ] );
+	main( sys.argv )
