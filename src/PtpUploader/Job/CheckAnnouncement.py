@@ -54,7 +54,7 @@ class CheckAnnouncement(WorkerBase):
 		self.ReleaseInfo.AnnouncementSource.PrepareDownload( self.ReleaseInfo.Logger, self.ReleaseInfo )
 
 	def __CheckSizeLimit(self):
-		if ( not self.ReleaseInfo.IsUserCreatedJob() ) and Settings.SizeLimitForAutomaticJobs > 0.0 and self.ReleaseInfo.Size > Settings.SizeLimitForAutomaticJobs:
+		if ( not self.ReleaseInfo.IsUserCreatedJob() ) and Settings.SizeLimitForAutoCreatedJobs > 0.0 and self.ReleaseInfo.Size > Settings.SizeLimitForAutoCreatedJobs:
 			raise PtpUploaderException( JobRunningState.Ignored, "Ignored because of its size." )
 
 	def __ValidateReleaseInfo(self):
