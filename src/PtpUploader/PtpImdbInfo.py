@@ -27,7 +27,7 @@ class PtpImdbInfo:
  
 		# Get IMDb info through PTP's ajax API used by the site when the user presses the auto fill button.
 		opener = urllib2.build_opener( urllib2.HTTPCookieProcessor( MyGlobals.CookieJar ) )
-		request = urllib2.Request( "http://passthepopcorn.me/ajax.php?action=torrent_info&imdb=%s" % self.ImdbId )
+		request = urllib2.Request( "http://passthepopcorn.me/ajax.php?action=torrent_info&imdb=%s" % Ptp.NormalizeImdbIdForPtp( self.ImdbId ) )
 		result = opener.open( request )
 		self.JsonResponse = result.read()
 		Ptp.CheckIfLoggedInFromResponse( self.JsonResponse )

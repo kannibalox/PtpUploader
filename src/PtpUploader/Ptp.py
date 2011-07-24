@@ -56,7 +56,18 @@ class Ptp:
 		
 		if response.find( 'action="login.php"' ) != -1:
 			raise PtpUploaderException( "Looks like you are not logged in to PTP. Probably due to the bad user name or password." )
-		
+	
+	# PTP expects 7 character long IMDb IDs.
+	# E.g.: it can't find movie with IMDb ID 59675, only with 0059675. (IMDb redirects to the latter.)
+	@staticmethod
+	def NormalizeImdbIdForPtp(imdbId):
+		if len( imdbId ) < 7:
+			return imdbId.rjust( 7, '0' )
+		elif len( imdbId ) > 7:
+			raise PtpUploaderException( "IMDb ID '%s' is longer than seven characters." % imdbId )
+		else:
+			return imdbId
+	
 	# ptpId must be a valid id		
 	# returns with PtpMovieSearchResult
 	@staticmethod
@@ -81,7 +92,7 @@ class Ptp:
 		logger.info( "Trying to find movie with IMDb id '%s' on PTP." % imdbId );
 		
 		opener = urllib2.build_opener( urllib2.HTTPCookieProcessor( MyGlobals.CookieJar ) );
-		request = urllib2.Request( "http://passthepopcorn.me/torrents.php?imdb=%s" % imdbId );
+		request = urllib2.Request( "http://passthepopcorn.me/torrents.php?imdb=%s" % Ptp.NormalizeImdbIdForPtp( imdbId ) )
 		result = opener.open( request );
 		response = result.read();
 		Ptp.CheckIfLoggedInFromResponse( response );
