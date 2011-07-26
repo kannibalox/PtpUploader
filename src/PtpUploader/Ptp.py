@@ -28,7 +28,7 @@ class Ptp:
 		request = urllib2.Request( "http://passthepopcorn.me/login.php", postData );
 		result = opener.open( request );
 		response = result.read();
-		Ptp.__CheckIfLoggedInFromResponse( result, response );
+		Ptp.CheckIfLoggedInFromResponse( result, response );
 
 	@staticmethod
 	def Login():
@@ -57,7 +57,7 @@ class Ptp:
 		MyGlobals.Logger.info( "RESPONSE BODY: %s" % responseBody ) 
 
 	@staticmethod
-	def __CheckIfLoggedInFromResponse(result, responseBody):
+	def CheckIfLoggedInFromResponse(result, responseBody):
 		if responseBody.find( """<a href="login.php?act=recover">""" ) != -1:
 			Ptp.__CheckIfLoggedInFromResponseLogResponse( result, responseBody )
 			raise PtpUploaderInvalidLoginException( "Couldn't log in to PTP. Probably due to the bad user name or password." )
@@ -91,7 +91,7 @@ class Ptp:
 		request = urllib2.Request( "http://passthepopcorn.me/torrents.php?id=%s" % ptpId )
 		result = opener.open( request )
 		response = result.read()
-		Ptp.__CheckIfLoggedInFromResponse( result, response )
+		Ptp.CheckIfLoggedInFromResponse( result, response )
 
 		if response.find( "<h2>Error 404</h2>" ) != -1:
 			raise PtpUploaderException( "Movie with PTP id '%s' doesn't exists." % ptpId )
@@ -108,7 +108,7 @@ class Ptp:
 		request = urllib2.Request( "http://passthepopcorn.me/torrents.php?imdb=%s" % Ptp.NormalizeImdbIdForPtp( imdbId ) )
 		result = opener.open( request );
 		response = result.read();
-		Ptp.__CheckIfLoggedInFromResponse( result, response );
+		Ptp.CheckIfLoggedInFromResponse( result, response );
 
 		# If there is a movie: result.url = http://passthepopcorn.me/torrents.php?id=28577
 		# If there is no movie: result.url = http://passthepopcorn.me/torrents.php?imdb=1535492
@@ -229,7 +229,7 @@ class Ptp:
 		result = opener.open( request )
 		response = result.read();
 		response = response.decode( "utf-8", "ignore" )
-		Ptp.__CheckIfLoggedInFromResponse( result, response );
+		Ptp.CheckIfLoggedInFromResponse( result, response );
 		
 		# If the repsonse contains our announce url then we are on the upload page and the upload wasn't successful.
 		if response.find( Settings.PtpAnnounceUrl ) != -1:
@@ -302,7 +302,7 @@ class Ptp:
 		request = urllib2.Request( "http://passthepopcorn.me/inbox.php?action=compose&to=%s" % userId )
 		result = opener.open( request )
 		response = result.read()
-		Ptp.__CheckIfLoggedInFromResponse( result, response )
+		Ptp.CheckIfLoggedInFromResponse( result, response )
 
 		matches = re.search( r"""<input type="hidden" name="auth" value="(.+)" />""", response )
 		if not matches:
@@ -317,7 +317,7 @@ class Ptp:
 		request = urllib2.Request( "https://passthepopcorn.me/inbox.php", postData )
 		result = opener.open( request )
 		response = result.read()
-		Ptp.__CheckIfLoggedInFromResponse( result, response )
+		Ptp.CheckIfLoggedInFromResponse( result, response )
 		
 	# languageId: see the source of the Subtitle manager page on PTP 
 	@staticmethod
@@ -327,4 +327,4 @@ class Ptp:
 		request = urllib2.Request( "https://passthepopcorn.me/torrents.php", postData )
 		result = opener.open( request )
 		response = result.read()
-		Ptp.__CheckIfLoggedInFromResponse( result, response )
+		Ptp.CheckIfLoggedInFromResponse( result, response )
