@@ -1,4 +1,4 @@
-﻿from MyGlobals import MyGlobals
+from MyGlobals import MyGlobals
 from PtpMovieSearchResult import PtpMovieSearchResult
 from PtpUploaderException import *
 from Settings import Settings
@@ -9,6 +9,7 @@ import mimetypes
 import os
 import re
 import time
+import traceback
 import urllib
 import urllib2
 
@@ -23,11 +24,11 @@ class Ptp:
 
 		MyGlobals.Logger.info( "Loggin in to PTP." );
 		opener = urllib2.build_opener( urllib2.HTTPCookieProcessor( MyGlobals.CookieJar ) );
-		postData = urllib.urlencode( { "username": Settings.PtpUserName, "password": Settings.PtpPassword } )
+		postData = urllib.urlencode( { "username": Settings.PtpUserName, "password": Settings.PtpPassword, "keeplogged": "1" } )
 		request = urllib2.Request( "http://passthepopcorn.me/login.php", postData );
 		result = opener.open( request );
 		response = result.read();
-		Ptp.CheckIfLoggedInFromResponse( response );
+		Ptp.__CheckIfLoggedInFromResponse( result, response );
 
 	@staticmethod
 	def Login():
@@ -45,16 +46,28 @@ class Ptp:
 					time.sleep( 30 ) # Wait 30 seconds and retry.
 				else:
 					raise
-	
+
 	@staticmethod
-	def CheckIfLoggedInFromResponse(response):
-		if response.find( """<a href="login.php?act=recover">""" ) != -1:
+	def __CheckIfLoggedInFromResponseLogResponse(result, responseBody):
+		MyGlobals.Logger.info( "MSG: %s" % result.msg  )
+		MyGlobals.Logger.info( "CODE: %s" % result.code  )
+		MyGlobals.Logger.info( "URL: %s" % result.url )
+		MyGlobals.Logger.info( "HEADERS: %s" % result.headers )
+		MyGlobals.Logger.info( "STACK: %s" % traceback.format_stack() ) 
+		MyGlobals.Logger.info( "RESPONSE BODY: %s" % responseBody ) 
+
+	@staticmethod
+	def __CheckIfLoggedInFromResponse(result, responseBody):
+		if responseBody.find( """<a href="login.php?act=recover">""" ) != -1:
+			Ptp.__CheckIfLoggedInFromResponseLogResponse( result, responseBody )
 			raise PtpUploaderInvalidLoginException( "Couldn't log in to PTP. Probably due to the bad user name or password." )
 		
-		if response.find( """<p>Your IP has been banned.</p>""" ) != -1:
+		if responseBody.find( """<p>Your IP has been banned.</p>""" ) != -1:
+			Ptp.__CheckIfLoggedInFromResponseLogResponse( result, responseBody )
 			raise PtpUploaderInvalidLoginException( "Couldn't log in to PTP. Your IP has been banned." )
 		
-		if response.find( 'action="login.php"' ) != -1:
+		if responseBody.find( 'action="login.php"' ) != -1:
+			Ptp.__CheckIfLoggedInFromResponseLogResponse( result, responseBody )
 			raise PtpUploaderException( "Looks like you are not logged in to PTP. Probably due to the bad user name or password." )
 	
 	# PTP expects 7 character long IMDb IDs.
@@ -78,7 +91,7 @@ class Ptp:
 		request = urllib2.Request( "http://passthepopcorn.me/torrents.php?id=%s" % ptpId )
 		result = opener.open( request )
 		response = result.read()
-		Ptp.CheckIfLoggedInFromResponse( response )
+		Ptp.__CheckIfLoggedInFromResponse( result, response )
 
 		if response.find( "<h2>Error 404</h2>" ) != -1:
 			raise PtpUploaderException( "Movie with PTP id '%s' doesn't exists." % ptpId )
@@ -95,7 +108,7 @@ class Ptp:
 		request = urllib2.Request( "http://passthepopcorn.me/torrents.php?imdb=%s" % Ptp.NormalizeImdbIdForPtp( imdbId ) )
 		result = opener.open( request );
 		response = result.read();
-		Ptp.CheckIfLoggedInFromResponse( response );
+		Ptp.__CheckIfLoggedInFromResponse( result, response );
 
 		# If there is a movie: result.url = http://passthepopcorn.me/torrents.php?id=28577
 		# If there is no movie: result.url = http://passthepopcorn.me/torrents.php?imdb=1535492
@@ -216,7 +229,7 @@ class Ptp:
 		result = opener.open( request )
 		response = result.read();
 		response = response.decode( "utf-8", "ignore" )
-		Ptp.CheckIfLoggedInFromResponse( response );
+		Ptp.__CheckIfLoggedInFromResponse( result, response );
 		
 		# If the repsonse contains our announce url then we are on the upload page and the upload wasn't successful.
 		if response.find( Settings.PtpAnnounceUrl ) != -1:
@@ -289,7 +302,7 @@ class Ptp:
 		request = urllib2.Request( "http://passthepopcorn.me/inbox.php?action=compose&to=%s" % userId )
 		result = opener.open( request )
 		response = result.read()
-		Ptp.CheckIfLoggedInFromResponse( response )
+		Ptp.__CheckIfLoggedInFromResponse( result, response )
 
 		matches = re.search( r"""<input type="hidden" name="auth" value="(.+)" />""", response )
 		if not matches:
@@ -304,7 +317,7 @@ class Ptp:
 		request = urllib2.Request( "https://passthepopcorn.me/inbox.php", postData )
 		result = opener.open( request )
 		response = result.read()
-		Ptp.CheckIfLoggedInFromResponse( response )
+		Ptp.__CheckIfLoggedInFromResponse( result, response )
 		
 	# languageId: see the source of the Subtitle manager page on PTP 
 	@staticmethod
@@ -314,4 +327,4 @@ class Ptp:
 		request = urllib2.Request( "https://passthepopcorn.me/torrents.php", postData )
 		result = opener.open( request )
 		response = result.read()
-		Ptp.CheckIfLoggedInFromResponse( response )
+		Ptp.__CheckIfLoggedInFromResponse( result, response )
