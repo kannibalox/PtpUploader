@@ -7,11 +7,11 @@ from Settings import Settings
 from pyrocore.util import load_config, metafile
 from pyrocore import config
 
-import os;
-import shutil;
-import subprocess;
-import time;
-import xmlrpclib;
+import os
+import shutil
+import subprocess
+import time
+import xmlrpclib
 
 class Rtorrent:
 	def __init__(self):
@@ -49,14 +49,20 @@ class Rtorrent:
 		sourceDirectory, sourceFilename = os.path.split( torrentPath );
 		sourceFilename = "fast resume " + sourceFilename;
 		destinationTorrentPath = os.path.join( sourceDirectory, sourceFilename );
+		
+		if os.path.exists( destinationTorrentPath ):
+			raise PtpUploaderException( "Can't create fast resume torrent because path '%s' already exists." % destinationTorrentPath )
+		
 		shutil.copyfile( torrentPath, destinationTorrentPath );
 		
 		args = [ Settings.ChtorPath, "-H", downloadPath, destinationTorrentPath ];
 		errorCode = subprocess.call( args );
 		if errorCode != 0:
-			raise PtpUploaderException( "Process execution '%s' returned with error code '%s'." % ( args, errorCode ) );			
+			raise PtpUploaderException( "Process execution '%s' returned with error code '%s'." % ( args, errorCode ) );
 		
-		return self.AddTorrent( logger, destinationTorrentPath, downloadPath );
+		infoHash = self.AddTorrent( logger, destinationTorrentPath, downloadPath )
+		os.remove( destinationTorrentPath )
+		return infoHash
 		
 	def IsTorrentFinished(self, logger, infoHash):
 		# TODO: this try catch block is here because xmlrpclib throws an exception when it timeouts or when the torrent with the given info hash doesn't exists.

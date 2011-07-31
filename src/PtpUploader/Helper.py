@@ -1,5 +1,6 @@
 from Tool.PyrocoreBencode import bencode
 
+import os
 import re
 
 # Supported formats: "100 GB", "100 MB", "100 bytes". (Space is optional.)
@@ -39,6 +40,19 @@ except ImportError:
 	
 def ParseQueryString(query):
 	return parse_qs( query )
+
+# Path can be a file or a directory. (Obviously.)
+def GetPathSize(path):
+	if os.path.isfile( path ):
+		return os.path.getsize( path )
+	
+	totalSize = 0
+	for ( dirPath, dirNames, fileNames ) in os.walk( path ):
+		for file in fileNames:
+			filePath = os.path.join( dirPath, file )
+			totalSize += os.path.getsize( filePath )
+
+	return totalSize
 
 # Always uses / as path separator.
 def GetFileListFromTorrent(torrentPath):

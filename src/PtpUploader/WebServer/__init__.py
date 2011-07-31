@@ -12,6 +12,7 @@ import WebServer.EditJob
 import WebServer.Jobs
 import WebServer.ServerMain
 import WebServer.Upload
+import WebServer.UploadFile
 
 @app.after_request
 def ShutdownSession(response):

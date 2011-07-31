@@ -12,10 +12,7 @@
 				<td class="label">Upload a torrent file</td>
 				<td>
 					<input type="file" id="upload_field" accept="application/x-bittorrent" title="You have to specify an IMDB or PTP link too."/>
-					<img src="{{ url_for( "static", filename = "throbber.gif" ) }}" style="display: none;" id="upload_throbber">
-					<span id="uploaded_torrentcontentsizetext"></span>
 					<input id="uploaded_torrentfilename" name="uploaded_torrentfilename" type="hidden">
-					<input id="uploaded_torrentcontentsize" name="uploaded_torrentcontentsize" type="hidden">
 				</td>
 			</tr>
 
@@ -26,20 +23,23 @@
 				</td>
 			</tr>
 
-{# TODO:
 			<tr>
 				<td class="label">Or select an existing file or folder</td>
 			
 				<td>
 					<input id="existingfile" name="existingfile_input" size="60" title="This is not yet functional.">
+					<input type="button" id="DirectorySelectorToggle" value="Browse" title="Directory selector.">
+					<div id="directoryselector">
 				</td>
 			</tr>
-#}
 
 			<tr>
 				<td class="label">Release name</td>
 				<td>
 					<input id="release_name" name="release_name" size="60" type="text" title="The specified release name will be the name of the directory in the torrent uploaded to PTP. (Not supported yet on CG.)">
+					<img src="{{ url_for( "static", filename = "throbber.gif" ) }}" style="display: none;" id="upload_throbber">
+					<span id="uploaded_torrentcontentsizetext"></span>
+					<input id="uploaded_torrentcontentsize" name="uploaded_torrentcontentsize" type="hidden">
 				</td>
 			</tr>
 			
@@ -63,6 +63,9 @@
 {% include "job_common_javascript.html" %}
 
 <script src="{{ url_for( "static", filename = "script/jquery.html5_upload.js" ) }}"></script>
+<script src="{{ url_for( "static", filename = "script/jqueryFileTree/jqueryFileTree.js" ) }}"></script>
+<link href="{{ url_for( "static", filename = "script/jqueryFileTree/jqueryFileTree.css" ) }}" rel="stylesheet" type="text/css" />
+<script src="{{ url_for( "static", filename = "script/jquery.blockUI.js" ) }}"></script>
 
 <script>
 	$(function ()
@@ -80,8 +83,8 @@
 			},
 			onFinishOne: function(event, response, name, number, total)
 			{
-				var jsonResponse = $.parseJSON( response )
-				var jsonResult = jsonResponse[ "result" ]
+				var jsonResponse = $.parseJSON( response );
+				var jsonResult = jsonResponse[ "result" ];
 				if ( jsonResult == "OK" )
 				{
 					$( "#uploaded_torrentfilename" ).val( jsonResponse[ "torrentFilename" ] );
@@ -96,6 +99,60 @@
 				}
 			}
 		});
+
+		$( "#DirectorySelectorToggle" ).click( function()
+		{
+			$.blockUI(
+			{
+				message: $( "#directoryselector" ),
+				fadeIn: 0,
+				css:
+				{
+					width: $( "#directoryselector" ).width() + "px",
+					left: ( $( window ).width() - $( "#directoryselector" ).width() ) / 2 + 'px',
+					top: ( $( window ).height() - $( "#directoryselector" ).height() ) / 2 + 'px',
+					textAlign: "left"
+				}
+			} );
+
+			$( ".blockOverlay" ).click( function()
+			{
+				$( "#upload_throbber" ).show();
+
+				var url = "{{ url_for( "ajaxGetInfoForFileUpload" ) }}";
+				var path = $( "#existingfile" ).val();
+				$.post( url, { "path": path  }, function(data)
+				{
+					if ( data.result == "OK" )
+					{
+						$( "#uploaded_torrentcontentsize" ).val( data.torrentContentSize );
+						$( "#uploaded_torrentcontentsizetext" ).text( data.torrentContentSizeText );
+						$( "#release_name" ).val( data.releaseName );
+						$( "#imdb" ).val( data.imdbUrl );
+						$( "#upload_throbber" ).fadeOut( "slow" );
+					}
+					else
+					{
+						alert( "Error!" );
+					}
+				} );
+
+				$.unblockUI( { fadeOut: 0 } );
+			} );
+		} );
+
+		$( "#directoryselector" ).fileTree(
+		{
+			root: "",
+			script: "{{ url_for( "ajaxGetDirectoryList" ) }}",
+			expandSpeed: -1,
+			collapseSpeed: -1,
+			multiFolder: true
+		},
+		function(file)
+		{
+			$( "#existingfile" ).val( file );
+		} );
 	});
 </script>
 

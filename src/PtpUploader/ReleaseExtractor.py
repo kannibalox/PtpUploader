@@ -7,9 +7,10 @@ import fnmatch
 import os
 
 class ReleaseExtractorInternal:
-	def __init__(self, sourcePath, destinationPath, handleSceneFolders = False):
+	def __init__(self, sourcePath, destinationPath, topLevelDirectoriesToIgnore = [], handleSceneFolders = False):
 		self.SourcePath = sourcePath
 		self.DestinationPath = destinationPath
+		self.TopLevelDirectoriesToIgnore = topLevelDirectoriesToIgnore
 		self.HandleSceneFolders = handleSceneFolders
 		self.DestinationPathCreated = False
 
@@ -39,6 +40,9 @@ class ReleaseExtractorInternal:
 				self.__HandleDirectory( entryName, entryPath )
 			elif os.path.isfile( entryPath ):
 				self.__HandleFile( entryName, entryPath )
+				
+	def __IsDirectoryOnTheIgnoreList(self, directoryName):
+		return directoryName in self.TopLevelDirectoriesToIgnore
 		
 	def __HandleDirectory(self, entryName, entryPath):
 		entryLower = entryName.lower()
@@ -46,9 +50,8 @@ class ReleaseExtractorInternal:
 			# Special scene folders in the root will be extracted without making a directory for them in the destination.
 			releaseExtractor = ReleaseExtractorInternal( entryPath, self.DestinationPath )
 			releaseExtractor.Extract()
-		elif self.HandleSceneFolders and ( entryLower == "sample" or entryLower == "!sample" or entryLower == "proof" ):
+		elif self.__IsDirectoryOnTheIgnoreList( entryLower ):
 			# We don't need these.
-			# !sample is used in ESiR releases.
 			# (The if is nicer this way than combining this and the next block.)
 			pass
 		else:
@@ -95,10 +98,14 @@ class ReleaseExtractor:
 	# Extracts RAR files and creates hard links from supported files from the source to the destination directory.
 	# Except of special scene folders (CD*, Subs) in the root, the directory hierarchy is kept.  
 	@staticmethod
-	def Extract(logger, sourcePath, destinationPath):
+	def Extract( logger, sourcePath, destinationPath, topLevelDirectoriesToIgnore = [] ):
 		logger.info( "Extracting directory '%s' to '%s'." % ( sourcePath, destinationPath ) )
 
-		releaseExtractor = ReleaseExtractorInternal( sourcePath, destinationPath, handleSceneFolders = True )
+		topLevelDirectoriesToIgnore.append( "proof" )
+		topLevelDirectoriesToIgnore.append( "sample" )
+		topLevelDirectoriesToIgnore.append( "!sample" ) # Used in ESiR releases.
+
+		releaseExtractor = ReleaseExtractorInternal( sourcePath, destinationPath, topLevelDirectoriesToIgnore, handleSceneFolders = True )
 		releaseExtractor.Extract()
 
 		# Extract and delete RARs at the destination directory. Subtitles in scene releases usually are compressed twice. Yup, it is stupid.

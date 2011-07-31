@@ -7,17 +7,6 @@ import re
 import textwrap
 
 class NfoParser:
-	# Read the NFO file from the specified directory.
-	@staticmethod
-	def GetNfoFile(directoryPath):
-		entries = os.listdir( directoryPath )
-		for entry in entries:
-			entryPath = os.path.join( directoryPath, entry )
-			if os.path.isfile( entryPath ) and fnmatch.fnmatch( entry.lower(), "*.nfo" ):
-				return NfoParser.ReadNfoFileToUnicode( entryPath )
-
-		raise ""
-	
 	# Return with the IMDb id.
 	# Eg.: 0111161 for http://www.imdb.com/title/tt0111161/
 	@staticmethod

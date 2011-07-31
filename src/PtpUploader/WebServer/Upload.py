@@ -1,6 +1,7 @@
 from Tool.PyrocoreBencode import bencode
 from WebServer import app
 from WebServer.JobCommon import JobCommon
+from WebServer.UploadFile import UploadFile
 
 from Authentication import requires_auth
 from Helper import SizeToText
@@ -90,29 +91,6 @@ def UploadTorrentSiteLink(releaseInfo, request):
 	releaseInfo.AnnouncementSourceName = source.Name
 	releaseInfo.AnnouncementId = id
 	return True 
-
-def UploadFile(releaseInfo, request):
-	path = request.values.get( "existingfile_input" )
-	if ( path is None ) or len( path ) <= 0:
-		return False
-
-	# TODO: implement me
-	#return False
-
-	# TODO: support if path is a file
-	if os.path.isdir( path ):
-		releaseInfo.AnnouncementSourceName = "file"
-		releaseInfo.ReleaseDownloadPath = path
-
-		# Make sure that path doesn't ends with a trailing slash or else os.path.split would return with wrong values.
-		path = path.rstrip( "\\/" )
-	
-		# Release name will be the directory's name. Eg. it will be "anything" for "/something/anything"
-		basePath, releaseInfo.ReleaseName = os.path.split( path )
-	
-		return True
-	else:
-		return False
 
 @app.route( '/upload/', methods=[ 'GET', 'POST' ] )
 @requires_auth

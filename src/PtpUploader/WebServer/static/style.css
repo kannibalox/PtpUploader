@@ -99,3 +99,13 @@ div.pagination
 	padding-top: 32px;
 	padding-bottom: 32px;
 }
+
+div#directoryselector
+{
+	display: none;
+	width: 400px;
+	height: 500px;
+	overflow: auto;
+	background: #FFF;
+	padding: 5px;
+}

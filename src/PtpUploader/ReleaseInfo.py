@@ -140,6 +140,7 @@ class ReleaseInfo(Database.Base):
 		self.AnnouncementSource = None # A class from the Source namespace.
 		self.Logger = None
 		self.SceneAccessDownloadUrl = "" # Temporary store for SceneAccess.DownloadTorrent method.
+		self.SourceIsAFile = False # Used by Source.File class.
 
 	def GetImdbId(self):
 		return self.ImdbId

@@ -48,16 +48,10 @@ class Upload(WorkerBase):
 		customUploadPath = self.ReleaseInfo.AnnouncementSource.GetCustomUploadPath( self.ReleaseInfo.Logger, self.ReleaseInfo )
 		if len( customUploadPath ) > 0:
 			uploadPath = customUploadPath
-
-		self.ReleaseInfo.Logger.info( "Creating upload path at '%s'." % uploadPath )
-		
-		if os.path.exists( uploadPath ):
-			raise PtpUploaderException( "Upload directory '%s' already exists." % uploadPath )	
-		
-		os.makedirs( uploadPath )
-
-		if len( customUploadPath ) > 0:
 			self.ReleaseInfo.SetReleaseUploadPath( customUploadPath )
+
+		self.ReleaseInfo.AnnouncementSource.CreateUploadDirectory( self.ReleaseInfo )
+
 		self.ReleaseInfo.SetJobPhaseFinished( FinishedJobPhase.Upload_CreateUploadPath )
 		Database.DbSession.commit()
 
@@ -72,9 +66,7 @@ class Upload(WorkerBase):
 		Database.DbSession.commit()
 
 	def __ValidateExtractedRelease(self):
-		self.VideoFiles, self.AdditionalFiles = ReleaseExtractor.ValidateDirectory( self.ReleaseInfo.Logger, self.ReleaseInfo.GetReleaseUploadPath() )
-		if len( self.VideoFiles ) < 1:
-			raise PtpUploaderException( "Upload path '%s' doesn't contains any video files." % self.ReleaseInfo.GetReleaseUploadPath() )
+		self.VideoFiles, self.AdditionalFiles = self.ReleaseInfo.AnnouncementSource.ValidateExtractedRelease( self.ReleaseInfo )
 
 	def __GetMediaInfoContainer(self, mediaInfo):
 		container = ""
@@ -149,8 +141,10 @@ class Upload(WorkerBase):
 			self.ReleaseInfo.Resolution = resolution
 
 	def __MakeReleaseDescription(self):
+		self.ReleaseInfo.AnnouncementSource.ReadNfo( self.ReleaseInfo )
+		
 		includeReleaseName = self.ReleaseInfo.AnnouncementSource.IncludeReleaseNameInReleaseDescription()
-		outputImageDirectory = self.ReleaseInfo.GetReleaseRootPath()
+		outputImageDirectory = self.ReleaseInfo.AnnouncementSource.GetTemporaryFolderForImagesAndTorrent( self.ReleaseInfo )
 		releaseDescriptionFormatter = ReleaseDescriptionFormatter( self.ReleaseInfo, self.VideoFiles, self.AdditionalFiles, outputImageDirectory )
 		self.ReleaseDescription = releaseDescriptionFormatter.Format( includeReleaseName )
 		self.MainMediaInfo = releaseDescriptionFormatter.GetMainMediaInfo()
@@ -169,11 +163,12 @@ class Upload(WorkerBase):
 		
 		# We save it into a separate folder to make sure it won't end up in the upload somehow. :)
 		uploadTorrentName = "PTP " + self.ReleaseInfo.ReleaseName + ".torrent"
-		uploadTorrentFilePath = os.path.join( self.ReleaseInfo.GetReleaseRootPath(), uploadTorrentName )
+		uploadTorrentFilePath = self.ReleaseInfo.AnnouncementSource.GetTemporaryFolderForImagesAndTorrent( self.ReleaseInfo )
+		uploadTorrentFilePath = os.path.join( uploadTorrentFilePath, uploadTorrentName )
 
 		# Make torrent with the parent directory's name included if there is more than one file or requested by the source (it is a scene release).
 		totalFileCount = len( self.VideoFiles ) + len( self.AdditionalFiles )
-		if totalFileCount > 1 or ( self.ReleaseInfo.AnnouncementSource.IsSingleFileTorrentNeedsDirectory() and not self.ReleaseInfo.IsForceDirectorylessSingleFileTorrent() ):
+		if totalFileCount > 1 or ( self.ReleaseInfo.AnnouncementSource.IsSingleFileTorrentNeedsDirectory( self.ReleaseInfo ) and not self.ReleaseInfo.IsForceDirectorylessSingleFileTorrent() ):
 			MakeTorrent.Make( self.ReleaseInfo.Logger, self.ReleaseInfo.GetReleaseUploadPath(), uploadTorrentFilePath )
 		else: # Create the torrent including only the single video file.
 			MakeTorrent.Make( self.ReleaseInfo.Logger, self.MainMediaInfo.Path, uploadTorrentFilePath )

@@ -1,4 +1,5 @@
-﻿from PtpUploaderException import PtpUploaderException
+﻿from Helper import GetPathSize
+from PtpUploaderException import PtpUploaderException
 from Settings import Settings
 
 import os
@@ -9,7 +10,11 @@ class MakeTorrent:
 	@staticmethod
 	def Make(logger, path, torrentPath):
 		logger.info( "Making torrent from '%s' to '%s'." % ( path, torrentPath ) )
-		sourceSize = MakeTorrent.GetSourceSize( path )
+		
+		if os.path.exists( torrentPath ):
+			raise PtpUploaderException( "Can't create torrent because path '%s' already exists." % torrentPath )
+		
+		sourceSize = GetPathSize( path )
 
 		# Optimal piece size should be automatically calculated by mktorrent...			
 		# Use 512 KB piece size as default.
@@ -30,17 +35,4 @@ class MakeTorrent:
 		args = [ Settings.ChtorPath, "--set=info.source=PTP", torrentPath ]
 		errorCode = subprocess.call( args )
 		if errorCode != 0:
-			raise PtpUploaderException( "Process execution '%s' returned with error code '%s'." % ( args, errorCode ) )			
-
-	@staticmethod
-	def GetSourceSize(path):
-		if os.path.isfile( path ):
-			return os.path.getsize( path )
-		
-		totalSize = 0
-		for ( dirPath, dirNames, fileNames ) in os.walk( path ):
-			for file in fileNames:
-				filePath = os.path.join( dirPath, file )
-				totalSize += os.path.getsize( filePath )
-
-		return totalSize
+			raise PtpUploaderException( "Process execution '%s' returned with error code '%s'." % ( args, errorCode ) )
