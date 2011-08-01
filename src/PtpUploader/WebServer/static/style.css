@@ -100,7 +100,7 @@ div.pagination
 	padding-bottom: 32px;
 }
 
-div#directoryselector
+div#directoryselectordialog
 {
 	display: none;
 	width: 400px;

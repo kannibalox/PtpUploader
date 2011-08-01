@@ -1,7 +1,6 @@
 ﻿from WebServer import app
 from WebServer.Authentication import requires_auth
 
-from Helper import GetPathSize, SizeToText
 from NfoParser import NfoParser
 
 from flask import jsonify, request
@@ -16,12 +15,18 @@ def ajaxGetDirectoryList():
 	r = [ '<ul class="jqueryFileTree" style="display: none;">' ]
 	try:
 		response = [ '<ul class="jqueryFileTree" style="display: none;">' ]
+
 		path = urllib.unquote( request.values[ "dir" ] )
-		if len( path ) <= 0:
+		if os.path.isfile( path ):
+			# If it is file then start browsing from its parent directory.
+			path = os.path.dirname( path )
+		elif not os.path.isdir( path ):
+			# Start from the user's home directory if the directory doesn't exist.
 			path = os.path.expanduser( u"~" )
 		
 		directories = []
 		files = []
+		
 		for fileName in os.listdir( path ):
 			currentPath = os.path.join( path, fileName )
 	  		item = currentPath, fileName # Add as a tuple.
@@ -80,14 +85,11 @@ def ajaxGetInfoForFileUpload():
 	else:
 		return jsonify( result = "ERROR" )
 
-	size = GetPathSize( path )
-	sizeText = SizeToText( size )
-	
 	imdbUrl = ""
 	if len( imdbId ) > 0:
 		imdbUrl = "http://www.imdb.com/title/tt%s/" % imdbId 
 
-	return jsonify( result = "OK", releaseName = releaseName, imdbUrl = imdbUrl, torrentContentSize = size, torrentContentSizeText = sizeText )
+	return jsonify( result = "OK", releaseName = releaseName, imdbUrl = imdbUrl )
 
 def UploadFile(releaseInfo, request):
 	path = request.values.get( "existingfile_input" )
@@ -100,9 +102,4 @@ def UploadFile(releaseInfo, request):
 	releaseInfo.AnnouncementSourceName = "file"
 	releaseInfo.ReleaseDownloadPath = path
 
-	torrentContentSize = request.values[ "uploaded_torrentcontentsize" ]
-	if len( torrentContentSize ) <= 0: # Length of the string.
-		return False
-
-	releaseInfo.Size = int( torrentContentSize )	
 	return True

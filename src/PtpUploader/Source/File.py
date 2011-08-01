@@ -1,5 +1,6 @@
 from Source.SourceBase import SourceBase
 
+from Helper import GetPathSize
 from MyGlobals import MyGlobals
 from NfoParser import NfoParser
 from PtpUploaderException import PtpUploaderException
@@ -17,12 +18,16 @@ class File(SourceBase):
 	
 	@staticmethod
 	def PrepareDownload(logger, releaseInfo):
-		if os.path.isdir( releaseInfo.GetReleaseDownloadPath() ):
+		path = releaseInfo.GetReleaseDownloadPath()
+		
+		if os.path.isdir( path ):
 			releaseInfo.SourceIsAFile = False
-		elif os.path.isfile( releaseInfo.GetReleaseDownloadPath() ):
+		elif os.path.isfile( path ):
 			releaseInfo.SourceIsAFile = True
 		else:
-			raise PtpUploaderException( "Source '%s' doesn't exist." % releaseInfo.GetReleaseDownloadPath() )
+			raise PtpUploaderException( "Source '%s' doesn't exist." % path )
+
+		releaseInfo.Size = GetPathSize( path )
 
 		releaseNameParser = ReleaseNameParser( releaseInfo.ReleaseName )
 		releaseNameParser.GetSourceAndFormat( releaseInfo )

@@ -119,7 +119,7 @@ class ReleaseInfo(Database.Base):
 		self.PtpId = ""
 		self.PtpTorrentId = ""
 		self.InternationalTitle = "" # International title of the movie. Eg.: The Secret in Their Eyes. Needed for renaming releases coming from Cinemageddon.
-		self.Nfo = u""
+		self.Nfo = u"" # TODO: it is pointless to store this is in the database
 		self.SourceTorrentFilePath = ""
 		self.SourceTorrentInfoHash = ""
 		self.UploadTorrentFilePath = ""
