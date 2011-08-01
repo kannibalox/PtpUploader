@@ -89,3 +89,10 @@ UL.jqueryFileTree A:hover {
 .jqueryFileTree LI.ext_xls { background: url(images/xls.png) left top no-repeat; }
 .jqueryFileTree LI.ext_xml { background: url(images/code.png) left top no-repeat; }
 .jqueryFileTree LI.ext_zip { background: url(images/zip.png) left top no-repeat; }
+
+/* TnS */
+.jqueryFileTree LI.ext_mkv { background: url(images/film.png) left top no-repeat; }
+.jqueryFileTree LI.ext_srt { background: url(images/txt.png) left top no-repeat; }
+.jqueryFileTree LI.ext_sub { background: url(images/txt.png) left top no-repeat; }
+.jqueryFileTree LI.ext_idx { background: url(images/txt.png) left top no-repeat; }
+.jqueryFileTree LI.ext_nfo { background: url(images/txt.png) left top no-repeat; }
