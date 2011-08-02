@@ -182,7 +182,7 @@ class Ptp:
 		if releaseInfo.IsZeroImdbId():
 			paramList.append( poster.encode.MultipartParam( "imdb", "" ) )
 		else:
-			paramList.append( poster.encode.MultipartParam( "imdb", releaseInfo.GetImdbId() ) )
+			paramList.append( poster.encode.MultipartParam( "imdb", Ptp.NormalizeImdbIdForPtp( releaseInfo.GetImdbId() ) ) )
 
 		# Add the directors.
 		# These needs to be added in order because of the "importance" field follows them.
