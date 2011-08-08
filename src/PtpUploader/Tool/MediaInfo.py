@@ -147,7 +147,7 @@ class MediaInfo:
 		return self.Container == "mpeg-ps"
 
 	def IsDivx(self):
-		return self.Codec == "dx50"
+		return self.Codec == "divx" or self.Codec == "dx50"
 	
 	def IsXvid(self):
 		return self.Codec == "xvid"
