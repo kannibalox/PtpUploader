@@ -16,13 +16,13 @@ class ImageUploader:
 		if imagePath is None: # Rehost image from url.
 			encodedData = urllib.urlencode( { "urls": imageUrl } );
 			headers = { "Content-Type": "application/x-www-form-urlencoded", "Content-Length": str( len( encodedData ) ) };
-			request = urllib2.Request( "http://ptpimg.me?type=uploadv2&key=QT5LGz7ktGFVZpfFArVHCpEvDcC3qrUZrf0kP&uid=999999&url=c_h_e_c_k_p_o_s_t", encodedData, headers )
+			request = urllib2.Request( "http://ptpimg.me/index.php?type=uploadv2&key=QT5LGz7ktGFVZpfFArVHCpEvDcC3qrUZrf0kP&uid=999999&url=c_h_e_c_k_p_o_s_t", encodedData, headers )
 			result = urllib2.urlopen( request )
 			response = result.read();
 		else: # Upload image from file.
 			opener = poster.streaminghttp.register_openers()
 			datagen, headers = poster.encode.multipart_encode( [ poster.encode.MultipartParam.from_file( "uploadfile", imagePath ) ] );
-			request = urllib2.Request( "http://ptpimg.me?type=uploadv3&key=QT5LGz7ktGFVZpfFArVHCpEvDcC3qrUZrf0kP", datagen, headers )
+			request = urllib2.Request( "http://ptpimg.me/index.php?type=uploadv3&key=QT5LGz7ktGFVZpfFArVHCpEvDcC3qrUZrf0kP", datagen, headers )
 			result = opener.open( request )
 			response = result.read();
 		
