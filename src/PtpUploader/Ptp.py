@@ -209,11 +209,11 @@ class Ptp:
 		# We always use HTTPS for uploading because if "Force HTTPS" is enabled in the profile then the HTTP upload is not working.
 		if releaseInfo.HasPtpId():
 			logger.info( "Uploading torrent '%s' to PTP as a new format for 'http://passthepopcorn.me/torrents.php?id=%s'." % ( torrentPath, releaseInfo.PtpId ) );
-			url = "https://passthepopcorn.me/upload.php?groupid=%s" % releaseInfo.PtpId;
+			url = "https://tls.passthepopcorn.me/upload.php?groupid=%s" % releaseInfo.PtpId;
 			paramList.extend( Ptp.__UploadMovieGetParamsForAddFormat( releaseInfo.PtpId ) ); 	
 		else:
 			logger.info( "Uploading torrent '%s' to PTP as a new movie." % torrentPath );
-			url = "https://passthepopcorn.me/upload.php";
+			url = "https://tls.passthepopcorn.me/upload.php";
 			paramList.extend( Ptp.__UploadMovieGetParamsForNewMovie( releaseInfo ) );
 		
 		# Add the torrent file.
@@ -314,7 +314,7 @@ class Ptp:
 		# Send the message.
 		# We always use HTTPS for sending message because if "Force HTTPS" is enabled in the profile then the HTTP message sending is not working.
 		postData = urllib.urlencode( { "toid": userId, "subject": subject, "body": message, "auth": auth, "action": "takecompose" } )
-		request = urllib2.Request( "https://passthepopcorn.me/inbox.php", postData )
+		request = urllib2.Request( "https://tls.passthepopcorn.me/inbox.php", postData )
 		result = opener.open( request )
 		response = result.read()
 		Ptp.CheckIfLoggedInFromResponse( result, response )
@@ -324,7 +324,7 @@ class Ptp:
 	def AddSubtitle(authKey, torrentId, languageId):
 		opener = urllib2.build_opener( urllib2.HTTPCookieProcessor( MyGlobals.CookieJar ) )
 		postData = urllib.urlencode( { "action": "takesubtitle", "auth": authKey, "torrentid": torrentId, "languageid": languageId, "included": "1" } )
-		request = urllib2.Request( "https://passthepopcorn.me/torrents.php", postData )
+		request = urllib2.Request( "https://tls.passthepopcorn.me/torrents.php", postData )
 		result = opener.open( request )
 		response = result.read()
 		Ptp.CheckIfLoggedInFromResponse( result, response )
