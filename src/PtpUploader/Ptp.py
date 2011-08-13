@@ -112,7 +112,7 @@ class Ptp:
 
 		# If there is a movie: result.url = http://passthepopcorn.me/torrents.php?id=28577
 		# If there is no movie: result.url = http://passthepopcorn.me/torrents.php?imdb=1535492
-		match = re.match( r"https?://passthepopcorn\.me/torrents\.php\?id=(\d+)", result.url );
+		match = re.match( r".*?passthepopcorn\.me/torrents\.php\?id=(\d+)", result.url );
 		if match is not None:
 			ptpId = match.group( 1 );
 			logger.info( "Movie with IMDb id '%s' exists on PTP at '%s'." % ( imdbId, result.url ) );
@@ -245,7 +245,7 @@ class Ptp:
 			raise PtpUploaderException( "Upload to PTP failed: '%s'. (We are still on the upload page.)" % errorMessage )
 
 		# URL format in case of successful upload: http://passthepopcorn.me/torrents.php?id=9329&torrentid=91868 
-		match = re.match( r"https?://passthepopcorn\.me/torrents\.php\?id=(\d+)&torrentid=(\d+)", result.url )
+		match = re.match( r".*?passthepopcorn\.me/torrents\.php\?id=(\d+)&torrentid=(\d+)", result.url )
 		if match is None:
 			raise PtpUploaderException( "Upload to PTP failed: result URL '%s' is not the expected one." % result.url )
 		

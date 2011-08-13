@@ -35,7 +35,7 @@ class JobCommon:
 			# Using urlparse because of torrent permalinks:
 			# https://passthepopcorn.me/torrents.php?id=9730&torrentid=72322
 			url = urlparse.urlparse( JobCommon.__AddHttpToUrl( text ) )
-			if url.netloc == "passthepopcorn.me" or url.netloc == "www.passthepopcorn.me":
+			if url.netloc == "passthepopcorn.me" or url.netloc == "www.passthepopcorn.me" or url.netloc == "tls.passthepopcorn.me":
 				params = ParseQueryString( url.query )
 				ptpIdList = params.get( "id" )
 				if ptpIdList is not None:
