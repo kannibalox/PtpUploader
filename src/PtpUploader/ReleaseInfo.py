@@ -78,6 +78,7 @@ class ReleaseInfo(Database.Base):
 	LastModificationTime = Column( Integer, default = Database.MakeTimeStamp, onupdate = Database.MakeTimeStamp )
 	Size = Column( Integer )
 	Subtitles = Column( String )
+	IncludedFiles = Column( String )
 	
 	def __init__(self):
 		self.AnnouncementSourceName = "" # A name of a class from the Source namespace.
@@ -131,6 +132,7 @@ class ReleaseInfo(Database.Base):
 		self.LastModificationTime = 0
 		self.Size = 0
 		self.Subtitles = "" # Comma separated list of PTP language IDs. Eg.: "1, 2"
+		self.IncludedFiles = "" # Contains only the customized files. Stored as JSON string.
 		
 		self.MyConstructor()
 

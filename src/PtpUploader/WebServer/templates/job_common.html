@@ -1,5 +1,18 @@
 ﻿{% block job_common %}
 
+<input id="JobId" name="JobId" type="hidden" value="{{ job.JobId }}">
+
+<tr>
+	<td class="label">Included files</td>
+	<td>
+		<input type="button" id="IncludedFilesToggle" value="Select">
+		<input id="IncludedFilesCustomizedList" name="IncludedFilesCustomizedList" type="hidden" value="{{ job.IncludedFilesCustomizedList }}">
+		<div id="IncludedFilesDialog">
+			<div id="IncludedFilesTree">
+		</div>
+	</td>
+</tr>
+
 <tr>
 	<td class="label">Start immediately</td>
 	<td>

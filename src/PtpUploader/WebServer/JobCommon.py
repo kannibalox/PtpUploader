@@ -1,6 +1,15 @@
-from Helper import ParseQueryString
 from Job.JobStartMode import JobStartMode
+from WebServer import app
+from WebServer.Authentication import requires_auth
+
+from Database import Database
+from Helper import ParseQueryString
+from IncludedFileList import IncludedFileList
+from MyGlobals import MyGlobals
 from NfoParser import NfoParser
+from ReleaseInfo import ReleaseInfo
+
+from flask import jsonify, request
 
 import urlparse
 
@@ -103,6 +112,7 @@ class JobCommon:
 	
 		releaseInfo.ReleaseNotes = request.values[ "ReleaseNotes" ]
 		releaseInfo.SetSubtitles( request.form.getlist( "subtitle[]" ) )
+		releaseInfo.IncludedFiles = request.values[ "IncludedFilesCustomizedList" ]
 
 	@staticmethod
 	def __GetPtpOrImdbLink(releaseInfo):
@@ -154,6 +164,7 @@ class JobCommon:
 		job[ "remaster_year" ] = releaseInfo.RemasterYear
 		
 		# Other
+		job[ "JobId" ] = releaseInfo.Id
 		
 		if releaseInfo.JobStartMode == JobStartMode.ManualForced:
 			job[ "force_upload" ] = "on"
@@ -167,3 +178,110 @@ class JobCommon:
 		job[ "ReleaseNotes" ] = releaseInfo.ReleaseNotes
 		
 		job[ "Subtitles" ] = releaseInfo.GetSubtitles()
+		job[ "IncludedFilesCustomizedList" ] = releaseInfo.IncludedFiles
+
+def MakeIncludedFilesTreeJson(includedFileList):
+	class TreeFile:
+		def __init__(self, name, includedFileItem):
+			self.Name = name
+			self.IncludedFileItem = includedFileItem
+	
+	class TreeDirectory:
+		def __init__(self, name):
+			self.Name = name
+			self.Directories = [] # Contains TreeDirectory.
+			self.Files = [] # Contains TreeFiles.
+			
+		# Adds directory if it not exists yet. Maintains sort order.
+		def __AddDirectoryInternal(self, name):
+			nameLower = name.lower()
+			for i in range( len( self.Directories ) ):
+				currentNameLower = self.Directories[ i ].Name.lower()
+				if currentNameLower == nameLower:
+					return self.Directories[ i ]
+				elif currentNameLower > nameLower:
+					newDirectory = TreeDirectory( name )
+					self.Directories.insert( i, newDirectory )
+					return newDirectory
+						
+			newDirectory = TreeDirectory( name )
+			self.Directories.append( newDirectory )
+			return newDirectory
+
+		# Adds file. Maintains sort order.
+		def __AddFileInternal(self, name, includedFileItem):
+			nameLower = name.lower()
+			for i in range( len( self.Files ) ):
+				currentNameLower = self.Files[ i ].Name.lower()
+				if currentNameLower > nameLower:
+					self.Files.insert( i, TreeFile( name, includedFileItem ) )
+					return
+						
+			self.Files.append( TreeFile( name, includedFileItem ) )
+
+		def AddFile(self, includedFileItem):
+			pathComponents = includedFileItem.Name.split( "/" )
+			parent = self
+			for i in range( len( pathComponents ) ):
+				pathComponent = pathComponents[ i ]
+				
+				# Last component is the file.
+				if i == ( len( pathComponents ) - 1 ):
+					parent.__AddFileInternal( pathComponent, includedFileItem )
+				else:
+					parent = parent.__AddDirectoryInternal( pathComponent )
+					
+		def GetListForJson(self, parentList):
+			for directory in self.Directories:
+				entry = { "title": directory.Name, "isFolder": True }
+				childList = []
+				directory.GetListForJson( childList )
+				if len( childList ) > 0:
+					entry[ "children" ] = childList
+				
+				parentList.append( entry )
+
+			for file in self.Files:
+				# OriginallySelected and IncludePath are custom properties.
+				# http://stackoverflow.com/questions/6012734/dynatree-where-can-i-store-additional-info-in-each-node
+				entry = {}
+				entry[ "title" ] = file.Name
+				entry[ "select" ] = file.IncludedFileItem.IsIncluded()
+				entry[ "OriginallySelected" ] = file.IncludedFileItem.IsDefaultIncluded()
+				entry[ "IncludePath" ] = file.IncludedFileItem.Name
+				parentList.append( entry )
+
+	root = TreeDirectory( u"" )
+
+	for entry in includedFileList.Files:
+		root.AddFile( entry )
+				
+	list = []
+	root.GetListForJson( list )
+	return list
+
+@app.route( "/ajaxgetincludedfilelist/", methods = [ "POST" ] )
+@requires_auth
+def ajaxGetIncludedFileList():
+	includedFileList = IncludedFileList()
+	jobId = request.values.get( "JobId" )
+	sourceTorrentFilePath = request.values.get( "SourceTorrentFilePath" )
+	releaseDownloadPath = request.values.get( "ReleaseDownloadPath" )
+	includedFilesCustomizedList = request.values.get( "IncludedFilesCustomizedList" )
+	
+	if jobId:
+		jobId = int( jobId )
+		releaseInfo = Database.DbSession.query( ReleaseInfo ).filter( ReleaseInfo.Id == jobId ).first()
+		announcementSource = MyGlobals.SourceFactory.GetSource( releaseInfo.AnnouncementSourceName )
+		if announcementSource:
+			includedFileList = announcementSource.GetIncludedFileList( releaseInfo )
+	elif sourceTorrentFilePath:
+		includedFileList.FromTorrent( sourceTorrentFilePath )
+	elif releaseDownloadPath:
+		includedFileList.FromDirectory( releaseDownloadPath )
+	else:
+		return jsonify( result = "ERROR" )
+
+	includedFileList.ApplyCustomizationFromJson( includedFilesCustomizedList )
+
+	return jsonify( result = "OK", files = MakeIncludedFilesTreeJson( includedFileList ) )

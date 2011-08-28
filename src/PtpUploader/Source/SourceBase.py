@@ -1,3 +1,4 @@
+from IncludedFileList import IncludedFileList
 from NfoParser import NfoParser
 from PtpUploaderException import PtpUploaderException
 from ReleaseExtractor import ReleaseExtractor
@@ -46,8 +47,8 @@ class SourceBase:
 		os.makedirs( uploadDirectory )
 
 	@staticmethod
-	def ExtractRelease(logger, releaseInfo):
-		ReleaseExtractor.Extract( logger, releaseInfo.GetReleaseDownloadPath(), releaseInfo.GetReleaseUploadPath() )
+	def ExtractRelease(logger, releaseInfo, includedFileList):
+		ReleaseExtractor.Extract( logger, releaseInfo.GetReleaseDownloadPath(), releaseInfo.GetReleaseUploadPath(), includedFileList )
 
 	@staticmethod
 	def ReadNfo(releaseInfo):
@@ -55,13 +56,22 @@ class SourceBase:
 
 	# Must returns with a tuple consisting of the list of video files and the list of additional files.
 	@staticmethod
-	def ValidateExtractedRelease(releaseInfo):
-		videoFiles, additionalFiles = ReleaseExtractor.ValidateDirectory( releaseInfo.Logger, releaseInfo.GetReleaseUploadPath() )
+	def ValidateExtractedRelease(releaseInfo, includedFileList):
+		videoFiles, additionalFiles = ReleaseExtractor.ValidateDirectory( releaseInfo.Logger, releaseInfo.GetReleaseUploadPath(), includedFileList )
 		if len( videoFiles ) < 1:
 			raise PtpUploaderException( "Upload path '%s' doesn't contains any video files." % releaseInfo.GetReleaseUploadPath() )
 
 		return videoFiles, additionalFiles
-	
+
+	@staticmethod
+	def GetIncludedFileList(releaseInfo):
+		includedFileList = IncludedFileList()
+		
+		if os.path.isfile( releaseInfo.SourceTorrentFilePath ):
+			includedFileList.FromTorrent( releaseInfo.SourceTorrentFilePath )
+
+		return includedFileList
+
 	@staticmethod
 	def GetTemporaryFolderForImagesAndTorrent(releaseInfo):
 		return releaseInfo.GetReleaseRootPath() 

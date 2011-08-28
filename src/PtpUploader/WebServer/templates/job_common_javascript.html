@@ -1,8 +1,21 @@
 {% block job_common_javascript %}
 
 <script src="{{ url_for( "static", filename = "script/jquery-1.5.2.min.js" ) }}"></script>
+<script src="{{ url_for( "static", filename = "script/jquery.blockUI.js" ) }}"></script>
 <script src="{{ url_for( "static", filename = "script/jquery.multiSelect/jquery.multiSelect.js" ) }}"></script>
 <link href="{{ url_for( "static", filename = "script/jquery.multiSelect/jquery.multiSelect.css" ) }}" rel="stylesheet" type="text/css" />
+<link href="{{ url_for( "static", filename = "script/dynatree/skin/ui.dynatree.css" ) }}" rel="stylesheet" type="text/css" />
+<script src="{{ url_for( "static", filename = "script/dynatree/jquery-ui.custom.min.js" ) }}"></script>
+<script src="{{ url_for( "static", filename = "script/dynatree/jquery.dynatree.min.js" ) }}"></script>
+
+<style type="text/css">
+	/* We don't want the selected items to be italic in dynatree, so we override the style. */
+	span.dynatree-selected a
+	{
+		color: green;
+		font-style: normal;
+	}
+</style>
 
 <script>
 	$(function ()
@@ -53,6 +66,80 @@
 			text = text.replace( /<a.*?href="(.+?)".*?><img.*?src="(.+?)".*?>.*?<\/a>/gi, "[url=$1][img]$2[/img][/url]" );
 
 			releaseNotes.val( text );
+		} );
+		
+		// Included files tree.
+		$( "#IncludedFilesToggle" ).click( function()
+		{
+			// Initialize the tree.
+			$( "#IncludedFilesTree" ).dynatree(
+			{
+				checkbox: true,
+				selectMode: 3, // multi-hier
+			} );
+
+			var rootNode = $( "#IncludedFilesTree" ).dynatree( "getRoot" );
+			
+			// Initialize the tree only once.
+			// This is needed because for torrent page link source we don't want to download the torrent file multiple times.
+			// It is against the rules on some sites to download the torrent multiple times.
+			if ( !rootNode.hasChildren() )
+			{
+				var url = "{{ url_for( "ajaxGetIncludedFileList" ) }}";
+				var postParameters =
+				{
+					"JobId": $( "#JobId" ).val(),
+					"SourceTorrentFilePath": $( "#uploaded_torrentfilename" ).val(),
+					"ReleaseDownloadPath": $( "#existingfile" ).val(),
+					"IncludedFilesCustomizedList": $( "#IncludedFilesCustomizedList" ).val()
+				};
+
+				$.post( url, postParameters, function(data)
+				{
+					if ( data.result == "OK" )
+					{
+						var rootNode = $( "#IncludedFilesTree" ).dynatree( "getRoot" );
+						rootNode.addChild( data.files );
+					}
+					else
+					{
+						alert( "Error!" );
+					}
+				} );
+			}
+
+			// We don't need wait cursor on the dialog.
+			delete $.blockUI.defaults.css.cursor;
+			
+			$.blockUI(
+			{
+				message: $( "#IncludedFilesDialog" ),
+				fadeIn: 0,
+				css:
+				{
+					width: $( "#IncludedFilesDialog" ).width() + "px",
+					left: ( $( window ).width() - $( "#IncludedFilesDialog" ).width() ) / 2 + 'px',
+					top: ( $( window ).height() - $( "#IncludedFilesDialog" ).height() ) / 2 + 'px',
+					textAlign: "left"
+				}
+			} );
+
+			$( ".blockOverlay" ).click( function()
+			{
+				var customizedFiles = {};
+
+				function IncludedFilesTreeNodeVisitor(node)
+				{
+					var selected = node.isSelected();
+					if ( !node.data.isFolder && selected != node.data.OriginallySelected )
+						customizedFiles[ node.data.IncludePath ] = selected;
+				}
+				
+				rootNode.visit( IncludedFilesTreeNodeVisitor, false ); // false - do not visit root
+				$( "#IncludedFilesCustomizedList" ).val( JSON.stringify( customizedFiles ) );
+
+				$.unblockUI( { fadeOut: 0 } );
+			} );
 		} );
 	} );
 </script>

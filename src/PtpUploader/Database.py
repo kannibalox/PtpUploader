@@ -35,6 +35,7 @@ def MigrateSchema():
 	# - column already exists, no need for schema migration: "duplicate column name"
 	# - the database has just been created, the table is not yet exists, no need for schema migration: "no such table"
 	try:
+		Database.DbSession.execute( """ALTER TABLE release ADD COLUMN IncludedFiles VARCHAR DEFAULT "";""" )
 		Database.DbSession.execute( """ALTER TABLE release ADD COLUMN PtpTorrentId VARCHAR DEFAULT "";""" )
 		Database.DbSession.execute( """ALTER TABLE release ADD COLUMN Subtitles VARCHAR DEFAULT "";""" )
 	except exc.OperationalError:

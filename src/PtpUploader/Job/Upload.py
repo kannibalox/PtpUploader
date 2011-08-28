@@ -18,6 +18,7 @@ class Upload(WorkerBase):
 	def __init__(self, jobManager, jobManagerItem, rtorrent):
 		phases = [
 			self.__CreateUploadPath,
+			self.__MakeIncludedFileList,
 			self.__ExtractRelease,
 			self.__ValidateExtractedRelease,
 			self.__MakeReleaseDescription,
@@ -33,6 +34,7 @@ class Upload(WorkerBase):
 		WorkerBase.__init__( self, phases, jobManager, jobManagerItem )
 		
 		self.Rtorrent = rtorrent
+		self.IncludedFileList = None
 		self.VideoFiles = []
 		self.AdditionalFiles = []
 		self.MainMediaInfo = None
@@ -54,19 +56,23 @@ class Upload(WorkerBase):
 
 		self.ReleaseInfo.SetJobPhaseFinished( FinishedJobPhase.Upload_CreateUploadPath )
 		Database.DbSession.commit()
+		
+	def __MakeIncludedFileList(self):
+		self.IncludedFileList = self.ReleaseInfo.AnnouncementSource.GetIncludedFileList( self.ReleaseInfo )
+		self.IncludedFileList.ApplyCustomizationFromJson( self.ReleaseInfo.IncludedFiles )
 
 	def __ExtractRelease(self):
 		if self.ReleaseInfo.IsJobPhaseFinished( FinishedJobPhase.Upload_ExtractRelease ):
 			self.ReleaseInfo.Logger.info( "Extract release phase has been reached previously, not extracting release again." )
 			return
 		
-		self.ReleaseInfo.AnnouncementSource.ExtractRelease( self.ReleaseInfo.Logger, self.ReleaseInfo )
+		self.ReleaseInfo.AnnouncementSource.ExtractRelease( self.ReleaseInfo.Logger, self.ReleaseInfo, self.IncludedFileList )
 
 		self.ReleaseInfo.SetJobPhaseFinished( FinishedJobPhase.Upload_ExtractRelease )
 		Database.DbSession.commit()
 
 	def __ValidateExtractedRelease(self):
-		self.VideoFiles, self.AdditionalFiles = self.ReleaseInfo.AnnouncementSource.ValidateExtractedRelease( self.ReleaseInfo )
+		self.VideoFiles, self.AdditionalFiles = self.ReleaseInfo.AnnouncementSource.ValidateExtractedRelease( self.ReleaseInfo, self.IncludedFileList )
 
 	def __GetMediaInfoContainer(self, mediaInfo):
 		container = ""

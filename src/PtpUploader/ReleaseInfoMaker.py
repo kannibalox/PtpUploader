@@ -1,6 +1,7 @@
 from Tool.MakeTorrent import MakeTorrent
 from Tool.Rtorrent import Rtorrent
 
+from IncludedFileList import IncludedFileList
 from MyGlobals import MyGlobals
 from NfoParser import NfoParser
 from PtpUploaderException import *
@@ -30,7 +31,8 @@ class ReleaseInfoMaker:
 			# Make sure that path doesn't ends with a trailing slash or else os.path.split would return with wrong values.
 			self.Path = self.Path.rstrip( "\\/" )
 
-			self.VideoFiles, self.AdditionalFiles = ReleaseExtractor.ValidateDirectory( MyGlobals.Logger, self.Path, throwExceptionForUnsupportedFiles = False )
+			includedFileList = IncludedFileList()
+			self.VideoFiles, self.AdditionalFiles = ReleaseExtractor.ValidateDirectory( MyGlobals.Logger, self.Path, includedFileList, throwExceptionForUnsupportedFiles = False )
 			if len( self.VideoFiles ) <= 0:
 				print "Path '%s' doesn't contains any videos!" % self.Path
 				return False

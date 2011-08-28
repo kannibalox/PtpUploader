@@ -1,6 +1,7 @@
 from Source.SourceBase import SourceBase
 
 from Helper import GetPathSize
+from IncludedFileList import IncludedFileList
 from MyGlobals import MyGlobals
 from NfoParser import NfoParser
 from PtpUploaderException import PtpUploaderException
@@ -56,11 +57,11 @@ class File(SourceBase):
 			SourceBase.CreateUploadDirectory( releaseInfo )
 	
 	@staticmethod
-	def ExtractRelease(logger, releaseInfo):
+	def ExtractRelease(logger, releaseInfo, includedFileList):
 		if not releaseInfo.SourceIsAFile:
 			# Add the top level PTP directory to the ignore list because that is where we extract the release.
 			topLevelDirectoriesToIgnore = [ File.UploadDirectoryName.lower() ]
-			ReleaseExtractor.Extract( logger, releaseInfo.GetReleaseDownloadPath(), releaseInfo.GetReleaseUploadPath(), topLevelDirectoriesToIgnore )
+			ReleaseExtractor.Extract( logger, releaseInfo.GetReleaseDownloadPath(), releaseInfo.GetReleaseUploadPath(), includedFileList, topLevelDirectoriesToIgnore )
 
 	@staticmethod
 	def ReadNfo(releaseInfo):
@@ -75,12 +76,22 @@ class File(SourceBase):
 			SourceBase.ReadNfo( releaseInfo )
 
 	@staticmethod
-	def ValidateExtractedRelease(releaseInfo):
+	def ValidateExtractedRelease(releaseInfo, includedFileList):
 		if releaseInfo.SourceIsAFile:
 			return [ releaseInfo.GetReleaseDownloadPath() ], []
 		else:
-			return SourceBase.ValidateExtractedRelease( releaseInfo )
+			return SourceBase.ValidateExtractedRelease( releaseInfo, includedFileList )
 	
+	@staticmethod
+	def GetIncludedFileList(releaseInfo):
+		includedFileList = IncludedFileList()
+
+		path = releaseInfo.GetReleaseDownloadPath()
+		if os.path.isdir( path ):
+			includedFileList.FromDirectory( path )
+
+		return includedFileList
+
 	@staticmethod
 	def GetTemporaryFolderForImagesAndTorrent(releaseInfo):
 		if releaseInfo.SourceIsAFile:
@@ -91,3 +102,4 @@ class File(SourceBase):
 	@staticmethod
 	def IsSingleFileTorrentNeedsDirectory(releaseInfo):
 		return not releaseInfo.SourceIsAFile
+	

@@ -9,6 +9,7 @@ app = Flask( __name__ )
 
 import WebServer.MovieAvailabilityCheck
 import WebServer.EditJob
+import WebServer.JobCommon
 import WebServer.Jobs
 import WebServer.ServerMain
 import WebServer.Upload
