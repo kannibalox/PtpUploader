@@ -70,7 +70,7 @@ class ReleaseExtractorInternal:
 			releaseExtractor.Extract()
 
 	def __HandleFile(self, entryName, entryPath):
-		if self.IncludedFileList.IsIgnored( self.__MakeRelativeSourcePath( entryName ) ):
+		if self.IncludedFileList.IsIgnored( self.__MakeRelativeSourcePath( entryName ) ) or Unrar.IsFirstRar( entryName ):
 			return
 
 		# Make hard link from supported files.
