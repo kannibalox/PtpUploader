@@ -66,12 +66,15 @@ class Cinemageddon(SourceBase):
 		releaseInfo.ReleaseName = matches.group( 2 )
 
 		# Get source and format type
-		matches = re.search( r"torrent details for &quot;(.+) \[(\d+)/(.+)/(.+)\]&quot;", description )
-		if matches is None:
-			raise PtpUploaderException( JobRunningState.Ignored_MissingInfo, "Can't get release source and format type from torrent page." )
-		
-		sourceType = matches.group( 3 )
-		formatType = matches.group( 4 )
+		sourceType = ""
+		formatType = ""
+		if ( not releaseInfo.IsSourceSet() ) or ( not releaseInfo.IsCodecSet() ):
+			matches = re.search( r"torrent details for &quot;(.+) \[(\d+)/(.+)/(.+)\]&quot;", description )
+			if matches is None:
+				raise PtpUploaderException( JobRunningState.Ignored_MissingInfo, "Can't get release source and format type from torrent page." )
+			
+			sourceType = matches.group( 3 )
+			formatType = matches.group( 4 )
 
 		# Get IMDb id.
 		if ( not releaseInfo.HasImdbId() ) and ( not releaseInfo.HasPtpId() ):
