@@ -8,9 +8,12 @@ from IncludedFileList import IncludedFileList
 from MyGlobals import MyGlobals
 from NfoParser import NfoParser
 from ReleaseInfo import ReleaseInfo
+from Settings import Settings
 
 from flask import jsonify, request
+from werkzeug import secure_filename
 
+import os
 import urlparse
 
 class JobCommon:
@@ -265,7 +268,7 @@ def MakeIncludedFilesTreeJson(includedFileList):
 def ajaxGetIncludedFileList():
 	includedFileList = IncludedFileList()
 	jobId = request.values.get( "JobId" )
-	sourceTorrentFilePath = request.values.get( "SourceTorrentFilePath" )
+	sourceTorrentFilename = request.values.get( "SourceTorrentFilename" )
 	releaseDownloadPath = request.values.get( "ReleaseDownloadPath" )
 	includedFilesCustomizedList = request.values.get( "IncludedFilesCustomizedList" )
 	
@@ -275,8 +278,10 @@ def ajaxGetIncludedFileList():
 		announcementSource = MyGlobals.SourceFactory.GetSource( releaseInfo.AnnouncementSourceName )
 		if announcementSource:
 			includedFileList = announcementSource.GetIncludedFileList( releaseInfo )
-	elif sourceTorrentFilePath:
-		includedFileList.FromTorrent( sourceTorrentFilePath )
+	elif sourceTorrentFilename:
+		sourceTorrentFilename = secure_filename( sourceTorrentFilename )
+		sourceTorrentFilename = os.path.join( Settings.GetTemporaryPath(), sourceTorrentFilename )
+		includedFileList.FromTorrent( sourceTorrentFilename )
 	elif releaseDownloadPath:
 		includedFileList.FromDirectory( releaseDownloadPath )
 	else:
