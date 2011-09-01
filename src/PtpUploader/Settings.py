@@ -103,7 +103,7 @@ class Settings(object):
 	def GetDefault(section, option, default, raw = False):
 		try:
 			return Settings.configParser.get( section, option, raw = raw )
-		except ConfigParser.NoOptionError:
+		except ( ConfigParser.NoOptionError, ConfigParser.NoSectionError ):
 			return default
 
 	@staticmethod
