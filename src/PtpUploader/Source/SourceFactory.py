@@ -2,6 +2,7 @@ from Source.Cinemageddon import Cinemageddon
 from Source.Cinematik import Cinematik
 from Source.File import File
 from Source.Gft import Gft
+from Source.Karagarga import Karagarga
 from Source.SceneAccess import SceneAccess
 from Source.Torrent import Torrent
 from Source.TorrentLeech import TorrentLeech
@@ -24,6 +25,11 @@ class SourceFactory:
 		if Gft.IsEnabled():
 			Gft.Login()
 		self.__AddSource( Gft() )
+		
+		karagarga = Karagarga()
+		if karagarga.IsEnabled():
+			karagarga.Login()
+		self.__AddSource( karagarga )
 
 		if SceneAccess.IsEnabled():
 			SceneAccess.Login()

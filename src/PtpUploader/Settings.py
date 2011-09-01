@@ -100,9 +100,16 @@ class Settings(object):
 			return default
 
 	@staticmethod
+	def GetDefault(section, option, default, raw = False):
+		try:
+			return Settings.configParser.get( section, option, raw = raw )
+		except ConfigParser.NoOptionError:
+			return default
+
+	@staticmethod
 	def LoadSettings():
-		configParser = ConfigParser.ConfigParser()
-		configParser.optionxform = str # Make option names case sensitive.
+		Settings.configParser = configParser = ConfigParser.ConfigParser()
+		Settings.configParser.optionxform = str # Make option names case sensitive.
 		
 		# Load Settings.ini from the same directory where PtpUploader is.
 		settingsDirectory, moduleFilename = os.path.split( __file__ ) # __file__ contains the full path of the current running module

@@ -100,7 +100,7 @@ class Cinemageddon(SourceBase):
 			raise PtpUploaderException( JobRunningState.Ignored_Forbidden, "Marked as XXX." )
 		
 		# Make sure that this is not a wrongly categorized DVDR.
-		if re.search( ".vob</td>", description, re.IGNORECASE ) or re.search( ".iso</td>", description, re.IGNORECASE ):
+		if re.search( r"\.vob</td>", description, re.IGNORECASE ) or re.search( r"\.iso</td>", description, re.IGNORECASE ):
 			raise PtpUploaderException( JobRunningState.Ignored_NotSupported, "Wrongly categorized DVDR." )
 		
 		return sourceType, formatType
@@ -148,7 +148,7 @@ class Cinemageddon(SourceBase):
 		if releaseInfo.IsUserCreatedJob():
 			sourceType, formatType = Cinemageddon.__DownloadNfo( logger, releaseInfo )
 		else:
-			# TODO: add filterting support for Cinemageddon
+			# TODO: add filtering support for Cinemageddon
 			# In case of automatic announcement we have to check the release name if it is valid.
 			# We know the release name from the announcement, so we can filter it without downloading anything (yet) from the source. 
 			#if not ReleaseFilter.IsValidReleaseName( releaseInfo.ReleaseName ):
