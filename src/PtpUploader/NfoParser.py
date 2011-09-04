@@ -92,7 +92,7 @@ class NfoParser:
 				nfo += "\n"
 				previousLineWasEmpty = True
 
-		return nfo
+		return nfo.strip()
 
 	# If there are multiple NFOs it returns with empty string.
 	@staticmethod

@@ -154,6 +154,10 @@ class ReleaseDescriptionFormatter:
 		if len( self.ReleaseInfo.ReleaseNotes ) > 0:
 			releaseDescription += u"%s\n\n" % self.ReleaseInfo.ReleaseNotes
 
+		# Add NFO if presents
+		if len( self.ReleaseInfo.Nfo ) > 0:
+			releaseDescription += u"[hide=NFO][pre]%s[/pre][/hide]\n\n" % self.ReleaseInfo.Nfo
+
 		# Show screens before the file name if only one video have screenshots.
 		firstEntryWithScreenshots = self.__GetFirstEntryWithScreenshotsIfThereIsOnlyOne()
 		if firstEntryWithScreenshots is not None:
@@ -169,10 +173,6 @@ class ReleaseDescriptionFormatter:
 				releaseDescription += entry.ToReleaseDescription()
 
 			releaseDescription += entry.MediaInfo.FormattedMediaInfo
-
-		# Add NFO if presents
-		if len( self.ReleaseInfo.Nfo ) > 0:
-			releaseDescription += u"[size=3][u]NFO[/u][/size]:[pre]\n%s\n[/pre]" % self.ReleaseInfo.Nfo
 
 		return releaseDescription
 	
