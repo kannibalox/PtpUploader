@@ -90,16 +90,20 @@ class Karagarga(SourceBase):
 		ripSpecs = ripSpecs.group( 1 )
 		
 		if re.search( r"\[Video\] Codec.*?: XviD", ripSpecs, re.IGNORECASE ) or\
-		   re.search( r"Video Codec.*?: XviD", ripSpecs, re.IGNORECASE ) or\
-		   re.search( r"Video Codec.*?: XviD ISO MPEG-4", ripSpecs, re.IGNORECASE ) or\
-		   re.search( r"Video Format.*?: XviD", ripSpecs, re.IGNORECASE ) or\
-		   re.search( r"Codec.*?: XviD", ripSpecs, re.IGNORECASE ):
+			re.search( r"Video Codec.*?: XviD", ripSpecs, re.IGNORECASE ) or\
+			re.search( r"Video Codec.*?: XviD ISO MPEG-4", ripSpecs, re.IGNORECASE ) or\
+			re.search( r"Video Format.*?: XviD", ripSpecs, re.IGNORECASE ) or\
+			re.search( r"Codec.*?: XviD", ripSpecs, re.IGNORECASE ):
 			releaseInfo.Codec = "XviD"
 		elif re.search( r"\[Video\] Codec.*?: DivX", ripSpecs, re.IGNORECASE ) or\
-		   re.search( r"Video Codec.*?: DivX", ripSpecs, re.IGNORECASE ) or\
-		   re.search( r"Video Format.*?: DivX", ripSpecs, re.IGNORECASE ) or\
-		   re.search( r"Codec.*?: DivX", ripSpecs, re.IGNORECASE ):
+			re.search( r"Video Codec.*?: DivX", ripSpecs, re.IGNORECASE ) or\
+			re.search( r"Video Format.*?: DivX", ripSpecs, re.IGNORECASE ) or\
+			re.search( r"Codec.*?: DivX", ripSpecs, re.IGNORECASE ):
 			releaseInfo.Codec = "DivX"
+		elif re.search( r"Codec ID.*?:.*?V_MPEG4/ISO/AVC", ripSpecs, re.IGNORECASE ) or\
+			re.search( r"Codec.*?:.*?x264", ripSpecs, re.IGNORECASE ) or\
+			re.search( r"Video Codec.*?:.*?V_MPEG4/ISO/AVC", ripSpecs, re.IGNORECASE ):
+			releaseInfo.Codec = "x264"
 		else:
 			raise PtpUploaderException( JobRunningState.Ignored_NotSupported, "Unsupported format type '%s'." % formatType )
 
