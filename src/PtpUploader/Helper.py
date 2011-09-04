@@ -1,5 +1,7 @@
 from Tool.PyrocoreBencode import bencode
 
+from PtpUploaderException import *
+
 import os
 import re
 
@@ -84,3 +86,9 @@ def RemoveDisallowedCharactersFromPath(text):
 		return newText
 	else:
 		raise PtpUploaderException( "New name for '%s' resulted in empty string." % text )
+
+def ValidateTorrentFile(torrentPath):
+	try:
+		torrentData = bencode.bread( torrentPath )
+	except Exception:
+		raise PtpUploaderException( "File '%s' is not a valid torrent." % torrentPath )

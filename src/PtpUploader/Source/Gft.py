@@ -195,6 +195,8 @@ class Gft(SourceBase):
 		file = open( path, "wb" );
 		file.write( response );
 		file.close();
+		
+		# Calling Helper.ValidateTorrentFile is not needed because NfoParser.IsTorrentContainsMultipleNfos will throw an exception if it is not a valid torrent file.
 
 		# If a torrent contains multiple NFO files then it is likely that the site also showed the wrong NFO and we have checked the existence of another movie on PTP.
 		# So we abort here. These errors happen rarely anyway.

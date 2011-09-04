@@ -162,6 +162,8 @@ class TorrentLeech(SourceBase):
 		file.write( response )
 		file.close()
 
+		# Calling Helper.ValidateTorrentFile is not needed because NfoParser.IsTorrentContainsMultipleNfos will throw an exception if it is not a valid torrent file.
+
 		# If a torrent contains multiple NFO files then it is likely that the site also showed the wrong NFO and we have checked the existence of another movie on PTP.
 		# So we abort here. These errors happen rarely anyway.
 		# (We could also try read the NFO with the same name as the release or with the same name as the first RAR and reschedule for checking with the correct IMDb id.)

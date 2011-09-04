@@ -2,7 +2,7 @@
 from Job.JobRunningState import JobRunningState
 from Source.SourceBase import SourceBase
 
-from Helper import GetSizeFromText, RemoveDisallowedCharactersFromPath
+from Helper import GetSizeFromText, RemoveDisallowedCharactersFromPath, ValidateTorrentFile
 from MyGlobals import MyGlobals
 from NfoParser import NfoParser
 from PtpUploaderException import PtpUploaderException
@@ -172,7 +172,9 @@ class Cinemageddon(SourceBase):
 		file = open( path, "wb" )
 		file.write( response )
 		file.close()
-		
+
+		ValidateTorrentFile( path )
+
 	# Because some of the releases on CG do not contain the full name of the movie, we have to rename them because of the uploading rules on PTP.
 	# The new name will be formatted like this: Movie Name Year
 	@staticmethod

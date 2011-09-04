@@ -2,10 +2,10 @@
 from Job.JobRunningState import JobRunningState
 from Source.SourceBase import SourceBase
 
-from Helper import GetSizeFromText, RemoveDisallowedCharactersFromPath
+from Helper import GetSizeFromText, RemoveDisallowedCharactersFromPath, ValidateTorrentFile
 from MyGlobals import MyGlobals
 from NfoParser import NfoParser
-from PtpUploaderException import PtpUploaderException
+from PtpUploaderException import *
 from ReleaseExtractor import ReleaseExtractor;
 from ReleaseInfo import ReleaseInfo;
 from Settings import Settings
@@ -195,6 +195,8 @@ class Karagarga(SourceBase):
 		file = open( path, "wb" )
 		file.write( response )
 		file.close()
+
+		ValidateTorrentFile( path )
 
 	def IncludeReleaseNameInReleaseDescription(self):
 		return False

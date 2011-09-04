@@ -2,7 +2,7 @@
 from Job.JobRunningState import JobRunningState
 from Source.SourceBase import SourceBase
 
-from Helper import GetSizeFromText, GetFileListFromTorrent, RemoveDisallowedCharactersFromPath
+from Helper import GetSizeFromText, GetFileListFromTorrent, RemoveDisallowedCharactersFromPath, ValidateTorrentFile
 from MyGlobals import MyGlobals
 from NfoParser import NfoParser
 from PtpUploaderException import PtpUploaderException
@@ -168,6 +168,7 @@ class Cinematik(SourceBase):
 		file.write( response )
 		file.close()
 
+		ValidateTorrentFile( path )
 		Cinematik.__ValidateTorrentFile( path )
 		
 	# TODO: Cinematik: use a shared function with Cinemageddon
