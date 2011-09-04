@@ -22,7 +22,7 @@ class Ptp:
 		if len( Settings.PtpPassword ) <= 0:
 			raise PtpUploaderInvalidLoginException( "Couldn't log in to PTP. Your password is not specified.." )
 
-		MyGlobals.Logger.info( "Loggin in to PTP." );
+		MyGlobals.Logger.info( "Logging in to PTP." );
 		opener = urllib2.build_opener( urllib2.HTTPCookieProcessor( MyGlobals.CookieJar ) );
 		postData = urllib.urlencode( { "username": Settings.PtpUserName, "password": Settings.PtpPassword, "keeplogged": "1" } )
 		request = urllib2.Request( "http://passthepopcorn.me/login.php", postData );

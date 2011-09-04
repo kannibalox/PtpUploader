@@ -26,7 +26,7 @@ class Cinematik(SourceBase):
 
 	@staticmethod
 	def Login():
-		MyGlobals.Logger.info( "Loggin in to Cinematik." )
+		MyGlobals.Logger.info( "Logging in to Cinematik." )
 
 		opener = urllib2.build_opener( urllib2.HTTPCookieProcessor( MyGlobals.CookieJar ) )
 		postData = urllib.urlencode( { "username": Settings.CinematikUserName, "password": Settings.CinematikPassword } )

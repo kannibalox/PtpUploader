@@ -26,7 +26,7 @@ class Cinemageddon(SourceBase):
 
 	@staticmethod
 	def Login():
-		MyGlobals.Logger.info( "Loggin in to Cinemageddon." )
+		MyGlobals.Logger.info( "Logging in to Cinemageddon." )
 		opener = urllib2.build_opener( urllib2.HTTPCookieProcessor( MyGlobals.CookieJar ) )
 		postData = urllib.urlencode( { "username": Settings.CinemageddonUserName, "password": Settings.CinemageddonPassword } )
 		request = urllib2.Request( "http://cinemageddon.net/takelogin.php", postData )

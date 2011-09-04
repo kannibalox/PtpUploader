@@ -26,7 +26,7 @@ class SceneAccess(SourceBase):
 
 	@staticmethod
 	def Login():
-		MyGlobals.Logger.info( "Loggin in to SceneAccess." );
+		MyGlobals.Logger.info( "Logging in to SceneAccess." );
 		
 		opener = urllib2.build_opener( urllib2.HTTPCookieProcessor( MyGlobals.CookieJar ) )
 		postData = urllib.urlencode( { "username": Settings.SceneAccessUserName, "password": Settings.SceneAccessPassword } )

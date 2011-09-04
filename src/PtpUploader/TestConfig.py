@@ -14,7 +14,7 @@ import urllib2
 class TestGft:
 	@staticmethod
 	def Login():
-		MyGlobals.Logger.info( "Loggin in to GFT." );
+		MyGlobals.Logger.info( "Logging in to GFT." );
 		
 		# GFT stores a cookie when login.php is loaded that is needed for takeloin.php. 
 		opener = urllib2.build_opener( urllib2.HTTPCookieProcessor( MyGlobals.CookieJar ) )
