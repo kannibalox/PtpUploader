@@ -105,7 +105,7 @@ class Karagarga(SourceBase):
 			re.search( r"Video Codec.*?:.*?V_MPEG4/ISO/AVC", ripSpecs, re.IGNORECASE ):
 			releaseInfo.Codec = "x264"
 		else:
-			raise PtpUploaderException( JobRunningState.Ignored_NotSupported, "Unsupported format type '%s'." % formatType )
+			raise PtpUploaderException( JobRunningState.Ignored_NotSupported, "Can't figure out codec from the rip specifications." )
 
 	def __DownloadNfo(self, logger, releaseInfo):
 		url = "http://karagarga.net/details.php?id=%s&filelist=1" % releaseInfo.AnnouncementId
