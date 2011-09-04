@@ -52,6 +52,47 @@ feeds:
           extract: 'http://www\.thegft\.org/details\.php\?id=(\d+).*'
     exec: echo >> "/path to WorkingDirectory/announcement/[source=gft][id=%(TorrentId)s][title=%(title)s]"
 
+# Karagarga
+  _karagarga:
+    rss:
+      url: https://karagarga.net/rss.php?passkey=AAAAAAAAAAAAAAAA&user=AAAAAAAAAAAAAAAA
+      # Force ASCII just to be sure.
+      ascii: yes
+    regexp:
+      from: title
+      reject:
+        # Ignore literature.
+        - .+\[Audiobooks\]$
+        - .+\[Books\]$
+        - .+\[Comics\]$
+        # Ignore music. (Experimental can't be ignored because it is also a movie genre.)
+        - .+\[Blues\]$
+        - .+\[Classical\]$
+        - .+\[Country\]$
+        - .+\[Electronica\]$
+        - .+\[Exotica\]$
+        - .+\[Folk\]$
+        - .+\[Funk\]$
+        - .+\[Indie\]$
+        - .+\[Jazz\]$
+        - .+\[Latin\]$
+        - .+\[Live\]$
+        - .+\[Metal\]$
+        - .+\[Punk & Hardcore\]$
+        - .+\[Rap & Hiphop\]$
+        - .+\[Reggae\]$
+        - .+\[Rock\]$
+        - .+\[Soul\]$
+        - .+\[Soundtrack\]$
+        - .+\[World\]$
+    accept_all: yes
+    manipulate:
+      # Create TorrentId field by extracting the ID from the URL.
+      - TorrentId:
+          from: url
+          extract: 'http://karagarga.net/details.php\?id=(\d+)'
+    exec: echo >> "/path to WorkingDirectory/announcement/[source=kg][id=%(TorrentId)s][title=none]"
+
 # SceneAccess
   _sceneaccess:
     rss:
