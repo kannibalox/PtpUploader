@@ -32,7 +32,7 @@ class Karagarga(SourceBase):
 		if len( self.Password ) <= 0:
 			raise PtpUploaderInvalidLoginException( "Couldn't log in to Karagarga. Your password is not specified.." )
 	
-		MyGlobals.Logger.info( "Loggin in to Karagarga." )
+		MyGlobals.Logger.info( "Logging in to Karagarga." )
 		opener = urllib2.build_opener( urllib2.HTTPCookieProcessor( MyGlobals.CookieJar ) )
 		postData = urllib.urlencode( { "username": self.Username, "password": self.Password } )
 		request = urllib2.Request( "http://karagarga.net/takelogin.php", postData )
@@ -98,7 +98,8 @@ class Karagarga(SourceBase):
 		elif re.search( r"\[Video\] Codec.*?: DivX", ripSpecs, re.IGNORECASE ) or\
 			re.search( r"Video Codec.*?: DivX", ripSpecs, re.IGNORECASE ) or\
 			re.search( r"Video Format.*?: DivX", ripSpecs, re.IGNORECASE ) or\
-			re.search( r"Codec.*?: DivX", ripSpecs, re.IGNORECASE ):
+			re.search( r"Codec.*?: DivX", ripSpecs, re.IGNORECASE ) or\
+			re.search( r"Video Codecs Used -> DivX", ripSpecs, re.IGNORECASE ):
 			releaseInfo.Codec = "DivX"
 		elif re.search( r"Codec ID.*?:.*?V_MPEG4/ISO/AVC", ripSpecs, re.IGNORECASE ) or\
 			re.search( r"Codec.*?:.*?x264", ripSpecs, re.IGNORECASE ) or\
