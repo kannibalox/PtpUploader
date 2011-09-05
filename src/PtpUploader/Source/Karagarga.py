@@ -90,22 +90,20 @@ class Karagarga(SourceBase):
 			raise PtpUploaderException( JobRunningState.Ignored_MissingInfo, "Rip specifications can't be found on the page." )			
 		
 		ripSpecs = ripSpecs.group( 1 )
+
+		# Some program makes a stupid format like this 'Video Codec Type(e.g. "DIV3"): xvid', so we have to handle this specially.
+		match = re.search( r"""Video Codec Type.*?\(e\.g\..+?\):(.+)""", ripSpecs, re.IGNORECASE )
+		if match:
+			ripSpecs = "Codec: " + match.group( 1 )
 		
-		if re.search( r"\[Video\] Codec.*?: XviD", ripSpecs, re.IGNORECASE ) or\
-			re.search( r"Video Codec.*?: XviD", ripSpecs, re.IGNORECASE ) or\
-			re.search( r"Video Codec.*?: XviD ISO MPEG-4", ripSpecs, re.IGNORECASE ) or\
-			re.search( r"Video Format.*?: XviD", ripSpecs, re.IGNORECASE ) or\
-			re.search( r"Codec.*?: XviD", ripSpecs, re.IGNORECASE ):
+		if re.search( r"Codec.+?XviD", ripSpecs, re.IGNORECASE ) or\
+			re.search( r"Video Format.+?XviD", ripSpecs, re.IGNORECASE ):
 			releaseInfo.Codec = "XviD"
-		elif re.search( r"\[Video\] Codec.*?: DivX", ripSpecs, re.IGNORECASE ) or\
-			re.search( r"Video Codec.*?: DivX", ripSpecs, re.IGNORECASE ) or\
-			re.search( r"Video Format.*?: DivX", ripSpecs, re.IGNORECASE ) or\
-			re.search( r"Codec.*?: DivX", ripSpecs, re.IGNORECASE ) or\
-			re.search( r"Video Codecs Used -> DivX", ripSpecs, re.IGNORECASE ):
+		elif re.search( r"Codec.+?DivX", ripSpecs, re.IGNORECASE ) or\
+			re.search( r"Video Format.+?DivX", ripSpecs, re.IGNORECASE ):
 			releaseInfo.Codec = "DivX"
-		elif re.search( r"Codec ID.*?:.*?V_MPEG4/ISO/AVC", ripSpecs, re.IGNORECASE ) or\
-			re.search( r"Codec.*?:.*?x264", ripSpecs, re.IGNORECASE ) or\
-			re.search( r"Video Codec.*?:.*?V_MPEG4/ISO/AVC", ripSpecs, re.IGNORECASE ):
+		elif re.search( r"Codec.+?V_MPEG4/ISO/AVC", ripSpecs, re.IGNORECASE ) or\
+			re.search( r"Codec.+?x264", ripSpecs, re.IGNORECASE ):
 			releaseInfo.Codec = "x264"
 		else:
 			raise PtpUploaderException( JobRunningState.Ignored_NotSupported, "Can't figure out codec from the rip specifications." )
