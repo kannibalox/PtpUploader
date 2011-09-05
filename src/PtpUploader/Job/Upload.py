@@ -105,6 +105,10 @@ class Upload(WorkerBase):
 			codec = "x264"
 			if mediaInfo.IsAvi():
 				raise PtpUploaderException( "X264 in AVI is not allowed." )
+		elif mediaInfo.IsH264():
+			codec = "H.264"
+			if mediaInfo.IsAvi():
+				raise PtpUploaderException( "H.264 in AVI is not allowed." )
 		elif mediaInfo.IsXvid():
 			codec = "XviD"
 			if mediaInfo.IsMkv():

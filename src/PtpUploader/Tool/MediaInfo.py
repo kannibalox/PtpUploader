@@ -154,3 +154,6 @@ class MediaInfo:
 
 	def IsX264(self):
 		return self.Codec == "v_mpeg4/iso/avc"
+		
+	def IsH264(self):
+		return self.Codec == "h264"
