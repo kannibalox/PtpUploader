@@ -166,7 +166,7 @@ class Karagarga(SourceBase):
 		self.__DownloadNfoParseFormatType( releaseInfo, description )
 		
 		# Make sure that this is not a wrongly categorized DVDR.
-		if re.search( r"<td>.+?\.vob</td>", description, re.IGNORECASE ) or re.search( r"<td>.+?\.iso</td>", description, re.IGNORECASE ):
+		if ( not releaseInfo.IsDvdImage() ) and ( re.search( r"<td>.+?\.vob</td>", description, re.IGNORECASE ) or re.search( r"<td>.+?\.iso</td>", description, re.IGNORECASE ) ):
 			raise PtpUploaderException( JobRunningState.Ignored_NotSupported, "Wrongly categorized DVDR." )
 	
 	def PrepareDownload(self, logger, releaseInfo):
