@@ -20,7 +20,7 @@ class Karagarga(SourceBase):
 		self.Name = "kg"
 		self.Username = Settings.GetDefault( "Karagarga", "Username", "" )
 		self.Password = Settings.GetDefault( "Karagarga", "Password", "" )
-		self.MaximumParallelDownloads = int( Settings.GetDefault( "Karagarga", "MaximumParallelDownloads", "1" ) )
+		self.MaximumParallelDownloads = int( Settings.GetDefault( "Karagarga", "MaximumParallelDownloads", "4" ) )
 
 	def IsEnabled(self):
 		return len( self.Username ) > 0 and len( self.Password ) > 0
@@ -65,7 +65,9 @@ class Karagarga(SourceBase):
 			if notSupportedSourceType == "dvdr" or notSupportedSourceType == "hd":
 				sourceType = notSupportedSourceType
 
-		if sourceType == "dvdrip":
+		if sourceType == "blu-ray":
+			releaseInfo.Source = "Blu-ray"
+		elif sourceType == "dvdrip":
 			releaseInfo.Source = "DVD"
 		elif sourceType == "vhsrip":
 			releaseInfo.Source = "VHS"
