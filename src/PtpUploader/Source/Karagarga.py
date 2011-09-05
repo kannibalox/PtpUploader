@@ -20,7 +20,7 @@ class Karagarga(SourceBase):
 		self.Name = "kg"
 		self.Username = Settings.GetDefault( "Karagarga", "Username", "" )
 		self.Password = Settings.GetDefault( "Karagarga", "Password", "" )
-		self.MaximumParallelDownloads = int( Settings.GetDefault( "Settings", "MaximumParallelDownloads", "1" ) )
+		self.MaximumParallelDownloads = int( Settings.GetDefault( "Karagarga", "MaximumParallelDownloads", "1" ) )
 
 	def IsEnabled(self):
 		return len( self.Username ) > 0 and len( self.Password ) > 0
