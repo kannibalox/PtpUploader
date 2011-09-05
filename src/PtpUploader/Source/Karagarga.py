@@ -91,7 +91,7 @@ class Karagarga(SourceBase):
 		
 		ripSpecs = ripSpecs.group( 1 )
 
-		# Some program makes a stupid format like this 'Video Codec Type(e.g. "DIV3"): xvid', so we have to handle this specially.
+		# Some program makes a stupid output like this 'Video Codec Type(e.g. "DIV3"): xvid', so we have to handle this specially.
 		match = re.search( r"""Video Codec Type.*?\(e\.g\..+?\):(.+)""", ripSpecs, re.IGNORECASE )
 		if match:
 			ripSpecs = "Codec: " + match.group( 1 )
