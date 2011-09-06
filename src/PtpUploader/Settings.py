@@ -109,8 +109,7 @@ class Settings(object):
 	@staticmethod
 	def LoadSettings():
 		Settings.configParser = configParser = ConfigParser.ConfigParser()
-		Settings.configParser.optionxform = str # Make option names case sensitive.
-		
+
 		# Load Settings.ini from the same directory where PtpUploader is.
 		settingsDirectory, moduleFilename = os.path.split( __file__ ) # __file__ contains the full path of the current running module
 		settingsPath = os.path.join( settingsDirectory, "Settings.ini" )
@@ -125,25 +124,6 @@ class Settings(object):
 		Settings.PtpAnnounceUrl = configParser.get( "Settings", "PtpAnnounceUrl" )
 		Settings.PtpUserName = configParser.get( "Settings", "PtpUserName" )
 		Settings.PtpPassword = configParser.get( "Settings", "PtpPassword" )
-		Settings.GftUserName = Settings.__GetDefault( configParser, "Settings", "GftUserName", "" )
-		Settings.GftPassword = Settings.__GetDefault( configParser, "Settings", "GftPassword", "" )
-		Settings.GftMaximumParallelDownloads = int( Settings.__GetDefault( configParser, "Settings", "GftMaximumParallelDownloads", "1" ) )
-		Settings.GftAutomaticJobFilter = Settings.__GetDefault( configParser, "Settings", "GftAutomaticJobFilter", "" )
-		Settings.CinemageddonUserName = Settings.__GetDefault( configParser, "Settings", "CinemageddonUserName", "" )
-		Settings.CinemageddonPassword = Settings.__GetDefault( configParser, "Settings", "CinemageddonPassword", "" )
-		Settings.CinemageddonMaximumParallelDownloads = int( Settings.__GetDefault( configParser, "Settings", "CinemageddonMaximumParallelDownloads", "1" ) )
-		Settings.CinematikUserName = Settings.__GetDefault( configParser, "Settings", "CinematikUserName", "" )
-		Settings.CinematikPassword = Settings.__GetDefault( configParser, "Settings", "CinematikPassword", "" )
-		Settings.CinematikMaximumParallelDownloads = int( Settings.__GetDefault( configParser, "Settings", "CinematikMaximumParallelDownloads", "1" ) )
-		Settings.TorrentLeechUserName = Settings.__GetDefault( configParser, "Settings", "TorrentLeechUserName", "" )
-		Settings.TorrentLeechPassword = Settings.__GetDefault( configParser, "Settings", "TorrentLeechPassword", "" )
-		Settings.TorrentLeechMaximumParallelDownloads = int( Settings.__GetDefault( configParser, "Settings", "TorrentLeechMaximumParallelDownloads", "1" ) )
-		Settings.TorrentLeechAutomaticJobFilter = Settings.__GetDefault( configParser, "Settings", "TorrentLeechAutomaticJobFilter", "" )
-		Settings.SceneAccessUserName = Settings.__GetDefault( configParser, "Settings", "SceneAccessUserName", "" )
-		Settings.SceneAccessPassword = Settings.__GetDefault( configParser, "Settings", "SceneAccessPassword", "" )
-		Settings.SceneAccessMaximumParallelDownloads = int( Settings.__GetDefault( configParser, "Settings", "SceneAccessMaximumParallelDownloads", "1" ) )
-		Settings.SceneAccessIrcEnabled = Settings.__GetDefault( configParser, "Settings", "SceneAccessIrcEnabled", "" ).lower() == "yes"
-		Settings.TorrentFileSourceMaximumParallelDownloads = int( Settings.__GetDefault( configParser, "Settings", "TorrentFileSourceMaximumParallelDownloads", "3" ) )
 		
 		Settings.ImageHost = Settings.__GetDefault( configParser, "Settings", "ImageHost", "ptpimg.me" ).lower()
 		Settings.OnSuccessfulUpload = Settings.__GetDefault( configParser, "Settings", "OnSuccessfulUpload", "", raw = True )

@@ -6,38 +6,30 @@ from ReleaseExtractor import ReleaseExtractor
 import os
 
 class SourceBase:
-	@staticmethod
-	def IsEnabled():
+	def IsEnabled(self):
 		return True
 
-	@staticmethod
-	def Login():
+	def Login(self):
 		pass
 	
-	@staticmethod
-	def PrepareDownload(logger, releaseInfo):
+	def PrepareDownload(self, logger, releaseInfo):
 		pass
 
-	@staticmethod
-	def CheckCoverArt(logger, releaseInfo):
+	def CheckCoverArt(self, logger, releaseInfo):
 		# If it exists on PTP then we don't need a cover.
 		if ( not releaseInfo.IsCoverArtUrlSet() ) and ( not releaseInfo.HasPtpId() ):
 			raise PtpUploaderException( "Cover art is not set." )
 
-	@staticmethod
-	def DownloadTorrent(logger, releaseInfo, path):
+	def DownloadTorrent(self, logger, releaseInfo, path):
 		pass
 	
-	@staticmethod
-	def IsDownloadFinished(logger, releaseInfo, rtorrent):
+	def IsDownloadFinished(self, logger, releaseInfo, rtorrent):
 		return rtorrent.IsTorrentFinished( logger, releaseInfo.SourceTorrentInfoHash )
 
-	@staticmethod
-	def GetCustomUploadPath(logger, releaseInfo):
+	def GetCustomUploadPath(self, logger, releaseInfo):
 		return ""
 
-	@staticmethod
-	def CreateUploadDirectory(releaseInfo):
+	def CreateUploadDirectory(self, releaseInfo):
 		uploadDirectory = releaseInfo.GetReleaseUploadPath()
 		releaseInfo.Logger.info( "Creating upload directory at '%s'." % uploadDirectory )
 		
@@ -46,25 +38,21 @@ class SourceBase:
 
 		os.makedirs( uploadDirectory )
 
-	@staticmethod
-	def ExtractRelease(logger, releaseInfo, includedFileList):
+	def ExtractRelease(self, logger, releaseInfo, includedFileList):
 		ReleaseExtractor.Extract( logger, releaseInfo.GetReleaseDownloadPath(), releaseInfo.GetReleaseUploadPath(), includedFileList )
 
-	@staticmethod
-	def ReadNfo(releaseInfo):
+	def ReadNfo(self, releaseInfo):
 		releaseInfo.Nfo = NfoParser.FindAndReadNfoFileToUnicode( releaseInfo.GetReleaseDownloadPath() )
 
 	# Must returns with a tuple consisting of the list of video files and the list of additional files.
-	@staticmethod
-	def ValidateExtractedRelease(releaseInfo, includedFileList):
+	def ValidateExtractedRelease(self, releaseInfo, includedFileList):
 		videoFiles, additionalFiles = ReleaseExtractor.ValidateDirectory( releaseInfo.Logger, releaseInfo.GetReleaseUploadPath(), includedFileList )
 		if len( videoFiles ) < 1:
 			raise PtpUploaderException( "Upload path '%s' doesn't contains any video files." % releaseInfo.GetReleaseUploadPath() )
 
 		return videoFiles, additionalFiles
 
-	@staticmethod
-	def GetIncludedFileList(releaseInfo):
+	def GetIncludedFileList(self, releaseInfo):
 		includedFileList = IncludedFileList()
 		
 		if os.path.isfile( releaseInfo.SourceTorrentFilePath ):
@@ -72,22 +60,17 @@ class SourceBase:
 
 		return includedFileList
 
-	@staticmethod
-	def GetTemporaryFolderForImagesAndTorrent(releaseInfo):
+	def GetTemporaryFolderForImagesAndTorrent(self, releaseInfo):
 		return releaseInfo.GetReleaseRootPath() 
 
-	@staticmethod
-	def IsSingleFileTorrentNeedsDirectory(releaseInfo):
+	def IsSingleFileTorrentNeedsDirectory(self, releaseInfo):
 		return True
 	
-	@staticmethod
-	def IncludeReleaseNameInReleaseDescription():
+	def IncludeReleaseNameInReleaseDescription(self):
 		return True
 
-	@staticmethod
-	def GetIdFromUrl(url):
+	def GetIdFromUrl(self, url):
 		return ""
 
-	@staticmethod
-	def GetUrlFromId(id):
-		return ""	
+	def GetUrlFromId(self, id):
+		return ""

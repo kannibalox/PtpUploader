@@ -13,39 +13,26 @@ from Settings import Settings
 class SourceFactory:
 	def __init__(self):
 		self.Sources = {}
-		
-		if Cinemageddon.IsEnabled():
-			Cinemageddon.Login()
-		self.__AddSource( Cinemageddon() )
-
-		if Cinematik.IsEnabled():
-			Cinematik.Login()
-		self.__AddSource( Cinematik() )
-
-		if Gft.IsEnabled():
-			Gft.Login()
-		self.__AddSource( Gft() )
-		
-		karagarga = Karagarga()
-		if karagarga.IsEnabled():
-			karagarga.Login()
-		self.__AddSource( karagarga )
-
-		if SceneAccess.IsEnabled():
-			SceneAccess.Login()
-			SceneAccess.InviteToIrc()
-		self.__AddSource( SceneAccess() )
-
-		if TorrentLeech.IsEnabled():
-			TorrentLeech.Login()
-		self.__AddSource( TorrentLeech() )
 
 		self.__AddSource( File() )
 		self.__AddSource( Torrent() )
+		
+		self.__AddSource( Cinemageddon() )
+		self.__AddSource( Cinematik() )
+		self.__AddSource( Gft() )
+		self.__AddSource( Karagarga() )
+		self.__AddSource( TorrentLeech() )
+
+		sceneAccess = SceneAccess()
+		self.__AddSource( sceneAccess )
+		if sceneAccess.IsEnabled():
+			sceneAccess.InviteToIrc()
 
 		MyGlobals.Logger.info( "Sources initialized." )
 
 	def __AddSource(self, source):
+		if source.IsEnabled():
+			source.Login()
 		self.Sources[ source.Name ] = source
 
 	def GetSource(self, sourceName):

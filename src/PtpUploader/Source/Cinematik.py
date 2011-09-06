@@ -18,29 +18,27 @@ import urllib2
 class Cinematik(SourceBase):
 	def __init__(self):
 		self.Name = "tik"
-		self.MaximumParallelDownloads = Settings.CinematikMaximumParallelDownloads
+		self.Username = Settings.GetDefault( "Cinematik", "Username", "" )
+		self.Password = Settings.GetDefault( "Cinematik", "Password", "" )
+		self.MaximumParallelDownloads = int( Settings.GetDefault( "Cinematik", "MaximumParallelDownloads", "1" ) )
 	
-	@staticmethod
-	def IsEnabled():
-		return len( Settings.CinematikUserName ) > 0 and len( Settings.CinematikPassword ) > 0
+	def IsEnabled(self):
+		return len( self.Username ) > 0 and len( self.Password ) > 0
 
-	@staticmethod
-	def Login():
+	def Login(self):
 		MyGlobals.Logger.info( "Logging in to Cinematik." )
 
 		opener = urllib2.build_opener( urllib2.HTTPCookieProcessor( MyGlobals.CookieJar ) )
-		postData = urllib.urlencode( { "username": Settings.CinematikUserName, "password": Settings.CinematikPassword } )
+		postData = urllib.urlencode( { "username": self.Username, "password": self.Password } )
 		result = opener.open( "http://cinematik.net/takelogin.php", postData )
 		response = result.read()
-		Cinematik.__CheckIfLoggedInFromResponse( response )
+		self.__CheckIfLoggedInFromResponse( response )
 	
-	@staticmethod
-	def __CheckIfLoggedInFromResponse(response):
+	def __CheckIfLoggedInFromResponse(self, response):
 		if response.find( 'action="takelogin.php"' ) != -1 or response.find( "<h2>Login failed!</h2>" ) != -1:
 			raise PtpUploaderException( "Looks like you are not logged in to Cinematik. Probably due to the bad user name or password in settings." )
 
-	@staticmethod
-	def __DownloadNfo(logger, releaseInfo):
+	def __DownloadNfo(self, logger, releaseInfo):
 		url = "http://cinematik.net/details.php?id=%s&filelist=1" % releaseInfo.AnnouncementId
 		logger.info( "Collecting info from torrent page '%s'." % url )
 		
@@ -48,7 +46,7 @@ class Cinematik(SourceBase):
 		result = opener.open( url )
 		response = result.read()
 		response = response.decode( "ISO-8859-1", "ignore" )
-		Cinematik.__CheckIfLoggedInFromResponse( response )
+		self.__CheckIfLoggedInFromResponse( response )
 
 		# Make sure we only get information from the description and not from the comments.
 		descriptionEndIndex = response.find( '<p><a name="startcomments"></a></p>' )
@@ -93,8 +91,7 @@ class Cinematik(SourceBase):
 
 		return resolutionType, codec, container
 
-	@staticmethod
-	def __MapInfoFromTorrentDescriptionToPtp(releaseInfo, resolutionType, codec, container):
+	def __MapInfoFromTorrentDescriptionToPtp(self, releaseInfo, resolutionType, codec, container):
 		resolutionType = resolutionType.lower()
 		codec = codec.lower()
 		container = container.lower()
@@ -126,22 +123,20 @@ class Cinematik(SourceBase):
 		else:
 			raise PtpUploaderException( JobRunningState.Ignored_NotSupported, "Unsupported container type '%s'." % container )
 	
-	@staticmethod
-	def PrepareDownload(logger, releaseInfo):
+	def PrepareDownload(self, logger, releaseInfo):
 		resolutionType = ""
 		codec = ""
 		container = ""
 		
 		if releaseInfo.IsUserCreatedJob():
-			resolutionType, codec, container = Cinematik.__DownloadNfo( logger, releaseInfo )
+			resolutionType, codec, container = self.__DownloadNfo( logger, releaseInfo )
 		else:
 			# TODO: add filterting support for Cinematik
-			resolutionType, codec, container = Cinematik.__DownloadNfo( logger, releaseInfo )
+			resolutionType, codec, container = self.__DownloadNfo( logger, releaseInfo )
 
-		Cinematik.__MapInfoFromTorrentDescriptionToPtp( releaseInfo, resolutionType, codec, container )
+		self.__MapInfoFromTorrentDescriptionToPtp( releaseInfo, resolutionType, codec, container )
 
-	@staticmethod
-	def __ValidateTorrentFile(torrentPath):
+	def __ValidateTorrentFile(self, torrentPath):
 		files = GetFileListFromTorrent( torrentPath )
 		for file in files:
 			file = file.lower();
@@ -154,28 +149,26 @@ class Cinematik(SourceBase):
 			if not file.startswith( "video_ts" ):
 				raise PtpUploaderException( JobRunningState.Ignored_NotSupported, "Files are not in the VIDEO_TS folder in the torrent." )
 
-	@staticmethod
-	def DownloadTorrent(logger, releaseInfo, path):
+	def DownloadTorrent(self, logger, releaseInfo, path):
 		url = "http://cinematik.net/download.php?id=%s" % releaseInfo.AnnouncementId
 		logger.info( "Downloading torrent file from '%s' to '%s'." % ( url, path ) )
 
 		opener = urllib2.build_opener( urllib2.HTTPCookieProcessor( MyGlobals.CookieJar ) )
 		result = opener.open( url )
 		response = result.read()
-		Cinematik.__CheckIfLoggedInFromResponse( response )
+		self.__CheckIfLoggedInFromResponse( response )
 		
 		file = open( path, "wb" )
 		file.write( response )
 		file.close()
 
 		ValidateTorrentFile( path )
-		Cinematik.__ValidateTorrentFile( path )
+		self.__ValidateTorrentFile( path )
 		
 	# TODO: Cinematik: use a shared function with Cinemageddon
 	# Because some of the releases on Cinematik do not contain the full name of the movie, we have to rename them because of the uploading rules on PTP.
 	# The new name will be formatted like this: Movie Name Year
-	@staticmethod
-	def GetCustomUploadPath(logger, releaseInfo):
+	def GetCustomUploadPath(self, logger, releaseInfo):
 		# TODO: if the user forced a release name, then let it upload by that name.
 		if releaseInfo.IsZeroImdbId():
 			raise PtpUploaderException( "Uploading to Cinematik with zero IMDb ID is not yet supported." % text ) 		
@@ -204,18 +197,15 @@ class Cinematik(SourceBase):
 		newUploadPath = os.path.join( newUploadPath, name )
 		return newUploadPath
 
-	@staticmethod
-	def IncludeReleaseNameInReleaseDescription():
+	def IncludeReleaseNameInReleaseDescription(self):
 		return False
 	
-	@staticmethod
-	def GetIdFromUrl(url):
+	def GetIdFromUrl(self, url):
 		result = re.match( r".*cinematik\.net/details.php\?id=(\d+).*", url )
 		if result is None:
 			return ""
 		else:
 			return result.group( 1 )	
 
-	@staticmethod
-	def GetUrlFromId(id):
+	def GetUrlFromId(self, id):
 		return "http://cinematik.net/details.php?id=" + id

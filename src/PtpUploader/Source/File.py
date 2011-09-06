@@ -17,8 +17,7 @@ class File(SourceBase):
 		self.Name = "file"
 		self.MaximumParallelDownloads = 1
 	
-	@staticmethod
-	def PrepareDownload(logger, releaseInfo):
+	def PrepareDownload(self, logger, releaseInfo):
 		path = releaseInfo.GetReleaseDownloadPath()
 		
 		if os.path.isdir( path ):
@@ -35,12 +34,10 @@ class File(SourceBase):
 		if releaseNameParser.Scene: 
 			releaseInfo.SetSceneRelease()
 			
-	@staticmethod
-	def IsDownloadFinished(logger, releaseInfo, rtorrent):
+	def IsDownloadFinished(self, logger, releaseInfo, rtorrent):
 		return True
 
-	@staticmethod
-	def GetCustomUploadPath(logger, releaseInfo):
+	def GetCustomUploadPath(self, logger, releaseInfo):
 		path = releaseInfo.GetReleaseDownloadPath()
 		if releaseInfo.SourceIsAFile:
 			# In case of single files the parent directory of the file will be the upload directory. 
@@ -51,20 +48,17 @@ class File(SourceBase):
 			
 		return path
 
-	@staticmethod
-	def CreateUploadDirectory(releaseInfo):
+	def CreateUploadDirectory(self, releaseInfo):
 		if not releaseInfo.SourceIsAFile:
-			SourceBase.CreateUploadDirectory( releaseInfo )
+			SourceBase.CreateUploadDirectory( self, releaseInfo )
 	
-	@staticmethod
-	def ExtractRelease(logger, releaseInfo, includedFileList):
+	def ExtractRelease(self, logger, releaseInfo, includedFileList):
 		if not releaseInfo.SourceIsAFile:
 			# Add the top level PTP directory to the ignore list because that is where we extract the release.
 			topLevelDirectoriesToIgnore = [ File.UploadDirectoryName.lower() ]
 			ReleaseExtractor.Extract( logger, releaseInfo.GetReleaseDownloadPath(), releaseInfo.GetReleaseUploadPath(), includedFileList, topLevelDirectoriesToIgnore )
 
-	@staticmethod
-	def ReadNfo(releaseInfo):
+	def ReadNfo(self, releaseInfo):
 		if releaseInfo.SourceIsAFile:
 			# Try to read the NFO with the same name as the video file but with nfo extension.
 			basePath, fileName = os.path.split( releaseInfo.GetReleaseDownloadPath() )
@@ -73,17 +67,15 @@ class File(SourceBase):
 			if os.path.isfile( nfoPath ):
 				releaseInfo.Nfo = NfoParser.ReadNfoFileToUnicode( nfoPath )
 		else:
-			SourceBase.ReadNfo( releaseInfo )
+			SourceBase.ReadNfo( self, releaseInfo )
 
-	@staticmethod
-	def ValidateExtractedRelease(releaseInfo, includedFileList):
+	def ValidateExtractedRelease(self, releaseInfo, includedFileList):
 		if releaseInfo.SourceIsAFile:
 			return [ releaseInfo.GetReleaseDownloadPath() ], []
 		else:
-			return SourceBase.ValidateExtractedRelease( releaseInfo, includedFileList )
+			return SourceBase.ValidateExtractedRelease( self, releaseInfo, includedFileList )
 	
-	@staticmethod
-	def GetIncludedFileList(releaseInfo):
+	def GetIncludedFileList(self, releaseInfo):
 		includedFileList = IncludedFileList()
 
 		path = releaseInfo.GetReleaseDownloadPath()
@@ -92,14 +84,11 @@ class File(SourceBase):
 
 		return includedFileList
 
-	@staticmethod
-	def GetTemporaryFolderForImagesAndTorrent(releaseInfo):
+	def GetTemporaryFolderForImagesAndTorrent(self, releaseInfo):
 		if releaseInfo.SourceIsAFile:
 			return releaseInfo.GetReleaseUploadPath()
 		else:
 			return os.path.join( releaseInfo.GetReleaseDownloadPath(), File.UploadDirectoryName )
 	
-	@staticmethod
-	def IsSingleFileTorrentNeedsDirectory(releaseInfo):
+	def IsSingleFileTorrentNeedsDirectory(self, releaseInfo):
 		return not releaseInfo.SourceIsAFile
-	

@@ -11,10 +11,9 @@ from Settings import Settings
 class Torrent(SourceBase):
 	def __init__(self):
 		self.Name = "torrent"
-		self.MaximumParallelDownloads = Settings.TorrentFileSourceMaximumParallelDownloads
+		self.MaximumParallelDownloads = int( Settings.GetDefault( "TorrentFileSource", "MaximumParallelDownloads", "3" ) )
 
-	@staticmethod
-	def PrepareDownload(logger, releaseInfo):
+	def PrepareDownload(self, logger, releaseInfo):
 		# TODO: support for uploads from torrent without specifying IMDb id and reading it from NFO. (We only get IMDb id when the download is finisehd.)
 
 		# TODO: support for new movies without IMDB id

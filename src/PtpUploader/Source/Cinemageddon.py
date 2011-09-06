@@ -18,29 +18,27 @@ import urllib2
 class Cinemageddon(SourceBase):
 	def __init__(self):
 		self.Name = "cg"
-		self.MaximumParallelDownloads = Settings.CinemageddonMaximumParallelDownloads
+		self.Username = Settings.GetDefault( "Cinemageddon", "Username", "" )
+		self.Password = Settings.GetDefault( "Cinemageddon", "Password", "" )
+		self.MaximumParallelDownloads = int( Settings.GetDefault( "Cinemageddon", "MaximumParallelDownloads", "4" ) )
 	
-	@staticmethod
-	def IsEnabled():
-		return len( Settings.CinemageddonUserName ) > 0 and len( Settings.CinemageddonPassword ) > 0
+	def IsEnabled(self):
+		return len( self.Username ) > 0 and len( self.Password ) > 0
 
-	@staticmethod
-	def Login():
+	def Login(self):
 		MyGlobals.Logger.info( "Logging in to Cinemageddon." )
 		opener = urllib2.build_opener( urllib2.HTTPCookieProcessor( MyGlobals.CookieJar ) )
-		postData = urllib.urlencode( { "username": Settings.CinemageddonUserName, "password": Settings.CinemageddonPassword } )
+		postData = urllib.urlencode( { "username": self.Username, "password": self.Password } )
 		request = urllib2.Request( "http://cinemageddon.net/takelogin.php", postData )
 		result = opener.open( request )
 		response = result.read()
-		Cinemageddon.__CheckIfLoggedInFromResponse( response )
+		self.__CheckIfLoggedInFromResponse( response )
 	
-	@staticmethod
-	def __CheckIfLoggedInFromResponse(response):
+	def __CheckIfLoggedInFromResponse(self, response):
 		if response.find( 'action="takelogin.php"' ) != -1:
 			raise PtpUploaderException( "Looks like you are not logged in to Cinemageddon. Probably due to the bad user name or password in settings." )
 
-	@staticmethod
-	def __DownloadNfo(logger, releaseInfo):
+	def __DownloadNfo(self, logger, releaseInfo):
 		url = "http://cinemageddon.net/details.php?id=%s&filelist=1" % releaseInfo.AnnouncementId
 		logger.info( "Collecting info from torrent page '%s'." % url )
 		
@@ -49,7 +47,7 @@ class Cinemageddon(SourceBase):
 		result = opener.open( request )
 		response = result.read()
 		response = response.decode( "ISO-8859-1", "ignore" )
-		Cinemageddon.__CheckIfLoggedInFromResponse( response )
+		self.__CheckIfLoggedInFromResponse( response )
 
 		# Make sure we only get information from the description and not from the comments.
 		descriptionEndIndex = response.find( '<p><a name="startcomments"></a></p>' )
@@ -98,15 +96,14 @@ class Cinemageddon(SourceBase):
 		# Ignore XXX releases.
 		if description.find( '>Type</td><td valign="top" align=left>XXX<' ) != -1:
 			raise PtpUploaderException( JobRunningState.Ignored_Forbidden, "Marked as XXX." )
-		
+
+		self.__MapSourceAndFormatToPtp( releaseInfo, sourceType, formatType )
+
 		# Make sure that this is not a wrongly categorized DVDR.
-		if re.search( r"\.vob</td>", description, re.IGNORECASE ) or re.search( r"\.iso</td>", description, re.IGNORECASE ):
+		if ( not releaseInfo.IsDvdImage() ) and ( re.search( r"\.vob</td>", description, re.IGNORECASE ) or re.search( r"\.iso</td>", description, re.IGNORECASE ) ):
 			raise PtpUploaderException( JobRunningState.Ignored_NotSupported, "Wrongly categorized DVDR." )
 		
-		return sourceType, formatType
-
-	@staticmethod
-	def __MapSourceAndFormatToPtp(releaseInfo, sourceType, formatType):
+	def __MapSourceAndFormatToPtp(self, releaseInfo, sourceType, formatType):
 		sourceType = sourceType.lower()
 		formatType = formatType.lower()
 
@@ -140,13 +137,9 @@ class Cinemageddon(SourceBase):
 		else:
 			raise PtpUploaderException( JobRunningState.Ignored_NotSupported, "Unsupported format type '%s'." % formatType )
 	
-	@staticmethod
-	def PrepareDownload(logger, releaseInfo):
-		sourceType = ""
-		formatType = ""
-		
+	def PrepareDownload(self, logger, releaseInfo):
 		if releaseInfo.IsUserCreatedJob():
-			sourceType, formatType = Cinemageddon.__DownloadNfo( logger, releaseInfo )
+			self.__DownloadNfo( logger, releaseInfo )
 		else:
 			# TODO: add filtering support for Cinemageddon
 			# In case of automatic announcement we have to check the release name if it is valid.
@@ -154,12 +147,9 @@ class Cinemageddon(SourceBase):
 			#if not ReleaseFilter.IsValidReleaseName( releaseInfo.ReleaseName ):
 			#	logger.info( "Ignoring release '%s' because of its name." % releaseInfo.ReleaseName )
 			#	return None
-			sourceType, formatType = Cinemageddon.__DownloadNfo( logger, releaseInfo )
+			self.__DownloadNfo( logger, releaseInfo )
 
-		Cinemageddon.__MapSourceAndFormatToPtp( releaseInfo, sourceType, formatType )		
-
-	@staticmethod
-	def DownloadTorrent(logger, releaseInfo, path):
+	def DownloadTorrent(self, logger, releaseInfo, path):
 		url = "http://cinemageddon.net/download.php?id=%s" % releaseInfo.AnnouncementId
 		logger.info( "Downloading torrent file from '%s' to '%s'." % ( url, path ) )
 
@@ -167,7 +157,7 @@ class Cinemageddon(SourceBase):
 		request = urllib2.Request( url )
 		result = opener.open( request )
 		response = result.read()
-		Cinemageddon.__CheckIfLoggedInFromResponse( response )
+		self.__CheckIfLoggedInFromResponse( response )
 		
 		file = open( path, "wb" )
 		file.write( response )
@@ -177,8 +167,7 @@ class Cinemageddon(SourceBase):
 
 	# Because some of the releases on CG do not contain the full name of the movie, we have to rename them because of the uploading rules on PTP.
 	# The new name will be formatted like this: Movie Name Year
-	@staticmethod
-	def GetCustomUploadPath(logger, releaseInfo):
+	def GetCustomUploadPath(self, logger, releaseInfo):
 		# TODO: if the user forced a release name, then let it upload by that name.
 		if releaseInfo.IsZeroImdbId():
 			raise PtpUploaderException( "Uploading to CG with zero IMDb ID is not yet supported." % text ) 		
@@ -207,18 +196,15 @@ class Cinemageddon(SourceBase):
 		newUploadPath = os.path.join( newUploadPath, name )
 		return newUploadPath
 
-	@staticmethod
-	def IncludeReleaseNameInReleaseDescription():
+	def IncludeReleaseNameInReleaseDescription(self):
 		return False
 	
-	@staticmethod
-	def GetIdFromUrl(url):
+	def GetIdFromUrl(self, url):
 		result = re.match( r".*cinemageddon\.net/details.php\?id=(\d+).*", url )
 		if result is None:
 			return ""
 		else:
 			return result.group( 1 )	
 
-	@staticmethod
-	def GetUrlFromId(id):
+	def GetUrlFromId(self, id):
 		return "http://cinemageddon.net/details.php?id=" + id

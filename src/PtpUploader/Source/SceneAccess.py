@@ -18,31 +18,30 @@ import urllib2
 class SceneAccess(SourceBase):
 	def __init__(self):
 		self.Name = "scc"
-		self.MaximumParallelDownloads = Settings.SceneAccessMaximumParallelDownloads
+		self.Username = Settings.GetDefault( "SceneAccess", "Username", "" )
+		self.Password = Settings.GetDefault( "SceneAccess", "Password", "" )
+		self.MaximumParallelDownloads = int( Settings.GetDefault( "SceneAccess", "MaximumParallelDownloads", "1" ) )
+		self.IrcEnabled = Settings.GetDefault( "SceneAccess", "IrcEnabled", "" ).lower() == "yes"
 
-	@staticmethod
-	def IsEnabled():
-		return len( Settings.SceneAccessUserName ) > 0 and len( Settings.SceneAccessPassword ) > 0
+	def IsEnabled(self):
+		return len( self.Username ) > 0 and len( self.Password ) > 0
 
-	@staticmethod
-	def Login():
+	def Login(self):
 		MyGlobals.Logger.info( "Logging in to SceneAccess." );
 		
 		opener = urllib2.build_opener( urllib2.HTTPCookieProcessor( MyGlobals.CookieJar ) )
-		postData = urllib.urlencode( { "username": Settings.SceneAccessUserName, "password": Settings.SceneAccessPassword } )
+		postData = urllib.urlencode( { "username": self.Username, "password": self.Password } )
 		result = opener.open( "http://www.sceneaccess.org/login", postData )
 		response = result.read()
-		SceneAccess.CheckIfLoggedInFromResponse( response );
+		self.CheckIfLoggedInFromResponse( response );
 	
-	@staticmethod
-	def CheckIfLoggedInFromResponse(response):
+	def CheckIfLoggedInFromResponse(self, response):
 		if response.find( """<div id="login_box_rcvr">""" ) != -1:
 			raise PtpUploaderException( "Looks like you are not logged in to SceneAccess. Probably due to the bad user name or password in settings." )
 	
 	# Sets IMDb if presents in the torrent description.
 	# Returns with the release name.
-	@staticmethod
-	def __ReadTorrentPage(logger, releaseInfo):
+	def __ReadTorrentPage(self, logger, releaseInfo):
 		url = "http://www.sceneaccess.org/details?id=%s" % releaseInfo.AnnouncementId
 		logger.info( "Downloading NFO from page '%s'." % url )
 		
@@ -50,7 +49,7 @@ class SceneAccess(SourceBase):
 		request = urllib2.Request( url )
 		result = opener.open( request )
 		response = result.read()
-		SceneAccess.CheckIfLoggedInFromResponse( response )
+		self.CheckIfLoggedInFromResponse( response )
 
 		# Make sure we only get information from the description and not from the comments.
 		descriptionEndIndex = response.find( """<p><a name="comments"></a></p>""" )
@@ -89,17 +88,15 @@ class SceneAccess(SourceBase):
 
 		return releaseName
 
-	@staticmethod
-	def __HandleUserCreatedJob(logger, releaseInfo):
-		releaseName = SceneAccess.__ReadTorrentPage( logger, releaseInfo )
+	def __HandleUserCreatedJob(self, logger, releaseInfo):
+		releaseName = self.__ReadTorrentPage( logger, releaseInfo )
 		if not releaseInfo.IsReleaseNameSet():
 			releaseInfo.ReleaseName = releaseName
 
 		releaseNameParser = ReleaseNameParser( releaseInfo.ReleaseName )
 		releaseNameParser.GetSourceAndFormat( releaseInfo )
 
-	@staticmethod
-	def __HandleAutoCreatedJob(logger, releaseInfo):
+	def __HandleAutoCreatedJob(self, logger, releaseInfo):
 		# In case of automatic announcement we have to check the release name if it is valid.
 		# We know the release name from the announcement, so we can filter it without downloading anything (yet) from the source.
 		releaseNameParser = ReleaseNameParser( releaseInfo.ReleaseName )
@@ -109,22 +106,20 @@ class SceneAccess(SourceBase):
 
 		releaseNameParser.GetSourceAndFormat( releaseInfo )
 		
-		releaseName = SceneAccess.__ReadTorrentPage( logger, releaseInfo )
+		releaseName = self.__ReadTorrentPage( logger, releaseInfo )
 		if releaseName != releaseInfo.ReleaseName:
 			raise PtpUploaderException( "Announcement release name '%s' and release name '%s' on SceneAccess are different." % ( releaseInfo.ReleaseName, releaseName ) )
 
-	@staticmethod
-	def PrepareDownload(logger, releaseInfo):
+	def PrepareDownload(self, logger, releaseInfo):
 		if releaseInfo.IsUserCreatedJob():
-			SceneAccess.__HandleUserCreatedJob( logger, releaseInfo )
+			self.__HandleUserCreatedJob( logger, releaseInfo )
 		else:
-			SceneAccess.__HandleAutoCreatedJob( logger, releaseInfo )
+			self.__HandleAutoCreatedJob( logger, releaseInfo )
 
 		# There are only scene releases on SceneAccess.
 		releaseInfo.SetSceneRelease()
 
-	@staticmethod
-	def DownloadTorrent(logger, releaseInfo, path):
+	def DownloadTorrent(self, logger, releaseInfo, path):
 		# This can't happen.
 		if len( releaseInfo.SceneAccessDownloadUrl ) <= 0:
 			raise PtpUploaderException( "SceneAccessDownloadUrl is not set." )			
@@ -136,7 +131,7 @@ class SceneAccess(SourceBase):
 		request = urllib2.Request( releaseInfo.SceneAccessDownloadUrl );
 		result = opener.open( request );
 		response = result.read();
-		SceneAccess.CheckIfLoggedInFromResponse( response );
+		self.CheckIfLoggedInFromResponse( response );
 		
 		file = open( path, "wb" );
 		file.write( response );
@@ -150,21 +145,18 @@ class SceneAccess(SourceBase):
 		if NfoParser.IsTorrentContainsMultipleNfos( path ):
 			raise PtpUploaderException( "Torrent '%s' contains multiple NFO files." % path )
 
-	@staticmethod
-	def GetIdFromUrl(url):
+	def GetIdFromUrl(self, url):
 		result = re.match( r".*sceneaccess\.org/details\?id=(\d+).*", url )
 		if result is None:
 			return ""
 		else:
 			return result.group( 1 )
 
-	@staticmethod
-	def GetUrlFromId(id):
+	def GetUrlFromId(self, id):
 		return "http://www.sceneaccess.org/details?id=" + id
 	
-	@staticmethod
-	def InviteToIrc():
-		if not Settings.SceneAccessIrcEnabled:
+	def InviteToIrc(self):
+		if not self.IrcEnabled:
 			return
 
 		MyGlobals.Logger.info( "Requesting IRC invite on SceneAccess." );
@@ -173,4 +165,4 @@ class SceneAccess(SourceBase):
 		postData = urllib.urlencode( { "announce": "yes" } )
 		result = opener.open( "http://www.sceneaccess.org/irc", postData )
 		response = result.read()
-		SceneAccess.CheckIfLoggedInFromResponse( response );
+		self.CheckIfLoggedInFromResponse( response );
