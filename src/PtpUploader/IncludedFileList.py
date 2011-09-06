@@ -8,16 +8,14 @@ import simplejson as json
 import os
 
 class IncludedFileItemState:
-	DefaultIgnore     = 0
-	DefaultInclude    = 1
-	DefaultIncludeRar = 2
-	Ignore            = 3
-	Include           = 4
+	Ignore  = 0
+	Include = 1
 
 class IncludedFileItem:
 	def __init__(self, name):
 		self.Name = name # Path separator is always a "/".
-		self.State = self.__GetDefaultState()
+		self.DefaultState = self.__GetDefaultState()
+		self.State = self.DefaultState
 
 	def __GetDefaultState(self):
 		path = self.Name.lower()
@@ -25,33 +23,30 @@ class IncludedFileItem:
 		# Ignore special root directories.
 		# !sample is used in HDBits releases.
 		if path.startswith( "proof/" ) or path.startswith( "sample/" ) or path.startswith( "!sample/" ):
-			return IncludedFileItemState.DefaultIgnore
+			return IncludedFileItemState.Ignore
 
 		name = os.path.basename( path )
 		if Settings.IsFileOnIgnoreList( name ):
-			return IncludedFileItemState.DefaultIgnore
+			return IncludedFileItemState.Ignore
 
 		if Settings.HasValidVideoExtensionToUpload( name ) or Settings.HasValidAdditionalExtensionToUpload( name ):
-			return IncludedFileItemState.DefaultInclude
+			return IncludedFileItemState.Include
 		elif Unrar.IsFirstRar( name ):
-			return IncludedFileItemState.DefaultIncludeRar
+			return IncludedFileItemState.Include
 		else:
-			return IncludedFileItemState.DefaultIgnore
+			return IncludedFileItemState.Ignore
 
 	def IsDefaultIgnored(self):
-		return self.State == IncludedFileItemState.DefaultIgnore
-
-	def IsIgnored(self):
-		return self.IsDefaultIgnored() or self.State == IncludedFileItemState.Ignore
+		return self.DefaultState == IncludedFileItemState.Ignore
 
 	def IsDefaultIncluded(self):
-		return self.State == IncludedFileItemState.DefaultInclude or self.State == IncludedFileItemState.DefaultIncludeRar
+		return self.DefaultState == IncludedFileItemState.Include
+
+	def IsIgnored(self):
+		return self.State == IncludedFileItemState.Ignore
 
 	def IsIncluded(self):
-		return self.IsDefaultIncluded() or self.State == IncludedFileItemState.Include
-
-	def IsCustomized(self):
-		return self.State == IncludedFileItemState.Ignore or self.State == IncludedFileItemState.Include
+		return self.State == IncludedFileItemState.Include
 
 class IncludedFileList:
 	def __init__(self):
@@ -108,10 +103,7 @@ class IncludedFileList:
 				file = IncludedFileItem( path )
 				self.Files.append( file )
 
-			# Only set new state if it differs from the default state.
 			if include:
-				if not file.IsDefaultIncluded():
-					file.State = IncludedFileItemState.Include
+				file.State = IncludedFileItemState.Include
 			else:
-				if not file.IsDefaultIgnored():
-					file.State = IncludedFileItemState.Ignore
+				file.State = IncludedFileItemState.Ignore

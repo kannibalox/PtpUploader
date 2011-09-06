@@ -136,7 +136,8 @@
 				}
 				
 				rootNode.visit( IncludedFilesTreeNodeVisitor, false ); // false - do not visit root
-				$( "#IncludedFilesCustomizedList" ).val( JSON.stringify( customizedFiles ) );
+				// Return an empty string if there are no customized files. Calling JSON.stringify for an empty set would result in "{}", we don't want to store that in our database.
+				$( "#IncludedFilesCustomizedList" ).val( Object.keys( customizedFiles ).length > 0 ? JSON.stringify( customizedFiles ) : "" );
 
 				$.unblockUI( { fadeOut: 0 } );
 			} );

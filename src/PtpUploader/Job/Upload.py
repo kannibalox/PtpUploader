@@ -59,6 +59,10 @@ class Upload(WorkerBase):
 		
 	def __MakeIncludedFileList(self):
 		self.IncludedFileList = self.ReleaseInfo.AnnouncementSource.GetIncludedFileList( self.ReleaseInfo )
+
+		if len( self.ReleaseInfo.IncludedFiles ) > 0:
+			self.ReleaseInfo.Logger.info( "Cusomized included files: %s" % self.ReleaseInfo.IncludedFiles )
+
 		self.IncludedFileList.ApplyCustomizationFromJson( self.ReleaseInfo.IncludedFiles )
 
 	def __ExtractRelease(self):
