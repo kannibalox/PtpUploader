@@ -9,6 +9,20 @@ from flask import render_template, request
 
 import re
 
+def GetPtpIdIfExists(imdbId, releaseInfo, anyFormat):
+	movieOnPtpResult = Ptp.GetMoviePageOnPtpByImdbId( MyGlobals.Logger, imdbId )
+	exists = False
+
+	if anyFormat:
+		exists = movieOnPtpResult.IsMoviePageExists()
+	else:
+		exists = movieOnPtpResult.IsReleaseExists( releaseInfo ) is not None
+
+	if exists:
+		return movieOnPtpResult.PtpId
+	else:
+		return None
+
 @app.route( "/movieAvailabilityCheck/", methods = [ "GET", "POST" ] )
 @requires_auth
 def movieAvailabilityCheck():
@@ -16,9 +30,12 @@ def movieAvailabilityCheck():
 		Ptp.Login()
 
 		releaseInfo = ReleaseInfo()
+		anyFormat = False
 
 		format = request.values[ "format" ]
-		if format == "SD XviD":
+		if format == "Any":
+			anyFormat = True
+		elif format == "SD XviD":
 			releaseInfo.Codec = "XviD"
 			releaseInfo.Container = "AVI"
 			releaseInfo.ResolutionType = "Other"
@@ -47,12 +64,12 @@ def movieAvailabilityCheck():
 
 		matches = re.findall( r"imdb.com/title/tt(\d+)", imdbIds )
 		for match in matches:
-			movieOnPtpResult = Ptp.GetMoviePageOnPtpByImdbId( MyGlobals.Logger, match )
-			existingRelease = movieOnPtpResult.IsReleaseExists( releaseInfo )
-			if existingRelease is None: 
+			ptpId = GetPtpIdIfExists( match, releaseInfo, anyFormat )
+
+			if ptpId is None:
 				resultHtml += """<a href="http://www.imdb.com/title/tt%s">%s</a> - NOT ON PTP</br>""" % ( match, match )
 			else:
-				resultHtml += """<a href="http://www.imdb.com/title/tt%s">%s</a> - <a href="https://passthepopcorn.me/torrents.php?id=%s">PTP</a></br>""" % ( match, match, movieOnPtpResult.PtpId )
+				resultHtml += """<a href="http://www.imdb.com/title/tt%s">%s</a> - <a href="https://passthepopcorn.me/torrents.php?id=%s">PTP</a></br>""" % ( match, match, ptpId )
 			
 		return resultHtml
 
