@@ -2,19 +2,25 @@ from IncludedFileList import IncludedFileList
 from NfoParser import NfoParser
 from PtpUploaderException import PtpUploaderException
 from ReleaseExtractor import ReleaseExtractor
+from Settings import Settings
 
 import os
 
 class SourceBase:
+	def __init__(self):
+		self.MaximumParallelDownloads = 1
+
 	def LoadSettings(self, settings):
 		self.Username = settings.GetDefault( self.NameInSettings, "Username", "" )
 		self.Password = settings.GetDefault( self.NameInSettings, "Password", "" )
 		self.AutomaticJobFilter = settings.GetDefault( self.NameInSettings, "AutomaticJobFilter", "" )
 
-		# In case of invalid settings use the site's default.
-		maximumParallelDownloads = int( settings.GetDefault( self.NameInSettings, "MaximumParallelDownloads", "0" ) )
+		# Do not allow bogus settings.
+		maximumParallelDownloads = int( settings.GetDefault( self.NameInSettings, "MaximumParallelDownloads", "1" ) )
 		if maximumParallelDownloads > 0:
 			self.MaximumParallelDownloads = maximumParallelDownloads
+
+		self.StopAutomaticJobIfThereAreMultipleVideos = settings.GetDefault( self.NameInSettings, "StopAutomaticJobIfThereAreMultipleVideos", "" ).lower()
 
 	def IsEnabled(self):
 		return True
@@ -32,6 +38,22 @@ class SourceBase:
 
 	def DownloadTorrent(self, logger, releaseInfo, path):
 		pass
+
+	# fileList must be an instance of IncludedFileList.
+	def CheckFileList(self, releaseInfo, fileList):
+		releaseInfo.Logger.info( "Checking the contents of the torrent." )
+
+		if releaseInfo.IsDvdImage():
+			return
+
+		# Check if the release contains multiple non-ignored videos.
+		numberOfVideoFiles = 0
+		for file in fileList.Files:
+			if file.IsIncluded() and Settings.HasValidVideoExtensionToUpload( file.Name ):
+				numberOfVideoFiles += 1
+
+		if numberOfVideoFiles > 1:
+			raise PtpUploaderException( "Torrent contains multiple video files." )
 
 	def IsDownloadFinished(self, logger, releaseInfo, rtorrent):
 		return rtorrent.IsTorrentFinished( logger, releaseInfo.SourceTorrentInfoHash )

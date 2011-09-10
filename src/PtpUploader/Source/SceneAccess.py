@@ -16,9 +16,10 @@ import urllib2
 
 class SceneAccess(SourceBase):
 	def __init__(self):
+		SourceBase.__init__( self )
+
 		self.Name = "scc"
 		self.NameInSettings = "SceneAccess"
-		self.MaximumParallelDownloads = 1
 
 	def LoadSettings(self, settings):
 		SourceBase.LoadSettings( self, settings )

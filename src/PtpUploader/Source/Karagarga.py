@@ -16,9 +16,10 @@ import urllib2
 
 class Karagarga(SourceBase):
 	def __init__(self):
+		SourceBase.__init__( self )
+
 		self.Name = "kg"
 		self.NameInSettings = "Karagarga"
-		self.MaximumParallelDownloads = 4
 
 	def IsEnabled(self):
 		return len( self.Username ) > 0 and len( self.Password ) > 0

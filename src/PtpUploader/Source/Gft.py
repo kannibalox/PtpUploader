@@ -16,9 +16,10 @@ import urllib2
 
 class Gft(SourceBase):
 	def __init__(self):
+		SourceBase.__init__( self )
+
 		self.Name = "gft"
 		self.NameInSettings = "GFT"
-		self.MaximumParallelDownloads = 1
 
 	def IsEnabled(self):
 		return len( self.Username ) > 0 and len( self.Password ) > 0

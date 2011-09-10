@@ -16,9 +16,10 @@ import urllib2
 
 class Cinemageddon(SourceBase):
 	def __init__(self):
+		SourceBase.__init__( self )
+
 		self.Name = "cg"
 		self.NameInSettings = "Cinemageddon"
-		self.MaximumParallelDownloads = 4
 	
 	def IsEnabled(self):
 		return len( self.Username ) > 0 and len( self.Password ) > 0

@@ -14,9 +14,10 @@ class File(SourceBase):
 	UploadDirectoryName = "PTP"
 
 	def __init__(self):
+		SourceBase.__init__( self )
+
 		self.Name = "file"
 		self.NameInSettings = "FileSource"
-		self.MaximumParallelDownloads = 1
 	
 	def PrepareDownload(self, logger, releaseInfo):
 		path = releaseInfo.GetReleaseDownloadPath()
@@ -34,6 +35,9 @@ class File(SourceBase):
 		releaseNameParser.GetSourceAndFormat( releaseInfo )
 		if releaseNameParser.Scene: 
 			releaseInfo.SetSceneRelease()
+			
+	def CheckFileList(self):
+		pass
 
 	def IsDownloadFinished(self, logger, releaseInfo, rtorrent):
 		return True

@@ -31,6 +31,7 @@ class CheckAnnouncement(WorkerBase):
 			phases.extend( [
 				self.__CreateReleaseDirectory,
 				self.__DownloadTorrentFile,
+				self.__StopAutomaticJobIfThereAreMultipleVideosBeforeDownloading,
 				self.__DownloadTorrent,
 				self.__AddToPendingDownloads ] )
 
@@ -237,6 +238,13 @@ class CheckAnnouncement(WorkerBase):
 		# Local variable is used temporarily to make sure that SourceTorrentFilePath is only gets stored in the database if DownloadTorrent succeeded. 
 		self.ReleaseInfo.SourceTorrentFilePath = sourceTorrentFilePath
 		Database.DbSession.commit()
+
+	def __StopAutomaticJobIfThereAreMultipleVideosBeforeDownloading(self):
+		if self.ReleaseInfo.IsUserCreatedJob() or self.ReleaseInfo.AnnouncementSource.StopAutomaticJobIfThereAreMultipleVideos != "beforedownloading":
+			return
+
+		includedFileList = self.ReleaseInfo.AnnouncementSource.GetIncludedFileList( self.ReleaseInfo )
+		self.ReleaseInfo.AnnouncementSource.CheckFileList( self.ReleaseInfo, includedFileList )
 
 	def __DownloadTorrent(self):
 		if len( self.ReleaseInfo.SourceTorrentInfoHash ) > 0:

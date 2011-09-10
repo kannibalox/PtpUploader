@@ -15,9 +15,10 @@ import urllib2
 
 class TorrentLeech(SourceBase):
 	def __init__(self):
+		SourceBase.__init__( self )
+
 		self.Name = "tl"
 		self.NameInSettings = "TorrentLeech"
-		self.MaximumParallelDownloads = 3
 
 	def IsEnabled(self):
 		return len( self.Username ) > 0 and len( self.Password ) > 0

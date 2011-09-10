@@ -17,6 +17,7 @@ import subprocess
 class Upload(WorkerBase):
 	def __init__(self, jobManager, jobManagerItem, rtorrent):
 		phases = [
+			self.__StopAutomaticJobIfThereAreMultipleVideosBeforeUploading,
 			self.__CreateUploadPath,
 			self.__MakeIncludedFileList,
 			self.__ExtractRelease,
@@ -40,6 +41,14 @@ class Upload(WorkerBase):
 		self.MainMediaInfo = None
 		self.ReleaseDescription = u""
 		self.AuthKey = u""
+
+
+	def __StopAutomaticJobIfThereAreMultipleVideosBeforeUploading(self):
+		if self.ReleaseInfo.IsUserCreatedJob() or self.ReleaseInfo.AnnouncementSource.StopAutomaticJobIfThereAreMultipleVideos != "beforeuploading":
+			return
+
+		includedFileList = self.ReleaseInfo.AnnouncementSource.GetIncludedFileList( self.ReleaseInfo )
+		self.ReleaseInfo.AnnouncementSource.CheckFileList( self.ReleaseInfo, includedFileList )
 
 	def __CreateUploadPath(self):
 		if self.ReleaseInfo.IsJobPhaseFinished( FinishedJobPhase.Upload_CreateUploadPath ):

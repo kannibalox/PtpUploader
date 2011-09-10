@@ -16,9 +16,10 @@ import urllib2
 
 class Cinematik(SourceBase):
 	def __init__(self):
+		SourceBase.__init__( self )
+
 		self.Name = "tik"
 		self.NameInSettings = "Cinematik"
-		self.MaximumParallelDownloads = 1
 
 	def IsEnabled(self):
 		return len( self.Username ) > 0 and len( self.Password ) > 0
