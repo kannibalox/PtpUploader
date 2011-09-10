@@ -1,8 +1,11 @@
 from PtpUploaderException import PtpUploaderException;
 from Settings import Settings;
 
-import re;
-import subprocess;
+import re
+import subprocess
+import sys
+import threading
+import traceback
 
 class MediaInfo:
 	# removePathFromCompleteName: this part will be removed from the path listed at "Complete Name". If removePathFromCompleteName is empty then it will be left as it is.
@@ -15,24 +18,45 @@ class MediaInfo:
 		self.Codec = ""
 		self.Width = 0
 		self.Height = 0
+		self.MediaInfoArgs = [ Settings.MediaInfoPath, self.Path ]
+		self.MediaInfoProcess = None
+		self.MediaInfoStdOut = ""
+		self.ThreadExceptionMessage = None
 		
 		self.__ParseMediaInfo( logger )
 		self.__ValidateParsedMediaInfo()
 
-	# Returns with the media info.
-	@staticmethod
-	def ReadMediaInfo(logger, path):
-		logger.info( "Reading media info from '%s'." % path );
-		
-		args = [ Settings.MediaInfoPath, path ];
-		proc = subprocess.Popen( args, stdout = subprocess.PIPE );
-		stdout, stderr = proc.communicate();
-		errorCode = proc.wait();
-		if errorCode != 0:
-			raise PtpUploaderException( "Process execution '%s' returned with error code '%s'." % ( args, errorCode ) );			
-		
-		return stdout.decode( "utf-8", "ignore" );
-	
+	def __MediaInfoThread(self):
+		try:
+			self.MediaInfoProcess = subprocess.Popen( self.MediaInfoArgs, stdout = subprocess.PIPE )
+			self.MediaInfoStdOut, stderr = self.MediaInfoProcess.communicate()
+		except Exception, e:
+			self.ThreadExceptionMessage = traceback.format_exception_only( sys.exc_type, sys.exc_value )
+
+	# Returns with the output of MediaInfo.
+	def __ReadMediaInfo(self, logger):
+		logger.info( "Reading media info from '%s'." % self.Path )
+
+		# MediaInfo is buggy on some videos and takes a lot of time to finish. We limit this time to 60 seconds.
+		thread = threading.Thread( target = self.__MediaInfoThread )
+		thread.start()
+		thread.join( 60 )
+		if thread.isAlive():
+			try:
+				self.MediaInfoProcess.terminate()
+			finally:
+				thread.join()
+				raise PtpUploaderException( "Execution of MediaInfo command '%s' failed to finish in 60 seconds." % self.MediaInfoArgs )
+
+		if self.ThreadExceptionMessage is not None:
+			logger.error( "Original exception in __MediaInfoThread: %s" % self.ThreadExceptionMessage )
+			raise PtpUploaderException( "Got exception while trying to run MediaInfo command '%s'." % self.MediaInfoArgs )
+
+		if self.MediaInfoProcess.returncode != 0:
+			raise PtpUploaderException( "Execution of MediaInfo command '%s' returned with error code '%s'." % ( self.MediaInfoArgs, self.MediaInfoProcess.returncode ) )
+
+		return self.MediaInfoStdOut.decode( "utf-8", "ignore" )
+
 	# removePathFromCompleteName: see MediaInfo's constructor
 	# Returns with the media infos for all files in videoFiles.
 	@staticmethod
@@ -83,7 +107,7 @@ class MediaInfo:
 		return path
 
 	def __ParseMediaInfo(self, logger):
-		mediaInfoText = MediaInfo.ReadMediaInfo( logger, self.Path );
+		mediaInfoText = self.__ReadMediaInfo( logger );
 
 		section = "";
 		for line in mediaInfoText.splitlines():
