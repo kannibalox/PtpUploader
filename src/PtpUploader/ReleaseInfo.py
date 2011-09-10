@@ -24,6 +24,9 @@ class ReleaseInfoFlags:
 	# If this is set then the job will be the next processed job and the download will start regardless the number of maximum parallel downloads set for the source.
 	StartImmediately                    = 1 << 3
 
+	# Job will be stopped before uploading.
+	StopBeforeUploading                 = 1 << 4
+
 class ReleaseInfo(Database.Base):
 	__tablename__ = "release"
 
@@ -259,6 +262,17 @@ class ReleaseInfo(Database.Base):
 	# See the description at the flag.
 	def SetStartImmediately(self):
 		self.Flags |= ReleaseInfoFlags.StartImmediately
+
+	# See the description at the flag.
+	def IsStopBeforeUploading(self):
+		return ( self.Flags & ReleaseInfoFlags.StopBeforeUploading ) != 0
+
+	# See the description at the flag.
+	def SetStopBeforeUploading(self, stop):
+		if stop:
+			self.Flags |= ReleaseInfoFlags.StopBeforeUploading
+		else:
+			self.Flags &= ~ReleaseInfoFlags.StopBeforeUploading
 
 	def CanEdited(self):
 		return self.JobRunningState != JobRunningState.WaitingForStart and self.JobRunningState != JobRunningState.InProgress and self.JobRunningState != JobRunningState.Finished

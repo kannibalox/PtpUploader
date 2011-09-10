@@ -28,6 +28,7 @@ class Upload(WorkerBase):
 			self.__CheckIfExistsOnPtp,
 			self.__CheckCoverArt,
 			self.__RehostPoster,
+			self.__StopBeforeUploading,
 			self.__StartTorrent,
 			self.__UploadMovie,
 			self.__AddSubtitles,
@@ -247,6 +248,10 @@ class Upload(WorkerBase):
 			return
 
 		self.ReleaseInfo.CoverArtUrl = ImageUploader.Upload( self.ReleaseInfo.Logger, imageUrl = url )
+
+	def __StopBeforeUploading(self):
+		if self.ReleaseInfo.IsStopBeforeUploading():
+			raise PtpUploaderException( "Stopping before uploading." )
 
 	def __StartTorrent(self):
 		if len( self.ReleaseInfo.UploadTorrentInfoHash ) > 0:

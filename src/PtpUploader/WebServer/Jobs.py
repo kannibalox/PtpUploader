@@ -103,6 +103,9 @@ def StartJob(jobId):
 	# Manual forced jobs will resumed as manual forced.
 	if releaseInfo.JobStartMode == JobStartMode.Automatic:
 		releaseInfo.JobStartMode = JobStartMode.Manual
+
+	# Resume the job normally.
+	releaseInfo.SetStopBeforeUploading( False )
 	
 	Database.DbSession.commit()
 	MyGlobals.PtpUploader.AddMessage( PtpUploaderMessageStartJob( jobId ) )

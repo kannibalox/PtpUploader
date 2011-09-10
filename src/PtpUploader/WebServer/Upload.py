@@ -110,6 +110,7 @@ def upload():
 			return "Select something to upload!"
 
 		releaseInfo.ReleaseName = request.values[ "release_name" ]
+		releaseInfo.SetStopBeforeUploading( request.values[ "post" ] == "Upload but stop before uploading" )
 
 		JobCommon.FillReleaseInfoFromRequestData( releaseInfo, request )
 		

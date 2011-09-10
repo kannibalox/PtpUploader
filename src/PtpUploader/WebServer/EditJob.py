@@ -22,6 +22,8 @@ def EditJob(jobId):
 		if not releaseInfo.CanEdited():
 			return "The job is currently running and can't be edited!"
 
+		releaseInfo.SetStopBeforeUploading( request.values[ "post" ] == "Resume but stop before uploading" )
+
 		JobCommon.FillReleaseInfoFromRequestData( releaseInfo, request )
 		releaseInfo.JobRunningState = JobRunningState.WaitingForStart
 		Database.DbSession.commit()
