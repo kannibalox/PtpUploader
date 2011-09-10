@@ -34,7 +34,7 @@ class ReleaseInfoMaker:
 			includedFileList = IncludedFileList()
 			self.VideoFiles, self.AdditionalFiles = ReleaseExtractor.ValidateDirectory( MyGlobals.Logger, self.Path, includedFileList, throwExceptionForUnsupportedFiles = False )
 			if len( self.VideoFiles ) <= 0:
-				print "Path '%s' doesn't contains any videos!" % self.Path
+				print "Path '%s' doesn't contain any videos!" % self.Path
 				return False
 
 			# We use the parent directory of the path as the working directory.

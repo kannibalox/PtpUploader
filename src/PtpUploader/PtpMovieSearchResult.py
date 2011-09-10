@@ -81,7 +81,7 @@ class PtpMovieSearchResult:
 			sortedSections.append( ( otherIndex, self.OtherList ) )
 			
 		if len( sortedSections ) <= 0:
-			raise PtpUploaderException( "Error! Movie page doesn't contains any torrents." );
+			raise PtpUploaderException( "Error! Movie page doesn't contain any torrents." );
 			
 		sortedSections.sort()
 
