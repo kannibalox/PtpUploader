@@ -25,12 +25,10 @@ class PtpMovieSearchResultItem:
 class PtpMovieSearchResult:
 	def __init__(self, ptpId, moviePageHtml):
 		self.PtpId = ptpId;
+		self.MoviePageHtml = moviePageHtml
 		self.SdList = []
 		self.HdList = []
 		self.OtherList = []
-		
-		if moviePageHtml is not None:
-			self.__ParseMoviePage( moviePageHtml )
 
 	@staticmethod
 	def __ReprHelper(text, list, name):
@@ -45,6 +43,7 @@ class PtpMovieSearchResult:
 		return text
 
 	def __repr__(self):
+		self.__ParseMoviePage()
 		result = PtpMovieSearchResult.__ReprHelper( "", self.SdList, "Standard Definition" )
 		result = PtpMovieSearchResult.__ReprHelper( result, self.HdList, "High Definition" )
 		return PtpMovieSearchResult.__ReprHelper( result, self.OtherList, "Other" )
@@ -63,7 +62,14 @@ class PtpMovieSearchResult:
 			resolution = elements[ 3 ]
 			itemList.append( PtpMovieSearchResultItem( fullTitle, codec, container, source, resolution, sizeText ) )
 
-	def __ParseMoviePage(self, html):
+	def __ParseMoviePage(self):
+		# We only parse the movie page if needed. And we only parse it once.
+		html = self.MoviePageHtml
+		if html is None:
+			return
+		else:
+			self.MoviePageHtml = None
+
 		# We divide the HTML into three sections: SD, HD and Other type torrents.
 		# This is needed because we are using regular expressions and we have to know which section the torent belongs to.
 		# We could use a HTML parser too, but this is faster and less resource hungry.
@@ -194,7 +200,8 @@ class PtpMovieSearchResult:
 		sourceByQuality = [ "CAM", "TS", "VHS", "TV", "DVD-Screener", "TC", "HDTV", "R5" ]
 		
 		if releaseInfo.Source not in sourceByQuality: 
-			raise PtpUploaderException( "Unsupported source '%s'." % releaseInfo.Source );
+			raise PtpUploaderException( "Unsupported source '%s'." % releaseInfo.Source );
+
 		if releaseInfo.Codec == "DivX" or releaseInfo.Codec == "XviD" or releaseInfo.Codec == "H.264" or releaseInfo.Codec == "x264":
 			# We check if there is anything with same or better quality.
 			sourceIndex = sourceByQuality.index( releaseInfo.Source )
@@ -213,6 +220,8 @@ class PtpMovieSearchResult:
 		# We can't check if a special release is duplicate or not, but only manually edited jobs can be special releases so we allow them without checking.
 		if releaseInfo.IsSpecialRelease():
 			return None
+
+		self.__ParseMoviePage()
 
 		# If source is not DVD/HD-DVD/Blu-ray then we check if there is a release with any proper quality sources.
 		# If there is, we won't add this lower quality release.
