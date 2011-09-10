@@ -41,7 +41,7 @@ class SourceBase:
 
 	# fileList must be an instance of IncludedFileList.
 	def CheckFileList(self, releaseInfo, fileList):
-		releaseInfo.Logger.info( "Checking the contents of the torrent." )
+		releaseInfo.Logger.info( "Checking the contents of the release." )
 
 		if releaseInfo.IsDvdImage():
 			return
@@ -53,7 +53,7 @@ class SourceBase:
 				numberOfVideoFiles += 1
 
 		if numberOfVideoFiles > 1:
-			raise PtpUploaderException( "Torrent contains multiple video files." )
+			raise PtpUploaderException( "Release contains multiple video files." )
 
 	def IsDownloadFinished(self, logger, releaseInfo, rtorrent):
 		return rtorrent.IsTorrentFinished( logger, releaseInfo.SourceTorrentInfoHash )

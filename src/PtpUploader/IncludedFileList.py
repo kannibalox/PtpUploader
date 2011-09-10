@@ -22,7 +22,8 @@ class IncludedFileItem:
 		
 		# Ignore special root directories.
 		# !sample is used in HDBits releases.
-		if path.startswith( "proof/" ) or path.startswith( "sample/" ) or path.startswith( "!sample/" ):
+		# Extras must be uploaded separately on PTP.
+		if path.startswith( "proof/" ) or path.startswith( "sample/" ) or path.startswith( "!sample/" ) or path.startswith( "extra/" ) or path.startswith( "extras/" ):
 			return IncludedFileItemState.Ignore
 
 		name = os.path.basename( path )
