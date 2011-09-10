@@ -8,7 +8,6 @@ from PtpUploaderException import PtpUploaderException
 from ReleaseExtractor import ReleaseExtractor
 from ReleaseInfo import ReleaseInfo
 from ReleaseNameParser import ReleaseNameParser
-from Settings import Settings
 
 import re
 import time
@@ -18,10 +17,13 @@ import urllib2
 class SceneAccess(SourceBase):
 	def __init__(self):
 		self.Name = "scc"
-		self.Username = Settings.GetDefault( "SceneAccess", "Username", "" )
-		self.Password = Settings.GetDefault( "SceneAccess", "Password", "" )
-		self.MaximumParallelDownloads = int( Settings.GetDefault( "SceneAccess", "MaximumParallelDownloads", "1" ) )
-		self.IrcEnabled = Settings.GetDefault( "SceneAccess", "IrcEnabled", "" ).lower() == "yes"
+		self.NameInSettings = "SceneAccess"
+		self.MaximumParallelDownloads = 1
+
+	def LoadSettings(self, settings):
+		SourceBase.LoadSettings( self, settings )
+
+		self.IrcEnabled = settings.GetDefault( self.NameInSettings, "IrcEnabled", "" ).lower() == "yes"
 
 	def IsEnabled(self):
 		return len( self.Username ) > 0 and len( self.Password ) > 0

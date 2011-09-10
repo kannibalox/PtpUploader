@@ -8,7 +8,6 @@ from NfoParser import NfoParser
 from PtpUploaderException import *
 from ReleaseExtractor import ReleaseExtractor;
 from ReleaseInfo import ReleaseInfo;
-from Settings import Settings
 
 import os
 import re
@@ -18,9 +17,8 @@ import urllib2
 class Karagarga(SourceBase):
 	def __init__(self):
 		self.Name = "kg"
-		self.Username = Settings.GetDefault( "Karagarga", "Username", "" )
-		self.Password = Settings.GetDefault( "Karagarga", "Password", "" )
-		self.MaximumParallelDownloads = int( Settings.GetDefault( "Karagarga", "MaximumParallelDownloads", "4" ) )
+		self.NameInSettings = "Karagarga"
+		self.MaximumParallelDownloads = 4
 
 	def IsEnabled(self):
 		return len( self.Username ) > 0 and len( self.Password ) > 0

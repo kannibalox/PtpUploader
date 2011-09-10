@@ -6,12 +6,22 @@ from ReleaseExtractor import ReleaseExtractor
 import os
 
 class SourceBase:
+	def LoadSettings(self, settings):
+		self.Username = settings.GetDefault( self.NameInSettings, "Username", "" )
+		self.Password = settings.GetDefault( self.NameInSettings, "Password", "" )
+		self.AutomaticJobFilter = settings.GetDefault( self.NameInSettings, "AutomaticJobFilter", "" )
+
+		# In case of invalid settings use the site's default.
+		maximumParallelDownloads = int( settings.GetDefault( self.NameInSettings, "MaximumParallelDownloads", "0" ) )
+		if maximumParallelDownloads > 0:
+			self.MaximumParallelDownloads = maximumParallelDownloads
+
 	def IsEnabled(self):
 		return True
 
 	def Login(self):
 		pass
-	
+
 	def PrepareDownload(self, logger, releaseInfo):
 		pass
 
@@ -22,7 +32,7 @@ class SourceBase:
 
 	def DownloadTorrent(self, logger, releaseInfo, path):
 		pass
-	
+
 	def IsDownloadFinished(self, logger, releaseInfo, rtorrent):
 		return rtorrent.IsTorrentFinished( logger, releaseInfo.SourceTorrentInfoHash )
 
@@ -48,7 +58,7 @@ class SourceBase:
 	def ValidateExtractedRelease(self, releaseInfo, includedFileList):
 		videoFiles, additionalFiles = ReleaseExtractor.ValidateDirectory( releaseInfo.Logger, releaseInfo.GetReleaseUploadPath(), includedFileList )
 		if len( videoFiles ) < 1:
-			raise PtpUploaderException( "Upload path '%s' doesn't contains any video files." % releaseInfo.GetReleaseUploadPath() )
+			raise PtpUploaderException( "Upload path '%s' doesn't contain any video files." % releaseInfo.GetReleaseUploadPath() )
 
 		return videoFiles, additionalFiles
 

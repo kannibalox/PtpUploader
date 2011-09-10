@@ -8,7 +8,6 @@ from PtpUploaderException import PtpUploaderException
 from ReleaseExtractor import ReleaseExtractor
 from ReleaseInfo import ReleaseInfo
 from ReleaseNameParser import ReleaseNameParser
-from Settings import Settings
 
 import re
 import time
@@ -18,10 +17,8 @@ import urllib2
 class Gft(SourceBase):
 	def __init__(self):
 		self.Name = "gft"
-		self.Username = Settings.GetDefault( "GFT", "Username", "" )
-		self.Password = Settings.GetDefault( "GFT", "Password", "" )
-		self.MaximumParallelDownloads = int( Settings.GetDefault( "GFT", "MaximumParallelDownloads", "1" ) )
-		self.AutomaticJobFilter = Settings.GetDefault( "GFT", "AutomaticJobFilter", "" )
+		self.NameInSettings = "GFT"
+		self.MaximumParallelDownloads = 1
 
 	def IsEnabled(self):
 		return len( self.Username ) > 0 and len( self.Password ) > 0

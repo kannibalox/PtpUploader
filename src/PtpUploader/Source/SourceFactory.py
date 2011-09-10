@@ -31,6 +31,7 @@ class SourceFactory:
 		MyGlobals.Logger.info( "Sources initialized." )
 
 	def __AddSource(self, source):
+		source.LoadSettings( Settings )
 		if source.IsEnabled():
 			source.Login()
 		self.Sources[ source.Name ] = source

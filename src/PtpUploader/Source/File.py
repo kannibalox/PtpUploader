@@ -15,6 +15,7 @@ class File(SourceBase):
 
 	def __init__(self):
 		self.Name = "file"
+		self.NameInSettings = "FileSource"
 		self.MaximumParallelDownloads = 1
 	
 	def PrepareDownload(self, logger, releaseInfo):
@@ -33,7 +34,7 @@ class File(SourceBase):
 		releaseNameParser.GetSourceAndFormat( releaseInfo )
 		if releaseNameParser.Scene: 
 			releaseInfo.SetSceneRelease()
-			
+
 	def IsDownloadFinished(self, logger, releaseInfo, rtorrent):
 		return True
 

@@ -8,7 +8,6 @@ from PtpUploaderException import *
 from ReleaseExtractor import ReleaseExtractor
 from ReleaseInfo import ReleaseInfo
 from ReleaseNameParser import ReleaseNameParser
-from Settings import Settings
 
 import re
 import urllib
@@ -17,10 +16,8 @@ import urllib2
 class TorrentLeech(SourceBase):
 	def __init__(self):
 		self.Name = "tl"
-		self.Username = Settings.GetDefault( "TorrentLeech", "Username", "" )
-		self.Password = Settings.GetDefault( "TorrentLeech", "Password", "" )
-		self.MaximumParallelDownloads = int( Settings.GetDefault( "TorrentLeech", "MaximumParallelDownloads", "3" ) )
-		self.AutomaticJobFilter = Settings.GetDefault( "TorrentLeech", "AutomaticJobFilter", "" )
+		self.NameInSettings = "TorrentLeech"
+		self.MaximumParallelDownloads = 3
 
 	def IsEnabled(self):
 		return len( self.Username ) > 0 and len( self.Password ) > 0

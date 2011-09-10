@@ -8,7 +8,6 @@ from NfoParser import NfoParser
 from PtpUploaderException import PtpUploaderException
 from ReleaseExtractor import ReleaseExtractor;
 from ReleaseInfo import ReleaseInfo;
-from Settings import Settings
 
 import os
 import re
@@ -18,10 +17,9 @@ import urllib2
 class Cinematik(SourceBase):
 	def __init__(self):
 		self.Name = "tik"
-		self.Username = Settings.GetDefault( "Cinematik", "Username", "" )
-		self.Password = Settings.GetDefault( "Cinematik", "Password", "" )
-		self.MaximumParallelDownloads = int( Settings.GetDefault( "Cinematik", "MaximumParallelDownloads", "1" ) )
-	
+		self.NameInSettings = "Cinematik"
+		self.MaximumParallelDownloads = 1
+
 	def IsEnabled(self):
 		return len( self.Username ) > 0 and len( self.Password ) > 0
 

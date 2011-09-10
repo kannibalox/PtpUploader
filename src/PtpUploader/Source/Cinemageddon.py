@@ -8,7 +8,6 @@ from NfoParser import NfoParser
 from PtpUploaderException import PtpUploaderException
 from ReleaseExtractor import ReleaseExtractor;
 from ReleaseInfo import ReleaseInfo;
-from Settings import Settings
 
 import os
 import re
@@ -18,9 +17,8 @@ import urllib2
 class Cinemageddon(SourceBase):
 	def __init__(self):
 		self.Name = "cg"
-		self.Username = Settings.GetDefault( "Cinemageddon", "Username", "" )
-		self.Password = Settings.GetDefault( "Cinemageddon", "Password", "" )
-		self.MaximumParallelDownloads = int( Settings.GetDefault( "Cinemageddon", "MaximumParallelDownloads", "4" ) )
+		self.NameInSettings = "Cinemageddon"
+		self.MaximumParallelDownloads = 4
 	
 	def IsEnabled(self):
 		return len( self.Username ) > 0 and len( self.Password ) > 0
