@@ -17,7 +17,8 @@ import subprocess
 class Upload(WorkerBase):
 	def __init__(self, jobManager, jobManagerItem, rtorrent):
 		phases = [
-			self.__StopAutomaticJobIfThereAreMultipleVideosBeforeUploading,
+			self.__StopAutomaticJobBeforeExtracting,
+			self.__StopAutomaticJobIfThereAreMultipleVideosBeforeExtracting,
 			self.__CreateUploadPath,
 			self.__MakeIncludedFileList,
 			self.__ExtractRelease,
@@ -42,9 +43,14 @@ class Upload(WorkerBase):
 		self.ReleaseDescription = u""
 		self.AuthKey = u""
 
+	def __StopAutomaticJobBeforeExtracting(self):
+		if self.ReleaseInfo.IsUserCreatedJob() or self.ReleaseInfo.AnnouncementSource.StopAutomaticJob!= "beforeextracting":
+			return
 
-	def __StopAutomaticJobIfThereAreMultipleVideosBeforeUploading(self):
-		if self.ReleaseInfo.IsUserCreatedJob() or self.ReleaseInfo.AnnouncementSource.StopAutomaticJobIfThereAreMultipleVideos != "beforeuploading":
+		raise PtpUploaderException( "Stopping before extracting." )
+
+	def __StopAutomaticJobIfThereAreMultipleVideosBeforeExtracting(self):
+		if self.ReleaseInfo.IsUserCreatedJob() or self.ReleaseInfo.AnnouncementSource.StopAutomaticJobIfThereAreMultipleVideos != "beforeextracting":
 			return
 
 		includedFileList = self.ReleaseInfo.AnnouncementSource.GetIncludedFileList( self.ReleaseInfo )

@@ -22,7 +22,8 @@ class CheckAnnouncement(WorkerBase):
 			self.__CheckIfExistsOnPtp,
 			self.__FillOutDetailsForNewMovieByPtpApi,
 			self.__FillOutDetailsForNewMovieByExternalSources,
-			self.__CheckCoverArt ]
+			self.__CheckCoverArt,
+			self.__StopAutomaticJobBeforeDownloadingTorrentFile ]
 
 		# Instead of this if, it would be possible to make a totally generic downloader system through SourceBase.
 		if jobManagerItem.ReleaseInfo.AnnouncementSourceName == "file":
@@ -205,10 +206,16 @@ class CheckAnnouncement(WorkerBase):
 			self.ReleaseInfo.CoverArtUrl = imdbInfo.PosterUrl
 			if not self.ReleaseInfo.IsCoverArtUrlSet():
 				self.ReleaseInfo.CoverArtUrl = MoviePoster.Get( self.ReleaseInfo.Logger, self.ReleaseInfo.GetImdbId() )
-				
+
 	def __CheckCoverArt(self):
 		if Settings.StopIfCoverArtIsMissing.lower() == "beforedownloading":
 			self.ReleaseInfo.AnnouncementSource.CheckCoverArt( self.ReleaseInfo.Logger, self.ReleaseInfo )
+
+	def __StopAutomaticJobBeforeDownloadingTorrentFile(self):
+		if self.ReleaseInfo.IsUserCreatedJob() or self.ReleaseInfo.AnnouncementSource.StopAutomaticJob != "beforedownloadingtorrentfile":
+			return
+
+		raise PtpUploaderException( "Stopping before downloading torrent file." )
 
 	def __CreateReleaseDirectory(self):
 		if self.ReleaseInfo.IsJobPhaseFinished( FinishedJobPhase.Download_CreateReleaseDirectory ):

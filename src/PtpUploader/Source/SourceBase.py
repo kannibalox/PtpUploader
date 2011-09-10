@@ -20,6 +20,7 @@ class SourceBase:
 		if maximumParallelDownloads > 0:
 			self.MaximumParallelDownloads = maximumParallelDownloads
 
+		self.StopAutomaticJob = settings.GetDefault( self.NameInSettings, "StopAutomaticJob", "" ).lower()
 		self.StopAutomaticJobIfThereAreMultipleVideos = settings.GetDefault( self.NameInSettings, "StopAutomaticJobIfThereAreMultipleVideos", "" ).lower()
 
 	def IsEnabled(self):
