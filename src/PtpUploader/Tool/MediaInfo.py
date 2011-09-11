@@ -18,6 +18,8 @@ class MediaInfo:
 		self.Codec = ""
 		self.Width = 0
 		self.Height = 0
+		self.Subtitles = []
+
 		self.MediaInfoArgs = [ Settings.MediaInfoPath, self.Path ]
 		self.MediaInfoProcess = None
 		self.MediaInfoStdOut = ""
@@ -134,6 +136,9 @@ class MediaInfo:
 						self.Width = MediaInfo.__ParseSize( mediaPropertyValue );
 					elif mediaPropertyName == "Height":
 						self.Height = MediaInfo.__ParseSize( mediaPropertyValue );
+				elif section.startswith( "Text #" ) or section == "Text":
+					if mediaPropertyName == "Language":
+						self.Subtitles.append( mediaPropertyValue )
 
 			self.FormattedMediaInfo += line + "\n";
 			

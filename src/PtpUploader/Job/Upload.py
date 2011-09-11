@@ -5,7 +5,9 @@ from Tool.MakeTorrent import MakeTorrent
 
 from Database import Database
 from ImageUploader import ImageUploader
+from MyGlobals import MyGlobals
 from Ptp import Ptp
+from PtpSubtitle import *
 from PtpUploaderException import *
 from ReleaseDescriptionFormatter import ReleaseDescriptionFormatter
 from ReleaseExtractor import ReleaseExtractor
@@ -24,6 +26,7 @@ class Upload(WorkerBase):
 			self.__ExtractRelease,
 			self.__ValidateExtractedRelease,
 			self.__MakeReleaseDescription,
+			self.__DetectSubtitles,
 			self.__MakeTorrent,
 			self.__CheckIfExistsOnPtp,
 			self.__CheckCoverArt,
@@ -185,6 +188,58 @@ class Upload(WorkerBase):
 		self.__GetMediaInfoContainer( self.MainMediaInfo )
 		self.__GetMediaInfoCodec( self.MainMediaInfo )
 		self.__GetMediaInfoResolution( self.MainMediaInfo )
+
+	# Returns with true if failed to detect the language.
+	def __DetectSubtitlesAddOne(self, subtitleIds, languageName):
+		id = MyGlobals.PtpSubtitle.GetId( languageName )
+		if id is None:
+			# TODO: show warning on the WebUI
+			self.ReleaseInfo.Logger.warning( "Unknown subtitle language: '%s'." % languageName )
+			return True
+
+		id = str( id )
+		if id not in subtitleIds:
+			subtitleIds.append( id )
+
+		return False
+
+	def __DetectSubtitles(self):
+		subtitleIds = self.ReleaseInfo.GetSubtitles()
+		if len( subtitleIds ) > 0:
+			self.ReleaseInfo.Logger.info( "Subtitle list is not empty. Skipping subtitle detection." )
+			return
+
+		self.ReleaseInfo.Logger.info( "Detecting subtitles." )
+
+		# We can't do anything with DVD images.
+		if self.ReleaseInfo.IsDvdImage():
+			return
+
+		containsUnknownSubtitle = False
+
+		# Read from MediaInfo.
+		for language in self.MainMediaInfo.Subtitles:
+			containsUnknownSubtitle |= self.__DetectSubtitlesAddOne( subtitleIds, language )
+
+		# Try to read from IDX with the same name as the main video file.
+		idxPath, extension = os.path.splitext( self.MainMediaInfo.Path )
+		idxPath += ".idx"
+		if os.path.isfile( idxPath ):
+			for language in IdxReader.GetSubtitleLanguages( idxPath ):
+				containsUnknownSubtitle |= self.__DetectSubtitlesAddOne( subtitleIds, language )
+
+		# If everything went successfully so far, then check if there are any SRT files in the release.
+		if not containsUnknownSubtitle:
+			for file in self.AdditionalFiles:
+				if file.lower().endswith( ".srt" ):
+					# TODO: show warning on the WebUI
+					containsUnknownSubtitle = True
+					break
+
+		if len( subtitleIds ) > 0:
+			self.ReleaseInfo.SetSubtitles( subtitleIds )
+		elif not containsUnknownSubtitle:
+			self.ReleaseInfo.SetSubtitles( [ PtpSubtitleId.NoSubtitle ] )
 
 	def __MakeTorrent(self):
 		if len( self.ReleaseInfo.UploadTorrentFilePath ) > 0:
