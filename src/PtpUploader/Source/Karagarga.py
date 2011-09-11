@@ -75,7 +75,6 @@ class Karagarga(SourceBase):
 		else:
 			raise PtpUploaderException( JobRunningState.Ignored_NotSupported, "Unsupported source type '%s'." % sourceType )
 
-	# TODO: SD mkv supprot
 	def __DownloadNfoParseFormatType(self, releaseInfo, description):
 		if releaseInfo.IsCodecSet():
 			releaseInfo.Logger.info( "Codec '%s' is already set, not getting from the torrent page." % releaseInfo.Codec )
@@ -106,6 +105,59 @@ class Karagarga(SourceBase):
 			releaseInfo.Codec = "x264"
 		else:
 			raise PtpUploaderException( JobRunningState.Ignored_NotSupported, "Can't figure out codec from the rip specifications." )
+
+	def __DownloadNfoParseSubtitles(self, releaseInfo, description):
+		# Only detect subtitles if they are not specified.
+		if len( releaseInfo.GetSubtitles() ) > 0:
+			return
+
+		# <td class="heading" align="right" valign="top">Subtitles</td><td colspan="2" align="left" valign="top">included: English<hr>
+		match = re.search( r"<td.+?>Subtitles</td><td.+?>included: (.+?)<hr>", description )
+		if match is None:
+			return
+
+		subtitlesText = match.group( 1 ).lower()
+
+		# Handle specially for subtitle comments like this: "None yet, started working on it.", "No, sorry."
+		if subtitlesText.find( "none" ) != -1 or subtitlesText.find( "sorry" ) != -1:
+			return
+
+		if subtitlesText == "no" or subtitlesText == "no subtitles" or subtitlesText == "unknown if subtitles included":
+			return
+
+		# We don't want to add hardcoded subtitles.
+		if subtitlesText.find( "hard" ) != -1:
+			return
+
+		# On some torrents the subtitle type is indicated too. If it is IDX then we will detect later in a more precise way.
+		if subtitlesText.find( "idx" ) != -1 or subtitlesText.find( "vobsub" ) != -1:
+			return
+
+		# Remove comments.
+		subtitlesText = subtitlesText.replace( "subs added separately", "" )
+		subtitlesText = subtitlesText.replace( "(custom)", "" )
+		subtitlesText = subtitlesText.replace( "custom", "" )
+		subtitlesText = subtitlesText.replace( "(optional/softcoded)", "" )
+		subtitlesText = subtitlesText.replace( "(optional)", "" )
+		subtitlesText = subtitlesText.replace( ".srt", "" )
+		subtitlesText = subtitlesText.replace( "srt", "" )
+
+		# Go through the list of languages and try to get their PTP IDs.
+		subtitleIds = []
+		subtitleTexts = subtitlesText.split( "," )
+		for language in subtitleTexts:
+			language = language.strip()
+			id = MyGlobals.PtpSubtitle.GetId( language )
+			if id is None:
+				continue
+
+			# IDs are stored strings. And we only add them only once to the list.
+			id = str( id )
+			if id not in subtitleIds:
+				subtitleIds.append( id )
+
+		if len( subtitleIds ) > 0:
+			releaseInfo.SetSubtitles( subtitleIds )
 
 	def __DownloadNfo(self, logger, releaseInfo):
 		url = "http://karagarga.net/details.php?id=%s&filelist=1" % releaseInfo.AnnouncementId
@@ -163,6 +215,7 @@ class Karagarga(SourceBase):
 
 		self.__DownloadNfoParseSourceType( releaseInfo, description )
 		self.__DownloadNfoParseFormatType( releaseInfo, description )
+		self.__DownloadNfoParseSubtitles( releaseInfo, description )
 		
 		# Make sure that this is not a wrongly categorized DVDR.
 		if ( not releaseInfo.IsDvdImage() ) and ( re.search( r"<td>.+?\.vob</td>", description, re.IGNORECASE ) or re.search( r"<td>.+?\.iso</td>", description, re.IGNORECASE ) ):
