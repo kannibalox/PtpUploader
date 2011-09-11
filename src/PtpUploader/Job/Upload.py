@@ -239,7 +239,7 @@ class Upload(WorkerBase):
 		if len( subtitleIds ) > 0:
 			self.ReleaseInfo.SetSubtitles( subtitleIds )
 		elif not containsUnknownSubtitle:
-			self.ReleaseInfo.SetSubtitles( [ PtpSubtitleId.NoSubtitle ] )
+			self.ReleaseInfo.SetSubtitles( [ str( PtpSubtitleId.NoSubtitle ) ] )
 
 	def __MakeTorrent(self):
 		if len( self.ReleaseInfo.UploadTorrentFilePath ) > 0:
