@@ -39,10 +39,14 @@ class MediaInfo:
 	def __ReadMediaInfo(self, logger):
 		logger.info( "Reading media info from '%s'." % self.Path )
 
-		# MediaInfo is buggy on some videos and takes a lot of time to finish. We limit this time to 60 seconds.
+		# MediaInfo is buggy on some videos and takes a lot of time to finish. We limit this time to the user specified maximum.
 		thread = threading.Thread( target = self.__MediaInfoThread )
 		thread.start()
-		thread.join( 60 )
+		if Settings.MediaInfoTimeOut > 0:
+			thread.join( Settings.MediaInfoTimeOut )
+		else:
+			thread.join()
+
 		if thread.isAlive():
 			try:
 				self.MediaInfoProcess.terminate()

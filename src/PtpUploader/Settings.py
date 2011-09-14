@@ -152,6 +152,7 @@ class Settings(object):
 		Settings.TakeScreenshotOfAdditionalFiles = Settings.TakeScreenshotOfAdditionalFiles.lower() == "yes"
 		Settings.SizeLimitForAutoCreatedJobs = float( Settings.__GetDefault( configParser, "Settings", "SizeLimitForAutoCreatedJobs", "0" ) ) * 1024 * 1024 * 1024
 		Settings.StopIfCoverArtIsMissing = Settings.__GetDefault( configParser, "Settings", "StopIfCoverArtIsMissing", "" )
+		Settings.MediaInfoTimeOut = int( Settings.__GetDefault( configParser, "Settings", "MediaInfoTimeOut", "60" ) )
 
 		# Create the announcement directory.
 		# Invalid announcement directory is within the announcement directory, so we don't have to make the announcement directory separately.
