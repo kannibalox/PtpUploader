@@ -12,9 +12,9 @@ Supported sites for automatic mode:
 		- Use it at your own risk! From their rules: "You may not upload the content of our torrents or the .torrent file itself to any other places outside SCC."
 	- TorrentLeech (IRC, RSS)
 
-PtpUploader can create release desription (with media info and screenshots) for manual uploading from command line.
+PtpUploader can create release description (with media info and screenshots) for manual uploading from command line.
 	Syntax:
 		- "ReleaseInfoMaker.py <target directory or filename>" creates the release description and starts seeding the torrent.
 		- "ReleaseInfoMaker.py --notorrent <target directory or filename>" creates the release description.
 		
-	Use the resulting torrent that starts with PTP for uploading to the tracker. The other one, that starts with "fast resume", is for rTorrent, don't upload that!
+	Use the resulting torrent that starts with PTP for uploading to the tracker.
