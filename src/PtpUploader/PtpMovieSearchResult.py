@@ -1,4 +1,5 @@
 from Helper import GetSizeFromText
+from NfoParser import NfoParser
 from PtpUploaderException import PtpUploaderException
 
 import re
@@ -25,10 +26,22 @@ class PtpMovieSearchResultItem:
 class PtpMovieSearchResult:
 	def __init__(self, ptpId, moviePageHtml):
 		self.PtpId = ptpId;
-		self.MoviePageHtml = moviePageHtml
+		self.MoviePageHtml = None
+		self.ImdbId = ""
 		self.SdList = []
 		self.HdList = []
 		self.OtherList = []
+
+		if moviePageHtml is not None:
+			# Do not search in the comments.
+			startOfComments = moviePageHtml.find( """<div class="linkbox"><a name="comments"></a>""" )
+			if startOfComments == -1:
+				raise PtpUploaderException( "Can't find the start of the comments. Probably the layout of PTP has changed." )
+
+			# Can't assign directly to MoviePageHtml because __repr__ calls __ParseMoviePage which sets MoviePageHtml to None before the GetImdbId line. (When debugging.)
+			moviePageHtml = moviePageHtml[ :startOfComments ]
+			self.MoviePageHtml = moviePageHtml
+			self.ImdbId = NfoParser.GetImdbId( moviePageHtml )
 
 	@staticmethod
 	def __ReprHelper(text, list, name):

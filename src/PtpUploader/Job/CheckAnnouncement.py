@@ -89,11 +89,6 @@ class CheckAnnouncement(WorkerBase):
 		if self.ReleaseInfo.IsDvdImage() and self.ReleaseInfo.Container != "VOB IFO":
 			raise PtpUploaderException( JobRunningState.Ignored_NotSupported, "Only VOB IFO container is supported for DVD images." )
 	
-	def __CheckIfExistsOnPtpInternal(self, movieOnPtpResult):
-		existingRelease = movieOnPtpResult.IsReleaseExists( self.ReleaseInfo )
-		if existingRelease is not None:
-			raise PtpUploaderException( JobRunningState.Ignored_AlreadyExists, "Already exists on PTP: '%s'." % existingRelease )
-
 	def __CheckIfExistsOnPtp(self):
 		# TODO: this is temporary here. We should support it everywhere.
 		# If we are not logged in here that could mean that nothing interesting has been announcened for a while. 
@@ -104,20 +99,25 @@ class CheckAnnouncement(WorkerBase):
 			self.ReleaseInfo.Logger.info( "IMDb ID is set zero, ignoring the check for existing release." )
 			return
 
+		movieOnPtpResult = None
+
 		if self.ReleaseInfo.HasPtpId():
-			# If this is not a forced upload then we have to check if is it already on PTP.
-			if not self.ReleaseInfo.IsForceUpload():
-				movieOnPtpResult = Ptp.GetMoviePageOnPtp( self.ReleaseInfo.Logger, self.ReleaseInfo.GetPtpId() )
-				self.__CheckIfExistsOnPtpInternal( movieOnPtpResult )
+			movieOnPtpResult = Ptp.GetMoviePageOnPtp( self.ReleaseInfo.Logger, self.ReleaseInfo.GetPtpId() )
+
+			# If IMDb ID is not set, then store it, because it is needed for renaming releases coming from Cinemageddon and Cinematik.
+			if ( not self.ReleaseInfo.HasImdbId() ) and len( movieOnPtpResult.ImdbId ) > 0:
+				self.ReleaseInfo.ImdbId = movieOnPtpResult.ImdbId
 		else:
 			# Try to get a PTP ID.
 			movieOnPtpResult = Ptp.GetMoviePageOnPtpByImdbId( self.ReleaseInfo.Logger, self.ReleaseInfo.GetImdbId() )
 			self.ReleaseInfo.PtpId = movieOnPtpResult.PtpId
 
-			# If this is not a forced upload then we have to check if is it already on PTP.
-			if not self.ReleaseInfo.IsForceUpload():
-				self.__CheckIfExistsOnPtpInternal( movieOnPtpResult )
-	
+		# If this is not a forced upload then we have to check if is it already on PTP.
+		if not self.ReleaseInfo.IsForceUpload():
+			existingRelease = movieOnPtpResult.IsReleaseExists( self.ReleaseInfo )
+			if existingRelease is not None:
+				raise PtpUploaderException( JobRunningState.Ignored_AlreadyExists, "Already exists on PTP: '%s'." % existingRelease )
+
 	def __FillOutDetailsForNewMovieByPtpApi(self):
 		# If already has a page on PTP then we don't have to do anything here.
 		if self.ReleaseInfo.HasPtpId():
