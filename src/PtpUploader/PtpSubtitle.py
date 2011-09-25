@@ -3,6 +3,7 @@ from PtpUploaderException import *
 class PtpSubtitleId:
 	NoSubtitle = 44
 	Arabic     = 22
+	BrazilianPortuguese = 49
 	Bulgarian  = 29
 	Chinese    = 14
 	Croatian   = 23
@@ -48,6 +49,7 @@ class PtpSubtitle:
 		# Two letter codes: ISO 639-1
 		# http://en.wikipedia.org/wiki/List_of_ISO_639-1_codes
 		self.__Add( PtpSubtitleId.Arabic,     "Arabic",     "ara", "ar" )
+		self.__Add( PtpSubtitleId.BrazilianPortuguese,  "Brazilian Portuguese", "Brazilian",  "Portuguese-BR" )
 		self.__Add( PtpSubtitleId.Bulgarian,  "Bulgarian",  "bul", "bg" )
 		self.__Add( PtpSubtitleId.Chinese,    "Chinese",    "chi", "zh" )
 		self.__Add( PtpSubtitleId.Croatian,   "Croatian",   "hrv", "hr", "scr" )
