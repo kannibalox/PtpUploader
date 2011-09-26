@@ -81,7 +81,9 @@ class Upload(WorkerBase):
 		self.IncludedFileList = self.ReleaseInfo.AnnouncementSource.GetIncludedFileList( self.ReleaseInfo )
 
 		if len( self.ReleaseInfo.IncludedFiles ) > 0:
-			self.ReleaseInfo.Logger.info( "Cusomized included files: %s" % self.ReleaseInfo.IncludedFiles )
+			self.ReleaseInfo.Logger.info( "There are %s files in the file list. Customized: '%s'." % ( len( self.IncludedFileList.Files ), self.ReleaseInfo.IncludedFiles ) )
+		else:
+			self.ReleaseInfo.Logger.info( "There are %s files in the file list." % ( len( self.IncludedFileList.Files ) ) )
 
 		self.IncludedFileList.ApplyCustomizationFromJson( self.ReleaseInfo.IncludedFiles )
 
