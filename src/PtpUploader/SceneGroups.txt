@@ -14,6 +14,7 @@ BLOW
 BRMP
 CBGB
 CiNEFiLE
+Counterfeit
 CoWRY
 CROSSBOW
 D3Si
@@ -72,6 +73,7 @@ METiS
 MHD
 MoH
 N3WS
+nDn
 NeDiVx
 NODLABS
 NOHD
