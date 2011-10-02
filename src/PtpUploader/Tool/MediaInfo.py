@@ -18,6 +18,7 @@ class MediaInfo:
 		self.Codec = ""
 		self.Width = 0
 		self.Height = 0
+		self.VideoWritingLibrary = ""
 		self.Subtitles = []
 
 		self.MediaInfoArgs = [ Settings.MediaInfoPath, self.Path ]
@@ -140,6 +141,8 @@ class MediaInfo:
 						self.Width = MediaInfo.__ParseSize( mediaPropertyValue );
 					elif mediaPropertyName == "Height":
 						self.Height = MediaInfo.__ParseSize( mediaPropertyValue );
+					elif mediaPropertyName == "Writing library":
+						self.VideoWritingLibrary = mediaPropertyValue.lower()
 				elif section.startswith( "Text #" ) or section == "Text":
 					if mediaPropertyName == "Language":
 						self.Subtitles.append( mediaPropertyValue )
@@ -186,7 +189,7 @@ class MediaInfo:
 		return self.Codec == "xvid"
 
 	def IsX264(self):
-		return self.Codec == "v_mpeg4/iso/avc"
-		
+		return self.Codec == "v_mpeg4/iso/avc" or ( self.Codec == "avc1" and self.VideoWritingLibrary.find( "x264 core" ) == 0 )
+
 	def IsH264(self):
-		return self.Codec == "h264"
+		return self.Codec == "h264" and ( not self.IsX264() )
