@@ -60,7 +60,7 @@ class JobCommon:
 		releaseInfo.Type = request.values[ "type" ]
 		JobCommon.__GetPtpOrImdbId( releaseInfo, request.values[ "imdb" ] )
 		releaseInfo.Directors = request.values[ "artists[]" ]
-		releaseInfo.Title = request.values[ "title" ]
+		releaseInfo.Title = request.values[ "title" ].strip()
 		releaseInfo.Year = request.values[ "year" ]
 		releaseInfo.Tags = request.values[ "tags" ]
 		releaseInfo.MovieDescription = request.values[ "album_desc" ]

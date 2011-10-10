@@ -46,7 +46,7 @@ class PtpImdbInfo:
 		title = self.JsonMovie[ "title" ]
 		if ( title is None ) or len( title ) == 0:
 			raise PtpUploaderException( "Bad PTP movie info JSON response: title is empty.\nFull response:\n%s" % self.JsonResponse )
-		return self.HtmlParser.unescape( title ) # PTP doesn't decodes properly the text.
+		return self.HtmlParser.unescape( title ).strip() # PTP doesn't decodes properly the text.
 
 	def GetYear(self):
 		self.__LoadmdbInfo()

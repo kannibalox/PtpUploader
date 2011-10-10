@@ -45,7 +45,7 @@ class Imdb:
 		
 		jsonLoad = json.loads( response )
 		data = jsonLoad[ "data" ]
-		imdbInfo.Title = data[ "title" ]
+		imdbInfo.Title = data[ "title" ].strip()
 		imdbInfo.Year = data[ "year" ]
 
 		image = data.get( "image" )
