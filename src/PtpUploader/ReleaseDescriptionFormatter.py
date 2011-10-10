@@ -90,7 +90,9 @@ class ReleaseDescriptionFormatter:
 		self.MainMediaInfo = mediaInfos[ 0 ]
 		
 		for i in range( len( mediaInfos ) ):
-			if i == 0:
+			# The most common special release ("Not main movie") is Extras.
+			# We take screenshots for all videos in extras because they might be totally different content (trailers, interviews, etc.).
+			if i == 0 or self.ReleaseInfo.IsSpecialRelease():
 				self.VideoEntries.append( ReleaseDescriptionVideoEntry( mediaInfos[ i ] ) )
 			else:
 				numberOfScreenshotsToTake = 0
