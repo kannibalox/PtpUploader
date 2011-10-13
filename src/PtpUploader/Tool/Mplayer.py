@@ -6,16 +6,36 @@ import re
 import subprocess
 
 class Mplayer:
+	NoAutoSubParameterSupported = None
+
 	def __init__(self, logger, inputVideoPath):
+		Mplayer.DetectNoAutoSubParameterSupport()
+
 		self.Logger = logger
 		self.InputVideoPath = inputVideoPath
 		self.ScaleSize = None
 		
 		self.__CalculateSizeAccordingToAspectRatio()
 
+	# The noautosub parameter is not present in all version of MPlayer, and it returns with error code if it is specified.
+	@staticmethod
+	def DetectNoAutoSubParameterSupport():
+		if Mplayer.NoAutoSubParameterSupported is not None:
+			return
+
+		args = [ Settings.MplayerPath,"-noautosub" ]
+		proc = subprocess.Popen( args, stdout = subprocess.PIPE, stderr = subprocess.PIPE )
+		stdout, stderr = proc.communicate()
+		errorCode = proc.wait()
+		Mplayer.NoAutoSubParameterSupported = errorCode == 0
+
 	# We could get this info when making the first screenshot, but ScaleSize is not stored in the database and screenshots are not made again when resuming a job.
 	def __CalculateSizeAccordingToAspectRatio(self):
-		args = [ Settings.MplayerPath, "-identify", "-vo", "null", "-frames", "1", "-nosound", "-nosub", "-noautosub", "-nolirc", self.InputVideoPath ]
+		args = [ Settings.MplayerPath, "-identify", "-vo", "null", "-frames", "1", "-nosound", "-nosub", "-nolirc" ]
+		if Mplayer.NoAutoSubParameterSupported:
+		   args.append( "-noautosub" )
+		args.append( self.InputVideoPath )
+
 		proc = subprocess.Popen( args, stdout = subprocess.PIPE, stderr = subprocess.PIPE )
 		stdout, stderr = proc.communicate()
 		errorCode = proc.wait()
@@ -46,11 +66,15 @@ class Mplayer:
 		if os.path.exists( outputJpgPath ):
 			raise PtpUploaderException( "Can't create screenshot because file '%s' already exists." % outputJpgPath )
 
-		# mplayer -ss 101 -vo jpeg:quality=77:outdir="/home/tnsuser/temp/a b/" -frames 1 -vf scale:0:0 -nosound -nosub -noautosub -nolirc a.vob
+		# mplayer -ss 101 -vo jpeg:quality=77:outdir="/home/tnsuser/temp/a b/" -frames 1 -vf scale=0:0 -nosound -nosub -noautosub -nolirc a.vob
 		# outdir is not working with the Windows version of MPlayer, so for the sake of easier testing we set the output directory with by setting the current working directory.
 		# -vf scale=0:0 -- use display aspect ratio
 		time = str( int( timeInSeconds ) )
-		args = [ Settings.MplayerPath, "-ss", time, "-vo", "jpeg:quality=97", "-frames", "1", "-vf", "scale=0:0", "-nosound", "-nosub", "-noautosub", "-nolirc", self.InputVideoPath ]
+		args = [ Settings.MplayerPath, "-ss", time, "-vo", "jpeg:quality=97", "-frames", "1", "-vf", "scale=0:0", "-nosound", "-nosub", "-nolirc" ]
+		if Mplayer.NoAutoSubParameterSupported:
+		   args.append( "-noautosub" )
+		args.append( self.InputVideoPath )
+
 		errorCode = subprocess.call( args, cwd = outputDirectory )
 		if errorCode != 0:
 			raise PtpUploaderException( "Process execution '%s' returned with error code '%s'." % ( args, errorCode ) )
