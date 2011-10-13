@@ -60,8 +60,14 @@ class Rtorrent:
 		if errorCode != 0:
 			raise PtpUploaderException( "Process execution '%s' returned with error code '%s'." % ( args, errorCode ) );
 		
-		infoHash = self.AddTorrent( logger, destinationTorrentPath, downloadPath )
-		os.remove( destinationTorrentPath )
+		infoHash = ""
+		try:
+			infoHash = self.AddTorrent( logger, destinationTorrentPath, downloadPath )
+		finally:
+			# We always remove the fast resume torrent regardless of result of adding the torrent to rTorrent.
+			# This ensures that even if adding to rTorent fails, then resuming the job will work.
+			os.remove( destinationTorrentPath )
+
 		return infoHash
 		
 	def IsTorrentFinished(self, logger, infoHash):
