@@ -158,6 +158,10 @@ class Cinemageddon(SourceBase):
 		response = result.read()
 		self.__CheckIfLoggedInFromResponse( response )
 		
+		# The number of maximum simultaneous downloads is limited on Cinemageddon.
+		if response.find( "<h2>Max Torrents Reached</h2>" ) != -1:
+			raise PtpUploaderException( "Maximum torrents reached on CG." )
+
 		file = open( path, "wb" )
 		file.write( response )
 		file.close()
