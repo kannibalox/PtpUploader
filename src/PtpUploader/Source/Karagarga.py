@@ -188,8 +188,9 @@ class Karagarga(SourceBase):
 		# Optional flags parameter for sub function was only introduced in Python v2.7 so we use compile.sub instead. 
 		releaseName = re.compile( r"\.avi$", re.IGNORECASE ).sub( "", releaseName )
 		releaseName = re.compile( r"\.mkv$", re.IGNORECASE ).sub( "", releaseName )
-		releaseInfo.ReleaseName = releaseName
-		
+		if not releaseInfo.IsReleaseNameSet():
+			releaseInfo.ReleaseName = releaseName
+
 		# Make sure it is under the movie category.
 		# <tr><td class="heading" align="right" valign="top">Type</td><td colspan="2" align="left" valign="top"><a href="browse.php?cat=1">Movie</a></td></tr>
 		matches = re.search( r"""<tr><td.*?>Type</td><td.*?><a href="browse.php\?cat=1">Movie</a></td></tr>""", description )
