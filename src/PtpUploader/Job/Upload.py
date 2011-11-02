@@ -194,6 +194,8 @@ class Upload(WorkerBase):
 
 	# Returns with true if failed to detect the language.
 	def __DetectSubtitlesAddOne(self, subtitleIds, languageName):
+		self.ReleaseInfo.Logger.info( "SUBTITLE DEBUG: __DetectSubtitlesAddOne subtitleIds: '%s'." % subtitleIds )
+
 		id = MyGlobals.PtpSubtitle.GetId( languageName )
 		if id is None:
 			# TODO: show warning on the WebUI
@@ -202,11 +204,16 @@ class Upload(WorkerBase):
 
 		id = str( id )
 		if id not in subtitleIds:
+			self.ReleaseInfo.Logger.info( "SUBTITLE DEBUG: adding id '%s' for subtitle '%s'." % ( id, languageName ) )
 			subtitleIds.append( id )
+		else:
+			self.ReleaseInfo.Logger.info( "SUBTITLE DEBUG: subtitleIds already contains id '%s' for subtitle '%s'." % ( id, languageName ) )
 
 		return False
 
 	def __DetectSubtitles(self):
+		self.ReleaseInfo.Logger.info( "SUBTITLE DEBUG: __DetectSubtitles start. self.ReleaseInfo.Subtitles: '%s'." % self.ReleaseInfo.Subtitles )
+
 		subtitleIds = self.ReleaseInfo.GetSubtitles()
 		if len( subtitleIds ) > 0:
 			self.ReleaseInfo.Logger.info( "Subtitle list is not empty. Skipping subtitle detection." )
@@ -222,27 +229,39 @@ class Upload(WorkerBase):
 
 		# Read from MediaInfo.
 		for language in self.MainMediaInfo.Subtitles:
+			self.ReleaseInfo.Logger.info( "SUBTITLE DEBUG: detecting MediaInfo subtitle: '%s'." % language )
 			containsUnknownSubtitle |= self.__DetectSubtitlesAddOne( subtitleIds, language )
 
 		# Try to read from IDX with the same name as the main video file.
 		idxPath, extension = os.path.splitext( self.MainMediaInfo.Path )
 		idxPath += ".idx"
+		self.ReleaseInfo.Logger.info( "SUBTITLE DEBUG: idx path: '%s'." % idxPath )
 		if os.path.isfile( idxPath ):
+			self.ReleaseInfo.Logger.info( "SUBTITLE DEBUG: idx exists." )
 			for language in IdxReader.GetSubtitleLanguages( idxPath ):
+				self.ReleaseInfo.Logger.info( "SUBTITLE DEBUG: detecting idx subtitle: '%s'." % language )
 				containsUnknownSubtitle |= self.__DetectSubtitlesAddOne( subtitleIds, language )
+
+		self.ReleaseInfo.Logger.info( "SUBTITLE DEBUG: before srt check. subtitleIds: '%s', containsUnknownSubtitle: '%s'." % ( subtitleIds, containsUnknownSubtitle ) )
 
 		# If everything went successfully so far, then check if there are any SRT files in the release.
 		if not containsUnknownSubtitle:
 			for file in self.AdditionalFiles:
 				if file.lower().endswith( ".srt" ):
+					self.ReleaseInfo.Logger.info( "SUBTITLE DEBUG: srt found: '%s'." % file )
+
 					# TODO: show warning on the WebUI
 					containsUnknownSubtitle = True
 					break
+
+		self.ReleaseInfo.Logger.info( "SUBTITLE DEBUG: finishing. subtitleIds: '%s', containsUnknownSubtitle: '%s'." % ( subtitleIds, containsUnknownSubtitle ) )
 
 		if len( subtitleIds ) > 0:
 			self.ReleaseInfo.SetSubtitles( subtitleIds )
 		elif not containsUnknownSubtitle:
 			self.ReleaseInfo.SetSubtitles( [ str( PtpSubtitleId.NoSubtitle ) ] )
+
+		self.ReleaseInfo.Logger.info( "SUBTITLE DEBUG: self.ReleaseInfo.Subtitles: '%s'." % self.ReleaseInfo.Subtitles )
 
 	def __MakeTorrent(self):
 		if len( self.ReleaseInfo.UploadTorrentFilePath ) > 0:
