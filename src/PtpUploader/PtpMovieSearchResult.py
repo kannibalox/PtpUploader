@@ -89,15 +89,15 @@ class PtpMovieSearchResult:
 
 		# We have to sort the sections because we use the their start and end indexes in the regular expression.  	
 		sortedSections = []
-		sdIndex = html.find( 'class="edition_info"><strong>Standard Definition</strong>' )
-		if sdIndex >= 0:
-			sortedSections.append( ( sdIndex, self.SdList ) )
-		hdIndex = html.find( 'class="edition_info"><strong>High Definition</strong>' )
-		if hdIndex >= 0:
-			sortedSections.append( ( hdIndex, self.HdList ) )
-		otherIndex = html.find( 'class="edition_info"><strong>Other</strong>' )
-		if otherIndex >= 0:
-			sortedSections.append( ( otherIndex, self.OtherList ) )
+		sdMatch = re.search( """class="edition_info"><strong>.+?</strong> - Standard Definition""", html )
+		if ( sdMatch is not None ) and ( sdMatch.start() > 0 ):
+			sortedSections.append( ( sdMatch.start(), self.SdList ) )
+		hdMatch = re.search( """class="edition_info"><strong>.+?</strong> - High Definition""", html )
+		if ( hdMatch is not None ) and ( hdMatch.start() > 0 ):
+			sortedSections.append( ( hdMatch.start(), self.HdList ) )
+		otherMatch = re.search( """class="edition_info"><strong>.+?</strong> - Other""", html )
+		if ( otherMatch is not None ) and ( otherMatch.start() > 0 ):
+			sortedSections.append( ( otherMatch.start(), self.OtherList ) )
 			
 		if len( sortedSections ) <= 0:
 			raise PtpUploaderException( "Error! Movie page doesn't contain any torrents." );
