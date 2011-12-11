@@ -21,7 +21,7 @@ class MyWebServer(threading.Thread):
 		if len( port ) > 0:
 			port = int( port )
 		else:
-			port = 5000
+			port = 5500
 
 		MyGlobals.Logger.info( "Starting webserver on %s:%s." % ( host, port ) )
 
