@@ -188,6 +188,7 @@ class Karagarga(SourceBase):
 		# Optional flags parameter for sub function was only introduced in Python v2.7 so we use compile.sub instead. 
 		releaseName = re.compile( r"\.avi$", re.IGNORECASE ).sub( "", releaseName )
 		releaseName = re.compile( r"\.mkv$", re.IGNORECASE ).sub( "", releaseName )
+		releaseName = re.compile( r"\.mp4$", re.IGNORECASE ).sub( "", releaseName )
 		if not releaseInfo.IsReleaseNameSet():
 			releaseInfo.ReleaseName = releaseName
 
@@ -195,7 +196,7 @@ class Karagarga(SourceBase):
 		# <tr><td class="heading" align="right" valign="top">Type</td><td colspan="2" align="left" valign="top"><a href="browse.php?cat=1">Movie</a></td></tr>
 		matches = re.search( r"""<tr><td.*?>Type</td><td.*?><a href="browse.php\?cat=1">Movie</a></td></tr>""", description )
 		if matches is None:
-			raise PtpUploaderException( JobRunningState.Ignored_NotSupported, "Type is not movie." )			
+			raise PtpUploaderException( JobRunningState.Ignored_NotSupported, "Type is not movie." )
 
 		# Get IMDb id.
 		if ( not releaseInfo.HasImdbId() ) and ( not releaseInfo.HasPtpId() ):
