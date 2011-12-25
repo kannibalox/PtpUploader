@@ -64,7 +64,13 @@ class PtpMovieSearchResult:
 	def __ParseMoviePageMakeItems(self, itemList, regexFindList):
 		for regexFind in regexFindList:
 			fullTitle = regexFind[ 0 ] 
+			
+			# This regular expression could be in the long regular expression below, done this way for compatiblity.
 			sizeText = regexFind[ 1 ]
+			sizeMatch = re.match( """<span style="float: left;" title="(.+? bytes)">.+</span>""", sizeText )
+			if sizeMatch is not None:
+				sizeText = sizeMatch.group( 1 )
+
 			elements = fullTitle.split( " / " )
 			if len( elements ) < 4:
 				raise PtpUploaderException( "Unknown torrent format ('%s') on movie page 'https://passthepopcorn.me/torrents.php?id=%s'." % ( elements, self.PtpId ) )
