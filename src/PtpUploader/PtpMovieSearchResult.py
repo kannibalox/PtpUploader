@@ -63,8 +63,17 @@ class PtpMovieSearchResult:
 
 	def __ParseMoviePageMakeItems(self, itemList, regexFindList):
 		for regexFind in regexFindList:
-			fullTitle = regexFind[ 0 ] 
-			
+			# Remove bold from trumpable and freeleech texts.
+			# Remove coloring that mark seeded and downloaded torrents.
+			# x264 / MKV / DVD / 716x432 / <strong class="ti_fl">Freeleech (13h27m left) </strong>
+			# x264 / MP4 / DVD / 720x400 / <strong class="ti_fl">Freeleech (22h17m left) </strong> / <strong class="ti_rp" style="color:Red">Reported</strong>
+			# <span class="tc_uploads" style="float:none;color:Purple"><strong>x264 / MKV / DVD / 716x432 / <strong class="ti_fl">Freeleech (13h27m left) </strong></strong></span>
+			fullTitle = regexFind[ 0 ]
+			fullTitle = re.sub( """<strong.*?>""", "", fullTitle )
+			fullTitle = re.sub( """</strong>""", "", fullTitle )
+			fullTitle = re.sub( """<span.*?>""", "", fullTitle )
+			fullTitle = re.sub( """</span>""", "", fullTitle )
+
 			# This regular expression could be in the long regular expression below, done this way for compatiblity.
 			sizeText = regexFind[ 1 ]
 			sizeMatch = re.match( """<span style="float: left;" title="(.+? bytes)">.+</span>""", sizeText )
@@ -111,12 +120,13 @@ class PtpMovieSearchResult:
 		sortedSections.sort()
 
 		# Well, the following regular expression is a bit long. :)
-		# There are two variations for the address because the downloaded/seeding torrents are displayed differently: 
+		# There are variations for the address because the normal, downloaded/seeding, freeleech and reported torrents. Few examples:
 		# <a href="#" onclick="$('#torrent_37673').toggle(); show_description('35555', '62113'); return false;">XviD / AVI / DVD / 720x420</a>
 		# <a href="#" onclick="$('#torrent_55714').toggle(); show_description('35555', '62113'); return false;"><span style="float:none;color:#E5B244;"><strong>XviD / AVI / DVD / 608x256 / Scene</strong></span></a>
+		# <a href="#" onclick="$('#torrent_125279').toggle(); show_description('14181', '125279'); return false;"><span class="tc_uploads" style="float:none;color:Purple"><strong>x264 / MKV / DVD / 716x432 / <strong class="ti_fl">Freeleech (13h27m left) </strong></strong></span></a>
 		regEx = re.compile(
 			"""<tr class="group_torrent" style="font-weight: normal;">"""\
-			""".+?<a href="#" onclick="\$\('#torrent_\d+'\)\.toggle\(\);.+?">(?:<span style=".+?"><strong>)?(.+?)(?:</strong></span>)?</a>"""\
+			""".+?<a href="#" onclick="\$\('#torrent_\d+'\)\.toggle\(\);.+?">(.+?)</a>"""\
 			""".+?</td>"""\
 			""".+?<td class="nobr">(.+?)</td>"""\
 			""".+?<td>.+?</td>"""\
