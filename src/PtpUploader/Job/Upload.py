@@ -221,8 +221,9 @@ class Upload(WorkerBase):
 		containsUnknownSubtitle = False
 
 		# Read from MediaInfo.
-		for language in self.MainMediaInfo.Subtitles:
-			containsUnknownSubtitle |= self.__DetectSubtitlesAddOne( subtitleIds, language )
+		# This is no longer necessary, it is automatically detected by PTP.
+		#for language in self.MainMediaInfo.Subtitles:
+		#	containsUnknownSubtitle |= self.__DetectSubtitlesAddOne( subtitleIds, language )
 
 		# Try to read from IDX with the same name as the main video file.
 		idxPath, extension = os.path.splitext( self.MainMediaInfo.Path )
