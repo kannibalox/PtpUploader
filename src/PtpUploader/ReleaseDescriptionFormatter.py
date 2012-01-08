@@ -27,6 +27,7 @@ class ReleaseDescriptionVideoEntry:
 			for screenshot in self.Screenshots:
 				releaseDescription += u"[img=%s]\n\n" % screenshot
 
+		releaseDescription += self.MediaInfo.FormattedMediaInfo
 		return releaseDescription
 
 class ReleaseDescriptionFormatter:
@@ -134,18 +135,6 @@ class ReleaseDescriptionFormatter:
 
 		self.ReleaseInfo.Screenshots = screenshotList.GetAsString()
 
-	def __GetFirstEntryWithScreenshotsIfThereIsOnlyOne(self):
-		first = None
-
-		for entry in self.VideoEntries:
-			if entry.HaveScreenshots():
-				if first is None:
-					first = entry
-				else:
-					return None
-
-		return first
-
 	def Format(self, includeReleaseName):
 		self.ReleaseInfo.Logger.info( "Making release description" )
 		releaseDescription = u""
@@ -160,21 +149,13 @@ class ReleaseDescriptionFormatter:
 		if len( self.ReleaseInfo.Nfo ) > 0:
 			releaseDescription += u"[hide=NFO][pre]%s[/pre][/hide]\n\n" % self.ReleaseInfo.Nfo
 
-		# Show screens before the file name if only one video have screenshots.
-		firstEntryWithScreenshots = self.__GetFirstEntryWithScreenshotsIfThereIsOnlyOne()
-		if firstEntryWithScreenshots is not None:
-			releaseDescription += firstEntryWithScreenshots.ToReleaseDescription()
+		for i in range( len( self.VideoEntries ) ):
+			entry = self.VideoEntries[ i ]
 
-		for entry in self.VideoEntries:
-			# Add file name before each media info if there are more than one videos in the release.
-			if len( self.VideoEntries ) > 1:
-				fileName = os.path.basename( entry.MediaInfo.Path )
-				releaseDescription += u"[size=3][u]%s[/u][/size]\n\n" % fileName
+			if i > 0:
+				releaseDescription += "\n\n"
 
-			if firstEntryWithScreenshots is None:
-				releaseDescription += entry.ToReleaseDescription()
-
-			releaseDescription += entry.MediaInfo.FormattedMediaInfo
+			releaseDescription += entry.ToReleaseDescription()
 
 		return releaseDescription
 	

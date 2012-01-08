@@ -114,6 +114,8 @@ class MediaInfo:
 		return path
 
 	def __ParseMediaInfo(self, logger):
+		# We can't simply store mediaInfoText in self.FormattedMediaInfo because the "Complete name" property gets modified.
+		# (By removing the full path if needed.)
 		mediaInfoText = self.__ReadMediaInfo( logger );
 
 		section = "";
@@ -121,7 +123,6 @@ class MediaInfo:
 			if line.find( ":" ) == -1:
 				if len( line ) > 0:
 					section = line;
-					line = "[b]" + line + "[/b]";
 			else:
 				mediaPropertyName, separator, mediaPropertyValue = line.partition( ": " )
 				originalMediaPropertyName = mediaPropertyName
@@ -148,6 +149,8 @@ class MediaInfo:
 						self.Subtitles.append( mediaPropertyValue )
 
 			self.FormattedMediaInfo += line + "\n";
+
+		self.FormattedMediaInfo = self.FormattedMediaInfo.strip()
 			
 	def __ValidateParsedMediaInfo(self):
 		if len( self.Container ) <= 0:
