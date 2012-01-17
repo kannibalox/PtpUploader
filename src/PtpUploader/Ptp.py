@@ -158,6 +158,12 @@ class Ptp:
 		if len( releaseInfo.RemasterYear ) > 0 or len( releaseInfo.RemasterTitle ) > 0:
 			paramList.append( poster.encode.MultipartParam( "remaster", "on" ) )
 
+		subtitles = releaseInfo.GetSubtitles()
+		for subtitle in subtitles:
+			multipartParam = poster.encode.MultipartParam( "subtitles[]", subtitle )
+			multipartParam.name = "subtitles[]" # MultipartParam escapes the square brackets to "%5B%5D". Change it back. :)
+			paramList.append( multipartParam )
+
 		return paramList;
 	
 	@staticmethod

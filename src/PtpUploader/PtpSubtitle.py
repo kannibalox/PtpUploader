@@ -56,7 +56,7 @@ class PtpSubtitle:
 		self.__Add( PtpSubtitleId.Czech,      "Czech",      "cze", "cz" )
 		self.__Add( PtpSubtitleId.Danish,     "Danish",     "dan", "da" )
 		self.__Add( PtpSubtitleId.Dutch,      "Dutch",      "dut", "nl" )
-		self.__Add( PtpSubtitleId.English,    "English",    "eng", "en", "English (CC)" )
+		self.__Add( PtpSubtitleId.English,    "English",    "eng", "en", "English (CC)", "English - SDH" )
 		self.__Add( PtpSubtitleId.Estonian,   "Estonian",   "est", "et" )
 		self.__Add( PtpSubtitleId.Finnish,    "Finnish",    "fin", "fi" )
 		self.__Add( PtpSubtitleId.French,     "French",     "fre", "fr" )

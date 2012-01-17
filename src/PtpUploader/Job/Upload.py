@@ -35,7 +35,6 @@ class Upload(WorkerBase):
 			self.__StopBeforeUploading,
 			self.__StartTorrent,
 			self.__UploadMovie,
-			self.__AddSubtitles,
 			self.__ExecuteCommandOnSuccessfulUpload ]
 
 		WorkerBase.__init__( self, phases, jobManager, jobManagerItem )
@@ -221,9 +220,8 @@ class Upload(WorkerBase):
 		containsUnknownSubtitle = False
 
 		# Read from MediaInfo.
-		# This is no longer necessary, it is automatically detected by PTP.
-		#for language in self.MainMediaInfo.Subtitles:
-		#	containsUnknownSubtitle |= self.__DetectSubtitlesAddOne( subtitleIds, language )
+		for language in self.MainMediaInfo.Subtitles:
+			containsUnknownSubtitle |= self.__DetectSubtitlesAddOne( subtitleIds, language )
 
 		# Try to read from IDX with the same name as the main video file.
 		idxPath, extension = os.path.splitext( self.MainMediaInfo.Path )
@@ -337,16 +335,6 @@ class Upload(WorkerBase):
 		self.ReleaseInfo.SetJobPhaseFinished( FinishedJobPhase.Upload_UploadMovie )
 		self.ReleaseInfo.JobRunningState = JobRunningState.Finished
 		Database.DbSession.commit()
-
-	def __AddSubtitles(self):
-		if len( self.ReleaseInfo.Subtitles ) <= 0:
-			return
-		
-		self.ReleaseInfo.Logger.info( "Adding subtitles: '%s'." % self.ReleaseInfo.Subtitles )
-
-		subtitles = self.ReleaseInfo.GetSubtitles()
-		for subtitle in subtitles:
-			Ptp.AddSubtitle( self.AuthKey, self.ReleaseInfo.GetPtpTorrentId(), subtitle )
 
 	def __ExecuteCommandOnSuccessfulUpload(self):
 		# Execute command on successful upload.
