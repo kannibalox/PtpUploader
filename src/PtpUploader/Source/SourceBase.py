@@ -105,7 +105,8 @@ class SourceBase:
 			for file in fileNames:
 				return
 
-	shutil.rmtree( path )
+		shutil.rmtree( path )
+
 	def Delete(self, releaseInfo, rtorrent, deleteSourceData, deleteUploadData):
 		# Only delete if the release directory has been created by this job.
 		# (This is needed because of the releases with the same name. This way deleting the second one won't delete the release directory of the first.)
