@@ -100,6 +100,6 @@ def UploadFile(releaseInfo, request):
 		return False
 	
 	releaseInfo.AnnouncementSourceName = "file"
-	releaseInfo.ReleaseDownloadPath = path
+	releaseInfo.SetReleaseDownloadPath( path )
 
 	return True

@@ -248,7 +248,7 @@ class Upload(WorkerBase):
 			self.ReleaseInfo.SetSubtitles( [ str( PtpSubtitleId.NoSubtitle ) ] )
 
 	def __MakeTorrent(self):
-		if len( self.ReleaseInfo.UploadTorrentFilePath ) > 0:
+		if self.ReleaseInfo.IsUploadTorrentFilePathSet():
 			self.ReleaseInfo.Logger.info( "Upload torrent file path is set, not making torrent again." )
 			return
 		

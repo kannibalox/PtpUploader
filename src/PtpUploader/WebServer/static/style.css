@@ -94,6 +94,11 @@ table.jobs td.name
 	width: 580px;
 }
 
+table.jobs td.jobbuttons
+{
+	text-align: right;
+}
+
 div.pagination
 {
 	padding-top: 32px;

@@ -197,6 +197,9 @@ class ReleaseInfo(Database.Base):
 	
 	def IsSourceTorrentFilePathSet(self):
 		return len( self.SourceTorrentFilePath ) > 0
+
+	def IsUploadTorrentFilePathSet(self):
+		return len( self.UploadTorrentFilePath ) > 0
 	
 	def GetDirectors(self):
 		if len( self.Directors ) > 0:
@@ -282,6 +285,9 @@ class ReleaseInfo(Database.Base):
 
 	def CanStopped(self):
 		return self.JobRunningState == JobRunningState.WaitingForStart or self.JobRunningState == JobRunningState.InProgress
+
+	def CanDeleted(self):
+		return self.JobRunningState != JobRunningState.WaitingForStart and self.JobRunningState != JobRunningState.InProgress
 
 	def IsJobPhaseFinished(self, jobPhase):
 		return ( self.FinishedJobPhase & jobPhase ) != 0 

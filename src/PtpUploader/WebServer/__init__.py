@@ -8,6 +8,7 @@ from flask import Flask, request, url_for
 app = Flask( __name__ )
 
 import WebServer.MovieAvailabilityCheck
+import WebServer.DeleteJob
 import WebServer.EditJob
 import WebServer.JobCommon
 import WebServer.Jobs

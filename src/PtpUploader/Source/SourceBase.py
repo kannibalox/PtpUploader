@@ -1,3 +1,5 @@
+from Job.FinishedJobPhase import FinishedJobPhase
+
 from IncludedFileList import IncludedFileList
 from NfoParser import NfoParser
 from PtpUploaderException import PtpUploaderException
@@ -5,6 +7,7 @@ from ReleaseExtractor import ReleaseExtractor
 from Settings import Settings
 
 import os
+import shutil
 
 class SourceBase:
 	def __init__(self):
@@ -92,6 +95,51 @@ class SourceBase:
 			includedFileList.FromTorrent( releaseInfo.SourceTorrentFilePath )
 
 		return includedFileList
+
+	@staticmethod
+	def __DeleteDirectoryIfEmpyOrContainsOnlyEmptyDirectories(path):
+		if not os.path.isdir( path ):
+			return
+
+		for ( dirPath, dirNames, fileNames ) in os.walk( path ):
+			for file in fileNames:
+				return
+
+	shutil.rmtree( path )
+	def Delete(self, releaseInfo, rtorrent, deleteSourceData, deleteUploadData):
+		# Only delete if the release directory has been created by this job.
+		# (This is needed because of the releases with the same name. This way deleting the second one won't delete the release directory of the first.)
+		if not releaseInfo.IsJobPhaseFinished( FinishedJobPhase.Download_CreateReleaseDirectory ):
+			return
+
+		if deleteSourceData:
+			# Delete the source torrent file.
+			if releaseInfo.IsSourceTorrentFilePathSet() and os.path.isfile( releaseInfo.SourceTorrentFilePath ):
+				os.remove( releaseInfo.SourceTorrentFilePath )
+
+			# Delete the source torrent from rTorrent.
+			if len( releaseInfo.SourceTorrentInfoHash ) > 0:
+				rtorrent.DeleteTorrent( releaseInfo.Logger, releaseInfo.SourceTorrentInfoHash )
+
+			# Delete the data of the source torrent.
+			if os.path.isdir( releaseInfo.GetReleaseDownloadPath() ):
+				shutil.rmtree( releaseInfo.GetReleaseDownloadPath() )
+
+		if deleteUploadData:
+			# Delete the uploaded torrent file.
+			if releaseInfo.IsUploadTorrentFilePathSet() and os.path.isfile( releaseInfo.UploadTorrentFilePath ):
+				os.remove( releaseInfo.UploadTorrentFilePath )
+
+			# Delete the uploaded torrent from rTorrent.
+			if len( releaseInfo.UploadTorrentInfoHash ) > 0:
+				rtorrent.DeleteTorrent( releaseInfo.Logger, releaseInfo.UploadTorrentInfoHash )
+
+			# Delete the data of the uploaded torrent.
+			if os.path.isdir( releaseInfo.GetReleaseUploadPath() ):
+				shutil.rmtree( releaseInfo.GetReleaseUploadPath() )
+
+		if deleteSourceData and deleteUploadData:
+			SourceBase.__DeleteDirectoryIfEmpyOrContainsOnlyEmptyDirectories( releaseInfo.GetReleaseRootPath() )
 
 	def GetTemporaryFolderForImagesAndTorrent(self, releaseInfo):
 		return releaseInfo.GetReleaseRootPath() 

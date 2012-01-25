@@ -58,6 +58,8 @@ def ReleaseInfoToJobsPageData(releaseInfo, entry):
 		entry[ "StopJobUrl" ] = url_for( "StopJob", jobId = releaseInfo.Id )
 	if releaseInfo.CanResumed():
 		entry[ "StartJobUrl" ] = url_for( "StartJob", jobId = releaseInfo.Id )
+	if releaseInfo.CanDeleted():
+		entry[ "CanDeleteJob" ] = True
 
 	source = MyGlobals.SourceFactory.GetSource( releaseInfo.AnnouncementSourceName )
 	if source is not None:
@@ -88,7 +90,7 @@ def jobs(page):
 
 	return render_template( "jobs.html", entries = entries, pagination = pagination )
 
-@app.route( "/jobs/<int:jobId>/start/" )
+@app.route( "/job/<int:jobId>/start/" )
 @requires_auth
 def StartJob(jobId):
 	# TODO: This is very far from perfect. There is no guarantee that the job didn't start meanwhile.
@@ -111,7 +113,7 @@ def StartJob(jobId):
 	MyGlobals.PtpUploader.AddMessage( PtpUploaderMessageStartJob( jobId ) )
 	return "OK"
 
-@app.route( "/jobs/<int:jobId>/stop/" )
+@app.route( "/job/<int:jobId>/stop/" )
 @requires_auth
 def StopJob(jobId):
 	# TODO: This is very far from perfect. There is no guarantee that the job didn't stop meanwhile.

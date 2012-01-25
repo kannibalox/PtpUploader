@@ -76,7 +76,7 @@ class ReleaseInfoMaker:
 		releaseInfo = ReleaseInfo()
 		releaseInfo.Logger = logger
 		releaseInfo.ReleaseName = self.ReleaseName
-		releaseInfo.ReleaseUploadPath = self.TorrentDataPath
+		releaseInfo.SetReleaseUploadPath( self.TorrentDataPath )
 		releaseInfo.Nfo = self.Nfo
 		self.MarkAsDvdImageIfNeeded( releaseInfo )
 

@@ -84,6 +84,14 @@ class Rtorrent:
 
 		return False
 	
+	# It doesn't delete the data.
+	def DeleteTorrent(self, logger, infoHash):
+		try:
+			self.proxy.d.stop( infoHash )
+			self.proxy.d.erase( infoHash )
+		except Exception:
+			logger.exception( "Got exception while trying to delete torrent. Info hash: '%s'." % infoHash )
+
 	# rTorrent can't download torrents with fast resume information in them, so we clean the torrents before starting the download.
 	# This can happen if the uploader uploaded the wrong torrent to the tracker.
 	def CleanTorrentFile(self, logger, torrentPath):

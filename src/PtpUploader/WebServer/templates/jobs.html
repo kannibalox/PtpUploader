@@ -43,7 +43,7 @@
 				<td>
 					{{ entry.Size }}
 				</td>
-				<td>
+				<td class="jobbuttons">
 					{% if entry.StartJobUrl %}
 						<a href="#" onclick='executeJobCommand( this, {{ entry.Id }}, "/start/" ); return false;'><img src={{ url_for( "static", filename = "start.png" ) }} title="Start"></a>
 					{% endif %}
@@ -52,6 +52,9 @@
 					{% endif %}
 					{% if entry.EditJobUrl %}
 						<a href="{{ entry.EditJobUrl }}"><img src={{ url_for( "static", filename = "edit.png" ) }} title="Edit"></a>
+					{% endif %}
+					{% if entry.CanDeleteJob %}
+						<a href="#" class="delete_job_context_menu" PtpUploaderJobId='{{ entry.Id }}'><img src={{ url_for( "static", filename = "delete.png" ) }} title="Delete"></a>
 					{% endif %}
 				</td>
 			</tr>
@@ -83,7 +86,10 @@
 	{% endif %}
 </div>
 
-<script type=text/javascript src="{{ url_for( "static", filename = "script/jquery-1.5.2.min.js" ) }}"></script>
+<script type=text/javascript src="{{ url_for( "static", filename = "script/jquery-1.7.1.min.js" ) }}"></script>
+<link href="{{ url_for( "static", filename = "script/jquery.contextMenu/jquery.contextMenu.css" ) }}" rel="stylesheet" type="text/css" />
+<script type=text/javascript src="{{ url_for( "static", filename = "script/jquery.contextMenu/jquery.contextMenu.js" ) }}"></script>
+<script type=text/javascript src="{{ url_for( "static", filename = "script/jquery.contextMenu/jquery.ui.position.js" ) }}"></script>
 
 <script type="text/javascript">
 	var $SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
@@ -93,7 +99,7 @@
 		$.ajax(
 		{
 			type: "GET",
-			url: $SCRIPT_ROOT + "/jobs/" + jobId + jobCommand,
+			url: $SCRIPT_ROOT + "/job/" + jobId + jobCommand,
 			context: linkNode,
 			success: function(msg)
 			{
@@ -103,5 +109,47 @@
 			}
 		} );
 	}
+
+	function executeDeleteJobCommand(linkNode, jobId, deleteMode)
+	{
+		$.ajax(
+		{
+			type: "GET",
+			url: $SCRIPT_ROOT + "/job/" + jobId + '/delete/?mode=' + deleteMode,
+			context: linkNode,
+			success: function(msg)
+			{
+				if ( msg == "OK" )
+					$( this ).parent().parent().fadeOut( "fast" );
+				else
+					$( this ).text( msg );
+			}
+		} );
+	}
+
+	$( function ()
+	{
+		$.contextMenu(
+		{
+			selector: '.delete_job_context_menu',
+			trigger: 'left',
+			callback: function( key, options )
+			{
+				var deleteLink = options.$trigger;
+				var jobId = deleteLink.attr( 'PtpUploaderJobId' );
+				if ( jobId.length > 0 )
+				{
+					executeDeleteJobCommand( deleteLink, jobId, key );
+				}
+			},
+			items:
+			{
+				"DeleteJob": { name: "Delete job" },
+				"DeleteJobAndSourceData": { name: "Delete job & source data" },
+				"DeleteJobAndUploadData": { name: "Delete job & upload data" },
+				"DeleteJobAndAllData": { name: "Delete job & all data" },
+			}
+		} );
+	} );
 </script>
 {% endblock %}
