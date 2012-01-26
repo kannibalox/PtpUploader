@@ -41,10 +41,10 @@ def GetSuggestedReleaseNameAndSizeFromTorrent(torrentPath):
 @app.route( "/ajaxuploadtorrentfile/", methods = [ "POST" ] )
 @requires_auth
 def ajaxUploadTorrentFile():
-	file = request.files.get( "file_input" )
+	file = request.files.get( "files[]" )
 	# file is not None even there is no file specified, but checking file as a boolean is OK. (As shown in the Flask example.) 
 	if ( not file ) or ( not IsFileAllowed( file.filename ) ):
-		return jsonify( result = "ERROR" )
+		return jsonify( myResult = "ERROR" )
 		
 	filename = secure_filename( file.filename )
 	
@@ -58,7 +58,7 @@ def ajaxUploadTorrentFile():
 	releaseName, size = GetSuggestedReleaseNameAndSizeFromTorrent( sourceTorrentFilePath )
 	sizeText = SizeToText( size )
 
-	return jsonify( result = "OK", torrentFilename = filename, releaseName = releaseName, torrentContentSize = size, torrentContentSizeText = sizeText )
+	return jsonify( myResult = "OK", torrentFilename = filename, releaseName = releaseName, torrentContentSize = size, torrentContentSizeText = sizeText )
 
 def UploadTorrentFile(releaseInfo, request):
 	torrentFilename = request.values[ "uploaded_torrentfilename" ]

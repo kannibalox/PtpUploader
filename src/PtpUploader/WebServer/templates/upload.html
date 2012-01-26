@@ -67,7 +67,7 @@
 
 {% include "job_common_javascript.html" %}
 
-<script src="{{ url_for( "static", filename = "script/jquery.html5_upload.js" ) }}"></script>
+<script src="{{ url_for( "static", filename = "script/jquery.fileupload.js" ) }}"></script>
 <script src="{{ url_for( "static", filename = "script/jqueryFileTree/jqueryFileTree.js" ) }}"></script>
 <link href="{{ url_for( "static", filename = "script/jqueryFileTree/jqueryFileTree.css" ) }}" rel="stylesheet" type="text/css" />
 
@@ -91,21 +91,19 @@
 	$( function ()
 	{
 		// Torrent file uploading.
-		$( "#upload_field" ).html5_upload(
+		$( "#upload_field" ).fileupload(
 		{
+			dataType: 'json',
 			url: "{{ url_for( "ajaxUploadTorrentFile" ) }}",
-			sendBoundary: true,
-			fieldName: "file_input",
-			stopOnFirstError: true,
-			onStart: function(event, total)
+			replaceFileInput: false,
+			start: function( e )
 			{
 				$( "#uploadtorrentfile_throbber" ).show();
-				return true;
 			},
-			onFinishOne: function(event, response, name, number, total)
+			done: function( e, data )
 			{
-				var jsonResponse = $.parseJSON( response );
-				var jsonResult = jsonResponse[ "result" ];
+				var jsonResponse = data.result;
+				var jsonResult = jsonResponse[ "myResult" ];
 				if ( jsonResult == "OK" )
 				{
 					$( "#uploaded_torrentfilename" ).val( jsonResponse[ "torrentFilename" ] );
@@ -118,8 +116,12 @@
 				{
 					alert( "Error!" );
 				}
+			},
+			error: function( e, data )
+			{
+				alert( "Error: '" + data.textStatus + "'." );
 			}
-		});
+		} );
 
 		// Go to parent directory.
 		// TODO: this is not too nice. ".." should be supported by the directory selector control...

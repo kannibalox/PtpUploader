@@ -29,7 +29,7 @@ def ajaxGetDirectoryList():
 		
 		for fileName in os.listdir( path ):
 			currentPath = os.path.join( path, fileName )
-	  		item = currentPath, fileName # Add as a tuple.
+			item = currentPath, fileName # Add as a tuple.
 			if os.path.isdir( currentPath ):
 				directories.append( item )
 			else:
@@ -41,7 +41,7 @@ def ajaxGetDirectoryList():
 		for directory in directories:
 			currentPath, fileName = directory
 			response.append( '<li class="directory collapsed"><a href="#" rel="%s/">%s</a></li>' % ( currentPath, fileName ) )
-		 
+
 		for file in files:
 			currentPath, fileName = file
 			extension = os.path.splitext( fileName )[ 1 ][ 1: ] # get .ext and remove dot

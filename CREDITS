@@ -3,14 +3,17 @@ Code:
 
 Additional code:
 	- jQuery -- http://jquery.org/
-	- jquery-html5-upload by Mihail.Dektyarow -- http://code.google.com/p/jquery-html5-upload/
 	- jQuery BlockUI by M. Alsup -- http://malsup.com/jquery/block/
+	- jQuery contextMenu by Rodney Rehm, Christian Baartse & Addy Osmani -- http://medialize.github.com/jQuery-contextMenu/
 	- jQuery File Tree by Cory LaViska -- http://abeautifulsite.net/blog/2008/04/jquery-multiselect/
+	- jQuery-File-Upload by Sebastian Tschan -- https://github.com/blueimp/jQuery-File-Upload
 	- jQuery MultiSelect by Cory LaViska -- http://abeautifulsite.net/blog/2008/04/jquery-multiselect/
 	- dynatree by Martin Wendt -- http://code.google.com/p/dynatree/
 
 GFX:
 	- CG, GFT, SCC, TIK, TL icons made by the creators of the site
+	- delete.png -- http://momentumdesignlab.com/
+		- via http://findicons.com/icon/263490/delete
 	- edit.png -- http://momentumdesignlab.com/
 		- via http://findicons.com/icon/263403/document_edit?id=348522
 	- error.png -- http://splashyfish.com/
