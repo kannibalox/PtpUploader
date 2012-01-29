@@ -38,6 +38,14 @@ class ReleaseExtractorInternal:
 
 		entries = os.listdir( self.SourcePath )
 		for entryName in entries:
+			entryPath = u"" # TODO: UNICODE DEBUG. REMOVE ME.
+			try: # TODO: UNICODE DEBUG. REMOVE ME.
+				entryPath = os.path.join( self.SourcePath, entryName )
+			except Exception: # TODO: UNICODE DEBUG. REMOVE ME.
+				# TODO: UNICODE DEBUG. REMOVE ME.
+				self.Logger.info( "UNICODE DEBUG: self.SourcePath: [%s], entryName: [%s]" % ( repr( self.SourcePath ), repr( entryName ) ) ) # TODO: UNICODE DEBUG. REMOVE ME.
+				raise # TODO: UNICODE DEBUG. REMOVE ME.
+
 			entryPath = os.path.join( self.SourcePath, entryName )
 			if os.path.isdir( entryPath ):
 				self.__HandleDirectory( entryName, entryPath )
@@ -117,8 +125,10 @@ class ReleaseExtractor:
 	@staticmethod
 	def Extract( logger, sourcePath, destinationPath, includedFileList, topLevelDirectoriesToIgnore = [] ):
 		logger.info( "Extracting directory '%s' to '%s'." % ( sourcePath, destinationPath ) )
+		logger.info( "UNICODE DEBUG: sourcePath: [%s], destinationPath: [%s], includedFileList: [%s], topLevelDirectoriesToIgnore: [%s]" % ( repr( sourcePath ), repr( destinationPath ), repr( includedFileList ), repr( topLevelDirectoriesToIgnore ) ) ) # TODO: UNICODE DEBUG. REMOVE ME.
 
 		releaseExtractor = ReleaseExtractorInternal( sourcePath, u"", destinationPath, includedFileList, topLevelDirectoriesToIgnore, handleSceneFolders = True )
+		releaseExtractor.Logger = logger # TODO: UNICODE DEBUG. REMOVE ME.
 		releaseExtractor.Extract()
 
 		# Extract and delete RARs at the destination directory. Subtitles in scene releases usually are compressed twice. Yup, it is stupid.
