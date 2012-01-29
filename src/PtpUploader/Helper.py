@@ -93,3 +93,15 @@ def ValidateTorrentFile(torrentPath):
 		torrentData = bencode.bread( torrentPath )
 	except Exception:
 		raise PtpUploaderException( "File '%s' is not a valid torrent." % torrentPath )
+
+# os.listdir()
+# "On Windows NT/2k/XP and Unix, if path is a Unicode object, the result will be a list of Unicode objects. Undecodable filenames will still be returned as string objects."
+#
+# For example calling os.listdir for a Unicode path returned with this, which is legit UTF-8, yet it forgot to decode...
+# [ 'Jo\xc3\xabl.S\xc3\xa9ria.Interview.x264-judas-cg.mkv' ]
+def TryToCorrectUndecodableListDirFileName(path):
+	if isinstance( path, unicode ):
+		return path
+	else:
+		# This will throw an exception if something goes wrong.
+		return path.decode( "utf-8" )

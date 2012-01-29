@@ -1,3 +1,4 @@
+from Helper import TryToCorrectUndecodableListDirFileName
 from MyGlobals import MyGlobals
 from PtpUploaderException import PtpUploaderException
 from Settings import Settings
@@ -38,6 +39,7 @@ class ReleaseExtractorInternal:
 
 		entries = os.listdir( self.SourcePath )
 		for entryName in entries:
+			entryName = TryToCorrectUndecodableListDirFileName( entryName )
 			entryPath = u"" # TODO: UNICODE DEBUG. REMOVE ME.
 			try: # TODO: UNICODE DEBUG. REMOVE ME.
 				entryPath = os.path.join( self.SourcePath, entryName )
@@ -93,6 +95,7 @@ class ReleaseExtractor:
 	def __ValidateDirectoryInternal(logger, path, baseRelativePath, includedFileList, throwExceptionForUnsupportedFiles, videos, additionalFiles):
 		entries = os.listdir( path )
 		for entry in entries:
+			entry = TryToCorrectUndecodableListDirFileName( entry )
 			absolutePath = os.path.join( path, entry )
 			relativePath = entry
 			if len( baseRelativePath ) > 0:
