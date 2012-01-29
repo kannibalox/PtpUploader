@@ -1,4 +1,4 @@
-=====================================================================================================================================================
+﻿=====================================================================================================================================================
 Quick installation
 =====================================================================================================================================================
 
@@ -115,15 +115,29 @@ This is optional and can be used for GFT, SCC and TL. The steps here are for GFT
 Please note that SCC works a bit differently. pyWHATauto can't automatically join its announcement channel.
 You either use the Invite button on their IRC page.
 Or set the SceneAccessIrcEnabled property to yes in Settings.ini and then PtpUploader will do the inviting upon starting.
-		
+
 =====================================================================================================================================================
 Configuring FlexGet (optional)
 =====================================================================================================================================================
 
 Copy FlexGet/config.example.yml to config.yml.
 Make sure you change the path of the working directory in the config file.
-FlexGet needs to run peridically to update the RSS feeds.
+FlexGet needs to run periodically to update the RSS feeds.
 See FlexGet's documentation for details: http://flexget.com/wiki/InstallWizard/Linux/NoRoot/Virtualenv/Scheduling
+
+=====================================================================================================================================================
+Making sure UTF-8 character encoding is set (optional)
+=====================================================================================================================================================
+
+If you want to upload releases with accented characters you have to configure your
+environment because in some Linux distributions character encoding is not set by default.
+
+In ~/.profile or ~/.bash_profile set the following:
+export LANG=en_US.UTF-8
+export LOCALE=UTF-8
+
+Entering this command in your terminal should print out an Euro sign (€):
+echo -e '\xe2\x82\xac'
 
 =====================================================================================================================================================
 Starting PtpUploader in the background
