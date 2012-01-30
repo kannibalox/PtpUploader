@@ -91,7 +91,6 @@ class Upload(WorkerBase):
 			self.ReleaseInfo.Logger.info( "Extract release phase has been reached previously, not extracting release again." )
 			return
 		
-		self.ReleaseInfo.Logger.info( "UNICODE DEBUG: releaseInfo.GetReleaseRootPath(): [%s]" % ( repr( self.ReleaseInfo.GetReleaseRootPath() ) ) ) # TODO: UNICODE DEBUG. REMOVE ME.
 		self.ReleaseInfo.AnnouncementSource.ExtractRelease( self.ReleaseInfo.Logger, self.ReleaseInfo, self.IncludedFileList )
 
 		self.ReleaseInfo.SetJobPhaseFinished( FinishedJobPhase.Upload_ExtractRelease )
