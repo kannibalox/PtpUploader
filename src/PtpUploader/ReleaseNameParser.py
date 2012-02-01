@@ -68,12 +68,14 @@ class ReleaseNameParser:
 			releaseInfo.Logger.info( "Source '%s' is already set, not getting from release name." % releaseInfo.Source )
 		elif self.Tags.IsContainsTag( "dvdrip" ):
 			releaseInfo.Source = "DVD"
-		elif self.Tags.IsContainsTag( "bdrip" ) or self.Tags.IsContainsTag( "brrip" ) or self.Tags.IsContainsTag( "bluray" ):
+		elif self.Tags.IsContainsTag( "bdrip" ) or self.Tags.IsContainsTag( "bluray" ):
 			releaseInfo.Source = "Blu-ray"
 		elif self.Tags.IsContainsTag( "hddvd" ):
 			releaseInfo.Source = "HD-DVD"
 		elif self.Tags.IsContainsTag( "hdtv" ):
 			releaseInfo.Source = "HDTV"
+		elif self.Tags.IsContainsTag( "brrip" ):
+			raise PtpUploaderException( "BRRips are not allowed." )
 		else:
 			raise PtpUploaderException( "Can't figure out source from release name '%s'." % releaseInfo.ReleaseName )
 

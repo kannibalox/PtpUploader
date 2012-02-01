@@ -22,7 +22,7 @@ class PtpMovieSearchResultItem:
 # - We treat DVD and Blu-ray rips equally in the standard definition category.
 # - We treat H.264 and x264 equally because of the uploading rules: "MP4 can only be trumped by MKV if the use of that container causes problems with video or audio".
 # - We treat XviD and DivX equally because of the uploading rules: "DivX may be trumped by XviD, if the latter improves on the quality of the former. In cases where the DivX is well distributed and the XviD offers no significant improvement in quality, the staff may decide to keep the former in order to preserve the availability of the movie."
-# - We support the checking of possible co-existence for different sized SD XviD and SD x264 releases. (E.g.: an 1400 MB upload won't be treated as a duplicate of a 700 MB release.) 
+# - We support the checking of possible co-existence for different sized SD XviDs. (E.g.: an 1400 MB upload won't be treated as a duplicate of a 700 MB release.) 
 class PtpMovieSearchResult:
 	def __init__(self, ptpId, moviePageHtml):
 		self.PtpId = ptpId;
@@ -225,7 +225,6 @@ class PtpMovieSearchResult:
 
 	# From the rules:
 	# "In general terms, 1CD (700MB) and 2CD (1400MB) XviD rips may always co-exist, same as 2CD (1400MB) and 3CD (2100MB) in the case of longer movies (2 hours+). Those sizes should only be used as general indicators as many rips may fall above or below them."
-	# "Along with two AVI rips, two x264 of varying qualities may coexist."
 	# "PAL and NTSC may co-exist, as may DVD5 and DVD9." 
 	def __IsSdFineSourceReleaseExists(self, releaseInfo):
 		# 600 MB seems like a good choice. Comparing by size ratio wouldn't be too effective.
@@ -233,8 +232,8 @@ class PtpMovieSearchResult:
 		
 		if releaseInfo.Source == "Blu-ray" or releaseInfo.Source == "HD-DVD" or releaseInfo.Source == "DVD":
 			if releaseInfo.Codec == "x264" or releaseInfo.Codec == "H.264":
-				list = PtpMovieSearchResult.__GetListOfMatches( self.SdList, [ "x264", "H.264" ], [ "Blu-ray", "HD-DVD", "DVD" ] )
-				return PtpMovieSearchResult.__CanCoExist( list, releaseInfo, minimumSizeDifferenceToCoExist )
+				# We can't check to co-existence for SD x264s, because the co-existence rule is quality based.
+				return PtpMovieSearchResult.__IsInList( self.SdList, [ "x264", "H.264" ], [ "Blu-ray", "HD-DVD", "DVD" ] )
 			elif releaseInfo.Codec == "XviD" or releaseInfo.Codec == "DivX":
 				list = PtpMovieSearchResult.__GetListOfMatches( self.SdList, [ "XviD", "DivX" ], [ "Blu-ray", "HD-DVD", "DVD" ] )
 				return PtpMovieSearchResult.__CanCoExist( list, releaseInfo, minimumSizeDifferenceToCoExist )
@@ -363,7 +362,7 @@ def UnitTest():
 		searchResult.HdList.append( PtpMovieSearchResultItem( "", "x264", "MKV", "Blu-ray", "1080p", "8000 MB" ) )
 
 		IsReleaseExists( searchResult, False, PtpMovieSearchResultItem( "", "XviD", "AVI", "Blu-ray", "1x1", "1400 MB" ) )
-		IsReleaseExists( searchResult, False, PtpMovieSearchResultItem( "", "x264", "MKV", "HD-DVD", "1x1", "1400 MB" ) )
+		IsReleaseExists( searchResult, True, PtpMovieSearchResultItem( "", "x264", "MKV", "HD-DVD", "1x1", "1400 MB" ) )
 		IsReleaseExists( searchResult, True, PtpMovieSearchResultItem( "", "x264", "MKV", "Blu-ray", "720p", "6500 MB" ) )
 		IsReleaseExists( searchResult, True, PtpMovieSearchResultItem( "", "x264", "MKV", "Blu-ray", "1080p", "12500 MB" ) )
 
