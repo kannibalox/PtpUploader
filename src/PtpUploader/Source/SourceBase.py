@@ -142,6 +142,8 @@ class SourceBase:
 		if deleteSourceData and deleteUploadData:
 			SourceBase.__DeleteDirectoryIfEmpyOrContainsOnlyEmptyDirectories( releaseInfo.GetReleaseRootPath() )
 
+		os.remove( releaseInfo.GetLogFilePath() )
+
 	def GetTemporaryFolderForImagesAndTorrent(self, releaseInfo):
 		return releaseInfo.GetReleaseRootPath() 
 
