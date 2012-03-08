@@ -4,39 +4,70 @@ from Source.SourceFactory import SourceFactory
 from Main import Initialize, Run
 from MyGlobals import MyGlobals
 from Ptp import Ptp
+from PtpUploaderException import *
 from Settings import Settings
 
 # TODO: temp
 import urllib
 import urllib2
+import time
+import traceback
 
 # TODO: temp
-class TestGft:
+class TestPtp:
+	@staticmethod
+	def __LoginInternal():
+		if len( Settings.PtpUserName ) <= 0:
+			raise PtpUploaderInvalidLoginException( "Couldn't log in to PTP. Your user name is not specified.." )
+
+		if len( Settings.PtpPassword ) <= 0:
+			raise PtpUploaderInvalidLoginException( "Couldn't log in to PTP. Your password is not specified.." )
+
+		MyGlobals.Logger.info( "Logging in to PTP." );
+		opener = urllib2.build_opener( urllib2.HTTPCookieProcessor( MyGlobals.CookieJar ) );
+		postData = urllib.urlencode( { "username": Settings.PtpUserName, "password": Settings.PtpPassword, "keeplogged": "1" } )
+		request = urllib2.Request( "http://passthepopcorn.me/login.php", postData );
+		MyGlobals.Logger.info( "DEBUG: Before result = opener.open( request );" )
+		result = opener.open( request );
+		MyGlobals.Logger.info( "DEBUG: Before response = result.read();" )
+		response = result.read();
+		MyGlobals.Logger.info( "DEBUG: After response = result.read();" )
+		TestPtp.CheckIfLoggedInFromResponse( result, response );
+		MyGlobals.Logger.info( "Logged in to PTP." );
+
 	@staticmethod
 	def Login():
-		MyGlobals.Logger.info( "Logging in to GFT." );
-		
-		# GFT stores a cookie when login.php is loaded that is needed for takeloin.php. 
-		opener = urllib2.build_opener( urllib2.HTTPCookieProcessor( MyGlobals.CookieJar ) )
-		result = opener.open( "http://www.thegft.org/login.php" )
-		response = result.read()
-		MyGlobals.Logger.info( response )
+		try:
+			TestPtp.__LoginInternal()
+			return
+		except PtpUploaderInvalidLoginException:
+			raise
+		except Exception:
+			MyGlobals.Logger.exception( "Got exception in Login." )
+			raise
 
-		opener = urllib2.build_opener( urllib2.HTTPCookieProcessor( MyGlobals.CookieJar ) )
-		postData = urllib.urlencode( { "username": Settings.GftUserName, "password": Settings.GftPassword } )
-		result = opener.open( "http://www.thegft.org/takelogin.php", postData )
-		response = result.read()
-		MyGlobals.Logger.info( "\n" )
-		MyGlobals.Logger.info( "-" * 80 )
-		MyGlobals.Logger.info( "\n" )
-		MyGlobals.Logger.info( response )
-		TestGft.CheckIfLoggedInFromResponse( response );
-	
 	@staticmethod
-	def CheckIfLoggedInFromResponse(response):
-		if response.find( """action='takelogin.php'""" ) != -1 or response.find( """<a href='login.php'>Back to Login</a>""" ) != -1:
-			raise PtpUploaderException( "Looks like you are not logged in to GFT. Probably due to the bad user name or password in settings." )
+	def __CheckIfLoggedInFromResponseLogResponse(result, responseBody):
+		MyGlobals.Logger.info( "MSG: %s" % result.msg  )
+		MyGlobals.Logger.info( "CODE: %s" % result.code  )
+		MyGlobals.Logger.info( "URL: %s" % result.url )
+		MyGlobals.Logger.info( "HEADERS: %s" % result.headers )
+		MyGlobals.Logger.info( "STACK: %s" % traceback.format_stack() ) 
+		MyGlobals.Logger.info( "RESPONSE BODY: %s" % responseBody ) 
 
+	@staticmethod
+	def CheckIfLoggedInFromResponse(result, responseBody):
+		if responseBody.find( """<a href="login.php?act=recover">""" ) != -1:
+			TestPtp.__CheckIfLoggedInFromResponseLogResponse( result, responseBody )
+			raise PtpUploaderInvalidLoginException( "Couldn't log in to PTP. Probably due to the bad user name or password." )
+		
+		if responseBody.find( """<p>Your IP has been banned.</p>""" ) != -1:
+			TestPtp.__CheckIfLoggedInFromResponseLogResponse( result, responseBody )
+			raise PtpUploaderInvalidLoginException( "Couldn't log in to PTP. Your IP has been banned." )
+		
+		if responseBody.find( 'action="login.php"' ) != -1:
+			TestPtp.__CheckIfLoggedInFromResponseLogResponse( result, responseBody )
+			raise PtpUploaderException( "Looks like you are not logged in to PTP. Probably due to the bad user name or password." )
 
 if __name__ == '__main__':
 	Initialize()
@@ -46,4 +77,4 @@ if __name__ == '__main__':
 	#sourceFactory = SourceFactory()
 	
 	# TODO: temp
-	TestGft.Login()
+	TestPtp.Login()
