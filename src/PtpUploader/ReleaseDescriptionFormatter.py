@@ -19,15 +19,14 @@ class ReleaseDescriptionVideoEntry:
 
 	def ToReleaseDescription(self):
 		releaseDescription = u""
+		releaseDescription += self.MediaInfo.FormattedMediaInfo
 
 		if self.HaveScreenshots():
-			if self.ScaleSize is not None:
-				releaseDescription += u"Showing the display aspect ratio. Resolution: %s.\n\n" % self.ScaleSize
+			releaseDescription += u"\n\n"
 
 			for screenshot in self.Screenshots:
 				releaseDescription += u"[img=%s]\n\n" % screenshot
 
-		releaseDescription += self.MediaInfo.FormattedMediaInfo
 		return releaseDescription
 
 class ReleaseDescriptionFormatter:
