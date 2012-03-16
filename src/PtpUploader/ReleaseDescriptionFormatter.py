@@ -22,10 +22,8 @@ class ReleaseDescriptionVideoEntry:
 		releaseDescription += self.MediaInfo.FormattedMediaInfo
 
 		if self.HaveScreenshots():
-			releaseDescription += u"\n\n"
-
 			for screenshot in self.Screenshots:
-				releaseDescription += u"[img=%s]\n\n" % screenshot
+				releaseDescription += u"\n\n[img=%s]" % screenshot
 
 		return releaseDescription
 
