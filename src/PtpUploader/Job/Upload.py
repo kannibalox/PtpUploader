@@ -5,7 +5,7 @@ from Tool.MakeTorrent import MakeTorrent
 
 from Database import Database
 from IdxReader import IdxReader
-from ImageUploader import ImageUploader
+from ImageHost.ImageUploader import ImageUploader
 from MyGlobals import MyGlobals
 from Ptp import Ptp
 from PtpSubtitle import *
