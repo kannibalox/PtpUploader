@@ -12,6 +12,7 @@ python virtualenv.py -v --distribute MyEnv
 
 MyEnv/bin/easy_install simplejson
 MyEnv/bin/easy_install poster
+MyEnv/bin/easy_install pyrobase
 MyEnv/bin/easy_install pyrocore
 MyEnv/bin/easy_install --upgrade sqlalchemy
 MyEnv/bin/easy_install cherrypy==3.1.2
