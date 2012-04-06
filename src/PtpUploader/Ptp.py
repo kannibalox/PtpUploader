@@ -267,10 +267,40 @@ class Ptp:
 			raise PtpUploaderException( "Authentication key can't be found in the response." )
 		authKey = match.group( 1 )
 
-		if not releaseInfo.HasPtpId():
+		# Refresh data is not needed for new movies because PTP refresh them automatically.
+		# So we only do a refresh when adding as a new format.
+		if releaseInfo.HasPtpId():
+			# response contains the movie page of the uploaded movie.
+			Ptp.TryRefreshMoviePage( logger, releaseInfo.PtpId, response );
+		else:
 			releaseInfo.PtpId = ptpId
 
 		return authKey
+
+	# ptpId: movie page id. For example: ptpId is 28622 for the movie with url: http://passthepopcorn.me/torrents.php?id=28622 	
+	# page: the html contents of the movie page.
+	@staticmethod
+	def TryRefreshMoviePage(logger, ptpId, page):
+		logger.info( "Trying to refresh data for 'http://passthepopcorn.me/torrents.php?id=%s'." % ptpId );
+
+		# We don't care if this fails. Our upload is complete anyway. :) 
+		try:
+			# Searching for: <a href="torrents.php?action=imdb&amp;groupid=3704&amp;auth=...">[Refresh Data]</a>
+			matches = re.search( r'<a href="torrents.php\?action=imdb&amp;groupid=\d+&amp;auth=(.+)">\[Refresh Data\]</a>', page );
+			if not matches:
+				logger.info( "Couldn't refresh data for 'http://passthepopcorn.me/torrents.php?id=%s'. Authorization key couldn't be found." % ptpId );
+				return;
+		
+			auth = matches.group( 1 );
+		
+			opener = urllib2.build_opener( urllib2.HTTPCookieProcessor( MyGlobals.CookieJar ) );
+			request = urllib2.Request( "http://passthepopcorn.me/torrents.php?action=imdb&groupid=%s&auth=%s" % ( ptpId, auth ) );
+			result = opener.open( request );
+			response = result.read();
+		except ( KeyboardInterrupt, SystemExit ):
+			raise
+		except Exception:
+			logger.exception( "Couldn't refresh data for 'http://passthepopcorn.me/torrents.php?id=%s'. Got exception." % ptpId );
 
 	@staticmethod
 	def SendPrivateMessage(userId, subject, message):
