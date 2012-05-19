@@ -12,7 +12,7 @@ class AnnouncementWatcher:
 	# Example: [source=gft][id=44][title=Dark.City.1998.Directors.Cut.720p.BluRay.x264-SiNNERS]
 	@staticmethod
 	def __ProcessAnnouncementFile(announcementFilename):
-		matches = re.match( r"\[source=(.+)\]\[id=(\d+)\]\[title=(.+)\]", announcementFilename )			
+		matches = re.match( r"\[source=(.+?)\]\[id=(.+?)\]\[title=(.+)\]", announcementFilename )			
 		if not matches:
 			MyGlobals.Logger.info( "Invalid announcement name format: '%s'." % announcementFilename )
 			return None

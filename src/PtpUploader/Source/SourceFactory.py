@@ -5,6 +5,7 @@ from Source.Gft import Gft
 from Source.Karagarga import Karagarga
 from Source.SceneAccess import SceneAccess
 from Source.Torrent import Torrent
+from Source.TheDarkSyndicate import TheDarkSyndicate
 from Source.TorrentLeech import TorrentLeech
 
 from MyGlobals import MyGlobals
@@ -21,6 +22,7 @@ class SourceFactory:
 		self.__AddSource( Cinematik() )
 		self.__AddSource( Gft() )
 		self.__AddSource( Karagarga() )
+		self.__AddSource( TheDarkSyndicate() )
 		self.__AddSource( TorrentLeech() )
 
 		sceneAccess = SceneAccess()

@@ -11,6 +11,8 @@ import re
 def GetSizeFromText(text):
 	text = text.replace( " ", "" )
 	text = text.replace( ",", "" ) # For sizes like this: 1,471,981,530bytes
+	text = text.replace( "GiB", "GB" )
+	text = text.replace( "MiB", "MB" )
 	
 	matches = re.match( "(.+)GB", text )
 	if matches is not None:

@@ -14,87 +14,78 @@ import time
 import urllib
 import urllib2
 
-class Gft(SourceBase):
+class TheDarkSyndicate(SourceBase):
 	def __init__(self):
 		SourceBase.__init__( self )
 
-		self.Name = "gft"
-		self.NameInSettings = "GFT"
+		self.Name = "tds"
+		self.NameInSettings = "TheDarkSyndicate"
 
 	def IsEnabled(self):
 		return len( self.Username ) > 0 and len( self.Password ) > 0
 
 	def Login(self):
-		MyGlobals.Logger.info( "Logging in to GFT." );
+		MyGlobals.Logger.info( "Logging in to The Dark Syndicate." )
 		
-		# GFT stores a cookie when login.php is loaded that is needed for takeloin.php. 
-		opener = urllib2.build_opener( urllib2.HTTPCookieProcessor( MyGlobals.CookieJar ) )
-		result = opener.open( "http://www.thegft.org/login.php" )
-		response = result.read()
-
 		opener = urllib2.build_opener( urllib2.HTTPCookieProcessor( MyGlobals.CookieJar ) )
 		postData = urllib.urlencode( { "username": self.Username, "password": self.Password } )
-		result = opener.open( "http://www.thegft.org/takelogin.php", postData )
+		result = opener.open( "http://thedarksyndicate.me/login.php", postData )
 		response = result.read()
-		self.CheckIfLoggedInFromResponse( response );
-	
+		self.CheckIfLoggedInFromResponse( response )
+
 	def CheckIfLoggedInFromResponse(self, response):
-		if response.find( """action='takelogin.php'""" ) != -1 or response.find( """<a href='login.php'>Back to Login</a>""" ) != -1:
-			raise PtpUploaderException( "Looks like you are not logged in to GFT. Probably due to the bad user name or password in settings." )
-	
+		if response.find( """<a href="login.php"><p>Login</p></a>""" ) != -1:
+			raise PtpUploaderException( "Looks like you are not logged in to TDS. Probably due to the bad user name or password in settings." )
+
 	# Sets IMDb if presents in the torrent description.
 	# Sets scene release if pretime presents on the page.
 	# Returns with the release name.
 	def __ReadTorrentPage(self, logger, releaseInfo):
-		url = "http://www.thegft.org/details.php?id=%s" % releaseInfo.AnnouncementId;
-		logger.info( "Downloading NFO from page '%s'." % url );
-		
-		opener = urllib2.build_opener( urllib2.HTTPCookieProcessor( MyGlobals.CookieJar ) );
-		request = urllib2.Request( url );
-		result = opener.open( request );
-		response = result.read();
-		self.CheckIfLoggedInFromResponse( response );
+		url = self.GetUrlFromId( releaseInfo.AnnouncementId )
+		logger.info( "Downloading NFO from page '%s'." % url )
+
+		opener = urllib2.build_opener( urllib2.HTTPCookieProcessor( MyGlobals.CookieJar ) )
+		request = urllib2.Request( url )
+		result = opener.open( request )
+		response = result.read()
+		self.CheckIfLoggedInFromResponse( response )
 
 		# Make sure we only get information from the description and not from the comments.
-		descriptionEndIndex = response.find( """<p><a name="startcomments"></a></p>""" )
+		descriptionEndIndex = response.find( "<h2>Torrent Comments</h2>" )
 		if descriptionEndIndex == -1:
 			raise PtpUploaderException( JobRunningState.Ignored_MissingInfo, "Description can't found. Probably the layout of the site has changed." )
-		
+
 		description = response[ :descriptionEndIndex ]
 
+		# Get the torrent ID if we don't have it.
+		groupId, torrentId = TheDarkSyndicate.__GetGroupAndTorrentIdFromId( releaseInfo.AnnouncementId )
+		if torrentId <= 0:
+			matches = re.search( r"This torrent id is (\d+).", description )
+			if matches is None:
+				raise PtpUploaderException( JobRunningState.Ignored_MissingInfo, "Torrent ID can't be found on the torrent page." )
+			else:
+				torrentId = matches.group( 1 )
+				releaseInfo.AnnouncementId = TheDarkSyndicate.__MakeIdFromGroupAndTorrentId( groupId, torrentId )
+
 		# Get release name.
-		matches = re.search( r"<title>GFT 2011 :: Details for torrent &quot;(.+)&quot;</title>", description );
+		matches = re.search( r"<h2>Details For (.+?)</h2>", description )
 		if matches is None:
-			raise PtpUploaderException( JobRunningState.Ignored_MissingInfo, "Release name can't be found on torrent page." );
-	
-		releaseName = matches.group( 1 );
+			raise PtpUploaderException( JobRunningState.Ignored_MissingInfo, "Release name can't be found on torrent page." )
+
+		releaseName = matches.group( 1 )
 
 		# Get IMDb id.
 		if ( not releaseInfo.HasImdbId() ) and ( not releaseInfo.HasPtpId() ):
 			releaseInfo.ImdbId = NfoParser.GetImdbId( description )
 
-		# Check if pretime presents.
-		# TODO: this is unreliable as the uploaders on GFT set this
-		#if description.find( """<td><img src='/pic/scene.jpg' alt='Scene' /></td>""" ) != -1:
-		#	releaseInfo.SetSceneRelease()
-		
 		# Get size.
-		# Two possible formats:
-		# <tr><td class="heading" valign="top" align="right">Size</td><td valign="top" align="left">4.47 GB (4,799,041,437bytes )</td></tr>
-		# <tr><td class='heading' valign='top' align='right'>Size</td><td valign='top' align='left'>4.47 GB (4,799,041,437bytes )</td></tr>
-		matches = re.search( r"""<tr><td class=.heading. valign=.top. align=.right.>Size</td><td valign=.top. align=.left.>.+ \((.+bytes) ?\)</td></tr>""", description )
+		# Because of the layout of the site the size is below the comments (in HTML source), so we parse the original response here.
+		matches = re.search( r"""<td>\s*<div.*?>Size<\/div>\s*<\/td>\s*<td>\s*<div.*?>(.+?)<\/div>\s*<\/td>""", response, re.DOTALL )
 		if matches is None:
 			logger.warning( "Size not found on torrent page." )
 		else:
 			size = matches.group( 1 )
 			releaseInfo.Size = GetSizeFromText( size )
-
-		# For some reason there are announced, but non visible releases on GFT that never start seeding. Ignore them.
-		# Two possible formats:
-		# <td class="heading" valign="top" align="right">Visible</td><td valign="top" align="left"><b>no</b> (dead)</td>
-		# <td class="heading" align="right" valign="top">Visible</td><td align="left" valign="top"><b>no</b> (dead)</td>
-		if description.find( """<td class="heading" v?align=".+?" v?align=".+?">Visible</td><td v?align=".+?" v?align=".+?"><b>no</b> (dead)</td>""" ) != -1:
-			raise PtpUploaderException( JobRunningState.Ignored, "Set to not visible on torrent page." )
 
 		return releaseName
 
@@ -117,40 +108,43 @@ class Gft(SourceBase):
 			raise PtpUploaderException( JobRunningState.Ignored, isAllowedMessage )
 
 		releaseNameParser.GetSourceAndFormat( releaseInfo )
-		
-		# TODO: temp
-		time.sleep( 30 ) # "Tactical delay" because of the not visible torrents. These should be rescheduled.
 
 		releaseName = self.__ReadTorrentPage( logger, releaseInfo )
 		if releaseName != releaseInfo.ReleaseName:
-			raise PtpUploaderException( "Announcement release name '%s' and release name '%s' on GFT are different." % ( releaseInfo.ReleaseName, releaseName ) )
+			raise PtpUploaderException( "Announcement release name '%s' and release name '%s' on TDS are different." % ( releaseInfo.ReleaseName, releaseName ) )
 
 		if releaseNameParser.Scene:
 			releaseInfo.SetSceneRelease()
 
 		if ( not releaseInfo.IsSceneRelease() ) and self.AutomaticJobFilter == "SceneOnly":
 			raise PtpUploaderException( JobRunningState.Ignored, "Non-scene release." )
-	
+
 	def PrepareDownload(self, logger, releaseInfo):
 		if releaseInfo.IsUserCreatedJob():
 			self.__HandleUserCreatedJob( logger, releaseInfo )
 		else:
 			self.__HandleAutoCreatedJob( logger, releaseInfo )
-	
-	def DownloadTorrent(self, logger, releaseInfo, path):
-		url = "http://www.thegft.org/download.php?torrent=%s" % releaseInfo.AnnouncementId;
-		logger.info( "Downloading torrent file from '%s' to '%s'." % ( url, path ) );
 
-		opener = urllib2.build_opener( urllib2.HTTPCookieProcessor( MyGlobals.CookieJar ) );
-		request = urllib2.Request( url );
-		result = opener.open( request );
-		response = result.read();
-		self.CheckIfLoggedInFromResponse( response );
-		
-		file = open( path, "wb" );
-		file.write( response );
-		file.close();
-		
+	def DownloadTorrent(self, logger, releaseInfo, path):
+		groupId, torrentId = TheDarkSyndicate.__GetGroupAndTorrentIdFromId( i )
+
+		# This can't happen unless if PrepareDownload hasn't been called.
+		if torrentId <= 0:
+			raise PtpUploaderException( "Torrent ID is missing for group ID %s." % groupId )
+
+		url = "http://thedarksyndicate.me/browse.php?action=download&id=%s" % torrentId
+		logger.info( "Downloading torrent file from '%s' to '%s'." % ( url, path ) )
+
+		opener = urllib2.build_opener( urllib2.HTTPCookieProcessor( MyGlobals.CookieJar ) )
+		request = urllib2.Request( url )
+		result = opener.open( request )
+		response = result.read()
+		self.CheckIfLoggedInFromResponse( response )
+
+		file = open( path, "wb" )
+		file.write( response )
+		file.close()
+
 		# Calling Helper.ValidateTorrentFile is not needed because NfoParser.IsTorrentContainsMultipleNfos will throw an exception if it is not a valid torrent file.
 
 		# If a torrent contains multiple NFO files then it is likely that the site also showed the wrong NFO and we have checked the existence of another movie on PTP.
@@ -159,12 +153,33 @@ class Gft(SourceBase):
 		if NfoParser.IsTorrentContainsMultipleNfos( path ):
 			raise PtpUploaderException( "Torrent '%s' contains multiple NFO files." % path )  
 
-	def GetIdFromUrl(self, url):
-		result = re.match( r".*thegft\.org/details\.php\?id=(\d+).*", url )
+	# Because the tracker is Gazelle-based we need to know which ID are we working with.
+	# The easiest way is store both.
+	@staticmethod
+	def __MakeIdFromGroupAndTorrentId( groupId, torrentId ):
+		id = "%s,%s" % ( groupId, torrentId )
+		return id
+
+	# See the comment at MakeIdFromGroupAndTorrentId.
+	@staticmethod
+	def __GetGroupAndTorrentIdFromId( id ):
+		groupId, torrentId = id.split( ",", id )
+		return groupId, torrentId
+
+	def GetIdFromUrl( self, url ):
+		result = re.match( r".*thedarksyndicate\.me/browse\.php\?id=(\d+).*", url )
+		if result is not None:
+			return TheDarkSyndicate.__MakeIdFromGroupAndTorrentId( result.group( 1 ), 0 )
+
+		result = re.match( r".*thedarksyndicate\.me/browse\.php\?action=details&torrentid=(\d+).*", url )
 		if result is None:
 			return ""
 		else:
-			return result.group( 1 )
+			return TheDarkSyndicate.__MakeIdFromGroupAndTorrentId( 0, result.group( 1 ) )
 
-	def GetUrlFromId(self, id):
-		return "http://www.thegft.org/details.php?id=" + id
+	def GetUrlFromId( self, id ):
+		groupId, torrentId = TheDarkSyndicate.__GetGroupAndTorrentIdFromId( i )
+		if groupId > 0:
+			return "http://thedarksyndicate.me/browse.php?id=" + groupId
+		else:
+			return "http://thedarksyndicate.me/browse.php?action=details&torrentid=" + torrentId
