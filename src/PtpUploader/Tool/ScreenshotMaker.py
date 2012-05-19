@@ -52,17 +52,17 @@ class ScreenshotMaker:
 		os.remove( screenshotPath )
 		return imageUrl
 
-	# Takes five screenshots from the first 30% of the video.
+	# Takes maximum five screenshots from the first 30% of the video.
 	# Returns with the URLs of the uploaded images.
-	def TakeAndUploadScreenshots(self, outputImageDirectory, durationInSec, takeSingleScreenshot):
+	def TakeAndUploadScreenshots(self, outputImageDirectory, durationInSec, numberOfScreenshotsToTake):
 		urls = []
-		urls.append( self.__TakeAndUploadScreenshot( int( durationInSec * 0.10 ), outputImageDirectory ) )
 
-		if not takeSingleScreenshot:
-			urls.append( self.__TakeAndUploadScreenshot( int( durationInSec * 0.15 ), outputImageDirectory ) )
-			urls.append( self.__TakeAndUploadScreenshot( int( durationInSec * 0.20 ), outputImageDirectory ) )
-			urls.append( self.__TakeAndUploadScreenshot( int( durationInSec * 0.25 ), outputImageDirectory ) )
-			urls.append( self.__TakeAndUploadScreenshot( int( durationInSec * 0.30 ), outputImageDirectory ) )
+		if numberOfScreenshotsToTake > 5:
+			numberOfScreenshotsToTake = 5
+
+		for i in range(numberOfScreenshotsToTake ):
+			position = 0.10 + ( i * 0.05 )
+			urls.append( self.__TakeAndUploadScreenshot( int( durationInSec * position ), outputImageDirectory ) )
 
 		return urls
 

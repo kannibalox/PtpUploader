@@ -87,8 +87,16 @@ class ReleaseDescriptionFormatter:
 		mediaInfos = MediaInfo.ReadAndParseMediaInfos( self.ReleaseInfo.Logger, self.VideoFiles, self.ReleaseInfo.GetReleaseUploadPath() )
 		self.MainMediaInfo = mediaInfos[ 0 ]
 		
-		for i in range( len( mediaInfos ) ):
-			self.VideoEntries.append( ReleaseDescriptionVideoEntry( mediaInfos[ i ] ) )
+		# Make less screenshots if there are more than one videos.
+		mediaInfoCount = len( mediaInfos )
+		numberOfScreenshotsToTake = 5
+		if mediaInfoCount == 2:
+			numberOfScreenshotsToTake = 3
+		elif mediaInfoCount > 2:
+			numberOfScreenshotsToTake = 2
+
+		for i in range( mediaInfoCount ):
+			self.VideoEntries.append( ReleaseDescriptionVideoEntry( mediaInfos[ i ], numberOfScreenshotsToTake ) )
 
 	def __GetMediaInfo(self):
 		if self.ReleaseInfo.IsDvdImage():
@@ -105,8 +113,7 @@ class ReleaseDescriptionFormatter:
 
 		screenshots = screenshotList.GetScreenshotsByName( videoEntry.MediaInfo.Path )
 		if screenshots is None:
-			takeSingleScreenshot = videoEntry.NumberOfScreenshotsToTake == 1
-			screenshots = screenshotMaker.TakeAndUploadScreenshots( self.OutputImageDirectory, videoEntry.MediaInfo.DurationInSec, takeSingleScreenshot )
+			screenshots = screenshotMaker.TakeAndUploadScreenshots( self.OutputImageDirectory, videoEntry.MediaInfo.DurationInSec, videoEntry.NumberOfScreenshotsToTake )
 			screenshotList.SetScreenshots( videoEntry.MediaInfo.Path, screenshots )
 
 		videoEntry.Screenshots = screenshots
