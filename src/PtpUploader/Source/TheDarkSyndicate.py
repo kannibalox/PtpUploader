@@ -59,7 +59,7 @@ class TheDarkSyndicate(SourceBase):
 
 		# Get the torrent ID if we don't have it.
 		groupId, torrentId = TheDarkSyndicate.__GetGroupAndTorrentIdFromId( releaseInfo.AnnouncementId )
-		if torrentId <= 0:
+		if int( torrentId ) <= 0:
 			matches = re.search( r"This torrent id is (\d+).", description )
 			if matches is None:
 				raise PtpUploaderException( JobRunningState.Ignored_MissingInfo, "Torrent ID can't be found on the torrent page." )
@@ -126,10 +126,10 @@ class TheDarkSyndicate(SourceBase):
 			self.__HandleAutoCreatedJob( logger, releaseInfo )
 
 	def DownloadTorrent(self, logger, releaseInfo, path):
-		groupId, torrentId = TheDarkSyndicate.__GetGroupAndTorrentIdFromId( i )
+		groupId, torrentId = TheDarkSyndicate.__GetGroupAndTorrentIdFromId( releaseInfo.AnnouncementId )
 
 		# This can't happen unless if PrepareDownload hasn't been called.
-		if torrentId <= 0:
+		if int( torrentId ) <= 0:
 			raise PtpUploaderException( "Torrent ID is missing for group ID %s." % groupId )
 
 		url = "http://thedarksyndicate.me/browse.php?action=download&id=%s" % torrentId
@@ -163,7 +163,7 @@ class TheDarkSyndicate(SourceBase):
 	# See the comment at MakeIdFromGroupAndTorrentId.
 	@staticmethod
 	def __GetGroupAndTorrentIdFromId( id ):
-		groupId, torrentId = id.split( ",", id )
+		groupId, torrentId = id.split( "," )
 		return groupId, torrentId
 
 	def GetIdFromUrl( self, url ):
@@ -178,7 +178,7 @@ class TheDarkSyndicate(SourceBase):
 			return TheDarkSyndicate.__MakeIdFromGroupAndTorrentId( 0, result.group( 1 ) )
 
 	def GetUrlFromId( self, id ):
-		groupId, torrentId = TheDarkSyndicate.__GetGroupAndTorrentIdFromId( i )
+		groupId, torrentId = TheDarkSyndicate.__GetGroupAndTorrentIdFromId( id )
 		if groupId > 0:
 			return "http://thedarksyndicate.me/browse.php?id=" + groupId
 		else:
