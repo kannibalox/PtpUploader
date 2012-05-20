@@ -16,7 +16,7 @@ import uuid
 
 @app.route( "/ajaxexternalcreatejob/", methods = [ "POST" ] )
 def ajaxExternalCreateJob():
-	if ( "Password" not in request.values ) or request.values[ "Password" ] != Settings.GreasemonkeySendToScriptPassword:
+	if ( "Password" not in request.values ) or request.values[ "Password" ] != Settings.GreasemonkeyTorrentSenderPassword:
 		response = make_response( jsonify( result = "Error", message = "Invalid Greasemonkey Send to Script password!" ) )
 		response.headers[ 'Access-Control-Allow-Origin' ] = '*' # Enable cross-origin resource sharing.
 		return response
