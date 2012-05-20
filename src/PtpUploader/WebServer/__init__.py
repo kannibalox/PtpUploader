@@ -10,6 +10,7 @@ app = Flask( __name__ )
 import WebServer.MovieAvailabilityCheck
 import WebServer.DeleteJob
 import WebServer.EditJob
+import WebServer.ExternalCreateJob
 import WebServer.JobCommon
 import WebServer.Jobs
 import WebServer.ServerMain

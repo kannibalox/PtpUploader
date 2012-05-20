@@ -1,10 +1,9 @@
-from Tool.PyrocoreBencode import bencode
 from WebServer import app
 from WebServer.JobCommon import JobCommon
 from WebServer.UploadFile import UploadFile
 
 from Authentication import requires_auth
-from Helper import SizeToText
+from Helper import GetSuggestedReleaseNameAndSizeFromTorrentFile, SizeToText
 from MyGlobals import MyGlobals
 from Database import Database
 from PtpUploaderMessage import *
@@ -21,22 +20,6 @@ import uuid
 def IsFileAllowed(filename):
 	root, extension = os.path.splitext( filename )
 	return extension == ".torrent"
-
-def GetSuggestedReleaseNameAndSizeFromTorrent(torrentPath):
-	data = bencode.bread( torrentPath )
-	name = data[ "info" ].get( "name", None )
-	files = data[ "info" ].get( "files", None )
-	if files is None:
-		# It is a single file torrent, remove the extension.
-		name, extension = os.path.splitext( name )
-		size = data[ "info" ][ "length" ]
-		return name, size
-	else:
-		size = 0
-		for file in files:
-			size += file[ "length" ]
-		
-		return name, size
 
 @app.route( "/ajaxuploadtorrentfile/", methods = [ "POST" ] )
 @requires_auth
@@ -55,7 +38,7 @@ def ajaxUploadTorrentFile():
 	sourceTorrentFilePath = os.path.join( Settings.GetTemporaryPath(), filename )
 	file.save( sourceTorrentFilePath )
 	
-	releaseName, size = GetSuggestedReleaseNameAndSizeFromTorrent( sourceTorrentFilePath )
+	releaseName, size = GetSuggestedReleaseNameAndSizeFromTorrentFile( sourceTorrentFilePath )
 	sizeText = SizeToText( size )
 
 	return jsonify( myResult = "OK", torrentFilename = filename, releaseName = releaseName, torrentContentSize = size, torrentContentSizeText = sizeText )

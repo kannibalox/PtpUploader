@@ -95,3 +95,19 @@ def ValidateTorrentFile(torrentPath):
 		torrentData = bencode.bread( torrentPath )
 	except Exception:
 		raise PtpUploaderException( "File '%s' is not a valid torrent." % torrentPath )
+
+def GetSuggestedReleaseNameAndSizeFromTorrentFile( torrentPath ):
+	data = bencode.bread( torrentPath )
+	name = data[ "info" ].get( "name", None )
+	files = data[ "info" ].get( "files", None )
+	if files is None:
+		# It is a single file torrent, remove the extension.
+		name, extension = os.path.splitext( name )
+		size = data[ "info" ][ "length" ]
+		return name, size
+	else:
+		size = 0
+		for file in files:
+			size += file[ "length" ]
+
+		return name, size
