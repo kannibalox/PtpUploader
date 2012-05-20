@@ -53,6 +53,17 @@ def HandleSceneAccessAutoAnnouncement(announcement):
 
 	SendAnnouncementToPtpUploader( "scc", id = match.group( 5 ), releaseName = match.group( 2 ) )
 
+def HandleTheDarkSyndicateAutoAnnouncement(announcement):
+	match = re.match( r"(.*?) \.:\. (.*?) \.:\. .*?\.:\. https:\/\/thedarksyndicate\.me\/browse\.php\?id=(\d+) \.:\. .*", announcement );
+	if match is None:
+		print "PtpUploaderIrcBot can't parse TDS announcement: '%s'." % announcement;
+		return;
+
+	groupId = match.group( 3 )
+	id = "%s,0" % groupId # See TheDarkSyndicate.__MakeIdFromGroupAndTorrentId
+
+	SendAnnouncementToPtpUploader( "tds", id, releaseName = match.group( 2 ) );
+
 def HandleTorrentLeechAutoAnnouncement(announcement):
 	match = re.match( r"New Torrent Announcement: <([^>]*)>[\W]*Name:'([^']*)[\W]*uploaded by '([^']*)' -\W+http://www.torrentleech.org/torrent/(\d+)", announcement );
 	if match is None:
@@ -72,6 +83,8 @@ def MyDownload(downloadID, downloadType, site, location=False, network=False, ta
 			HandleGftAutoAnnouncement( announce )
 		elif site == "sceneaccess":
 			HandleSceneAccessAutoAnnouncement( announce )
+		elif site == "thedarksyndicate":
+			HandleTheDarkSyndicateAutoAnnouncement( announce )
 		elif site == "torrentleech":
 			HandleTorrentLeechAutoAnnouncement( announce )
 
