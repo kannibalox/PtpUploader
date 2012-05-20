@@ -1,4 +1,4 @@
-from Helper import GetSizeFromText
+from Helper import GetSizeFromText, SizeToText
 from NfoParser import NfoParser
 from PtpUploaderException import PtpUploaderException
 
@@ -11,11 +11,10 @@ class PtpMovieSearchResultItem:
 		self.Container = container
 		self.Source = source
 		self.Resolution = resolution
-		self.SizeText = sizeText
 		self.Size = GetSizeFromText( sizeText )
 		
 	def __repr__(self):
-		return "%s | %s" % ( self.FullTitle, self.SizeText ) 
+		return "%s | %s" % ( self.FullTitle, SizeToText( self.Size ) ) 
 
 # Notes:
 # - We treat HD-DVD and Blu-ray as same quality.
