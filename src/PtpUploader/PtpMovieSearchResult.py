@@ -88,7 +88,13 @@ class PtpMovieSearchResult:
 			container = elements[ 1 ]
 			source = elements[ 2 ]
 			resolution = elements[ 3 ]
-			remasterTitle = elements[ 4 ]
+
+			# There can be multiple elements after resolution, so we put all of them into the remaster field.
+			# For example: H.264 / MKV / Blu-ray / 1080p / Remux / The Criterion Collection
+			remasterTitle = ""
+			if len ( elements ) > 4:
+				remasterTitle = " / ".join( elements[ 4: ] )
+
 			itemList.append( PtpMovieSearchResultItem( fullTitle, codec, container, source, resolution, remasterTitle, sizeText ) )
 
 	def __ParseMoviePage(self):
