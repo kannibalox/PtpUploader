@@ -5,12 +5,13 @@ from PtpUploaderException import PtpUploaderException
 import re
 
 class PtpMovieSearchResultItem:
-	def __init__(self, fullTitle, codec, container, source, resolution, sizeText):
+	def __init__(self, fullTitle, codec, container, source, resolution, remasterTitle, sizeText):
 		self.FullTitle = fullTitle
 		self.Codec = codec
 		self.Container = container
 		self.Source = source
 		self.Resolution = resolution
+		self.RemasterTitle = remasterTitle
 		self.Size = GetSizeFromText( sizeText )
 		
 	def __repr__(self):
@@ -87,7 +88,8 @@ class PtpMovieSearchResult:
 			container = elements[ 1 ]
 			source = elements[ 2 ]
 			resolution = elements[ 3 ]
-			itemList.append( PtpMovieSearchResultItem( fullTitle, codec, container, source, resolution, sizeText ) )
+			remasterTitle = elements[ 4 ]
+			itemList.append( PtpMovieSearchResultItem( fullTitle, codec, container, source, resolution, remasterTitle, sizeText ) )
 
 	def __ParseMoviePage(self):
 		# We only parse the movie page if needed. And we only parse it once.
@@ -154,19 +156,20 @@ class PtpMovieSearchResult:
 			raise PtpUploaderException( "Unknown torrent format on movie page 'https://passthepopcorn.me/torrents.php?id=%s'." % self.PtpId )
 
 	@staticmethod
-	def __GetListOfMatches(list, codecs, sources = None, resolutions = None):
+	def __GetListOfMatches(list, codecs, sources = None, resolutions = None, remux = False):
 		result= []
 		for item in list:
 			if ( ( codecs is None ) or ( item.Codec in codecs ) ) \
 				and ( ( sources is None ) or ( item.Source in sources ) ) \
-				and ( ( resolutions is None ) or ( item.Resolution in resolutions ) ): 
+				and ( ( resolutions is None ) or ( item.Resolution in resolutions ) )\
+				and remux == ( item.RemasterTitle.find( "Remux" ) != -1 ):
 				result.append( item )
 
 		return result
 	
 	@staticmethod
-	def __IsInList(list, codecs, sources = None, resolutions = None):
-		existingReleases = PtpMovieSearchResult.__GetListOfMatches( list, codecs, sources, resolutions )
+	def __IsInList(list, codecs, sources = None, resolutions = None, remux = False):
+		existingReleases = PtpMovieSearchResult.__GetListOfMatches( list, codecs, sources, resolutions, remux )
 		if len( existingReleases ) > 0:
 			return existingReleases[ 0 ]
 		else:
@@ -178,7 +181,7 @@ class PtpMovieSearchResult:
 
 	def __IsHdFineSourceReleaseExists(self, releaseInfo):
 		if ( releaseInfo.Source == "Blu-ray" or releaseInfo.Source == "HD-DVD" ) and releaseInfo.ResolutionType == "1080p":
-			return PtpMovieSearchResult.__IsInList( self.HdList, [ "x264", "H.264" ], [ "Blu-ray", "HD-DVD" ], [ "1080p" ] )
+			return PtpMovieSearchResult.__IsInList( self.HdList, [ "x264", "H.264" ], [ "Blu-ray", "HD-DVD" ], [ "1080p" ], releaseInfo.IsRemux() )
 		elif ( releaseInfo.Source == "Blu-ray" or releaseInfo.Source == "HD-DVD" ) and releaseInfo.ResolutionType == "720p":
 			return PtpMovieSearchResult.__IsInList( self.HdList, [ "x264", "H.264" ], [ "Blu-ray", "HD-DVD" ], [ "720p" ] )
 		
@@ -197,7 +200,7 @@ class PtpMovieSearchResult:
 		checkAgainstSources = sourceByQuality[ sourceIndex: ]	
 
 		if releaseInfo.ResolutionType == "1080p":
-			return PtpMovieSearchResult.__IsInList( self.HdList, [ "x264", "H.264" ], checkAgainstSources, [ "1080p" ] )
+			return PtpMovieSearchResult.__IsInList( self.HdList, [ "x264", "H.264" ], checkAgainstSources, [ "1080p" ], releaseInfo.IsRemux() )
 		elif releaseInfo.ResolutionType == "720p":
 			return PtpMovieSearchResult.__IsInList( self.HdList, [ "x264", "H.264" ], checkAgainstSources, [ "720p" ] )
 		
@@ -320,6 +323,7 @@ def UnitTest():
 		releaseInfo.Container = searchResultItem.Container
 		releaseInfo.Source = searchResultItem.Source
 		releaseInfo.ResolutionType = searchResultItem.Resolution
+		releaseInfo.RemasterTitle = searchResultItem.RemasterTitle
 		releaseInfo.Size = searchResultItem.Size
 		result = searchResult.IsReleaseExists( releaseInfo )
 		if result is None:
@@ -329,121 +333,173 @@ def UnitTest():
 			if not expectedResult:
 				print "Unexpected result"
 
+	# Difference between encode and remux.
+	if True:
+		searchResult = PtpMovieSearchResult( "1", None )
+		searchResult.HdList.append( PtpMovieSearchResultItem( "", "x264", "MKV", "Blu-ray", "1080p", "", "8000 MB" ) )
+
+		IsReleaseExists( searchResult, True, PtpMovieSearchResultItem( "", "x264", "MKV", "Blu-ray", "1080p", "", "8000 MB" ) )
+		IsReleaseExists( searchResult, False, PtpMovieSearchResultItem( "", "x264", "MKV", "Blu-ray", "1080p", "Remux", "8000 MB" ) )
+
+	# Difference between remux and encode.
+	if True:
+		searchResult = PtpMovieSearchResult( "1", None )
+		searchResult.HdList.append( PtpMovieSearchResultItem( "", "x264", "MKV", "Blu-ray", "1080p", "Remux", "8000 MB" ) )
+
+		IsReleaseExists( searchResult, True, PtpMovieSearchResultItem( "", "x264", "MKV", "Blu-ray", "1080p", "Remux", "8000 MB" ) )
+		IsReleaseExists( searchResult, False, PtpMovieSearchResultItem( "", "x264", "MKV", "Blu-ray", "1080p", "", "8000 MB" ) )
+
 	# Same size.
 	if True:
 		searchResult = PtpMovieSearchResult( "1", None )
-		searchResult.SdList.append( PtpMovieSearchResultItem( "", "XviD", "AVI", "DVD", "1x1", "700 MB" ) )
-		searchResult.SdList.append( PtpMovieSearchResultItem( "", "x264", "MKV", "Blu-ray", "1x1", "700 MB" ) )
-		searchResult.HdList.append( PtpMovieSearchResultItem( "", "x264", "MKV", "HD-DVD", "720p", "4500 MB" ) )
-		searchResult.HdList.append( PtpMovieSearchResultItem( "", "x264", "MKV", "Blu-ray", "1080p", "8000 MB" ) )
+		searchResult.SdList.append( PtpMovieSearchResultItem( "", "XviD", "AVI", "DVD", "1x1", "", "700 MB" ) )
+		searchResult.SdList.append( PtpMovieSearchResultItem( "", "x264", "MKV", "Blu-ray", "1x1", "", "700 MB" ) )
+		searchResult.HdList.append( PtpMovieSearchResultItem( "", "x264", "MKV", "HD-DVD", "720p", "", "4500 MB" ) )
+		searchResult.HdList.append( PtpMovieSearchResultItem( "", "x264", "MKV", "Blu-ray", "1080p", "", "8000 MB" ) )
+		searchResult.HdList.append( PtpMovieSearchResultItem( "", "x264", "MKV", "Blu-ray", "1080p", "Remux", "8000 MB" ) )
 
-		IsReleaseExists( searchResult, True, PtpMovieSearchResultItem( "", "XviD", "AVI", "Blu-ray", "1x1", "700 MB" ) )
-		IsReleaseExists( searchResult, True, PtpMovieSearchResultItem( "", "x264", "MKV", "HD-DVD", "1x1", "700 MB" ) )
-		IsReleaseExists( searchResult, True, PtpMovieSearchResultItem( "", "x264", "MKV", "Blu-ray", "720p", "4500 MB" ) )
-		IsReleaseExists( searchResult, True, PtpMovieSearchResultItem( "", "x264", "MKV", "Blu-ray", "1080p", "8000 MB" ) )
+		IsReleaseExists( searchResult, True, PtpMovieSearchResultItem( "", "XviD", "AVI", "Blu-ray", "1x1", "", "700 MB" ) )
+		IsReleaseExists( searchResult, True, PtpMovieSearchResultItem( "", "x264", "MKV", "HD-DVD", "1x1", "", "700 MB" ) )
+		IsReleaseExists( searchResult, True, PtpMovieSearchResultItem( "", "x264", "MKV", "Blu-ray", "720p", "", "4500 MB" ) )
+		IsReleaseExists( searchResult, True, PtpMovieSearchResultItem( "", "x264", "MKV", "Blu-ray", "1080p", "", "8000 MB" ) )
+		IsReleaseExists( searchResult, True, PtpMovieSearchResultItem( "", "x264", "MKV", "Blu-ray", "1080p", "Remux", "8000 MB" ) )
 
 	# Under size.
 	if True:
 		searchResult = PtpMovieSearchResult( "1", None )
-		searchResult.SdList.append( PtpMovieSearchResultItem( "", "XviD", "AVI", "DVD", "1x1", "1400 MB" ) )
-		searchResult.SdList.append( PtpMovieSearchResultItem( "", "x264", "MKV", "Blu-ray", "1x1", "1400 MB" ) )
-		searchResult.HdList.append( PtpMovieSearchResultItem( "", "x264", "MKV", "HD-DVD", "720p", "6500 MB" ) )
-		searchResult.HdList.append( PtpMovieSearchResultItem( "", "x264", "MKV", "Blu-ray", "1080p", "12500 MB" ) )
+		searchResult.SdList.append( PtpMovieSearchResultItem( "", "XviD", "AVI", "DVD", "1x1", "", "1400 MB" ) )
+		searchResult.SdList.append( PtpMovieSearchResultItem( "", "x264", "MKV", "Blu-ray", "1x1", "", "1400 MB" ) )
+		searchResult.HdList.append( PtpMovieSearchResultItem( "", "x264", "MKV", "HD-DVD", "720p", "", "6500 MB" ) )
+		searchResult.HdList.append( PtpMovieSearchResultItem( "", "x264", "MKV", "Blu-ray", "1080p", "", "12500 MB" ) )
+		searchResult.HdList.append( PtpMovieSearchResultItem( "", "x264", "MKV", "Blu-ray", "1080p", "Remux", "12500 MB" ) )
 
-		IsReleaseExists( searchResult, True, PtpMovieSearchResultItem( "", "XviD", "AVI", "Blu-ray", "1x1", "700 MB" ) )
-		IsReleaseExists( searchResult, True, PtpMovieSearchResultItem( "", "x264", "MKV", "HD-DVD", "1x1", "700 MB" ) )
-		IsReleaseExists( searchResult, True, PtpMovieSearchResultItem( "", "x264", "MKV", "Blu-ray", "720p", "4500 MB" ) )
-		IsReleaseExists( searchResult, True, PtpMovieSearchResultItem( "", "x264", "MKV", "Blu-ray", "1080p", "8000 MB" ) )
+		IsReleaseExists( searchResult, True, PtpMovieSearchResultItem( "", "XviD", "AVI", "Blu-ray", "1x1", "", "700 MB" ) )
+		IsReleaseExists( searchResult, True, PtpMovieSearchResultItem( "", "x264", "MKV", "HD-DVD", "1x1", "", "700 MB" ) )
+		IsReleaseExists( searchResult, True, PtpMovieSearchResultItem( "", "x264", "MKV", "Blu-ray", "720p", "", "4500 MB" ) )
+		IsReleaseExists( searchResult, True, PtpMovieSearchResultItem( "", "x264", "MKV", "Blu-ray", "1080p", "", "8000 MB" ) )
+		IsReleaseExists( searchResult, True, PtpMovieSearchResultItem( "", "x264", "MKV", "Blu-ray", "1080p", "Remux", "8000 MB" ) )
 
 	# Over size.
 	if True:
 		searchResult = PtpMovieSearchResult( "1", None )
-		searchResult.SdList.append( PtpMovieSearchResultItem( "", "XviD", "AVI", "DVD", "1x1", "700 MB" ) )
-		searchResult.SdList.append( PtpMovieSearchResultItem( "", "x264", "MKV", "Blu-ray", "1x1", "700 MB" ) )
-		searchResult.HdList.append( PtpMovieSearchResultItem( "", "x264", "MKV", "HD-DVD", "720p", "4500 MB" ) )
-		searchResult.HdList.append( PtpMovieSearchResultItem( "", "x264", "MKV", "Blu-ray", "1080p", "8000 MB" ) )
+		searchResult.SdList.append( PtpMovieSearchResultItem( "", "XviD", "AVI", "DVD", "1x1", "", "700 MB" ) )
+		searchResult.SdList.append( PtpMovieSearchResultItem( "", "x264", "MKV", "Blu-ray", "1x1", "", "700 MB" ) )
+		searchResult.HdList.append( PtpMovieSearchResultItem( "", "x264", "MKV", "HD-DVD", "720p", "", "4500 MB" ) )
+		searchResult.HdList.append( PtpMovieSearchResultItem( "", "x264", "MKV", "Blu-ray", "1080p", "", "8000 MB" ) )
+		searchResult.HdList.append( PtpMovieSearchResultItem( "", "x264", "MKV", "Blu-ray", "1080p", "Remux", "8000 MB" ) )
 
-		IsReleaseExists( searchResult, False, PtpMovieSearchResultItem( "", "XviD", "AVI", "Blu-ray", "1x1", "1400 MB" ) )
-		IsReleaseExists( searchResult, True, PtpMovieSearchResultItem( "", "x264", "MKV", "HD-DVD", "1x1", "1400 MB" ) )
-		IsReleaseExists( searchResult, True, PtpMovieSearchResultItem( "", "x264", "MKV", "Blu-ray", "720p", "6500 MB" ) )
-		IsReleaseExists( searchResult, True, PtpMovieSearchResultItem( "", "x264", "MKV", "Blu-ray", "1080p", "12500 MB" ) )
+		IsReleaseExists( searchResult, False, PtpMovieSearchResultItem( "", "XviD", "AVI", "Blu-ray", "1x1", "", "1400 MB" ) )
+		IsReleaseExists( searchResult, True, PtpMovieSearchResultItem( "", "x264", "MKV", "HD-DVD", "1x1", "", "1400 MB" ) )
+		IsReleaseExists( searchResult, True, PtpMovieSearchResultItem( "", "x264", "MKV", "Blu-ray", "720p", "", "6500 MB" ) )
+		IsReleaseExists( searchResult, True, PtpMovieSearchResultItem( "", "x264", "MKV", "Blu-ray", "1080p", "", "12500 MB" ) )
+		IsReleaseExists( searchResult, True, PtpMovieSearchResultItem( "", "x264", "MKV", "Blu-ray", "1080p", "Remux", "12500 MB" ) )
+
+	# Difference between encode and remux for pre-retail relases.
+	if True:
+		searchResult = PtpMovieSearchResult( "1", None )
+		searchResult.HdList.append( PtpMovieSearchResultItem( "", "x264", "MKV", "RC", "1080p", "", "8000 MB" ) )
+
+		IsReleaseExists( searchResult, True, PtpMovieSearchResultItem( "", "x264", "MKV", "RC", "1080p", "", "8000 MB" ) )
+		IsReleaseExists( searchResult, False, PtpMovieSearchResultItem( "", "x264", "MKV", "RC", "1080p", "Remux", "8000 MB" ) )
+		IsReleaseExists( searchResult, False, PtpMovieSearchResultItem( "", "x264", "MKV", "Blu-ray", "1080p", "", "8000 MB" ) )
+		IsReleaseExists( searchResult, False, PtpMovieSearchResultItem( "", "x264", "MKV", "Blu-ray", "1080p", "Remux", "8000 MB" ) )
+
+	# Difference between remux and encode for pre-retail relases.
+	if True:
+		searchResult = PtpMovieSearchResult( "1", None )
+		searchResult.HdList.append( PtpMovieSearchResultItem( "", "x264", "MKV", "RC", "1080p", "Remux", "8000 MB" ) )
+
+		IsReleaseExists( searchResult, True, PtpMovieSearchResultItem( "", "x264", "MKV", "RC", "1080p", "Remux", "8000 MB" ) )
+		IsReleaseExists( searchResult, False, PtpMovieSearchResultItem( "", "x264", "MKV", "RC", "1080p", "", "8000 MB" ) )
+		IsReleaseExists( searchResult, False, PtpMovieSearchResultItem( "", "x264", "MKV", "Blu-ray", "1080p", "Remux", "8000 MB" ) )
+		IsReleaseExists( searchResult, False, PtpMovieSearchResultItem( "", "x264", "MKV", "Blu-ray", "1080p", "", "8000 MB" ) )
 
 	# No pre-retail if retail exists.
 	if True:
 		searchResult = PtpMovieSearchResult( "1", None )
-		searchResult.SdList.append( PtpMovieSearchResultItem( "", "XviD", "AVI", "DVD", "1x1", "700 MB" ) )
-		searchResult.SdList.append( PtpMovieSearchResultItem( "", "x264", "MKV", "DVD", "1x1", "700 MB" ) )
-		searchResult.HdList.append( PtpMovieSearchResultItem( "", "x264", "MKV", "HD-DVD", "720p", "4500 MB" ) )
-		searchResult.HdList.append( PtpMovieSearchResultItem( "", "x264", "MKV", "Blu-ray", "1080p", "8000 MB" ) )
+		searchResult.SdList.append( PtpMovieSearchResultItem( "", "XviD", "AVI", "DVD", "1x1", "", "700 MB" ) )
+		searchResult.SdList.append( PtpMovieSearchResultItem( "", "x264", "MKV", "DVD", "1x1", "", "700 MB" ) )
+		searchResult.HdList.append( PtpMovieSearchResultItem( "", "x264", "MKV", "HD-DVD", "720p", "", "4500 MB" ) )
+		searchResult.HdList.append( PtpMovieSearchResultItem( "", "x264", "MKV", "Blu-ray", "1080p", "", "8000 MB" ) )
+		searchResult.HdList.append( PtpMovieSearchResultItem( "", "x264", "MKV", "Blu-ray", "1080p", "Remux", "8000 MB" ) )
 
-		IsReleaseExists( searchResult, True, PtpMovieSearchResultItem( "", "XviD", "AVI", "VHS", "1x1", "1400 MB" ) )
-		IsReleaseExists( searchResult, True, PtpMovieSearchResultItem( "", "x264", "MKV", "DVD-Screener", "1x1", "1400 MB" ) )
-		IsReleaseExists( searchResult, True, PtpMovieSearchResultItem( "", "x264", "MKV", "HDTV", "720p", "6500 MB" ) )
-		IsReleaseExists( searchResult, True, PtpMovieSearchResultItem( "", "x264", "MKV", "RC", "1080p", "12500 MB" ) )
+		IsReleaseExists( searchResult, True, PtpMovieSearchResultItem( "", "XviD", "AVI", "VHS", "1x1", "", "1400 MB" ) )
+		IsReleaseExists( searchResult, True, PtpMovieSearchResultItem( "", "x264", "MKV", "DVD-Screener", "1x1", "", "1400 MB" ) )
+		IsReleaseExists( searchResult, True, PtpMovieSearchResultItem( "", "x264", "MKV", "HDTV", "720p", "", "6500 MB" ) )
+		IsReleaseExists( searchResult, True, PtpMovieSearchResultItem( "", "x264", "MKV", "RC", "1080p", "", "12500 MB" ) )
+		IsReleaseExists( searchResult, True, PtpMovieSearchResultItem( "", "x264", "MKV", "RC", "1080p", "Remux", "12500 MB" ) )
 
 	# SD pre-retail is not allowed if HD retail exists.
 	if True:
 		searchResult = PtpMovieSearchResult( "1", None )
-		searchResult.HdList.append( PtpMovieSearchResultItem( "", "x264", "MKV", "HD-DVD", "720p", "4500 MB" ) )
-		searchResult.HdList.append( PtpMovieSearchResultItem( "", "x264", "MKV", "Blu-ray", "1080p", "8000 MB" ) )
+		searchResult.HdList.append( PtpMovieSearchResultItem( "", "x264", "MKV", "HD-DVD", "720p", "", "4500 MB" ) )
+		searchResult.HdList.append( PtpMovieSearchResultItem( "", "x264", "MKV", "Blu-ray", "1080p", "", "8000 MB" ) )
 
-		IsReleaseExists( searchResult, True, PtpMovieSearchResultItem( "", "XviD", "AVI", "R5", "1x1", "1400 MB" ) )
-		IsReleaseExists( searchResult, True, PtpMovieSearchResultItem( "", "x264", "MKV", "DVD-Screener", "1x1", "1400 MB" ) )
+		IsReleaseExists( searchResult, True, PtpMovieSearchResultItem( "", "XviD", "AVI", "R5", "1x1", "", "1400 MB" ) )
+		IsReleaseExists( searchResult, True, PtpMovieSearchResultItem( "", "x264", "MKV", "DVD-Screener", "1x1", "", "1400 MB" ) )
 
 	# HD pre-retail is allowed if only non-HD sourced retail SD exists.
 	if True:
 		searchResult = PtpMovieSearchResult( "1", None )
-		searchResult.SdList.append( PtpMovieSearchResultItem( "", "XviD", "AVI", "DVD", "1x1", "700 MB" ) )
-		IsReleaseExists( searchResult, False, PtpMovieSearchResultItem( "", "x264", "MKV", "HDTV", "720p", "6500 MB" ) )
-		IsReleaseExists( searchResult, False, PtpMovieSearchResultItem( "", "x264", "MKV", "RC", "1080p", "12500 MB" ) )
+		searchResult.SdList.append( PtpMovieSearchResultItem( "", "XviD", "AVI", "DVD", "1x1", "", "700 MB" ) )
+		IsReleaseExists( searchResult, False, PtpMovieSearchResultItem( "", "x264", "MKV", "HDTV", "720p", "", "6500 MB" ) )
+		IsReleaseExists( searchResult, False, PtpMovieSearchResultItem( "", "x264", "MKV", "RC", "1080p", "", "12500 MB" ) )
+		IsReleaseExists( searchResult, False, PtpMovieSearchResultItem( "", "x264", "MKV", "RC", "1080p", "Remux", "12500 MB" ) )
 
 	# HD pre-retail is not allowed if HD sourced retail SD exists.
 	if True:
 		searchResult = PtpMovieSearchResult( "1", None )
-		searchResult.SdList.append( PtpMovieSearchResultItem( "", "XviD", "AVI", "Blu-ray", "1x1", "700 MB" ) )
-		IsReleaseExists( searchResult, True, PtpMovieSearchResultItem( "", "x264", "MKV", "HDTV", "720p", "6500 MB" ) )
-		IsReleaseExists( searchResult, True, PtpMovieSearchResultItem( "", "x264", "MKV", "RC", "1080p", "12500 MB" ) )
+		searchResult.SdList.append( PtpMovieSearchResultItem( "", "XviD", "AVI", "Blu-ray", "1x1", "", "700 MB" ) )
+		IsReleaseExists( searchResult, True, PtpMovieSearchResultItem( "", "x264", "MKV", "HDTV", "720p", "", "6500 MB" ) )
+		IsReleaseExists( searchResult, True, PtpMovieSearchResultItem( "", "x264", "MKV", "RC", "1080p", "", "12500 MB" ) )
+		IsReleaseExists( searchResult, True, PtpMovieSearchResultItem( "", "x264", "MKV", "RC", "1080p", "Remux", "12500 MB" ) )
 
 	# Only one pre-retail is allowed per category regardless of size.
 	if True:
 		searchResult = PtpMovieSearchResult( "1", None )
-		searchResult.SdList.append( PtpMovieSearchResultItem( "", "XviD", "AVI", "R5", "1x1", "700 MB" ) )
-		searchResult.SdList.append( PtpMovieSearchResultItem( "", "x264", "MKV", "R5", "1x1", "700 MB" ) )
-		searchResult.HdList.append( PtpMovieSearchResultItem( "", "x264", "MKV", "RC", "720p", "4500 MB" ) )
-		searchResult.HdList.append( PtpMovieSearchResultItem( "", "x264", "MKV", "RC", "1080p", "8000 MB" ) )
+		searchResult.SdList.append( PtpMovieSearchResultItem( "", "XviD", "AVI", "R5", "1x1", "", "700 MB" ) )
+		searchResult.SdList.append( PtpMovieSearchResultItem( "", "x264", "MKV", "R5", "1x1", "", "700 MB" ) )
+		searchResult.HdList.append( PtpMovieSearchResultItem( "", "x264", "MKV", "RC", "720p", "", "4500 MB" ) )
+		searchResult.HdList.append( PtpMovieSearchResultItem( "", "x264", "MKV", "RC", "1080p", "", "8000 MB" ) )
+		searchResult.HdList.append( PtpMovieSearchResultItem( "", "x264", "MKV", "RC", "1080p", "Remux", "8000 MB" ) )
 
-		IsReleaseExists( searchResult, True, PtpMovieSearchResultItem( "", "XviD", "AVI", "R5", "1x1", "1400 MB" ) )
-		IsReleaseExists( searchResult, True, PtpMovieSearchResultItem( "", "x264", "MKV", "R5", "1x1", "1400 MB" ) )
-		IsReleaseExists( searchResult, True, PtpMovieSearchResultItem( "", "x264", "MKV", "RC", "720p", "6500 MB" ) )
-		IsReleaseExists( searchResult, True, PtpMovieSearchResultItem( "", "x264", "MKV", "RC", "1080p", "12500 MB" ) )
+		IsReleaseExists( searchResult, True, PtpMovieSearchResultItem( "", "XviD", "AVI", "R5", "1x1", "", "1400 MB" ) )
+		IsReleaseExists( searchResult, True, PtpMovieSearchResultItem( "", "x264", "MKV", "R5", "1x1", "", "1400 MB" ) )
+		IsReleaseExists( searchResult, True, PtpMovieSearchResultItem( "", "x264", "MKV", "RC", "720p", "", "6500 MB" ) )
+		IsReleaseExists( searchResult, True, PtpMovieSearchResultItem( "", "x264", "MKV", "RC", "1080p", "", "12500 MB" ) )
+		IsReleaseExists( searchResult, True, PtpMovieSearchResultItem( "", "x264", "MKV", "RC", "1080p", "Remux", "12500 MB" ) )
 
 	# Pre-retail trumping other pre-retail.
 	if True:
 		searchResult = PtpMovieSearchResult( "1", None )
-		searchResult.SdList.append( PtpMovieSearchResultItem( "", "XviD", "AVI", "CAM", "1x1", "700 MB" ) )
-		searchResult.SdList.append( PtpMovieSearchResultItem( "", "x264", "MKV", "TV", "1x1", "700 MB" ) )
-		searchResult.HdList.append( PtpMovieSearchResultItem( "", "x264", "MKV", "HDTV", "720p", "4500 MB" ) )
+		searchResult.SdList.append( PtpMovieSearchResultItem( "", "XviD", "AVI", "CAM", "1x1", "", "700 MB" ) )
+		searchResult.SdList.append( PtpMovieSearchResultItem( "", "x264", "MKV", "TV", "1x1", "", "700 MB" ) )
+		searchResult.HdList.append( PtpMovieSearchResultItem( "", "x264", "MKV", "HDTV", "720p", "", "4500 MB" ) )
+		searchResult.HdList.append( PtpMovieSearchResultItem( "", "x264", "MKV", "RC", "1080p", "", "4500 MB" ) )
 
-		IsReleaseExists( searchResult, False, PtpMovieSearchResultItem( "", "XviD", "AVI", "DVD-Screener", "1x1", "700 MB" ) )
-		IsReleaseExists( searchResult, False, PtpMovieSearchResultItem( "", "x264", "MKV", "R5", "1x1", "700 MB" ) )
-		IsReleaseExists( searchResult, False, PtpMovieSearchResultItem( "", "x264", "MKV", "RC", "720p", "4500 MB" ) )
+		IsReleaseExists( searchResult, False, PtpMovieSearchResultItem( "", "XviD", "AVI", "DVD-Screener", "1x1", "", "700 MB" ) )
+		IsReleaseExists( searchResult, False, PtpMovieSearchResultItem( "", "x264", "MKV", "R5", "1x1", "", "700 MB" ) )
+		IsReleaseExists( searchResult, False, PtpMovieSearchResultItem( "", "x264", "MKV", "RC", "720p", "", "4500 MB" ) )
 
 	# Retail trumping pre-retail.
 	if True:
 		searchResult = PtpMovieSearchResult( "1", None )
-		searchResult.SdList.append( PtpMovieSearchResultItem( "", "XviD", "AVI", "CAM", "1x1", "1400 MB" ) )
-		searchResult.SdList.append( PtpMovieSearchResultItem( "", "x264", "MKV", "TV", "1x1", "1400 MB" ) )
-		searchResult.HdList.append( PtpMovieSearchResultItem( "", "x264", "MKV", "HDTV", "720p", "6500 MB" ) )
-		searchResult.HdList.append( PtpMovieSearchResultItem( "", "x264", "MKV", "HDTV", "720p", "12500 MB" ) )
+		searchResult.SdList.append( PtpMovieSearchResultItem( "", "XviD", "AVI", "CAM", "1x1", "", "1400 MB" ) )
+		searchResult.SdList.append( PtpMovieSearchResultItem( "", "x264", "MKV", "TV", "1x1", "", "1400 MB" ) )
+		searchResult.HdList.append( PtpMovieSearchResultItem( "", "x264", "MKV", "HDTV", "720p", "", "6500 MB" ) )
+		searchResult.HdList.append( PtpMovieSearchResultItem( "", "x264", "MKV", "HDTV", "720p", "", "12500 MB" ) )
+		searchResult.HdList.append( PtpMovieSearchResultItem( "", "x264", "MKV", "RC", "1080p", "Remux", "12500 MB" ) )
 
-		IsReleaseExists( searchResult, False, PtpMovieSearchResultItem( "", "XviD", "AVI", "DVD", "1x1", "700 MB" ) )
-		IsReleaseExists( searchResult, False, PtpMovieSearchResultItem( "", "XviD", "AVI", "DVD", "1x1", "1400 MB" ) )
-		IsReleaseExists( searchResult, False, PtpMovieSearchResultItem( "", "x264", "MKV", "DVD", "1x1", "700 MB" ) )
-		IsReleaseExists( searchResult, False, PtpMovieSearchResultItem( "", "x264", "MKV", "DVD", "1x1", "1400 MB" ) )
-		IsReleaseExists( searchResult, False, PtpMovieSearchResultItem( "", "x264", "MKV", "Blu-ray", "720p", "4500 MB" ) )
-		IsReleaseExists( searchResult, False, PtpMovieSearchResultItem( "", "x264", "MKV", "Blu-ray", "720p", "6500 MB" ) )
-		IsReleaseExists( searchResult, False, PtpMovieSearchResultItem( "", "x264", "MKV", "HD-DVD", "1080p", "8500 MB" ) )
-		IsReleaseExists( searchResult, False, PtpMovieSearchResultItem( "", "x264", "MKV", "HD-DVD", "1080p", "12500 MB" ) )
+		IsReleaseExists( searchResult, False, PtpMovieSearchResultItem( "", "XviD", "AVI", "DVD", "1x1", "", "700 MB" ) )
+		IsReleaseExists( searchResult, False, PtpMovieSearchResultItem( "", "XviD", "AVI", "DVD", "1x1", "", "1400 MB" ) )
+		IsReleaseExists( searchResult, False, PtpMovieSearchResultItem( "", "x264", "MKV", "DVD", "1x1", "", "700 MB" ) )
+		IsReleaseExists( searchResult, False, PtpMovieSearchResultItem( "", "x264", "MKV", "DVD", "1x1", "", "1400 MB" ) )
+		IsReleaseExists( searchResult, False, PtpMovieSearchResultItem( "", "x264", "MKV", "Blu-ray", "720p", "", "4500 MB" ) )
+		IsReleaseExists( searchResult, False, PtpMovieSearchResultItem( "", "x264", "MKV", "Blu-ray", "720p", "", "6500 MB" ) )
+		IsReleaseExists( searchResult, False, PtpMovieSearchResultItem( "", "x264", "MKV", "HD-DVD", "1080p", "", "8500 MB" ) )
+		IsReleaseExists( searchResult, False, PtpMovieSearchResultItem( "", "x264", "MKV", "HD-DVD", "1080p", "", "12500 MB" ) )
+		IsReleaseExists( searchResult, False, PtpMovieSearchResultItem( "", "x264", "MKV", "Blu-ray", "1080p", "Remux", "4500 MB" ) )
+		IsReleaseExists( searchResult, False, PtpMovieSearchResultItem( "", "x264", "MKV", "Blu-ray", "1080p", "Remux", "6500 MB" ) )
 
 if __name__ == "__main__":
 	UnitTest()

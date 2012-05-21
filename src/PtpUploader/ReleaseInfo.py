@@ -239,6 +239,9 @@ class ReleaseInfo(Database.Base):
 	def IsStandardDefinition(self):
 		return not self.IsHighDefinition()
 
+	def IsRemux(self):
+		return self.RemasterTitle.find( "Remux" ) != -1
+
 	def IsDvdImage(self):
 		return self.Codec == "DVD5" or self.Codec == "DVD9"
 

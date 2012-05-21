@@ -24,11 +24,11 @@ class ReleaseNameParser:
 			name = name.replace( "-", " " )
 			name = name.strip()
 			self.Tags = TagList( name.split( " " ) )
-			if self.__HandleSpecialGroupName( TagList( [ "d", "z0n3" ] ) ):
+			if self.__HandleSpecialGroupName( [ "d", "z0n3" ] ):
 				pass
-			elif self.__HandleSpecialGroupName( TagList( [ "t0xic", "ink" ] ) ):
+			elif self.__HandleSpecialGroupName( [ "t0xic", "ink" ] ):
 				pass
-			elif self.__HandleSpecialGroupName( TagList( [ "vh", "prod" ] ) ):
+			elif self.__HandleSpecialGroupName( [ "vh", "prod" ] ):
 				pass
 			else:
 				self.Group = self.Tags.List.pop()
@@ -47,7 +47,7 @@ class ReleaseNameParser:
 		
 	def __HandleSpecialGroupName(self, groupNameAsTagList):
 		if self.Tags.RemoveTagsFromEndIfPossible( groupNameAsTagList ):
-			self.Group = "-".join( groupNameAsTagList.List )
+			self.Group = "-".join( groupNameAsTagList )
 			return True
 		
 		return False
@@ -61,6 +61,12 @@ class ReleaseNameParser:
 			releaseInfo.Codec = "DivX"
 		elif self.Tags.IsContainsTag( "x264" ):
 			releaseInfo.Codec = "x264"
+		elif self.Tags.IsContainsTag( "avc" ):
+			releaseInfo.Codec = "H.264"
+		elif self.Tags.IsContainsTag( "mpeg2" ) or self.Tags.IsContainsTags( [ "mpeg", "2" ] ):
+			releaseInfo.Codec = "MPEG-2"
+		elif self.Tags.IsContainsTag( "vc1" ) or self.Tags.IsContainsTags( [ "vc", "1" ] ):
+			releaseInfo.Codec = "VC-1"
 		else:
 			raise PtpUploaderException( "Can't figure out codec from release name '%s'." % releaseInfo.ReleaseName )
 
@@ -68,7 +74,7 @@ class ReleaseNameParser:
 			releaseInfo.Logger.info( "Source '%s' is already set, not getting from release name." % releaseInfo.Source )
 		elif self.Tags.IsContainsTag( "dvdrip" ):
 			releaseInfo.Source = "DVD"
-		elif self.Tags.IsContainsTag( "bdrip" ) or self.Tags.IsContainsTag( "bluray" ):
+		elif self.Tags.IsContainsTag( "bdrip" ) or self.Tags.IsContainsTag( "bluray" ) or self.Tags.IsContainsTags( [ "blu", "ray" ] ):
 			releaseInfo.Source = "Blu-ray"
 		elif self.Tags.IsContainsTag( "hddvd" ):
 			releaseInfo.Source = "HD-DVD"
@@ -88,10 +94,13 @@ class ReleaseNameParser:
 		else:
 			releaseInfo.ResolutionType = "Other"
 
+		if len( releaseInfo.RemasterTitle ) <= 0 and self.Tags.IsContainsTag( "remux" ):
+			releaseInfo.RemasterTitle = "Remux"
+
 	@staticmethod
 	def __IsTagListContainAnythingFromListOfTagList(tagList, listOfTagList):
 		for listOfTagListElement in listOfTagList:
-			if tagList.IsContainsTags( listOfTagListElement ):
+			if tagList.IsContainsTags( listOfTagListElement.List ):
 				return str( listOfTagListElement )
 
 		return None
