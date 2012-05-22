@@ -80,6 +80,7 @@ def UploadTorrentSiteLink(releaseInfo, request):
 def upload():
 	if request.method == 'POST':
 		releaseInfo = ReleaseInfo()
+		releaseInfo.LastModificationTime = Database.MakeTimeStamp()
 	
 		# Announcement
 		

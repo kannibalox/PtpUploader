@@ -1,3 +1,5 @@
+from Job.JobRunningState import JobRunningState
+from Job.JobStartMode import JobStartMode
 from WebServer import app
 
 from Helper import GetSuggestedReleaseNameAndSizeFromTorrentFile
@@ -35,13 +37,13 @@ def ajaxExternalCreateJob():
 	releaseName, torrentContentSize = GetSuggestedReleaseNameAndSizeFromTorrentFile( sourceTorrentFilePath )
 
 	releaseInfo = ReleaseInfo()
+	releaseInfo.LastModificationTime = Database.MakeTimeStamp()
+	releaseInfo.JobRunningState = JobRunningState.Paused
+	releaseInfo.JobStartMode = JobStartMode.Manual
 	releaseInfo.SourceTorrentFilePath = sourceTorrentFilePath
 	releaseInfo.AnnouncementSourceName = "torrent"
 	releaseInfo.ReleaseName = releaseName
 	releaseInfo.Size = torrentContentSize
-
-	if "StopBeforeUploading" in request.values and request.values[ "StopBeforeUploading" ] == "1":
-		releaseInfo.SetStopBeforeUploading( True )
 
 	imdbId = ""
 	if "ImdbUrl" in request.values:
@@ -52,8 +54,8 @@ def ajaxExternalCreateJob():
 	Database.DbSession.add( releaseInfo )
 	Database.DbSession.commit()
 
-	MyGlobals.PtpUploader.AddMessage( PtpUploaderMessageStartJob( releaseInfo.Id ) )
+	# Just add the job, don't start it.
 
-	response = make_response( jsonify( result = "OK" ) )
+	response = make_response( jsonify( result = "OK", jobId = releaseInfo.Id ) )
 	response.headers[ 'Access-Control-Allow-Origin' ] = '*' # Enable cross-origin resource sharing.
 	return response
