@@ -91,7 +91,7 @@ class Ptp:
 		logger.info( "Getting movie page for PTP id '%s'." % ptpId )
 		
 		opener = urllib2.build_opener( urllib2.HTTPCookieProcessor( MyGlobals.CookieJar ) )
-		request = urllib2.Request( "http://passthepopcorn.me/torrents.php?id=%s" % ptpId )
+		request = urllib2.Request( "http://passthepopcorn.me/torrents.php?id=%s&json=1" % ptpId )
 		result = opener.open( request )
 		response = result.read()
 		Ptp.CheckIfLoggedInFromResponse( result, response )
@@ -108,7 +108,7 @@ class Ptp:
 		logger.info( "Trying to find movie with IMDb id '%s' on PTP." % imdbId );
 		
 		opener = urllib2.build_opener( urllib2.HTTPCookieProcessor( MyGlobals.CookieJar ) );
-		request = urllib2.Request( "http://passthepopcorn.me/torrents.php?imdb=%s" % Ptp.NormalizeImdbIdForPtp( imdbId ) )
+		request = urllib2.Request( "http://passthepopcorn.me/torrents.php?imdb=%s&json=1" % Ptp.NormalizeImdbIdForPtp( imdbId ) )
 		result = opener.open( request );
 		response = result.read();
 		Ptp.CheckIfLoggedInFromResponse( result, response );
@@ -118,14 +118,16 @@ class Ptp:
 		match = re.match( r".*?passthepopcorn\.me/torrents\.php\?id=(\d+)", result.url );
 		if match is not None:
 			ptpId = match.group( 1 );
-			logger.info( "Movie with IMDb id '%s' exists on PTP at '%s'." % ( imdbId, result.url ) );
+			url = result.url
+			url = url.replace( "&json=1", "" )
+			logger.info( "Movie with IMDb id '%s' exists on PTP at '%s'." % ( imdbId, url ) );
 			return PtpMovieSearchResult( ptpId, response );
 		elif response.find( "<h2>Error 404</h2>" ) != -1: # For some deleted movies PTP return with this error.
 			logger.info( "Movie with IMDb id '%s' doesn't exists on PTP. (Got error 404.)" % imdbId );
-			return PtpMovieSearchResult( ptpId = "", moviePageHtml = None );
+			return PtpMovieSearchResult( ptpId = "", moviePageJsonText = None );
 		elif response.find( "<h2>Your search did not match anything.</h2>" ) != -1: 
 			logger.info( "Movie with IMDb id '%s' doesn't exists on PTP." % imdbId );
-			return PtpMovieSearchResult( ptpId = "", moviePageHtml = None );
+			return PtpMovieSearchResult( ptpId = "", moviePageJsonText = None );
 		else: # Multiple movies with the same IMDb id.
 			raise PtpUploaderException( "There are multiple movies on PTP with IMDb id '%s'." % imdbId )
 
