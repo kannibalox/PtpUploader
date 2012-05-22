@@ -1,3 +1,4 @@
+from Job.FinishedJobPhase import FinishedJobPhase
 from Job.JobRunningState import JobRunningState
 from Job.JobStartMode import JobStartMode
 from WebServer import app
@@ -24,6 +25,9 @@ def EditJob(jobId):
 
 		releaseInfo.SetStopBeforeUploading( request.values[ "post" ] == "Resume but stop before uploading" )
 
+		if releaseInfo.IsReleaseNameEditable():
+			releaseInfo.ReleaseName = request.values[ "release_name" ]
+
 		JobCommon.FillReleaseInfoFromRequestData( releaseInfo, request )
 		releaseInfo.JobRunningState = JobRunningState.WaitingForStart
 		Database.DbSession.commit()
@@ -36,6 +40,9 @@ def EditJob(jobId):
 	JobCommon.FillDictionaryFromReleaseInfo( job, releaseInfo )
 
 	if releaseInfo.CanEdited():
+		if releaseInfo.IsReleaseNameEditable():
+			job[ "IsReleaseNameEditable" ] = True
+
 		job[ "CanBeEdited" ] = True
 
 	return render_template( "edit_job.html", job = job )

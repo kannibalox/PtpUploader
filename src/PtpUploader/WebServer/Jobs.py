@@ -47,7 +47,7 @@ def ReleaseInfoToJobsPageData(releaseInfo, entry):
 		else:
 			entry[ "PtpUrl" ] = "https://passthepopcorn.me/torrents.php?id=%s" % releaseInfo.GetPtpId()
 	elif releaseInfo.HasImdbId() and ( not releaseInfo.IsZeroImdbId() ):
-		entry[ "PtpUrl" ] = "http://passthepopcorn.me/torrents.php?imdb=%s" % releaseInfo.GetImdbId()
+		entry[ "PtpUrl" ] = "https://passthepopcorn.me/torrents.php?imdb=%s" % releaseInfo.GetImdbId()
 
 	entry[ "LogPageUrl" ] = url_for( "log", jobId = releaseInfo.Id )
 	entry[ "Size" ] = SizeToText( releaseInfo.Size )

@@ -66,6 +66,9 @@
 	<td class="label">IMDb or PTP link</td>
 	<td>
 		<input id="imdb" name="imdb" size="60" value="{{ job.imdb }}" type="text" title="Enter - or 0 if the movie is not on IMDb.">
+		{% if job.PtpUrl %}
+			<a href="{{ job.PtpUrl }}" target="_blank"><img src="{{ url_for( "static", filename = "ptp.ico" ) }}" title="Movie page on PTP" style="vertical-align: middle"></a>
+		{% endif %}
 	</td>
 </tr>
 

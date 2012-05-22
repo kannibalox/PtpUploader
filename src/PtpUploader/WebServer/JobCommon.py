@@ -178,10 +178,19 @@ class JobCommon:
 		if releaseInfo.IsStartImmediately():
 			 job[ "StartImmediately" ] = "on"
 	
+		job[ "ReleaseName" ] = releaseInfo.ReleaseName
 		job[ "ReleaseNotes" ] = releaseInfo.ReleaseNotes
 		
 		job[ "Subtitles" ] = releaseInfo.GetSubtitles()
 		job[ "IncludedFilesCustomizedList" ] = releaseInfo.IncludedFiles
+
+		if releaseInfo.HasPtpId():
+			if releaseInfo.HasPtpTorrentId():
+				job[ "PtpUrl" ] = "https://passthepopcorn.me/torrents.php?id=%s&torrentid=%s" % ( releaseInfo.GetPtpId(), releaseInfo.GetPtpTorrentId() )
+			else:
+				job[ "PtpUrl" ] = "https://passthepopcorn.me/torrents.php?id=%s" % releaseInfo.GetPtpId()
+		elif releaseInfo.HasImdbId() and ( not releaseInfo.IsZeroImdbId() ):
+			job[ "PtpUrl" ] = "https://passthepopcorn.me/torrents.php?imdb=%s" % releaseInfo.GetImdbId()
 
 def MakeIncludedFilesTreeJson(includedFileList):
 	class TreeFile:

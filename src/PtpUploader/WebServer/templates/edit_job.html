@@ -1,6 +1,7 @@
 ﻿{% extends "layout.html" %}
 
 {% block head %}
+	<title>PtpUploader - {{ job.ReleaseName }}</title>
 {% endblock %}
 
 {% block body %}
@@ -13,6 +14,15 @@
 <form action="" enctype="multipart/form-data" method="post" id="resume_table">
 	<table class="border" border="0" cellpadding="3" cellspacing="1">
 		<tbody>
+			<td class="label">Release name</td>
+			<td>
+				{% if job.IsReleaseNameEditable %}
+					<input id="release_name" name="release_name" size="60" type="text" value="{{ job.ReleaseName }}" title="The specified release name will be the name of the directory in the torrent uploaded to PTP. (Not supported yet on CG.)">
+				{% else %}
+					{{ job.ReleaseName }}
+				{% endif %}
+			</td>
+
 			{% include "job_common.html" %}
 
 			{% if job.CanBeEdited %}

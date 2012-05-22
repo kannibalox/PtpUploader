@@ -283,6 +283,9 @@ class ReleaseInfo(Database.Base):
 	def CanEdited(self):
 		return self.JobRunningState != JobRunningState.WaitingForStart and self.JobRunningState != JobRunningState.InProgress and self.JobRunningState != JobRunningState.Finished
 
+	def IsReleaseNameEditable(self):
+		return self.CanEdited() and not self.IsJobPhaseFinished( FinishedJobPhase.Download_CreateReleaseDirectory )
+
 	def CanResumed(self):
 		return self.CanEdited()
 
