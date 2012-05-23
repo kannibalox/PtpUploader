@@ -107,5 +107,6 @@ def upload():
 	
 	# job parameter is needed because it uses the same template as edit job
 	job = {}
-	job[ "Subtitles" ] = [] 
+	job[ "Subtitles" ] = []
+	job[ "SkipDuplicateCheckingButton" ] = 0
 	return render_template( "upload.html", job = job )
