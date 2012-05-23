@@ -7,7 +7,8 @@ import simplejson as json
 import re
 
 class PtpMovieSearchResultItem:
-	def __init__( self, fullTitle, codec, container, source, resolution, remasterTitle, size ):
+	def __init__( self, torrentId, fullTitle, codec, container, source, resolution, remasterTitle, size, uploadTime ):
+		self.TorrentId = int( torrentId )
 		self.FullTitle = fullTitle
 		self.Codec = codec
 		self.Container = container
@@ -15,6 +16,7 @@ class PtpMovieSearchResultItem:
 		self.Resolution = resolution
 		self.RemasterTitle = remasterTitle
 		self.Size = size
+		self.UploadTime = uploadTime
 
 	def __repr__(self):
 		return "%s | %s" % ( self.FullTitle, SizeToText( self.Size ) ) 
@@ -54,6 +56,7 @@ class PtpMovieSearchResult:
 		return PtpMovieSearchResult.__ReprHelper( result, self.OtherList, "Other" )
 
 	def __ParseMoviePageMakeItems( self, itemList, torrent ):
+		torrentId = torrent[ "Id" ]
 		size = torrent[ "Size" ]
 		source = torrent[ "Source" ]
 		container = torrent[ "Container" ]
@@ -61,6 +64,7 @@ class PtpMovieSearchResult:
 		resolution = torrent[ "Resolution" ]
 		remasterTitle = torrent.get( "RemasterTitle", "" )
 		remasterYear = torrent.get( "RemasterYear", "" )
+		uploadTime = torrent[ "UploadTime" ]
 
 		fullTitle = codec + " / " + container + " / " + source + " / " + resolution
 		if len( remasterTitle ) > 0:
@@ -68,7 +72,7 @@ class PtpMovieSearchResult:
 			if len( remasterYear ) > 0:
 				fullTitle += " (%s)" % remasterYear
 
-		itemList.append( PtpMovieSearchResultItem( fullTitle, codec, container, source, resolution, remasterTitle, size ) )
+		itemList.append( PtpMovieSearchResultItem( torrentId, fullTitle, codec, container, source, resolution, remasterTitle, size, uploadTime ) )
 
 	def __ParseMoviePage( self, moviePageJsonText ):
 		moviePageJson = json.loads( moviePageJsonText )
@@ -210,6 +214,23 @@ class PtpMovieSearchResult:
 		if releaseInfo.IsSpecialRelease():
 			return None
 
+		# Not too nice, but this is the easiest way to do ignore the torrents in duplicate checking.
+		if releaseInfo.DuplicateCheckCanIgnore > 0:
+			newList = []
+			for item in self.SdList:
+				if releaseInfo.IsTorrentNeedsDuplicateChecking( item.TorrentId ):
+					newList.append( item )
+			self.SdList = newList
+
+			newList = []
+			for item in self.HdList:
+				if releaseInfo.IsTorrentNeedsDuplicateChecking( item.TorrentId ):
+					newList.append( item )
+			self.HdList = newList
+
+			if ( len( self.SdList ) + len( self.HdList ) ) <= 0:
+				return None
+
 		# If source is not DVD/HD-DVD/Blu-ray then we check if there is a release with any proper quality (retail) sources.
 		# If there is, we won't add this lower quality release.
 		if not PtpMovieSearchResult.__IsFineSource( releaseInfo.Source ):
@@ -250,9 +271,30 @@ class PtpMovieSearchResult:
 			
 		raise PtpUploaderException( "Can't check whether the release exists on PTP because its type is unsupported." )
 
+	def GetLatestTorrent( self ):
+		latestTorrent = None
+		latestTorrentId = 0
+
+		for item in self.SdList:
+			if item.TorrentId > latestTorrentId:
+				latestTorrentId = item.TorrentId
+				latestTorrent = item
+
+		for item in self.HdList:
+			if item.TorrentId > latestTorrentId:
+				latestTorrentId = item.TorrentId
+				latestTorrent = item
+
+		for item in self.OtherList:
+			if item.TorrentId > latestTorrentId:
+				latestTorrentId = item.TorrentId
+				latestTorrent = item
+
+		return latestTorrent
+
 def UnitTest():
 	def MakeTestItem( codec, container, source, resolution, remasterTitle, sizeText ):
-		return PtpMovieSearchResultItem( "", codec, container, source, resolution, remasterTitle, GetSizeFromText( sizeText ) )
+		return PtpMovieSearchResultItem( 0, "", codec, container, source, resolution, remasterTitle, GetSizeFromText( sizeText ), "" )
 
 	def IsReleaseExists( searchResult, expectedResult, searchResultItem ):
 		from ReleaseInfo import ReleaseInfo

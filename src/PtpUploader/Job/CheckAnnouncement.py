@@ -112,11 +112,9 @@ class CheckAnnouncement(WorkerBase):
 			movieOnPtpResult = Ptp.GetMoviePageOnPtpByImdbId( self.ReleaseInfo.Logger, self.ReleaseInfo.GetImdbId() )
 			self.ReleaseInfo.PtpId = movieOnPtpResult.PtpId
 
-		# If this is not a forced upload then we have to check if is it already on PTP.
-		if not self.ReleaseInfo.IsForceUpload():
-			existingRelease = movieOnPtpResult.IsReleaseExists( self.ReleaseInfo )
-			if existingRelease is not None:
-				raise PtpUploaderException( JobRunningState.Ignored_AlreadyExists, "Already exists on PTP: '%s'." % existingRelease )
+		existingRelease = movieOnPtpResult.IsReleaseExists( self.ReleaseInfo )
+		if existingRelease is not None:
+			raise PtpUploaderException( JobRunningState.Ignored_AlreadyExists, "Already exists on PTP: '%s'." % existingRelease )
 
 	def __FillOutDetailsForNewMovieByPtpApi(self):
 		# If already has a page on PTP then we don't have to do anything here.

@@ -281,18 +281,15 @@ class Upload(WorkerBase):
 		movieOnPtpResult = None
 
 		if self.ReleaseInfo.HasPtpId():
-			# If we already got the PTP id then we only need the existing formats if this is not a forced upload.
-			if not self.ReleaseInfo.IsForceUpload():
-				movieOnPtpResult = Ptp.GetMoviePageOnPtp( self.ReleaseInfo.Logger, self.ReleaseInfo.GetPtpId() )
+			movieOnPtpResult = Ptp.GetMoviePageOnPtp( self.ReleaseInfo.Logger, self.ReleaseInfo.GetPtpId() )
 		else:
 			movieOnPtpResult = Ptp.GetMoviePageOnPtpByImdbId( self.ReleaseInfo.Logger, self.ReleaseInfo.GetImdbId() )
 			self.ReleaseInfo.PtpId = movieOnPtpResult.PtpId
 		
-		if not self.ReleaseInfo.IsForceUpload():
-			# If this is not a forced upload then we have to check (again) if is it already on PTP.
-			existingRelease = movieOnPtpResult.IsReleaseExists( self.ReleaseInfo )
-			if existingRelease is not None:
-				raise PtpUploaderException( JobRunningState.DownloadedAlreadyExists, "Got uploaded to PTP while we were working on it. Skipping upload because of format '%s'." % existingRelease )
+		# Check (again) if is it already on PTP.
+		existingRelease = movieOnPtpResult.IsReleaseExists( self.ReleaseInfo )
+		if existingRelease is not None:
+			raise PtpUploaderException( JobRunningState.DownloadedAlreadyExists, "Got uploaded to PTP while we were working on it. Skipping upload because of format '%s'." % existingRelease )
 
 	def __CheckCoverArt(self):
 		if Settings.StopIfCoverArtIsMissing.lower() == "beforeuploading":

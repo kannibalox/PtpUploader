@@ -7,7 +7,7 @@
 {% block body %}
 
 <form action="" enctype="multipart/form-data" method="post" id="upload_table">
-	<table class="border" border="0" cellpadding="3" cellspacing="1">
+	<table id="editjob_table" class="border" border="0" cellpadding="3" cellspacing="1">
 		<tbody>
 			<tr>
 				<td class="label">Upload a torrent file</td>
@@ -51,7 +51,7 @@
 			{% include "job_common.html" %}
 
 			<tr>
-				<td colspan="2" style="text-align: center;">
+				<td colspan="2" style="text-align: center; border: none;">
 					<br/>
 					<br/>
 					<input id="post" name="post" type="submit" value="Upload">

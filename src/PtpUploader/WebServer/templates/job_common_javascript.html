@@ -18,6 +18,19 @@
 </style>
 
 <script>
+	function FinishSkipDuplicateCheckingAjaxCall( torrentId, uploadedAgo )
+	{
+		$( "html" ).removeClass( 'busy' );
+		$( "#SkipDuplicateCheckingButton" ).val( torrentId );
+		$( "#SkipDuplicateCheckingMessage" ).html( uploadedAgo );
+
+		if ( torrentId <= 0 )
+		{
+			alert( "Error!" );
+			$( "#SkipDuplicateCheckingButton" ).attr( "checked", false );
+		}
+	}
+
 	$(function ()
 	{
 		// Select subtitles that are specified in the job.
@@ -141,6 +154,41 @@
 
 				$.unblockUI( { fadeOut: 0 } );
 			} );
+		} );
+
+		// Skip duplicate checking
+		$( "#SkipDuplicateCheckingButton" ).click( function()
+		{
+			if ( $( this ).is( ":checked" ) )
+			{
+				$( "html" ).addClass( 'busy' );
+			
+				$.ajax(
+				{
+					type: "GET",
+					url: "{{ url_for( "ajaxGetLatestTorrent" ) }}",
+					dataType: "json",
+					data:
+					{
+						"PtpOrImdbLink": $( "#imdb" ).val()
+					},
+					success: function( data )
+					{
+						if ( data.Result == "OK" )
+							FinishSkipDuplicateCheckingAjaxCall( data.TorrentId, data.UploadedAgo );
+						else
+							FinishSkipDuplicateCheckingAjaxCall( 0, "" );
+					},
+					error: function()
+					{
+						FinishSkipDuplicateCheckingAjaxCall( 0, "" );
+					}
+				} );
+			}
+			else
+			{
+				$( "#SkipDuplicateCheckingMessage" ).html( "" );
+			}
 		} );
 	} );
 </script>

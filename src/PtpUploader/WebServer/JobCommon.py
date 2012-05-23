@@ -3,16 +3,18 @@ from WebServer import app
 from WebServer.Authentication import requires_auth
 
 from Database import Database
-from Helper import ParseQueryString
+from Helper import ParseQueryString, TimeDifferenceToText
 from IncludedFileList import IncludedFileList
 from MyGlobals import MyGlobals
 from NfoParser import NfoParser
+from Ptp import Ptp
 from ReleaseInfo import ReleaseInfo
 from Settings import Settings
 
 from flask import jsonify, request
 from werkzeug import secure_filename
 
+from datetime import datetime
 import os
 import urlparse
 
@@ -37,7 +39,7 @@ class JobCommon:
 		return ""
 	
 	@staticmethod
-	def __GetPtpOrImdbId(releaseInfo, text):
+	def GetPtpOrImdbId(releaseInfo, text):
 		imdbId = NfoParser.GetImdbId( text )
 		if len( imdbId ) > 0:
 			releaseInfo.ImdbId = imdbId
@@ -58,7 +60,7 @@ class JobCommon:
 		# For PTP
 		
 		releaseInfo.Type = request.values[ "type" ]
-		JobCommon.__GetPtpOrImdbId( releaseInfo, request.values[ "imdb" ] )
+		JobCommon.GetPtpOrImdbId( releaseInfo, request.values[ "imdb" ] )
 		releaseInfo.Directors = request.values[ "artists[]" ]
 		releaseInfo.Title = request.values[ "title" ].strip()
 		releaseInfo.Year = request.values[ "year" ]
@@ -116,6 +118,7 @@ class JobCommon:
 		releaseInfo.ReleaseNotes = request.values[ "ReleaseNotes" ]
 		releaseInfo.SetSubtitles( request.form.getlist( "subtitle[]" ) )
 		releaseInfo.IncludedFiles = request.values[ "IncludedFilesCustomizedList" ]
+		releaseInfo.DuplicateCheckCanIgnore = int( request.values.get( "SkipDuplicateCheckingButton", 0 ) )
 
 	@staticmethod
 	def __GetPtpOrImdbLink(releaseInfo):
@@ -183,6 +186,7 @@ class JobCommon:
 		
 		job[ "Subtitles" ] = releaseInfo.GetSubtitles()
 		job[ "IncludedFilesCustomizedList" ] = releaseInfo.IncludedFiles
+		job[ "SkipDuplicateCheckingButton" ] = int( releaseInfo.DuplicateCheckCanIgnore )
 
 		if releaseInfo.HasPtpId():
 			if releaseInfo.HasPtpTorrentId():
@@ -299,3 +303,34 @@ def ajaxGetIncludedFileList():
 	includedFileList.ApplyCustomizationFromJson( includedFilesCustomizedList )
 
 	return jsonify( result = "OK", files = MakeIncludedFilesTreeJson( includedFileList ) )
+
+@app.route( "/ajaxgetlatesttorrent/", methods = [ "GET" ] )
+@requires_auth
+def ajaxGetLatestTorrent():
+	releaseInfo = ReleaseInfo()
+	releaseInfo.Logger = MyGlobals.Logger
+	JobCommon.GetPtpOrImdbId( releaseInfo, request.values.get( "PtpOrImdbLink" ) )
+
+	torrentId = 0
+	uploadedAgo = ""
+
+	if not releaseInfo.IsZeroImdbId():
+		Ptp.Login()
+
+		movieOnPtpResult = None
+		if releaseInfo.HasPtpId():
+			movieOnPtpResult = Ptp.GetMoviePageOnPtp( releaseInfo.Logger, releaseInfo.GetPtpId() )
+		else:
+			movieOnPtpResult = Ptp.GetMoviePageOnPtpByImdbId( releaseInfo.Logger, releaseInfo.GetImdbId() )
+
+		if movieOnPtpResult:
+			torrent = movieOnPtpResult.GetLatestTorrent()
+			if torrent:
+				torrentId = torrent.TorrentId
+
+				# UploadTime is in UTC.
+				uploadTime = datetime.strptime( torrent.UploadTime, "%Y-%m-%d %H:%M:%S" )
+				difference = datetime.utcnow() - uploadTime
+				uploadedAgo = "(Latest torrent uploaded: " + TimeDifferenceToText( difference ).lower() + ")"
+
+	return jsonify( Result = "OK", TorrentId = torrentId, UploadedAgo = uploadedAgo )

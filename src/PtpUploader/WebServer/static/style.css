@@ -21,6 +21,11 @@ body
 	font-family: Arial,sans-serif;
 }
 
+html.busy, html.busy *
+{
+	cursor: wait !important;
+}
+
 /* Tell the browser to render HTML 5 elements as block */  
 header, section, nav
 {
@@ -97,6 +102,23 @@ table.jobs td.name
 table.jobs td.jobbuttons
 {
 	text-align: right;
+}
+
+table
+{
+	border-collapse: collapse;
+}
+
+#editjob_table td.label
+{
+	text-align: right;
+}
+
+#editjob_table td, th
+{
+	border: thin solid #121C1E;
+	padding: 0 2px 0 2px;
+	text-align: left;
 }
 
 div.pagination

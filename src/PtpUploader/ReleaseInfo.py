@@ -82,6 +82,7 @@ class ReleaseInfo(Database.Base):
 	Size = Column( Integer )
 	Subtitles = Column( String )
 	IncludedFiles = Column( String )
+	DuplicateCheckCanIgnore = Column( Integer )
 	
 	def __init__(self):
 		self.AnnouncementSourceName = "" # A name of a class from the Source namespace.
@@ -136,6 +137,7 @@ class ReleaseInfo(Database.Base):
 		self.Size = 0
 		self.Subtitles = "" # Comma separated list of PTP language IDs. Eg.: "1, 2"
 		self.IncludedFiles = "" # Contains only the customized files. Stored as JSON string.
+		self.DuplicateCheckCanIgnore = 0 # The highest torrent ID from the group. (Only filled out when the user presses says he wants to skip the duplicate checking.)
 		
 		self.MyConstructor()
 
@@ -331,3 +333,6 @@ class ReleaseInfo(Database.Base):
 
 	def SetReleaseUploadPath(self, path):
 		self.ReleaseUploadPath = path
+
+	def IsTorrentNeedsDuplicateChecking( self, torrentId ):
+		return torrentId > self.DuplicateCheckCanIgnore

@@ -14,30 +14,6 @@
 </tr>
 
 <tr>
-	<td class="label">Start immediately</td>
-	<td>
-		<input id="StartImmediately" name="StartImmediately" type="checkbox" title="If this is set then the job will be the next processed job and the download will start regardless the number of maximum parallel downloads set for the source."
-
-			{% if job.StartImmediately %}
-				checked
-			{% endif %}
-		>
-	</td>
-</tr>
-
-<tr>
-	<td class="label">Force upload</td>
-	<td>
-		<input id="force_upload" name="force_upload" type="checkbox" title="Check this to override duplicate, adult tag and series checking."
-		
-			{% if job.force_upload %}
-				checked
-			{% endif %}
-		>
-	</td>
-</tr>
-
-<tr>
 	<td class="label">Make torrent without directory</td>
 	<td>
 		<input id="ForceDirectorylessSingleFileTorrent" name="ForceDirectorylessSingleFileTorrent" type="checkbox" title="If this is set and the release contains only a single video file then no directory will be created."
@@ -348,6 +324,38 @@
 	</td>
 	<td>
 		<textarea name="ReleaseNotes" id="ReleaseNotes" cols="60" rows="8">{{ job.ReleaseNotes }}</textarea>
+	</td>
+</tr>
+
+<tr>
+	<td class="label">Checking</td>
+	<td>
+		<input id="force_upload" name="force_upload" type="checkbox"
+			{% if job.force_upload %}
+				checked
+			{% endif %}
+		>
+		<label for="force_upload">Skip adult tag, series checking and rip specification checking</label>
+		<br>
+		<input type="checkbox" id="SkipDuplicateCheckingButton" name="SkipDuplicateCheckingButton" value="{{ job.SkipDuplicateCheckingButton }}" title="The existing torrents (at the time of the button press) will be ignored at the duplicate checking."
+			{% if job.SkipDuplicateCheckingButton > 0 %}
+				checked
+			{% endif %}
+		>
+		<label for="SkipDuplicateCheckingButton">Skip duplicate checking</label>
+		<span id="SkipDuplicateCheckingMessage"></span>
+	</td>
+</tr>
+
+<tr>
+	<td class="label">Start immediately</td>
+	<td>
+		<input id="StartImmediately" name="StartImmediately" type="checkbox" title="If this is set then the job will be the next processed job and the download will start regardless the number of maximum parallel downloads set for the source."
+
+			{% if job.StartImmediately %}
+				checked
+			{% endif %}
+		>
 	</td>
 </tr>
 

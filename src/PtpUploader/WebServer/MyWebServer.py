@@ -12,7 +12,7 @@ class MyWebServer(threading.Thread):
 		self.CherryPyServer = None 
 		
 	def run(self):
-		app.config[ "DEBUG" ] = True
+		#app.config[ "DEBUG" ] = True
 		
 		host, separator, port = Settings.WebServerAddress.rpartition( ":" )
 		if len( host ) <= 0:
@@ -23,6 +23,7 @@ class MyWebServer(threading.Thread):
 		else:
 			port = 5500
 
+		app.logger.addHandler( MyGlobals.Logger )
 		MyGlobals.Logger.info( "Starting webserver on %s:%s." % ( host, port ) )
 
 		# We are using CherryPy because there is no way to stop Flask's built-in test server.

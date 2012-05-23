@@ -2,6 +2,7 @@ from Tool.PyrocoreBencode import bencode
 
 from PtpUploaderException import *
 
+from datetime import datetime
 import os
 import re
 
@@ -35,6 +36,56 @@ def SizeToText(size):
 		return "%.2f MB" % ( float( size ) / ( 1024 * 1024 ) )
 	else:
 		return "%.2f GB" % ( float( size ) / ( 1024 * 1024 * 1024 ) )
+
+# timeDifference must be datetime.timedelta.
+def TimeDifferenceToText( timeDifference, levels = 2 ):
+	timeDifference = ( timeDifference.microseconds / 1000 ) + timeDifference.seconds + ( timeDifference.days * 24 * 3600 )
+
+	years = timeDifference / 31556926 # 31556926 seconds = 1 year
+	timeDifference %= 31556926
+
+	months = timeDifference / 2629744 # 2629744 seconds = ~1 month (The mean month length of the Gregorian calendar is 30.436875 days.)
+	timeDifference %= 2629744;
+
+	days = timeDifference / 86400 # 86400 seconds = 1 day
+	timeDifference %= 86400
+
+	hours = timeDifference / 3600
+	timeDifference %= 3600
+
+	minutes = timeDifference / 60
+	timeDifference %= 60
+
+	seconds = timeDifference
+
+	text = ""
+	if years > 0:
+		text += str( years ) + "y"
+		levels -= 1
+
+	if months > 0 and levels > 0:
+		text += str( months ) + "mo";
+		levels -= 1
+
+	if days > 0 and levels > 0:
+		text += str( days ) + "d"
+		levels -= 1
+
+	if hours > 0 and levels > 0:
+		text += str( hours ) + "h"
+		levels -= 1
+
+	if minutes > 0 and levels > 0:
+		text += str( minutes ) + "m"
+		levels -= 1
+
+	if seconds > 0 and levels > 0:
+		text += str( seconds ) + "s"
+
+	if len( text ) > 0:
+		return text + " ago"
+	else:
+		return "Just now"
 
 # Nice...
 try:

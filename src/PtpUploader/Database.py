@@ -41,6 +41,11 @@ def MigrateSchema():
 	except exc.OperationalError:
 		pass
 
+	try:
+		Database.DbSession.execute( """ALTER TABLE release ADD COLUMN DuplicateCheckCanIgnore INTEGER DEFAULT "0";""" )
+	except exc.OperationalError:
+		pass
+
 def InitDb():
 	MyGlobals.Logger.info( "Initializing database." )
 	
