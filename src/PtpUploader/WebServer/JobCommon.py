@@ -59,6 +59,9 @@ class JobCommon:
 	def FillReleaseInfoFromRequestData(releaseInfo, request):
 		# For PTP
 		
+		# TODO: remove the debug logging
+		MyGlobals.Logger.info( repr( request.values ) )
+
 		releaseInfo.Type = request.values[ "type" ]
 		JobCommon.GetPtpOrImdbId( releaseInfo, request.values[ "imdb" ] )
 		releaseInfo.Directors = request.values[ "artists[]" ]
