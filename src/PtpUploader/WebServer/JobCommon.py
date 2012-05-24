@@ -59,9 +59,6 @@ class JobCommon:
 	def FillReleaseInfoFromRequestData(releaseInfo, request):
 		# For PTP
 		
-		# TODO: remove the debug logging
-		MyGlobals.Logger.info( repr( request.values ) )
-
 		releaseInfo.Type = request.values[ "type" ]
 		JobCommon.GetPtpOrImdbId( releaseInfo, request.values[ "imdb" ] )
 		releaseInfo.Directors = request.values[ "artists[]" ]
@@ -78,26 +75,26 @@ class JobCommon:
 		if request.values.get( "special" ) is not None:
 			releaseInfo.SetSpecialRelease()
 	
-		codec = request.values[ "codec" ]
-		if codec != "---":
+		codec = request.values.get( "codec" )
+		if ( codec is not None ) and codec != "---":
 			releaseInfo.Codec = codec
 			 
 		releaseInfo.CodecOther = request.values[ "other_codec" ]
 	
-		container = request.values[ "container" ]
-		if container != "---": 
+		container = request.values.get( "container" )
+		if ( container is not None ) and container != "---":
 			releaseInfo.Container = container
 		
 		releaseInfo.ContainerOther = request.values[ "other_container" ]
 		
-		resolutionType = request.values[ "resolution" ]
-		if resolutionType != "---": 
+		resolutionType = request.values.get( "resolution" )
+		if ( resolutionType is not None ) and resolutionType != "---":
 			releaseInfo.ResolutionType = resolutionType
 		
 		releaseInfo.Resolution = request.values[ "other_resolution" ] 
 		
-		source = request.values[ "source" ]
-		if source != "---":
+		source = request.values.get( "source" )
+		if ( source is not None ) and source != "---":
 			releaseInfo.Source = source
 			
 		releaseInfo.SourceOther = request.values[ "other_source" ]
