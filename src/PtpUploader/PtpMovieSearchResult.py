@@ -57,7 +57,7 @@ class PtpMovieSearchResult:
 
 	def __ParseMoviePageMakeItems( self, itemList, torrent ):
 		torrentId = torrent[ "Id" ]
-		size = torrent[ "Size" ]
+		size = int( torrent[ "Size" ] )
 		source = torrent[ "Source" ]
 		container = torrent[ "Container" ]
 		codec = torrent[ "Codec" ]
