@@ -17,11 +17,11 @@
 		{% for entry in entries %}
 			<tr>
 				<td class="name">
-					<a href="{{ entry.LogPageUrl }}"><img src={{ entry.StateIcon }} title="{{ entry.State }}"></a>
+					<a href="{{ entry.LogPageUrl }}" {{ settings.OpenJobPageLinksInNewTab|safe }}><img src={{ entry.StateIcon }} title="{{ entry.State }}"></a>
 
 					<span class="title">
 					{% if entry.PtpUrl %}
-						<a href="{{ entry.PtpUrl }}">{{ entry.ReleaseName }}</a>
+						<a href="{{ entry.PtpUrl }}" {{ settings.OpenJobPageLinksInNewTab|safe }}>{{ entry.ReleaseName }}</a>
 					{% else %}
 						{{ entry.ReleaseName }}
 					{% endif %}
@@ -35,7 +35,7 @@
 				<td>
 					{% if entry.SourceIcon %}
 						{% if entry.SourceUrl %}
-							<a href="{{ entry.SourceUrl }}"><img src={{ entry.SourceIcon }}></a>
+							<a href="{{ entry.SourceUrl }}" {{ settings.OpenJobPageLinksInNewTab|safe }}><img src={{ entry.SourceIcon }}></a>
 						{% else %}
 							<img src={{ entry.SourceIcon }}>
 						{% endif %}
@@ -52,7 +52,7 @@
 						<a href="#" onclick='executeJobCommand( this, {{ entry.Id }}, "/stop/" ); return false;'><img src={{ url_for( "static", filename = "stop.png" ) }} title="Stop"></a>
 					{% endif %}
 					{% if entry.EditJobUrl %}
-						<a href="{{ entry.EditJobUrl }}"><img src={{ url_for( "static", filename = "edit.png" ) }} title="Edit"></a>
+						<a href="{{ entry.EditJobUrl }}" {{ settings.OpenJobPageLinksInNewTab|safe }}><img src={{ url_for( "static", filename = "edit.png" ) }} title="Edit"></a>
 					{% endif %}
 					{% if entry.CanDeleteJob %}
 						<a href="#" class="delete_job_context_menu" PtpUploaderJobId='{{ entry.Id }}'><img src={{ url_for( "static", filename = "delete.png" ) }} title="Delete"></a>

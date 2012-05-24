@@ -150,7 +150,8 @@ class Settings(object):
 		Settings.WebServerUsername = Settings.__GetDefault( configParser, "Settings", "WebServerUsername", "admin" )
 		Settings.WebServerPassword = Settings.__GetDefault( configParser, "Settings", "WebServerPassword", "" )
 		Settings.GreasemonkeyTorrentSenderPassword = Settings.__GetDefault( configParser, "Settings", "GreasemonkeyTorrentSenderPassword", "" )
-		
+		Settings.OpenJobPageLinksInNewTab = Settings.__GetDefault( configParser, "Settings", "OpenJobPageLinksInNewTab", "0" )
+
 		Settings.SizeLimitForAutoCreatedJobs = float( Settings.__GetDefault( configParser, "Settings", "SizeLimitForAutoCreatedJobs", "0" ) ) * 1024 * 1024 * 1024
 		Settings.StopIfCoverArtIsMissing = Settings.__GetDefault( configParser, "Settings", "StopIfCoverArtIsMissing", "" )
 		Settings.MediaInfoTimeOut = int( Settings.__GetDefault( configParser, "Settings", "MediaInfoTimeOut", "60" ) )

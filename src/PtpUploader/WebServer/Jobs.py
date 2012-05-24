@@ -9,6 +9,7 @@ from Helper import SizeToText
 from MyGlobals import MyGlobals
 from PtpUploaderMessage import *
 from ReleaseInfo import ReleaseInfo
+from Settings import Settings
 
 from flask import render_template, request, url_for
 from sqlalchemy import desc
@@ -88,7 +89,13 @@ def jobs(page):
 		ReleaseInfoToJobsPageData( releaseInfo, entry )
 		entries.append( entry )
 
-	return render_template( "jobs.html", entries = entries, pagination = pagination )
+	settings = {}
+	if Settings.OpenJobPageLinksInNewTab == "0":
+		settings[ "OpenJobPageLinksInNewTab" ] = ""
+	else:
+		settings[ "OpenJobPageLinksInNewTab" ] = ' target="_blank"'
+
+	return render_template( "jobs.html", entries = entries, pagination = pagination, settings = settings )
 
 @app.route( "/job/<int:jobId>/start/" )
 @requires_auth
