@@ -38,8 +38,8 @@ def SizeToText(size):
 		return "%.2f GB" % ( float( size ) / ( 1024 * 1024 * 1024 ) )
 
 # timeDifference must be datetime.timedelta.
-def TimeDifferenceToText( timeDifference, levels = 2 ):
-	timeDifference = ( timeDifference.microseconds / 1000 ) + timeDifference.seconds + ( timeDifference.days * 24 * 3600 )
+def TimeDifferenceToText( timeDifference, levels = 2, agoText = " ago", noDifferenceText = "Just now" ):
+	timeDifference = ( timeDifference.microseconds / 1000000 ) + timeDifference.seconds + ( timeDifference.days * 24 * 3600 )
 
 	years = timeDifference / 31556926 # 31556926 seconds = 1 year
 	timeDifference %= 31556926
@@ -83,9 +83,9 @@ def TimeDifferenceToText( timeDifference, levels = 2 ):
 		text += str( seconds ) + "s"
 
 	if len( text ) > 0:
-		return text + " ago"
+		return text + agoText
 	else:
-		return "Just now"
+		return noDifferenceText
 
 # Nice...
 try:

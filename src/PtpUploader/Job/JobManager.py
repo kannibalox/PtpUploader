@@ -7,6 +7,7 @@ from AnnouncementWatcher import *
 from Database import Database
 from Logger import Logger
 
+import datetime
 import Queue
 import threading
 
@@ -43,6 +44,12 @@ class JobManager:
 		
 		return runningDownloads < source.MaximumParallelDownloads
 
+	def __CanStartPendingJob( self, releaseInfo ):
+		if releaseInfo.JobRunningState == JobRunningState.Scheduled and datetime.datetime.utcnow() < releaseInfo.ScheduleTimeUtc:
+			return False
+
+		return self.__IsSourceAvailable( releaseInfo.AnnouncementSource )
+
 	def __LoadReleaseInfoFromDatabase(self, releaseInfoId):
 		releaseInfo = Database.DbSession.query( ReleaseInfo ).filter( ReleaseInfo.Id == releaseInfoId ).first()
 		releaseInfo.Logger = Logger( releaseInfo.GetLogFilePath() )
@@ -67,7 +74,7 @@ class JobManager:
 			if releaseInfo.IsStartImmediately():
 				processIndex = announcementIndex
 				break
-			elif processIndex == -1 and self.__IsSourceAvailable( releaseInfo.AnnouncementSource ):
+			elif processIndex == -1 and self.__CanStartPendingJob( releaseInfo ):
 				processIndex = announcementIndex
 
 		if processIndex != -1:		
@@ -78,7 +85,7 @@ class JobManager:
 		releaseInfos = AnnouncementWatcher.LoadAnnouncementFilesIntoTheDatabase()
 		for releaseInfo in releaseInfos: 
 			jobManagerItem = JobManagerItem( releaseInfo.Id, releaseInfo )
-			if ( not announcementToHandle ) and self.__IsSourceAvailable( releaseInfo.AnnouncementSource ):
+			if ( not announcementToHandle ) and self.__CanStartPendingJob( releaseInfo ):
 				announcementToHandle = jobManagerItem
 			else:
 				self.PendingAnnouncements.append( jobManagerItem )

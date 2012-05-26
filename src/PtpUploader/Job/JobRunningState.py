@@ -10,6 +10,7 @@ class JobRunningState:
 	Ignored_MissingInfo     = 8
 	Ignored_NotSupported    = 9
 	DownloadedAlreadyExists = 10
+	Scheduled               = 11
 
 	@staticmethod
 	def ToText(state):
@@ -35,5 +36,7 @@ class JobRunningState:
 			return "Ignored, not supported"
 		elif state == JobRunningState.DownloadedAlreadyExists:
 			return "Downloaded, already exists"
+		elif state == JobRunningState.Scheduled:
+			return "Scheduled"
 		else:
 			return "Unknown"

@@ -1,9 +1,10 @@
-from Helper import GetSizeFromText, SizeToText
+from Helper import GetSizeFromText, SizeToText, TimeDifferenceToText
 from NfoParser import NfoParser
 from PtpUploaderException import PtpUploaderException
 
 import simplejson as json
 
+import datetime
 import re
 
 class PtpMovieSearchResultItem:
@@ -18,8 +19,12 @@ class PtpMovieSearchResultItem:
 		self.Size = size
 		self.UploadTime = uploadTime
 
+	def GetUploadTimeAsDateTimeUtc( self ):
+		return datetime.datetime.strptime( self.UploadTime, "%Y-%m-%d %H:%M:%S" )
+
 	def __repr__(self):
-		return "%s | %s" % ( self.FullTitle, SizeToText( self.Size ) ) 
+		ago = TimeDifferenceToText( datetime.datetime.utcnow() - self.GetUploadTimeAsDateTimeUtc() )
+		return "%s, %s, %s" % ( self.FullTitle, SizeToText( self.Size ), ago )
 
 # Notes:
 # - We treat HD-DVD and Blu-ray as same quality.

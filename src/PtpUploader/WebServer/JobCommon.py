@@ -328,9 +328,7 @@ def ajaxGetLatestTorrent():
 			if torrent:
 				torrentId = torrent.TorrentId
 
-				# UploadTime is in UTC.
-				uploadTime = datetime.strptime( torrent.UploadTime, "%Y-%m-%d %H:%M:%S" )
-				difference = datetime.utcnow() - uploadTime
+				difference = datetime.utcnow() - torrent.GetUploadTimeAsDateTimeUtc()
 				uploadedAgo = "(Latest torrent uploaded: " + TimeDifferenceToText( difference ).lower() + ")"
 
 	return jsonify( Result = "OK", TorrentId = torrentId, UploadedAgo = uploadedAgo )

@@ -1,3 +1,5 @@
+from Job.JobRunningState import JobRunningState
+
 from Database import Database
 from MyGlobals import MyGlobals
 from Logger import Logger
@@ -5,6 +7,7 @@ from PtpUploaderException import PtpUploaderException
 from ReleaseInfo import ReleaseInfo
 from Settings import Settings
 
+import datetime
 import os
 import re
 		
@@ -27,10 +30,16 @@ class AnnouncementWatcher:
 			return None
 		
 		releaseInfo = ReleaseInfo()
+		releaseInfo.LastModificationTime = Database.MakeTimeStamp()
 		releaseInfo.ReleaseName = releaseName
 		releaseInfo.AnnouncementSource = announcementSource
 		releaseInfo.AnnouncementSourceName = announcementSource.Name
 		releaseInfo.AnnouncementId = announcementId
+
+		if announcementSource.AutomaticJobStartDelay > 0:
+			releaseInfo.JobRunningState = JobRunningState.Scheduled
+			releaseInfo.ScheduleTimeUtc = datetime.datetime.utcnow() + datetime.timedelta( seconds = announcementSource.AutomaticJobStartDelay )
+
 		Database.DbSession.add( releaseInfo )
 		Database.DbSession.commit()
 

@@ -46,6 +46,11 @@ def MigrateSchema():
 	except exc.OperationalError:
 		pass
 
+	try:
+		Database.DbSession.execute( """ALTER TABLE release ADD COLUMN ScheduleTimeUtc VARCHAR DEFAULT "2001-01-01 01:01:01";""" )
+	except exc.OperationalError:
+		pass
+
 def InitDb():
 	MyGlobals.Logger.info( "Initializing database." )
 	
@@ -62,7 +67,7 @@ def InitDb():
 	Database.Base.metadata.create_all( bind = Database.DbEngine )
 
 	# Make sure that jobs running states are valid. There can't be any running jobs.
-	query = Database.DbSession.query( ReleaseInfo ).filter( or_( ReleaseInfo.JobRunningState == JobRunningState.WaitingForStart, ReleaseInfo.JobRunningState == JobRunningState.InProgress ) )
+	query = Database.DbSession.query( ReleaseInfo ).filter( or_( ReleaseInfo.JobRunningState == JobRunningState.WaitingForStart, ReleaseInfo.JobRunningState == JobRunningState.Scheduled, ReleaseInfo.JobRunningState == JobRunningState.InProgress ) )
 	for releaseInfo in query:
 		releaseInfo.JobRunningState = JobRunningState.Paused
 	Database.DbSession.commit()

@@ -6,8 +6,9 @@ from Database import Database
 from PtpUploaderException import PtpUploaderException
 from Settings import Settings
 
-from sqlalchemy import Boolean, Column, Integer, orm, String
+from sqlalchemy import Boolean, Column, DateTime, Integer, orm, String
 
+import datetime
 import os
 
 class ReleaseInfoFlags:
@@ -83,6 +84,7 @@ class ReleaseInfo(Database.Base):
 	Subtitles = Column( String )
 	IncludedFiles = Column( String )
 	DuplicateCheckCanIgnore = Column( Integer )
+	ScheduleTimeUtc = Column( DateTime )
 	
 	def __init__(self):
 		self.AnnouncementSourceName = "" # A name of a class from the Source namespace.
@@ -138,6 +140,7 @@ class ReleaseInfo(Database.Base):
 		self.Subtitles = "" # Comma separated list of PTP language IDs. Eg.: "1, 2"
 		self.IncludedFiles = "" # Contains only the customized files. Stored as JSON string.
 		self.DuplicateCheckCanIgnore = 0 # The highest torrent ID from the group. (Only filled out when the user presses says he wants to skip the duplicate checking.)
+		self.ScheduleTimeUtc = datetime.datetime.utcnow()
 		
 		self.MyConstructor()
 
@@ -283,7 +286,7 @@ class ReleaseInfo(Database.Base):
 			self.Flags &= ~ReleaseInfoFlags.StopBeforeUploading
 
 	def CanEdited(self):
-		return self.JobRunningState != JobRunningState.WaitingForStart and self.JobRunningState != JobRunningState.InProgress and self.JobRunningState != JobRunningState.Finished
+		return self.JobRunningState != JobRunningState.WaitingForStart and self.JobRunningState != JobRunningState.Scheduled and self.JobRunningState != JobRunningState.InProgress and self.JobRunningState != JobRunningState.Finished
 
 	def IsReleaseNameEditable(self):
 		return self.CanEdited() and not self.IsJobPhaseFinished( FinishedJobPhase.Download_CreateReleaseDirectory )
@@ -292,10 +295,10 @@ class ReleaseInfo(Database.Base):
 		return self.CanEdited()
 
 	def CanStopped(self):
-		return self.JobRunningState == JobRunningState.WaitingForStart or self.JobRunningState == JobRunningState.InProgress
+		return self.JobRunningState == JobRunningState.WaitingForStart or self.JobRunningState == JobRunningState.Scheduled or self.JobRunningState == JobRunningState.InProgress
 
 	def CanDeleted(self):
-		return self.JobRunningState != JobRunningState.WaitingForStart and self.JobRunningState != JobRunningState.InProgress
+		return self.JobRunningState != JobRunningState.WaitingForStart and self.JobRunningState != JobRunningState.Scheduled and self.JobRunningState != JobRunningState.InProgress
 
 	def IsJobPhaseFinished(self, jobPhase):
 		return ( self.FinishedJobPhase & jobPhase ) != 0 

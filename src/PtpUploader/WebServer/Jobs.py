@@ -5,7 +5,7 @@ from WebServer.Authentication import requires_auth
 from WebServer.Pagination import Pagination
 
 from Database import Database
-from Helper import SizeToText
+from Helper import SizeToText, TimeDifferenceToText
 from MyGlobals import MyGlobals
 from PtpUploaderMessage import *
 from ReleaseInfo import ReleaseInfo
@@ -14,20 +14,24 @@ from Settings import Settings
 from flask import render_template, request, url_for
 from sqlalchemy import desc
 
+import datetime
+
 def GetStateIcon(state):
-	if state == JobRunningState.Finished: 
+	if state == JobRunningState.Finished:
 		return "success.png"
-	elif state == JobRunningState.Failed: 
+	elif state == JobRunningState.Failed:
 		return "error.png"
 	elif state == JobRunningState.Ignored or state == JobRunningState.Ignored_AlreadyExists or state == JobRunningState.Ignored_Forbidden or state == JobRunningState.Ignored_MissingInfo or state == JobRunningState.Ignored_NotSupported:
 		return "warning.png"
-	elif state == JobRunningState.WaitingForStart: 
+	elif state == JobRunningState.WaitingForStart:
 		return "hourglass.png"
-	elif state == JobRunningState.InProgress: 
+	elif state == JobRunningState.InProgress:
 		return "throbber.gif"
-	elif state == JobRunningState.Paused: 
+	elif state == JobRunningState.Paused:
 		return "pause.png"
-	elif state == JobRunningState.DownloadedAlreadyExists: 
+	elif state == JobRunningState.Scheduled:
+		return "scheduled.png"
+	elif state == JobRunningState.DownloadedAlreadyExists:
 		return "sad.png"
 
 	# This is not possible.
@@ -36,7 +40,15 @@ def GetStateIcon(state):
 def ReleaseInfoToJobsPageData(releaseInfo, entry):
 	entry[ "Id" ] = releaseInfo.Id
 	entry[ "ReleaseName" ] = releaseInfo.ReleaseName
-	entry[ "State" ] = JobRunningState.ToText( releaseInfo.JobRunningState ) + ". (Click to see the log.)"
+
+	stateMessage = JobRunningState.ToText( releaseInfo.JobRunningState )
+	if releaseInfo.JobRunningState == JobRunningState.Scheduled:
+		differenceText = TimeDifferenceToText( releaseInfo.ScheduleTimeUtc - datetime.datetime.utcnow(), 2, " to go", "" )
+		if len( differenceText ) > 0:
+			stateMessage += " (%s)" % differenceText
+
+	entry[ "State" ] = stateMessage + ". (Click to see the log.)"
+
 	entry[ "StateIcon" ] = url_for( "static", filename = GetStateIcon( releaseInfo.JobRunningState ) )
 	
 	if len( releaseInfo.ErrorMessage ) > 0:
