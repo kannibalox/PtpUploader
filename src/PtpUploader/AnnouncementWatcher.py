@@ -8,10 +8,46 @@ from ReleaseInfo import ReleaseInfo
 from Settings import Settings
 
 import datetime
+import hashlib
 import os
 import re
 		
 class AnnouncementWatcher:
+	@staticmethod
+	def __SetScheduling( releaseInfo ):
+		startDelay = 0
+
+		if releaseInfo.AnnouncementSource.AutomaticJobStartDelay > 0:
+			startDelay = releaseInfo.AnnouncementSource.AutomaticJobStartDelay
+
+		# Cooperation.
+		if ( releaseInfo.AnnouncementSource.AutomaticJobCooperationMemberCount > 1
+			and releaseInfo.AnnouncementSource.AutomaticJobCooperationMemberId >= 0
+			and releaseInfo.AnnouncementSource.AutomaticJobCooperationMemberId < releaseInfo.AnnouncementSource.AutomaticJobCooperationMemberCount
+			and releaseInfo.AnnouncementSource.AutomaticJobCooperationDelay > 0
+			and len( releaseInfo.ReleaseName ) > 0 ):
+
+			# On some trackers the periods are stripped, so we strip everything here.
+			releaseName = releaseInfo.ReleaseName.replace( ".", "" ).replace( "-", "" ).replace( " ", "" ).lower()
+
+			# Give a release name an ID in the range of the number of cooperating users.
+			id = int( hashlib.md5( releaseName ).hexdigest(), 16 )
+			id = id % releaseInfo.AnnouncementSource.AutomaticJobCooperationMemberCount
+
+			# Delaying is done justly.
+			# For example let's assume three users are cooperating with 10 minutes delay.
+			# If id = 0 then user #1:  0m, user #2: 10m, user #3: 20m.
+			# If id = 1 then user #1: 20m, user #2:  0m, user #3: 10m.
+			# If id = 2 then user #1: 10m, user #2: 20m, user #3:  0m.
+			if releaseInfo.AnnouncementSource.AutomaticJobCooperationMemberId >= id:
+				startDelay = ( releaseInfo.AnnouncementSource.AutomaticJobCooperationMemberId - id ) * releaseInfo.AnnouncementSource.AutomaticJobCooperationDelay
+			else:
+				startDelay = ( releaseInfo.AnnouncementSource.AutomaticJobCooperationMemberCount - id + releaseInfo.AnnouncementSource.AutomaticJobCooperationMemberId ) * releaseInfo.AnnouncementSource.AutomaticJobCooperationDelay
+
+		if startDelay > 0:
+			releaseInfo.JobRunningState = JobRunningState.Scheduled
+			releaseInfo.ScheduleTimeUtc = datetime.datetime.utcnow() + datetime.timedelta( seconds = startDelay )
+
 	# Example: [source=gft][id=44][title=Dark.City.1998.Directors.Cut.720p.BluRay.x264-SiNNERS]
 	@staticmethod
 	def __ProcessAnnouncementFile(announcementFilename):
@@ -22,7 +58,7 @@ class AnnouncementWatcher:
 			
 		announcementSourceName = matches.group( 1 )
 		announcementId = matches.group( 2 )
-		releaseName = matches.group( 3 )
+		releaseName = matches.group( 3 ).strip()
 			
 		announcementSource = MyGlobals.SourceFactory.GetSource( announcementSourceName )
 		if announcementSource is None:
@@ -35,10 +71,7 @@ class AnnouncementWatcher:
 		releaseInfo.AnnouncementSource = announcementSource
 		releaseInfo.AnnouncementSourceName = announcementSource.Name
 		releaseInfo.AnnouncementId = announcementId
-
-		if announcementSource.AutomaticJobStartDelay > 0:
-			releaseInfo.JobRunningState = JobRunningState.Scheduled
-			releaseInfo.ScheduleTimeUtc = datetime.datetime.utcnow() + datetime.timedelta( seconds = announcementSource.AutomaticJobStartDelay )
+		AnnouncementWatcher.__SetScheduling( releaseInfo )
 
 		Database.DbSession.add( releaseInfo )
 		Database.DbSession.commit()

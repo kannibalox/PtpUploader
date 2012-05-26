@@ -23,10 +23,10 @@ class SourceBase:
 		if maximumParallelDownloads > 0:
 			self.MaximumParallelDownloads = maximumParallelDownloads
 
-		# Do not allow bogus settings.
 		self.AutomaticJobStartDelay = int( settings.GetDefault( self.NameInSettings, "AutomaticJobStartDelay", "0" ) )
-		if self.AutomaticJobStartDelay < 0:
-			self.AutomaticJobStartDelay = 0
+		self.AutomaticJobCooperationMemberCount = int( settings.GetDefault( self.NameInSettings, "AutomaticJobCooperationMemberCount", "0" ) )
+		self.AutomaticJobCooperationMemberId = int( settings.GetDefault( self.NameInSettings, "AutomaticJobCooperationMemberId", "0" ) )
+		self.AutomaticJobCooperationDelay = int( settings.GetDefault( self.NameInSettings, "AutomaticJobCooperationDelay", "0" ) )
 
 		self.StopAutomaticJob = settings.GetDefault( self.NameInSettings, "StopAutomaticJob", "" ).lower()
 		self.StopAutomaticJobIfThereAreMultipleVideos = settings.GetDefault( self.NameInSettings, "StopAutomaticJobIfThereAreMultipleVideos", "" ).lower()
