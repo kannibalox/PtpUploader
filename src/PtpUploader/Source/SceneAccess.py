@@ -34,7 +34,7 @@ class SceneAccess(SourceBase):
 		
 		opener = urllib2.build_opener( urllib2.HTTPCookieProcessor( MyGlobals.CookieJar ) )
 		postData = urllib.urlencode( { "username": self.Username, "password": self.Password } )
-		result = opener.open( "http://www.sceneaccess.org/login", postData )
+		result = opener.open( "https://sceneaccess.eu/login", postData )
 		response = result.read()
 		self.CheckIfLoggedInFromResponse( response );
 	
@@ -45,7 +45,7 @@ class SceneAccess(SourceBase):
 	# Sets IMDb if presents in the torrent description.
 	# Returns with the release name.
 	def __ReadTorrentPage(self, logger, releaseInfo):
-		url = "http://www.sceneaccess.org/details?id=%s" % releaseInfo.AnnouncementId
+		url = "https://sceneaccess.eu/details?id=%s" % releaseInfo.AnnouncementId
 		logger.info( "Downloading NFO from page '%s'." % url )
 		
 		opener = urllib2.build_opener( urllib2.HTTPCookieProcessor( MyGlobals.CookieJar ) )
@@ -87,7 +87,7 @@ class SceneAccess(SourceBase):
 		if matches is None:
 			raise PtpUploaderException( JobRunningState.Ignored_MissingInfo, "Release name can't be found on torrent page." )
 
-		releaseInfo.SceneAccessDownloadUrl = "http://www.sceneaccess.org/" + matches.group( 1 )
+		releaseInfo.SceneAccessDownloadUrl = "https://sceneaccess.eu/" + matches.group( 1 )
 
 		return releaseName
 
@@ -149,14 +149,14 @@ class SceneAccess(SourceBase):
 			raise PtpUploaderException( "Torrent '%s' contains multiple NFO files." % path )
 
 	def GetIdFromUrl(self, url):
-		result = re.match( r".*sceneaccess\.org/details\?id=(\d+).*", url )
+		result = re.match( r".*sceneaccess\.eu/details\?id=(\d+).*", url )
 		if result is None:
 			return ""
 		else:
 			return result.group( 1 )
 
 	def GetUrlFromId(self, id):
-		return "http://www.sceneaccess.org/details?id=" + id
+		return "https://sceneaccess.eu/details?id=" + id
 	
 	def InviteToIrc(self):
 		if not self.IrcEnabled:
@@ -166,6 +166,6 @@ class SceneAccess(SourceBase):
 		
 		opener = urllib2.build_opener( urllib2.HTTPCookieProcessor( MyGlobals.CookieJar ) )
 		postData = urllib.urlencode( { "announce": "yes" } )
-		result = opener.open( "http://www.sceneaccess.org/irc", postData )
+		result = opener.open( "https://sceneaccess.eu/irc", postData )
 		response = result.read()
 		self.CheckIfLoggedInFromResponse( response );
