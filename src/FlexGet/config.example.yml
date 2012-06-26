@@ -141,5 +141,5 @@ feeds:
       # Create TorrentId field by extracting the id from the URL.
       - TorrentId:
           from: url
-          extract: 'thedarksyndicate.me/rssdownload.php?id=(\d+).*'
+          extract: 'thedarksyndicate\.me/rssdownload\.php\?id=(\d+).*'
     exec: echo >> "/path to WorkingDirectory/announcement/[source=tds][id=0,%(TorrentId)s][title=%(title)s]"
