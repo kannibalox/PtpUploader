@@ -305,6 +305,7 @@ class Upload(WorkerBase):
 		if url.find( "ptpimg.me" ) != -1 or url.find( "whatimg.com" ) != -1:
 			return
 
+		self.ReleaseInfo.Logger.info( "Rehosting poster from '%s'." % url )
 		self.ReleaseInfo.CoverArtUrl = ImageUploader.Upload( self.ReleaseInfo.Logger, imageUrl = url )
 
 	def __StopBeforeUploading(self):
