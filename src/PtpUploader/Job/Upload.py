@@ -307,6 +307,7 @@ class Upload(WorkerBase):
 
 		self.ReleaseInfo.Logger.info( "Rehosting poster from '%s'." % url )
 		self.ReleaseInfo.CoverArtUrl = ImageUploader.Upload( self.ReleaseInfo.Logger, imageUrl = url )
+		self.ReleaseInfo.Logger.info( "Rehosted poster to '%s'." % self.ReleaseInfo.CoverArtUrl )
 
 	def __StopBeforeUploading(self):
 		if self.ReleaseInfo.IsStopBeforeUploading():
