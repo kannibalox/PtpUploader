@@ -302,7 +302,7 @@ class Upload(WorkerBase):
 
 		# Rehost the image only if not already on an image hoster.
 		url = self.ReleaseInfo.CoverArtUrl
-		if url.find( "ptpimg.me" ) != -1 or url.find( "imageshack.us" ) != -1 or url.find( "photobucket.com" ) != -1:
+		if url.find( "ptpimg.me" ) != -1 or url.find( "whatimg.com" ) != -1:
 			return
 
 		self.ReleaseInfo.CoverArtUrl = ImageUploader.Upload( self.ReleaseInfo.Logger, imageUrl = url )
