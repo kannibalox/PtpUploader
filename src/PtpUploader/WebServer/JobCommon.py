@@ -66,7 +66,7 @@ class JobCommon:
 		releaseInfo.Year = request.values[ "year" ]
 		releaseInfo.Tags = request.values[ "tags" ]
 		releaseInfo.MovieDescription = request.values[ "album_desc" ]
-		releaseInfo.CoverArtUrl = request.values[ "image" ]
+		releaseInfo.CoverArtUrl = request.values[ "image" ].strip()
 		releaseInfo.YouTubeId = JobCommon.__GetYouTubeId( request.values[ "trailer" ] )
 		
 		if request.values.get( "scene" ) is not None:
