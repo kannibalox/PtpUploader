@@ -7,6 +7,7 @@ from sqlalchemy import create_engine, exc, or_
 from sqlalchemy.orm import scoped_session, sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
 
+import datetime
 import platform
 import time
 
@@ -18,7 +19,11 @@ class Database:
 	@staticmethod
 	def MakeTimeStamp():
 		# time.time() returns the time as a floating point number expressed in seconds since the epoch, in UTC.
-		return int( time.time() * 100 )		
+		return int( time.time() * 100 )
+
+	@staticmethod
+	def TimeStampToUtcDateTime( timeStamp ):
+		return datetime.datetime.utcfromtimestamp( timeStamp / 100 )
 
 def GetDatabaseUrl():
 	# In case of Linux the path is already an absolute path and thus starts with a slash. 

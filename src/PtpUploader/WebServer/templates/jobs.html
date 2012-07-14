@@ -5,11 +5,52 @@
 {% endblock %}
 
 {% block body %}
+
+<style type="text/css">
+	.InitialHideSearchStyle .ToggledByHideSearch { display: none; }
+</style>
+<script>
+	if ( window.localStorage && window.localStorage.getItem( 'HideSearch' ) == '1' )
+		document.documentElement.className += " InitialHideSearchStyle";
+</script>
+
+<form id="jobs_search_form" name="filter" method="get" action=''>
+	<div id="jobs_search_more_div" class="box pad">
+		<table>
+			<tr>
+				<td>
+					<input type="text" size="50" name="searchstr" class="inputtext smaller" placeholder="Search by release name" value="{{ settings.SearchText }}" />
+					<a title="More search options" onclick="ToggleSearch( this );" href="javascript:void(0);">[+]</a>
+				</td>
+			</tr>
+			<tr style="text-align: left" class="ToggledByHideSearch">
+				<td>
+					Order by:
+					<select name="orderby" style="text-align: left">
+						<option value="" {% if settings.OrderBy == "" %} selected{% endif %}>Date</option>
+						<option value="size" {% if settings.OrderBy == "size" %} selected{% endif %}>Size</option>
+					</select>
+					<select name="orderway">
+						<option value="asc" {% if settings.OrderWay == "asc" %} selected{% endif %}>Ascending</option>
+						<option value="" {% if settings.OrderWay != "asc" %} selected{% endif %}>Descending</option>
+					</select>
+				</td>
+			</tr>
+			<tr style="text-align: right" class="ToggledByHideSearch">
+				<td>
+				<input type="submit" value="Search"/>
+				</td>
+			</tr>
+		</table>
+	</div>
+</form>
+
 <table class="jobs" border="0" cellpadding="3" cellspacing="1">
 	<tr>
 		<th>Release name</th>
 		<th>Source</th>
 		<th>Size</th>
+		<th>Date</th>
 		<th>Edit</th>
 	</tr>
 
@@ -32,7 +73,7 @@
 						{{ entry.ErrorMessage }}
 					{% endif %}
 				</td>
-				<td>
+				<td class="nowrap">
 					{% if entry.SourceIcon %}
 						{% if entry.SourceUrl %}
 							<a href="{{ entry.SourceUrl }}" {{ settings.OpenJobPageLinksInNewTab|safe }}><img src={{ entry.SourceIcon }}></a>
@@ -41,10 +82,13 @@
 						{% endif %}
 					{% endif %}
 				</td>
-				<td>
+				<td class="nowrap">
 					{{ entry.Size }}
 				</td>
-				<td class="jobbuttons">
+				<td class="nowrap">
+					{{ entry.Date }}
+				</td>
+				<td class="nowrap jobbuttons">
 					{% if entry.StartJobUrl %}
 						<a href="#" onclick='executeJobCommand( this, {{ entry.Id }}, "/start/" ); return false;'><img src={{ url_for( "static", filename = "start.png" ) }} title="Start"></a>
 					{% endif %}
@@ -94,6 +138,23 @@
 
 <script type="text/javascript">
 	var $SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
+
+	function ToggleSearch( searchToggler )
+	{
+		if ( !window.localStorage )
+			return;
+
+		if ( window.localStorage.getItem( 'HideSearch' ) == '1' )
+		{
+			$( ".ToggledByHideSearch" ).toggle( true );
+			window.localStorage.removeItem( 'HideSearch' );
+		}
+		else
+		{
+			$( ".ToggledByHideSearch" ).toggle( false );
+			window.localStorage.setItem( 'HideSearch', '1' );
+		}
+	}
 
 	function executeJobCommand(linkNode, jobId, jobCommand)
 	{

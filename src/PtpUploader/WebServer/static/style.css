@@ -29,7 +29,12 @@ header, section, nav
 nav
 {
 	background-color: #000C0E;
-	padding-bottom: 16px;
+}
+
+nav ul
+{
+	margin: 0px 0 10px 0;
+	padding: 0;
 }
 
 nav ul li
@@ -40,12 +45,12 @@ nav ul li
 nav ul li a,
 nav ul li a:visited
 {
-	color:#565656;
-	font-size:1.25em;
-	font-weight:bold;
-	margin:5px 2px;
-	padding:7px 10px 4px;
-	text-transform:uppercase;
+	color: #565656;
+	font-size: 1.25em;
+	font-weight: bold;
+	margin: 5px 2px;
+	padding: 7px 10px 4px;
+	text-transform: uppercase;
 }
 
 nav ul li a:hover
@@ -62,12 +67,12 @@ span.title, span.title a
 table.jobs
 {
 	border-spacing: 0px;
+	width: 100%;
 }
 
 table.jobs th
 {
 	background-color: #0F2127;
-	text-align: center;
 	border-bottom: 5px solid #0F2127;
 }
 
@@ -90,7 +95,12 @@ table.jobs td
 
 table.jobs td.name
 {
-	width: 580px;
+	width: 100%;
+}
+
+table.jobs td.nowrap
+{
+	white-space: nowrap;
 }
 
 table.jobs td.jobbuttons
@@ -137,4 +147,13 @@ div#IncludedFilesDialog
 	width: 500px;
 	height: 500px;
 	overflow: auto;
+}
+
+#jobs_search_form
+{
+	text-align: center;
+	padding-bottom: 16px;
+	width: 500px;
+	margin-left: auto;
+	margin-right: auto;
 }

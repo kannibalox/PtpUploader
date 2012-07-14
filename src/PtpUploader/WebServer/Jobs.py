@@ -12,7 +12,7 @@ from ReleaseInfo import ReleaseInfo
 from Settings import Settings
 
 from flask import render_template, request, url_for
-from sqlalchemy import desc
+from sqlalchemy import asc, desc
 
 import datetime
 
@@ -64,6 +64,7 @@ def ReleaseInfoToJobsPageData(releaseInfo, entry):
 
 	entry[ "LogPageUrl" ] = url_for( "log", jobId = releaseInfo.Id )
 	entry[ "Size" ] = SizeToText( releaseInfo.Size )
+	entry[ "Date" ] = TimeDifferenceToText( datetime.datetime.utcnow() - Database.TimeStampToUtcDateTime( releaseInfo.LastModificationTime ), 2 )
 
 	if releaseInfo.CanEdited():
 		entry[ "EditJobUrl" ] = url_for( "EditJob", jobId = releaseInfo.Id )
@@ -89,9 +90,38 @@ def jobs(page):
 	if page < 1:
 		page = 1
 	
-	totalJobs =  Database.DbSession.query( ReleaseInfo ).count()
 	offset = ( page - 1 ) * jobsPerPage
-	query = Database.DbSession.query( ReleaseInfo ).order_by( desc( ReleaseInfo.LastModificationTime ) ).limit( jobsPerPage ).offset( offset )
+	query = Database.DbSession.query( ReleaseInfo )
+
+	searchText = request.args.get( "searchstr", "" )
+	if len( searchText ) > 0:
+		# We replace the periods and the hyphen because of the relase names.
+		searchWords = searchText.replace( ".", " " ).replace( "-", " " ).split( " " )
+		for searchWord in searchWords:
+			searchWord = searchWord.strip()
+			if len( searchWord ) > 0:
+				# "_", "%" and "\" have be escaped because the contains function uses SQL LIKE
+				searchWord.replace( "\\", "\\\\" )
+				searchWord.replace( "%", "\\%" )
+				searchWord.replace( "_", "\\_" )
+				query = query.filter( ReleaseInfo.ReleaseName.contains( searchWord ) )
+
+	totalJobs =  query.count()
+
+	orderWay = request.args.get( "orderway" )
+	orderWayFunction = asc
+	if orderWay != 'asc':
+		orderWayFunction = desc
+		orderWay = ''
+
+	orderBy = request.args.get( "orderby" )
+	if orderBy == 'size':
+		query = query.order_by( orderWayFunction( ReleaseInfo.Size ) )
+	else:
+		query = query.order_by( orderWayFunction( ReleaseInfo.LastModificationTime ) )
+		orderBy = ''
+
+	query = query.limit( jobsPerPage ).offset( offset )
 
 	pagination = Pagination( page, jobsPerPage, totalJobs )
 	
@@ -101,7 +131,7 @@ def jobs(page):
 		ReleaseInfoToJobsPageData( releaseInfo, entry )
 		entries.append( entry )
 
-	settings = {}
+	settings = { "SearchText": searchText, "OrderBy": orderBy, "OrderWay": orderWay }
 	if Settings.OpenJobPageLinksInNewTab == "0":
 		settings[ "OpenJobPageLinksInNewTab" ] = ""
 	else:
