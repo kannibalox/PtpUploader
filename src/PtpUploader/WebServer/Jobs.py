@@ -13,6 +13,7 @@ from Settings import Settings
 
 from flask import render_template, request, url_for
 from sqlalchemy import asc, desc
+from sqlalchemy.sql import and_, or_
 
 import datetime
 
@@ -89,10 +90,11 @@ def jobs(page):
 
 	if page < 1:
 		page = 1
-	
+
 	offset = ( page - 1 ) * jobsPerPage
 	query = Database.DbSession.query( ReleaseInfo )
 
+	# Search text
 	searchText = request.args.get( "searchstr", "" )
 	if len( searchText ) > 0:
 		# We replace the periods and the hyphen because of the relase names.
@@ -106,7 +108,18 @@ def jobs(page):
 				searchWord.replace( "_", "\\_" )
 				query = query.filter( ReleaseInfo.ReleaseName.contains( searchWord ) )
 
+	# Search states
+	states = request.args.getlist( "state[]" )
+	if ( states and len( states ) > 0 ):
+		stateQuery = or_()
+		for state in states:
+			stateQuery.append( or_( ReleaseInfo.JobRunningState == state ) )
+
+		query = query.filter( stateQuery )
+
 	totalJobs =  query.count()
+
+	# Ordering
 
 	orderWay = request.args.get( "orderway" )
 	orderWayFunction = asc
@@ -131,7 +144,7 @@ def jobs(page):
 		ReleaseInfoToJobsPageData( releaseInfo, entry )
 		entries.append( entry )
 
-	settings = { "SearchText": searchText, "OrderBy": orderBy, "OrderWay": orderWay }
+	settings = { "SearchText": searchText, "OrderBy": orderBy, "OrderWay": orderWay, "States": states }
 	if Settings.OpenJobPageLinksInNewTab == "0":
 		settings[ "OpenJobPageLinksInNewTab" ] = ""
 	else:

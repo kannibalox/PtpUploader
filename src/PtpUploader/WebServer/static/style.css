@@ -153,7 +153,19 @@ div#IncludedFilesDialog
 {
 	text-align: center;
 	padding-bottom: 16px;
-	width: 500px;
+	width: 450px;
 	margin-left: auto;
 	margin-right: auto;
+}
+
+.jobs_search_states_div
+{
+	float: left;
+}
+
+.jobs_search_states_ul
+{
+	list-style: none outside none;
+	padding: 0px 8px 0px 0px;
+	margin: 0;
 }
