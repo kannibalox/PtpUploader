@@ -35,7 +35,7 @@ class Ptp:
 
 	@staticmethod
 	def Login():
-		maximumRetries = 2
+		maximumTries = 3
 
 		while True:
 			try:
@@ -44,8 +44,8 @@ class Ptp:
 			except PtpUploaderInvalidLoginException:
 				raise
 			except Exception:
-				if maximumRetries > 0:
-					maximumRetries -= 1
+				if maximumTries > 1:
+					maximumTries -= 1
 					time.sleep( 30 ) # Wait 30 seconds and retry.
 				else:
 					raise

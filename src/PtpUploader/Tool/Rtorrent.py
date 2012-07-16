@@ -34,9 +34,22 @@ class Rtorrent:
 		infoHash = metafile.info_hash( torrentData );
 		
 		self.proxy.load_raw( contents );
-		self.proxy.d.set_directory_base( infoHash, downloadPath );
-		self.proxy.d.start( infoHash );
-		
+
+		# If load_raw is slow then set_directory_base throws an exception (Fault: <Fault -501: 'Could not find info-hash.'>),
+		# so we retry adding the torrent some delay.
+		maximumTries = 3
+		while True:
+			try:
+				self.proxy.d.set_directory_base( infoHash, downloadPath );
+				self.proxy.d.start( infoHash );
+				break
+			except Exception:
+				if maximumTries > 1:
+					maximumTries -= 1
+					time.sleep( 6 ) # Six seconds.
+				else:
+					raise
+
 		return infoHash;
 
 	# Fast resume file is created beside the source torrent with "fast resume " prefix.
