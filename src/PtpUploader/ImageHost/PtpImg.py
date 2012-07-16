@@ -4,13 +4,41 @@ from Settings import Settings
 import poster
 import simplejson as json
 
+import os
 import re
 import urllib
 import urllib2
+import uuid
 
 class PtpImg:
 	@staticmethod
 	def Upload(logger, imagePath = None, imageUrl = None):
+		if imageUrl is None:
+			return PtpImg.__UploadInternal( logger, imagePath, imageUrl )
+
+		# Get image extension from the URL and fall back to ptpimg.me's rehosting if it's not JPG or PNG.
+		fileName, extension = os.path.splitext( imageUrl )
+		extension = extension.lower()
+		if ( extension != ".jpg" and extension != ".jpeg" and extension != ".png" ):
+			return PtpImg.__UploadInternal( logger, imagePath, imageUrl )
+
+		# Get a random name for the temporary file.
+		imagePath = os.path.join( Settings.GetTemporaryPath(), str( uuid.uuid1() ) + extension )
+
+		# Download image.
+		response = urllib2.urlopen( imageUrl )
+		response = response.read()
+		f = open( imagePath, "wb" )
+		f.write( response )
+		f.close()
+
+		try:
+			return PtpImg.__UploadInternal( logger, imagePath, None )
+		finally:
+			os.remove( imagePath )
+
+	@staticmethod
+	def __UploadInternal(logger, imagePath = None, imageUrl = None):
 		response = None
 		
 		if imagePath is None: # Rehost image from url.
