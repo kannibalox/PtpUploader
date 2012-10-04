@@ -33,7 +33,7 @@ class Mplayer:
 	def __CalculateSizeAccordingToAspectRatio(self):
 		args = [ Settings.MplayerPath, "-identify", "-vo", "null", "-frames", "1", "-nosound", "-nosub", "-nolirc" ]
 		if Mplayer.NoAutoSubParameterSupported:
-		   args.append( "-noautosub" )
+			args.append( "-noautosub" )
 		args.append( self.InputVideoPath )
 
 		proc = subprocess.Popen( args, stdout = subprocess.PIPE, stderr = subprocess.PIPE )
@@ -72,7 +72,7 @@ class Mplayer:
 		time = str( int( timeInSeconds ) )
 		args = [ Settings.MplayerPath, "-ss", time, "-vo", "jpeg:quality=97", "-frames", "1", "-vf", "scale=0:0", "-nosound", "-nosub", "-nolirc" ]
 		if Mplayer.NoAutoSubParameterSupported:
-		   args.append( "-noautosub" )
+			args.append( "-noautosub" )
 		args.append( self.InputVideoPath )
 
 		errorCode = subprocess.call( args, cwd = outputDirectory )
