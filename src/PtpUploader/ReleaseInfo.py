@@ -182,6 +182,9 @@ class ReleaseInfo(Database.Base):
 	def IsForceUpload(self):
 		return self.JobStartMode == JobStartMode.ManualForced
 
+	def IsSynopsisSet(self):
+		return len( self.MovieDescription ) > 0
+
 	def IsCoverArtUrlSet(self):
 		return len( self.CoverArtUrl ) > 0
 

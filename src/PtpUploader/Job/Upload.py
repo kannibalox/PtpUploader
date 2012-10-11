@@ -30,6 +30,7 @@ class Upload(WorkerBase):
 			self.__DetectSubtitles,
 			self.__MakeTorrent,
 			self.__CheckIfExistsOnPtp,
+			self.__CheckSynopsis,
 			self.__CheckCoverArt,
 			self.__RehostPoster,
 			self.__StopBeforeUploading,
@@ -290,6 +291,10 @@ class Upload(WorkerBase):
 		existingRelease = movieOnPtpResult.IsReleaseExists( self.ReleaseInfo )
 		if existingRelease is not None:
 			raise PtpUploaderException( JobRunningState.DownloadedAlreadyExists, "Got uploaded to PTP while we were working on it. Skipping upload because of format '%s'." % existingRelease )
+
+	def __CheckSynopsis(self):
+		if Settings.StopIfSynopsisIsMissing.lower() == "beforeuploading":
+			self.ReleaseInfo.AnnouncementSource.CheckSynopsis( self.ReleaseInfo.Logger, self.ReleaseInfo )
 
 	def __CheckCoverArt(self):
 		if Settings.StopIfCoverArtIsMissing.lower() == "beforeuploading":

@@ -40,6 +40,11 @@ class SourceBase:
 	def PrepareDownload(self, logger, releaseInfo):
 		pass
 
+	def CheckSynopsis( self, logger, releaseInfo ):
+		# If it exists on PTP then we don't need a synopsis.
+		if ( not releaseInfo.IsSynopsisSet() ) and ( not releaseInfo.HasPtpId() ):
+			raise PtpUploaderException( "Synopsis is not set." )
+
 	def CheckCoverArt(self, logger, releaseInfo):
 		# If it exists on PTP then we don't need a cover.
 		if ( not releaseInfo.IsCoverArtUrlSet() ) and ( not releaseInfo.HasPtpId() ):

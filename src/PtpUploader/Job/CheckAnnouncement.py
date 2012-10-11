@@ -22,6 +22,7 @@ class CheckAnnouncement(WorkerBase):
 			self.__CheckIfExistsOnPtp,
 			self.__FillOutDetailsForNewMovieByPtpApi,
 			self.__FillOutDetailsForNewMovieByExternalSources,
+			self.__CheckSynopsis,
 			self.__CheckCoverArt,
 			self.__StopAutomaticJobBeforeDownloadingTorrentFile ]
 
@@ -204,6 +205,10 @@ class CheckAnnouncement(WorkerBase):
 			self.ReleaseInfo.CoverArtUrl = imdbInfo.PosterUrl
 			if not self.ReleaseInfo.IsCoverArtUrlSet():
 				self.ReleaseInfo.CoverArtUrl = MoviePoster.Get( self.ReleaseInfo.Logger, self.ReleaseInfo.GetImdbId() )
+
+	def __CheckSynopsis(self):
+		if Settings.StopIfSynopsisIsMissing.lower() == "beforedownloading":
+			self.ReleaseInfo.AnnouncementSource.CheckSynopsis( self.ReleaseInfo.Logger, self.ReleaseInfo )
 
 	def __CheckCoverArt(self):
 		if Settings.StopIfCoverArtIsMissing.lower() == "beforedownloading":
