@@ -132,7 +132,7 @@ class Ptp:
 			raise PtpUploaderException( "There are multiple movies on PTP with IMDb id '%s'." % imdbId )
 
 	@staticmethod
-	def __UploadMovieGetParamsCommon(releaseInfo, releaseDescription):
+	def __UploadMovieGetParamsCommon( releaseInfo, releaseDescription ):
 		commonParams = {
 				"submit": "true",
 				"type": releaseInfo.Type,
@@ -146,7 +146,8 @@ class Ptp:
 				"other_resolution": releaseInfo.Resolution,
 				"source": releaseInfo.Source,
 				"other_source": releaseInfo.SourceOther,
-				"release_desc": releaseDescription
+				"release_desc": releaseDescription,
+				"nfo_text": releaseInfo.Nfo
 				};
 
 		paramList = commonParams.items()

@@ -6,6 +6,7 @@ import os
 import re
 import textwrap
 
+# TnS (14 Oct 2012): the stripping is no longer used.
 class NfoParser:
 	# Return with the IMDb id.
 	# Eg.: 0111161 for http://www.imdb.com/title/tt0111161/
@@ -48,7 +49,7 @@ class NfoParser:
 
 	# Reads an NFO file and converts it to Unicode.
 	@staticmethod
-	def ReadNfoFileToUnicodeWithoutAltering(path):
+	def ReadNfoFileToUnicode(path):
 		# Read as binary.
 		nfoFile = open( path, "rb" )
 		nfo = nfoFile.read()
@@ -74,8 +75,8 @@ class NfoParser:
 	# Removes the graphics from NFO.
 	# Breaks too long lines (more than 100 character) to separate lines. 
 	@staticmethod
-	def ReadNfoFileToUnicode(path):
-		nfo = NfoParser.ReadNfoFileToUnicodeWithoutAltering( path )
+	def ReadNfoFileToUnicodeAndStrip(path):
+		nfo = NfoParser.ReadNfoFileToUnicode( path )
 		
 		lines = nfo.split( "\n" )
 		nfo = u""
@@ -94,9 +95,9 @@ class NfoParser:
 
 		return nfo.strip()
 
-	# If there are multiple NFOs it returns with empty string.
+	# If there are multiple NFOs, it returns with empty string.
 	@staticmethod
-	def FindAndReadNfoFileToUnicode(directoryPath):
+	def FindAndReadNfoFileToUnicode( directoryPath, stripNfo = false ):
 		nfoPath = None
 		nfoFound = False
 
@@ -114,7 +115,10 @@ class NfoParser:
 		if nfoPath is None:
 			return u""
 		else:
-			return NfoParser.ReadNfoFileToUnicode( nfoPath )
+			if stripNfo:
+				return NfoParser.ReadNfoFileToUnicodeAndStrip( nfoPath )
+			else:
+				return NfoParser.ReadNfoFileToUnicode( nfoPath )
 
 	@staticmethod
 	def IsTorrentContainsMultipleNfos(torrentPath):

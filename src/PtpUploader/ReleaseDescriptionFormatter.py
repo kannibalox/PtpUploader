@@ -140,10 +140,6 @@ class ReleaseDescriptionFormatter:
 		if len( self.ReleaseInfo.ReleaseNotes ) > 0:
 			releaseDescription += u"%s\n\n" % self.ReleaseInfo.ReleaseNotes
 
-		# Add NFO if presents
-		if len( self.ReleaseInfo.Nfo ) > 0:
-			releaseDescription += u"[hide=NFO][pre]%s[/pre][/hide]\n\n" % self.ReleaseInfo.Nfo
-
 		for i in range( len( self.VideoEntries ) ):
 			entry = self.VideoEntries[ i ]
 
