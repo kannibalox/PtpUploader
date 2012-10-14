@@ -97,7 +97,7 @@ class NfoParser:
 
 	# If there are multiple NFOs, it returns with empty string.
 	@staticmethod
-	def FindAndReadNfoFileToUnicode( directoryPath, stripNfo = false ):
+	def FindAndReadNfoFileToUnicode( directoryPath, stripNfo = False ):
 		nfoPath = None
 		nfoFound = False
 
