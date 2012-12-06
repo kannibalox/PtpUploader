@@ -20,15 +20,21 @@ class Ptp:
 	@staticmethod
 	def __LoginInternal():
 		if len( Settings.PtpUserName ) <= 0:
-			raise PtpUploaderInvalidLoginException( "Couldn't log in to PTP. Your user name is not specified.." )
+			raise PtpUploaderInvalidLoginException( "Couldn't log in to PTP. Your user name is not specified." )
 
 		if len( Settings.PtpPassword ) <= 0:
-			raise PtpUploaderInvalidLoginException( "Couldn't log in to PTP. Your password is not specified.." )
+			raise PtpUploaderInvalidLoginException( "Couldn't log in to PTP. Your password is not specified." )
+
+		# Get the pass key from the announce URL.
+		passKey = re.match( r"https?://please\.passthepopcorn\.me:\d+/(.+)/announce", Settings.PtpAnnounceUrl )
+		if passKey is None:
+			raise PtpUploaderInvalidLoginException( "Couldn't log in to PTP. Pass key not found in the announce URL." )
+		passKey = passKey.group( 1 )
 
 		MyGlobals.Logger.info( "Logging in to PTP." );
 		opener = urllib2.build_opener( urllib2.HTTPCookieProcessor( MyGlobals.CookieJar ) );
-		postData = urllib.urlencode( { "username": Settings.PtpUserName, "password": Settings.PtpPassword, "keeplogged": "1" } )
-		request = urllib2.Request( "http://passthepopcorn.me/login.php", postData, Ptp.RequiredHttpHeader );
+		postData = urllib.urlencode( { "username": Settings.PtpUserName, "password": Settings.PtpPassword, "passkey": passKey, "keeplogged": "1" } )
+		request = urllib2.Request( "http://passthepopcorn.me/ajax.php?action=login", postData, Ptp.RequiredHttpHeader );
 		result = opener.open( request );
 		response = result.read();
 		Ptp.CheckIfLoggedInFromResponse( result, response );
