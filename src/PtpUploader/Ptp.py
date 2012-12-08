@@ -4,6 +4,7 @@ from PtpUploaderException import *
 from Settings import Settings
 
 import poster
+import simplejson as json
 
 import mimetypes
 import os
@@ -37,7 +38,18 @@ class Ptp:
 		request = urllib2.Request( "http://passthepopcorn.me/ajax.php?action=login", postData, Ptp.RequiredHttpHeader );
 		result = opener.open( request );
 		response = result.read();
-		Ptp.CheckIfLoggedInFromResponse( result, response );
+
+		jsonLoad = None
+		try:
+			jsonLoad = json.loads( response )
+		except ( Exception, ValueError ):
+			raise PtpUploaderInvalidLoginException( "Got exception while loading JSON login response from PTP. Response: '%s'." % response )
+
+		if ( jsonLoad is None ):
+			raise PtpUploaderInvalidLoginException( "Got bad JSON response from PTP while trying to log in. Response: '%s'." % response )
+
+		if jsonLoad[ "Result" ] != "Ok":
+			raise PtpUploaderInvalidLoginException( "Failed to login to PTP. Probably due to the bad user name, password or pass key." )
 
 	@staticmethod
 	def Login():
@@ -69,16 +81,8 @@ class Ptp:
 	def CheckIfLoggedInFromResponse(result, responseBody):
 		if responseBody.find( """<a href="login.php?act=recover">""" ) != -1:
 			Ptp.__CheckIfLoggedInFromResponseLogResponse( result, responseBody )
-			raise PtpUploaderInvalidLoginException( "Couldn't log in to PTP. Probably due to the bad user name or password." )
-		
-		if responseBody.find( """<p>Your IP has been banned.</p>""" ) != -1:
-			Ptp.__CheckIfLoggedInFromResponseLogResponse( result, responseBody )
-			raise PtpUploaderInvalidLoginException( "Couldn't log in to PTP. Your IP has been banned." )
-		
-		if responseBody.find( 'action="login.php"' ) != -1:
-			Ptp.__CheckIfLoggedInFromResponseLogResponse( result, responseBody )
 			raise PtpUploaderException( "Looks like you are not logged in to PTP. Probably due to the bad user name or password." )
-	
+
 	# PTP expects 7 character long IMDb IDs.
 	# E.g.: it can't find movie with IMDb ID 59675, only with 0059675. (IMDb redirects to the latter.)
 	@staticmethod
