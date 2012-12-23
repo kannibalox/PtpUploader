@@ -82,12 +82,12 @@ class SceneAccess(SourceBase):
 			releaseInfo.Size = GetSizeFromText( size )
 			
 		# Store the download URL.
-		# <td class="td_head">Download</td><td class="td_col"><a class="index" href="download/442572/8bf9b4f6a24ec4ceb6b2b90603348f07/Winnie.the.Pooh.RERIP.DVDRip.XviD-NeDiVx.torrent">
-		matches = re.search( r"""<td class="td_head">Download</td><td class="td_col"><a class="index" href="(.+?)">""", description )
+		# <td class="td_head">Download</td><td class="td_col"><a href="download/442572/8bf9b4f6a24ec4ceb6b2b90603348f07/Winnie.the.Pooh.RERIP.DVDRip.XviD-NeDiVx.torrent">
+		matches = re.search( r"""<td class="td_head">Download</td><td class="td_col"><a .*?href="download/(.+?)">""", description )
 		if matches is None:
 			raise PtpUploaderException( JobRunningState.Ignored_MissingInfo, "Release name can't be found on torrent page." )
 
-		releaseInfo.SceneAccessDownloadUrl = "https://sceneaccess.eu/" + matches.group( 1 )
+		releaseInfo.SceneAccessDownloadUrl = "https://sceneaccess.eu/download/" + matches.group( 1 )
 
 		return releaseName
 
