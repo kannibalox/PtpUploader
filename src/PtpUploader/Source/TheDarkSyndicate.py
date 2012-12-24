@@ -34,7 +34,7 @@ class TheDarkSyndicate(SourceBase):
 		self.CheckIfLoggedInFromResponse( response )
 
 	def CheckIfLoggedInFromResponse(self, response):
-		if response.find( """<a href="login.php"><p>Login</p></a>""" ) != -1:
+		if response.find( """<form id="loginform" method="post" action="login.php""" ) != -1:
 			raise PtpUploaderException( "Looks like you are not logged in to TDS. Probably due to the bad user name or password in settings." )
 
 	# Sets IMDb if presents in the torrent description.
