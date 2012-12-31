@@ -202,7 +202,7 @@ class Ptp:
 
 		# Add the IMDb ID.
 		if releaseInfo.IsZeroImdbId():
-			paramList.append( poster.encode.MultipartParam( "imdb", "" ) )
+			paramList.append( poster.encode.MultipartParam( "imdb", "0" ) )
 		else:
 			paramList.append( poster.encode.MultipartParam( "imdb", Ptp.NormalizeImdbIdForPtp( releaseInfo.GetImdbId() ) ) )
 
