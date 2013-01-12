@@ -28,7 +28,7 @@ class TheDarkSyndicate(SourceBase):
 		MyGlobals.Logger.info( "Logging in to The Dark Syndicate." )
 		
 		opener = urllib2.build_opener( urllib2.HTTPCookieProcessor( MyGlobals.CookieJar ) )
-		postData = urllib.urlencode( { "username": self.Username, "password": self.Password } )
+		postData = urllib.urlencode( { "username": self.Username, "password": self.Password, "keeplogged": "1" } )
 		result = opener.open( "http://thedarksyndicate.me/login.php", postData )
 		response = result.read()
 		self.CheckIfLoggedInFromResponse( response )
