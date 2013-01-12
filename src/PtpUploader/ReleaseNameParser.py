@@ -80,6 +80,8 @@ class ReleaseNameParser:
 			releaseInfo.Source = "HD-DVD"
 		elif self.Tags.IsContainsTag( "hdtv" ):
 			releaseInfo.Source = "HDTV"
+		elif self.Tags.IsContainsTag( "dvdscr" ):
+			releaseInfo.Source = "DVD-Screener"
 		elif self.Tags.IsContainsTag( "brrip" ):
 			raise PtpUploaderException( "BRRips are not allowed." )
 		else:
