@@ -86,6 +86,16 @@ Configuring PtpUploader
 Copy PtpUploader/Settings.example.ini to Settings.ini and edit the latter.
 
 =====================================================================================================================================================
+Installing FFmpeg (optional)
+=====================================================================================================================================================
+
+1. Create a temporary folder
+2. Download the static build of FFmpeg to the temporary folder from here: https://sites.google.com/site/linuxencoding/builds
+3. Extract it: tar xvjf name_of_the_file.tar.bz2
+3. Move the file "ffmpeg" to a more convenient location
+4. Delete the temporary folder
+
+=====================================================================================================================================================
 Configuring pyWHATauto (optional)
 =====================================================================================================================================================
 
@@ -168,3 +178,11 @@ Starting PtpUploader in the background
 screen -S PtpUploader MyEnv/bin/python /path to PtpUploader/Main.py
 
 Use Ctrl+A, D to disconnect from screen. You can use "screen -r PtpUploader" to reconnect.
+
+=====================================================================================================================================================
+Updating PtpUploader to the latest version if a new version comes out (optional)
+=====================================================================================================================================================
+
+1. Stop PtpUploader
+2. svn update /path/to/PtpUploader/
+3. Restart PtpUploader
