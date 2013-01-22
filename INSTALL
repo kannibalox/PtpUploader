@@ -118,6 +118,27 @@ You either use the Invite button on their IRC page.
 Or set the SceneAccessIrcEnabled property to yes in Settings.ini and then PtpUploader will do the inviting upon starting.
 
 =====================================================================================================================================================
+Configuring autodl-irssi (optional)
+=====================================================================================================================================================
+
+Install irssi ( http://www.irssi.org/ ).
+
+Install auodl-irssi:
+
+mkdir -p ~/.irssi/scripts/autorun
+cd ~/.irssi/scripts
+wget -O autodl-irssi.zip https://github.com/autodl-irssi-community/autodl-irssi/archive/master.zip
+unzip autodl-irssi.zip
+rm autodl-irssi.zip
+mv autodl-irssi-master/* .
+rm -r autodl-irssi-master
+cp autodl-irssi.pl autorun/
+mkdir -p ~/.autodl
+
+Copy autodl-irssi-master/autodl.example.cfg to ~/.autodl/autodl.cfg
+Edit ~/.autodl/autodl.cfg and fill out the details (everything that starts with YOUR_).
+
+=====================================================================================================================================================
 Configuring FlexGet (optional)
 =====================================================================================================================================================
 

@@ -170,3 +170,11 @@ class TorrentLeech(SourceBase):
 
 	def GetUrlFromId(self, id):
 		return "http://www.torrentleech.org/torrent/" + id
+
+	def GetIdFromAutodlIrssiUrl( self, url ):
+		# http://www.torrentleech.org/rss/download/897257/rsskey/AAAAA/a.torrent
+		result = re.match( r".*torrentleech\.org/rss/download/(\d+)/.*", url )
+		if result is None:
+			return ""
+		else:
+			return result.group( 1 )

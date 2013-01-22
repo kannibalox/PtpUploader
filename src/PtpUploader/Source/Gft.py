@@ -168,3 +168,11 @@ class Gft(SourceBase):
 
 	def GetUrlFromId(self, id):
 		return "http://www.thegft.org/details.php?id=" + id
+
+	def GetIdFromAutodlIrssiUrl( self, url ):
+		# http://www.thegft.org/download.php?torrent=897257&passkey=AAAAA
+		result = re.match( r".*thegft\.org/download\.php\?torrent=(\d+).*", url )
+		if result is None:
+			return ""
+		else:
+			return result.group( 1 )

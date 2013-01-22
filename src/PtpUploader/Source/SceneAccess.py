@@ -158,6 +158,14 @@ class SceneAccess(SourceBase):
 	def GetUrlFromId(self, id):
 		return "https://sceneaccess.eu/details?id=" + id
 	
+	def GetIdFromAutodlIrssiUrl( self, url ):
+		# http://www.thegft.org/download/897257/authkey/AAAAA/a.torrent
+		result = re.match( r".*sceneaccess\.org/download/(\d+)/.*", url )
+		if result is None:
+			return ""
+		else:
+			return result.group( 1 )
+
 	def InviteToIrc(self):
 		if not self.IrcEnabled:
 			return
@@ -169,3 +177,4 @@ class SceneAccess(SourceBase):
 		result = opener.open( "https://sceneaccess.eu/irc", postData )
 		response = result.read()
 		self.CheckIfLoggedInFromResponse( response );
+

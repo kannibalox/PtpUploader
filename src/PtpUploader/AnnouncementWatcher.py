@@ -48,9 +48,17 @@ class AnnouncementWatcher:
 			releaseInfo.JobRunningState = JobRunningState.Scheduled
 			releaseInfo.ScheduleTimeUtc = datetime.datetime.utcnow() + datetime.timedelta( seconds = startDelay )
 
+	@staticmethod
+	def __TryGettingIdFromContents( path, announcementSource ):
+		file = open( path, "r" )
+		contents = file.read()
+		file.close()
+
+		return announcementSource.GetIdFromAutodlIrssiUrl( contents )
+
 	# Example: [source=gft][id=44][title=Dark.City.1998.Directors.Cut.720p.BluRay.x264-SiNNERS]
 	@staticmethod
-	def __ProcessAnnouncementFile(announcementFilename):
+	def __ProcessAnnouncementFile( announcementFilePath, announcementFilename ):
 		matches = re.match( r"\[source=(.+?)\]\[id=(.+?)\]\[title=(.+)\]", announcementFilename )			
 		if not matches:
 			MyGlobals.Logger.info( "Invalid announcement name format: '%s'." % announcementFilename )
@@ -64,7 +72,13 @@ class AnnouncementWatcher:
 		if announcementSource is None:
 			MyGlobals.Logger.error( "Unknown announcement source: '%s'." % announcementSourceName )
 			return None
-		
+
+		if announcementId == "0":
+			announcementId = AnnouncementWatcher.__TryGettingIdFromContents( announcementFilePath, announcementSource )
+			if len( announcementId ) <= 0:
+				MyGlobals.Logger.error( "Invalid torrent ID in announcement: '%s'." % announcementSourceName )
+				return None
+
 		releaseInfo = ReleaseInfo()
 		releaseInfo.LastModificationTime = Database.MakeTimeStamp()
 		releaseInfo.ReleaseName = releaseName
@@ -106,7 +120,7 @@ class AnnouncementWatcher:
 		for item in files:
 			path = item[ 1 ] # First element is the modification time, second is the path.
 			filename = os.path.basename( path ) # Get the filename.
-			releaseInfo = AnnouncementWatcher.__ProcessAnnouncementFile( filename )
+			releaseInfo = AnnouncementWatcher.__ProcessAnnouncementFile( path, filename )
 			if releaseInfo is None:
 				invalidFilePath = os.path.join( Settings.GetAnnouncementInvalidPath(), filename )
 				os.rename( path, invalidFilePath )

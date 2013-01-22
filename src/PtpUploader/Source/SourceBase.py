@@ -168,3 +168,6 @@ class SourceBase:
 
 	def GetUrlFromId(self, id):
 		return ""
+
+	def GetIdFromAutodlIrssiUrl( self, url ):
+		return ""
