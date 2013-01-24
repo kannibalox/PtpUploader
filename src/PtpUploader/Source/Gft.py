@@ -63,7 +63,7 @@ class Gft(SourceBase):
 		description = response[ :descriptionEndIndex ]
 
 		# Get release name.
-		matches = re.search( r"<title>GFT 2011 :: Details for torrent &quot;(.+)&quot;</title>", description );
+		matches = re.search( r"<title>GFT \d+ :: Details for torrent &quot;(.+)&quot;</title>", description );
 		if matches is None:
 			raise PtpUploaderException( JobRunningState.Ignored_MissingInfo, "Release name can't be found on torrent page." );
 	
