@@ -24,6 +24,7 @@ CiNEFiLE
 Counterfeit
 CoWRY
 CROSSBOW
+DAA
 DASH
 D3Si
 DeBTXViD
