@@ -337,7 +337,7 @@ class Upload(WorkerBase):
 
 		self.AuthKey = Ptp.UploadMovie( self.ReleaseInfo.Logger, self.ReleaseInfo, self.ReleaseInfo.UploadTorrentFilePath, self.ReleaseDescription )
 
-		jobDuration = TimeDifferenceToText( datetime.datetime.utcnow() - releaseInfo.JobStartTimeUtc, 10, "", "0s" )
+		jobDuration = TimeDifferenceToText( datetime.datetime.utcnow() - self.ReleaseInfo.JobStartTimeUtc, 10, "", "0s" )
 		self.ReleaseInfo.Logger.info( "'%s' has been successfully uploaded to PTP. Time taken: %s." % ( self.ReleaseInfo.ReleaseName, jobDuration ) )
 
 		self.ReleaseInfo.SetJobPhaseFinished( FinishedJobPhase.Upload_UploadMovie )
