@@ -214,11 +214,9 @@ class Ptp:
 			multipartParam.name = "artists[]"; # MultipartParam escapes the square brackets to "artists%5B%5D". Change it back. :)
 			paramList.append( multipartParam );
 
-			# First director doesn't needs "importance".
-			if i != 0:
-				multipartParam = poster.encode.MultipartParam( "importance[]", "1" );
-				multipartParam.name = "importance[]"; # MultipartParam escapes the square brackets to "importance%5B%5D". Change it back. :)
-				paramList.append( multipartParam );
+			multipartParam = poster.encode.MultipartParam( "importance[]", "1" );
+			multipartParam.name = "importance[]"; # MultipartParam escapes the square brackets to "importance%5B%5D". Change it back. :)
+			paramList.append( multipartParam );
 			
 		return paramList;
 	

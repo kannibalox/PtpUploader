@@ -163,14 +163,6 @@ class CheckAnnouncement(WorkerBase):
 			self.ReleaseInfo.Logger.info( "Cover art URL '%s' is already set, not getting from PTP's movie info." % self.ReleaseInfo.CoverArtUrl )
 		else:
 			self.ReleaseInfo.CoverArtUrl = ptpImdbInfo.GetCoverArtUrl()
-			
-		# Directors
-		if len( self.ReleaseInfo.Directors ) > 0:
-			self.ReleaseInfo.Logger.info( u"Director '%s' is already set, not getting from PTP's movie info." % self.ReleaseInfo.Directors )
-		else:
-			self.ReleaseInfo.SetDirectors( ptpImdbInfo.GetDirectors() )			
-			if len( self.ReleaseInfo.Directors ) <= 0:
-				raise PtpUploaderException( JobRunningState.Ignored_MissingInfo, """The director of the movie is not set. Use "None Listed" (without the quotes) if there is no director.""" )
 
 		# Ignore adult movies (if force upload is not set).
 		if "adult" in self.ReleaseInfo.Tags:
