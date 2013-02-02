@@ -23,6 +23,9 @@ class ImdbInfo:
 		self.IsSeries = False
 
 class Imdb:
+	# It doesn't work with the default Python User-Agent...
+	RequiredHttpHeader = { "User-Agent": "Wget/1.13.4" }
+
 	@staticmethod
 	def __GetInfoInternal(imdbId):
 		# timestamp is needed
@@ -37,7 +40,7 @@ class Imdb:
 		# "eRnAYqbvj2JWXyPcu62yCA" comes from the disassembled "IMDb Movies & TV" Android application by IMDb. 
 		url += "-%s" % hmac.HMAC( "eRnAYqbvj2JWXyPcu62yCA", url, hashlib.sha1 ).hexdigest()
 		
-		request = urllib2.Request( url )
+		request = urllib2.Request( url, None, Imdb.RequiredHttpHeader )
 		result = urllib2.urlopen( request )
 		response = result.read()
 
