@@ -10,6 +10,7 @@ from PtpImdbInfo import PtpImdbInfo, PtpZeroImdbInfo
 from PtpUploaderException import *
 from Settings import Settings
 
+import datetime
 import os
 
 class CheckAnnouncement(WorkerBase):
@@ -43,6 +44,7 @@ class CheckAnnouncement(WorkerBase):
 	def __CheckAnnouncementSource(self):
 		self.ReleaseInfo.Logger.info( u"Working on announcement from '%s' with id '%s' and name '%s'." % ( self.ReleaseInfo.AnnouncementSourceName, self.ReleaseInfo.AnnouncementId, self.ReleaseInfo.ReleaseName ) )
 
+		self.ReleaseInfo.JobStartTimeUtc = datetime.datetime.utcnow()
 		self.ReleaseInfo.JobRunningState = JobRunningState.InProgress
 		self.ReleaseInfo.ErrorMessage = ""
 		Database.DbSession.commit()

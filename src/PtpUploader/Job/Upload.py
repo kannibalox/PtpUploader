@@ -4,6 +4,7 @@ from Job.WorkerBase import WorkerBase
 from Tool.MakeTorrent import MakeTorrent
 
 from Database import Database
+from Helper import ParseQueryString, TimeDifferenceToText
 from IdxReader import IdxReader
 from ImageHost.ImageUploader import ImageUploader
 from MyGlobals import MyGlobals
@@ -14,6 +15,7 @@ from ReleaseDescriptionFormatter import ReleaseDescriptionFormatter
 from ReleaseExtractor import ReleaseExtractor
 from Settings import Settings
 
+import datetime
 import os
 import subprocess
 
@@ -334,7 +336,9 @@ class Upload(WorkerBase):
 			return
 
 		self.AuthKey = Ptp.UploadMovie( self.ReleaseInfo.Logger, self.ReleaseInfo, self.ReleaseInfo.UploadTorrentFilePath, self.ReleaseDescription )
-		self.ReleaseInfo.Logger.info( "'%s' has been successfully uploaded to PTP." % self.ReleaseInfo.ReleaseName )
+
+		jobDuration = TimeDifferenceToText( datetime.datetime.utcnow() - releaseInfo.JobStartTimeUtc, 10, "", "0s" )
+		self.ReleaseInfo.Logger.info( "'%s' has been successfully uploaded to PTP. Time taken: %s." % ( self.ReleaseInfo.ReleaseName, jobDuration ) )
 
 		self.ReleaseInfo.SetJobPhaseFinished( FinishedJobPhase.Upload_UploadMovie )
 		self.ReleaseInfo.JobRunningState = JobRunningState.Finished

@@ -151,6 +151,7 @@ class ReleaseInfo(Database.Base):
 		self.Logger = None
 		self.SceneAccessDownloadUrl = "" # Temporary store for SceneAccess.DownloadTorrent method.
 		self.SourceIsAFile = False # Used by Source.File class.
+		self.JobStartTimeUtc = datetime.datetime.utcnow()
 
 	def GetImdbId(self):
 		return self.ImdbId
