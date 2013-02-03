@@ -30,7 +30,13 @@ class JobManager:
 		self.Rtorrent = Rtorrent()
 		self.PendingAnnouncements = [] # Contains JobManagerItem.
 		self.PendingDownloads = [] # Contains JobManagerItem.
-		
+
+		# Load unprocessed announcements from the watch directory.
+		releaseInfos = AnnouncementWatcher.LoadAnnouncementFilesIntoTheDatabase()
+		for releaseInfo in releaseInfos: 
+			jobManagerItem = JobManagerItem( releaseInfo.Id, releaseInfo )
+			self.PendingAnnouncements.append( jobManagerItem )
+
 	def __IsSourceAvailable(self, source):
 		# This is handled in CheckAnnouncement.
 		if source is None:
@@ -77,27 +83,29 @@ class JobManager:
 			elif processIndex == -1 and self.__CanStartPendingJob( releaseInfo ):
 				processIndex = announcementIndex
 
-		if processIndex != -1:		
+		if processIndex == -1:
+			return None
+		else:
 			return self.PendingAnnouncements.pop( processIndex )
-
-		# Check if there is new automatic announcements in the watch directory.
-		announcementToHandle = None
-		releaseInfos = AnnouncementWatcher.LoadAnnouncementFilesIntoTheDatabase()
-		for releaseInfo in releaseInfos: 
-			jobManagerItem = JobManagerItem( releaseInfo.Id, releaseInfo )
-			if ( not announcementToHandle ) and self.__CanStartPendingJob( releaseInfo ):
-				announcementToHandle = jobManagerItem
-			else:
-				self.PendingAnnouncements.append( jobManagerItem )
-
-		return announcementToHandle
 
 	# Must be called from the WorkerThread because of ReleaseInfo.
 	def AddToPendingDownloads(self, releaseInfo):
-		self.Lock.acquire()		
+		self.Lock.acquire()
 
 		try:
 			self.PendingDownloads.append( JobManagerItem( releaseInfo.Id, releaseInfo ) )
+		finally:
+			self.Lock.release()
+
+	# Must be called from the WorkerThread because of ReleaseInfo.
+	def AddNewAnnouncementFile( self, announcementFilePath ):
+		self.Lock.acquire()
+
+		try:
+			releaseInfo = AnnouncementWatcher.ProcessAnnouncementFile( announcementFilePath )
+			if releaseInfo is not None:
+				jobManagerItem = JobManagerItem( releaseInfo.Id, releaseInfo )
+				self.PendingAnnouncements.append( jobManagerItem )
 		finally:
 			self.Lock.release()
 

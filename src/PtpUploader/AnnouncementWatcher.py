@@ -11,6 +11,7 @@ import datetime
 import hashlib
 import os
 import re
+import time
 		
 class AnnouncementWatcher:
 	@staticmethod
@@ -58,7 +59,7 @@ class AnnouncementWatcher:
 
 	# Example: [source=gft][id=44][title=Dark.City.1998.Directors.Cut.720p.BluRay.x264-SiNNERS]
 	@staticmethod
-	def __ProcessAnnouncementFile( announcementFilePath, announcementFilename ):
+	def __ProcessAnnouncementFileInternal( announcementFilePath, announcementFilename ):
 		matches = re.match( r"\[source=(.+?)\]\[id=(.+?)\]\[title=(.+)\]", announcementFilename )			
 		if not matches:
 			MyGlobals.Logger.info( "Invalid announcement name format: '%s'." % announcementFilename )
@@ -73,11 +74,17 @@ class AnnouncementWatcher:
 			MyGlobals.Logger.error( "Unknown announcement source: '%s'." % announcementSourceName )
 			return None
 
+		# For announcements made by autodl-irssi the torrent ID is in the file.
 		if announcementId == "0":
 			announcementId = AnnouncementWatcher.__TryGettingIdFromContents( announcementFilePath, announcementSource )
 			if len( announcementId ) <= 0:
-				MyGlobals.Logger.error( "Invalid torrent ID in announcement: '%s'." % announcementSourceName )
-				return None
+				# Retry after three seconds of waiting.
+				# Because we use a directory watcher the first message may have come to early.
+				time.sleep( 3 )
+				announcementId = AnnouncementWatcher.__TryGettingIdFromContents( announcementFilePath, announcementSource )
+				if len( announcementId ) <= 0:
+					MyGlobals.Logger.error( "Invalid torrent ID in announcement: '%s'." % announcementSourceName )
+					return None
 
 		releaseInfo = ReleaseInfo()
 		releaseInfo.LastModificationTime = Database.MakeTimeStamp()
@@ -94,7 +101,22 @@ class AnnouncementWatcher:
 		releaseInfo.Logger = Logger( releaseInfo.GetLogFilePath() )
 
 		return releaseInfo
-	
+
+	@staticmethod
+	def ProcessAnnouncementFile( path ):
+		if not os.path.exists( path ):
+			return None
+
+		filename = os.path.basename( path ) # Get the filename.
+		releaseInfo = AnnouncementWatcher.__ProcessAnnouncementFileInternal( path, filename )
+		if releaseInfo is None:
+			invalidFilePath = os.path.join( Settings.GetAnnouncementInvalidPath(), filename )
+			os.rename( path, invalidFilePath )
+		else:
+			os.remove( path )
+
+		return releaseInfo
+
 	# No logging here because it would result in spamming.
 	@staticmethod
 	def LoadAnnouncementFilesIntoTheDatabase():
@@ -119,13 +141,8 @@ class AnnouncementWatcher:
 		files.sort()
 		for item in files:
 			path = item[ 1 ] # First element is the modification time, second is the path.
-			filename = os.path.basename( path ) # Get the filename.
-			releaseInfo = AnnouncementWatcher.__ProcessAnnouncementFile( path, filename )
-			if releaseInfo is None:
-				invalidFilePath = os.path.join( Settings.GetAnnouncementInvalidPath(), filename )
-				os.rename( path, invalidFilePath )
-			else:
+			releaseInfo = AnnouncementWatcher.ProcessAnnouncementFile( path )
+			if releaseInfo is not None:
 				announcements.append( releaseInfo ) 
-				os.remove( path )
 
 		return announcements

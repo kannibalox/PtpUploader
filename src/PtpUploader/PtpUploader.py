@@ -20,7 +20,9 @@ class PtpUploader:
 	def __ProcessMessages(self):
 		while not self.MessageQueue.empty():
 			message = self.MessageQueue.get()
-			if isinstance( message, PtpUploaderMessageStartJob ):
+			if isinstance( message, PtpUploaderMessageNewAnnouncementFile ):
+				self.WorkerThread.RequestHandlingOfNewAnnouncementFile( message.AnnouncementFilePath )
+			elif isinstance( message, PtpUploaderMessageStartJob ):
 				self.WorkerThread.RequestStartJob( message.ReleaseInfoId )
 			elif isinstance( message, PtpUploaderMessageStopJob ):
 				self.WorkerThread.RequestStopJob( message.ReleaseInfoId )
@@ -34,7 +36,7 @@ class PtpUploader:
 			# If there is no timeout for the wait call then KeyboardInterrupt exception is never sent. 
 			# http://stackoverflow.com/questions/1408356/keyboard-interrupts-with-pythons-multiprocessing-pool/1408476#1408476
 			# (We don't need the timeout.)
-			self.WaitEvent.wait( 60 ) 
+			self.WaitEvent.wait( 60 ) # 60 seconds.
 			self.WaitEvent.clear()
 			self.__ProcessMessages()
 

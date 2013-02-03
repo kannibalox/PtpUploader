@@ -1,5 +1,6 @@
 from Job.JobManager import JobManager
 
+from AnnouncementDirectoryWatcher import AnnouncementDirectoryWatcher
 from MyGlobals import MyGlobals
 from PtpUploaderException import *
 
@@ -15,6 +16,7 @@ class WorkerThread(threading.Thread):
 		self.StopRequested = False
 		self.JobPhase = None
 		self.JobManager = None
+		self.AnnouncementDirectoryWatcher = AnnouncementDirectoryWatcher()
 
 	def StartWorkerThread(self):
 		MyGlobals.Logger.info( "Starting worker thread." )
@@ -22,8 +24,9 @@ class WorkerThread(threading.Thread):
 		self.start()
 
 	def StopWorkerThread(self):
+		self.AnnouncementDirectoryWatcher.StopWatching()
+
 		MyGlobals.Logger.info( "Stopping worker thread." )
-		
 		self.StopRequested = True
 		self.RequestStopJob( -1 ) # This sets the WaitEvent, there is no need set it again.
 		self.join()
@@ -42,6 +45,10 @@ class WorkerThread(threading.Thread):
 		finally:
 			self.Lock.release()
 
+		self.WaitEvent.set()
+
+	def RequestHandlingOfNewAnnouncementFile( self, announcementFilePath ):
+		self.JobManager.AddNewAnnouncementFile( announcementFilePath )
 		self.WaitEvent.set()
 
 	def __ProcessJobPhase(self):
@@ -87,9 +94,9 @@ class WorkerThread(threading.Thread):
 	def __RunInternal(self):
 		try:
 			if not self.__ProcessJobPhase():
-				# Sleep 30 seconds (or less if there is an event), if there was no work to do.
-				# Sleeping is needed to not to flood the AnnouncementWatcher and Rtorrent with continous requests.
-				self.WaitEvent.wait( 30 )
+				# Sleep five seconds (or less if there is an event), if there was no work to do.
+				# Sleeping is needed to not to flood Rtorrent with continous requests.
+				self.WaitEvent.wait( 5 )
 				self.WaitEvent.clear()
 		except ( KeyboardInterrupt, SystemExit ):
 			raise

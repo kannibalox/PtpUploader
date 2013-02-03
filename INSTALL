@@ -17,6 +17,7 @@ MyEnv/bin/easy_install pyrocore
 MyEnv/bin/easy_install --upgrade sqlalchemy
 MyEnv/bin/easy_install cherrypy==3.1.2
 MyEnv/bin/easy_install flask
+MyEnv/bin/easy_install watchdog
 MyEnv/bin/pyroadmin --create-config
 
 mkdir WorkingDirectory
@@ -41,6 +42,7 @@ Depends on the following Python packages:
 	- simplejson: http://undefined.org/python/#simplejson
 		- Because Python 2.5 doesn't have the json module.
 	- SQLAlchemy: http://www.sqlalchemy.org/
+	- watchdog: https://github.com/gorakhargosh/watchdog
 
 If you don't have root acces, use virtualenv ( http://pypi.python.org/pypi/virtualenv ) to install the required Python packages.
 
@@ -180,7 +182,7 @@ screen -S PtpUploader MyEnv/bin/python /path to PtpUploader/Main.py
 Use Ctrl+A, D to disconnect from screen. You can use "screen -r PtpUploader" to reconnect.
 
 =====================================================================================================================================================
-Updating PtpUploader to the latest version if a new version comes out (optional)
+Updating PtpUploader
 =====================================================================================================================================================
 
 1. Stop PtpUploader
