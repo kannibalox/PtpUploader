@@ -337,6 +337,16 @@ class Upload(WorkerBase):
 
 		self.AuthKey = Ptp.UploadMovie( self.ReleaseInfo.Logger, self.ReleaseInfo, self.ReleaseInfo.UploadTorrentFilePath, self.ReleaseDescription )
 
+		# Delete the source torrent file.
+		if self.ReleaseInfo.IsSourceTorrentFilePathSet() and os.path.isfile( self.ReleaseInfo.SourceTorrentFilePath ):
+			os.remove( self.ReleaseInfo.SourceTorrentFilePath )
+			self.ReleaseInfo.SourceTorrentFilePath = ""
+
+		# Delete the uploaded torrent file.
+		if self.ReleaseInfo.IsUploadTorrentFilePathSet() and os.path.isfile( self.ReleaseInfo.UploadTorrentFilePath ):
+			os.remove( self.ReleaseInfo.UploadTorrentFilePath )
+			self.ReleaseInfo.UploadTorrentFilePath = ""
+
 		jobDuration = TimeDifferenceToText( datetime.datetime.utcnow() - self.ReleaseInfo.JobStartTimeUtc, 10, "", "0s" )
 		self.ReleaseInfo.Logger.info( "'%s' has been successfully uploaded to PTP. Time taken: %s." % ( self.ReleaseInfo.ReleaseName, jobDuration ) )
 
