@@ -41,14 +41,11 @@ class Gft(SourceBase):
 	def CheckIfLoggedInFromResponse(self, response):
 		if response.find( """action='takelogin.php'""" ) != -1 or response.find( """<a href='login.php'>Back to Login</a>""" ) != -1:
 			raise PtpUploaderException( "Looks like you are not logged in to GFT. Probably due to the bad user name or password in settings." )
-	
-	# Sets IMDb if presents in the torrent description.
-	# Sets scene release if pretime presents on the page.
-	# Returns with the release name.
-	def __ReadTorrentPage(self, logger, releaseInfo):
+
+	def __GetTorrentPageAsString( self, logger, releaseInfo ):
 		url = "http://www.thegft.org/details.php?id=%s" % releaseInfo.AnnouncementId;
 		logger.info( "Downloading NFO from page '%s'." % url );
-		
+
 		opener = urllib2.build_opener( urllib2.HTTPCookieProcessor( MyGlobals.CookieJar ) );
 		request = urllib2.Request( url );
 		result = opener.open( request );
@@ -61,7 +58,9 @@ class Gft(SourceBase):
 			raise PtpUploaderException( JobRunningState.Ignored_MissingInfo, "Description can't found. Probably the layout of the site has changed." )
 		
 		description = response[ :descriptionEndIndex ]
+		return description
 
+	def __ReadTorrentPageInternal( self, logger, releaseInfo, description ):
 		# Get release name.
 		matches = re.search( r"<title>GFT \d+ :: Details for torrent &quot;(.+)&quot;</title>", description );
 		if matches is None:
@@ -89,12 +88,28 @@ class Gft(SourceBase):
 			size = matches.group( 1 )
 			releaseInfo.Size = GetSizeFromText( size )
 
-		# For some reason there are announced, but non visible releases on GFT that never start seeding. Ignore them.
-		# Two possible formats:
-		# <td class="heading" valign="top" align="right">Visible</td><td valign="top" align="left"><b>no</b> (dead)</td>
-		# <td class="heading" align="right" valign="top">Visible</td><td align="left" valign="top"><b>no</b> (dead)</td>
-		if description.find( """<td class="heading" v?align=".+?" v?align=".+?">Visible</td><td v?align=".+?" v?align=".+?"><b>no</b> (dead)</td>""" ) != -1:
-			raise PtpUploaderException( JobRunningState.Ignored, "Set to not visible on torrent page." )
+	# Sets IMDb if presents in the torrent description.
+	# Sets scene release if pretime presents on the page.
+	# Returns with the release name.
+	def __ReadTorrentPage( self, logger, releaseInfo ):
+		description = self.__GetTorrentPageAsString( logger, releaseInfo )
+		releaseName = self.__ReadTorrentPageInternal( logger, releaseInfo, description )
+
+		# For some reason there are announced, but non visible releases on GFT that never start seeding.
+		# We give them some time to become visible then we ignore them.
+		maximumTries = 3
+		while True:
+			# Two possible formats:
+			# <td class="heading" valign="top" align="right">Visible</td><td valign="top" align="left"><b>no</b> (dead)</td>
+			# <td class="heading" align="right" valign="top">Visible</td><td align="left" valign="top"><b>no</b> (dead)</td>
+			if description.find( """<td class="heading" v?align=".+?" v?align=".+?">Visible</td><td v?align=".+?" v?align=".+?"><b>no</b> (dead)</td>""" ) == -1:
+				break
+
+			if maximumTries > 1:
+				maximumTries -= 1
+				time.sleep( 10 ) # Ten seconds.
+			else:
+				raise PtpUploaderException( JobRunningState.Ignored, "Set to not visible on torrent page." )
 
 		return releaseName
 
@@ -117,9 +132,6 @@ class Gft(SourceBase):
 			raise PtpUploaderException( JobRunningState.Ignored, isAllowedMessage )
 
 		releaseNameParser.GetSourceAndFormat( releaseInfo )
-		
-		# TODO: temp
-		time.sleep( 30 ) # "Tactical delay" because of the not visible torrents. These should be rescheduled.
 
 		releaseName = self.__ReadTorrentPage( logger, releaseInfo )
 		if releaseName != releaseInfo.ReleaseName:
