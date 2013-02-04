@@ -29,6 +29,7 @@ class JobManager:
 		self.Lock = threading.RLock()
 		self.Rtorrent = Rtorrent()
 		self.PendingAnnouncements = [] # Contains JobManagerItem.
+		self.PendingAnnouncementsFiles = [] # Contains announcement file paths.
 		self.PendingDownloads = [] # Contains JobManagerItem.
 
 		# Load unprocessed announcements from the watch directory.
@@ -69,10 +70,17 @@ class JobManager:
 		else:
 			return item.ReleaseInfo
 
+	def __ProcessPendingAnnouncementFiles( self ):
+		for announcementFilePath in self.PendingAnnouncementsFiles:
+			releaseInfo = AnnouncementWatcher.ProcessAnnouncementFile( announcementFilePath )
+			if releaseInfo is not None:
+				jobManagerItem = JobManagerItem( releaseInfo.Id, releaseInfo )
+				self.PendingAnnouncements.append( jobManagerItem )
+
 	def __GetAnnouncementToProcess(self):
 		processIndex = -1
-		
-		# First check if we can process anything from the pending announcments.
+
+		# Check if we can process anything from the pending announcments.
 		# Jobs with immediate start option have priority over other jobs.
 		for announcementIndex in range( len( self.PendingAnnouncements ) ):
 			jobManagerItem = self.PendingAnnouncements[ announcementIndex ]
@@ -97,15 +105,12 @@ class JobManager:
 		finally:
 			self.Lock.release()
 
-	# Must be called from the WorkerThread because of ReleaseInfo.
+	# Can be called from any thread.
 	def AddNewAnnouncementFile( self, announcementFilePath ):
 		self.Lock.acquire()
 
 		try:
-			releaseInfo = AnnouncementWatcher.ProcessAnnouncementFile( announcementFilePath )
-			if releaseInfo is not None:
-				jobManagerItem = JobManagerItem( releaseInfo.Id, releaseInfo )
-				self.PendingAnnouncements.append( jobManagerItem )
+			self.PendingAnnouncementsFiles.append( announcementFilePath )
 		finally:
 			self.Lock.release()
 
@@ -171,7 +176,9 @@ class JobManager:
 			jobManagerItem = self.__GetFinishedDownloadToProcess()
 			if jobManagerItem is not None:
 				return Upload( self, jobManagerItem, self.Rtorrent ) 
-	
+
+			self.__ProcessPendingAnnouncementFiles()
+
 			# If there is a new announcement, then check and start downloading it.
 			jobManagerItem = self.__GetAnnouncementToProcess()
 			if jobManagerItem is not None:
