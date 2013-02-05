@@ -88,6 +88,8 @@ class Gft(SourceBase):
 			size = matches.group( 1 )
 			releaseInfo.Size = GetSizeFromText( size )
 
+		return releaseName
+
 	# Sets IMDb if presents in the torrent description.
 	# Sets scene release if pretime presents on the page.
 	# Returns with the release name.
