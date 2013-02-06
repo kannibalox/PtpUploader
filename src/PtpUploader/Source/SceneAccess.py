@@ -1,7 +1,7 @@
 from Job.JobRunningState import JobRunningState
 from Source.SourceBase import SourceBase
 
-from Helper import GetSizeFromText
+from Helper import GetSizeFromText, MakeRetryingHttpRequest
 from MyGlobals import MyGlobals
 from NfoParser import NfoParser
 from PtpUploaderException import PtpUploaderException
@@ -47,11 +47,8 @@ class SceneAccess(SourceBase):
 	def __ReadTorrentPage(self, logger, releaseInfo):
 		url = "https://sceneaccess.eu/details?id=%s" % releaseInfo.AnnouncementId
 		logger.info( "Downloading NFO from page '%s'." % url )
-		
-		opener = urllib2.build_opener( urllib2.HTTPCookieProcessor( MyGlobals.CookieJar ) )
-		request = urllib2.Request( url )
-		result = opener.open( request )
-		response = result.read()
+
+		response = MakeRetryingHttpRequest( url )
 		self.CheckIfLoggedInFromResponse( response )
 
 		# Make sure we only get information from the description and not from the comments.
@@ -130,12 +127,9 @@ class SceneAccess(SourceBase):
 		# We don't log the download URL because it is sensitive information.
 		logger.info( "Downloading torrent file from SceneAccess to '%s'." % path )
 
-		opener = urllib2.build_opener( urllib2.HTTPCookieProcessor( MyGlobals.CookieJar ) );
-		request = urllib2.Request( releaseInfo.SceneAccessDownloadUrl );
-		result = opener.open( request );
-		response = result.read();
+		response = MakeRetryingHttpRequest( releaseInfo.SceneAccessDownloadUrl )
 		self.CheckIfLoggedInFromResponse( response );
-		
+
 		file = open( path, "wb" );
 		file.write( response );
 		file.close();

@@ -1,10 +1,13 @@
 from Tool.PyrocoreBencode import bencode
 
+from MyGlobals import MyGlobals
 from PtpUploaderException import *
 
 from datetime import datetime
 import os
 import re
+import time
+import urllib2
 
 # Supported formats: "100 GB", "100 MB", "100 bytes". (Space is optional.)
 # Returns with an integer. 
@@ -95,6 +98,21 @@ except ImportError:
 	
 def ParseQueryString(query):
 	return parse_qs( query )
+
+def MakeRetryingHttpRequest( url, maximumTries = 3, delayBetweenRetriesInSec = 10 ):
+	while True:
+		try:
+			opener = urllib2.build_opener( urllib2.HTTPCookieProcessor( MyGlobals.CookieJar ) )
+			request = urllib2.Request( url )
+			result = opener.open( request )
+			response = result.read()
+			return response
+		except urllib2.HTTPError, e:
+			if maximumTries > 1:
+				maximumTries -= 1
+				time.sleep( delayBetweenRetriesInSec )
+			else:
+				raise
 
 # Path can be a file or a directory. (Obviously.)
 def GetPathSize(path):
