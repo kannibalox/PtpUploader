@@ -109,7 +109,7 @@ class ReleaseInfo(Database.Base):
 		self.ContainerOther = "" # Container type when Container is Other.
 		self.ResolutionType = "" # Other, PAL, NTSC, 480p, 576p, 720p, 1080i, 1080p
 		self.Resolution = "" # Exact resolution when ResolutionType is Other. 
-		self.Source = "" # Other, CAM, TS, VHS, TV, DVD-Screener, TC, HDTV, R5, DVD, HD-DVD, Blu-ray
+		self.Source = "" # Other, CAM, TS, VHS, TV, DVD-Screener, TC, HDTV, WEB, R5, DVD, HD-DVD, Blu-ray
 		self.SourceOther = "" # Source type when Source is Other.
 		self.RemasterTitle = "" # Eg.: Hardcoded English
 		self.RemasterYear = ""

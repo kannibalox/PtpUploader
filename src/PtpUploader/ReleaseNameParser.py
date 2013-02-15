@@ -61,7 +61,7 @@ class ReleaseNameParser:
 			releaseInfo.Codec = "DivX"
 		elif self.Tags.IsContainsTag( "x264" ):
 			releaseInfo.Codec = "x264"
-		elif self.Tags.IsContainsTag( "avc" ):
+		elif self.Tags.IsContainsTag( "avc" ) or self.Tags.IsContainsTag( "h264" ) or self.Tags.IsContainsTags( [ "h", "264" ] ):
 			releaseInfo.Codec = "H.264"
 		elif self.Tags.IsContainsTag( "mpeg2" ) or self.Tags.IsContainsTags( [ "mpeg", "2" ] ):
 			releaseInfo.Codec = "MPEG-2"
@@ -82,6 +82,8 @@ class ReleaseNameParser:
 			releaseInfo.Source = "HDTV"
 		elif self.Tags.IsContainsTag( "dvdscr" ):
 			releaseInfo.Source = "DVD-Screener"
+		elif self.Tags.IsContainsTag( "webdl" ) or self.Tags.IsContainsTags( [ "web", "dl" ] ):
+			releaseInfo.Source = "WEB"
 		elif self.Tags.IsContainsTag( "brrip" ):
 			raise PtpUploaderException( "BRRips are not allowed." )
 		else:
