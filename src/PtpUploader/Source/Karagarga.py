@@ -189,7 +189,7 @@ class Karagarga(SourceBase):
 		releaseName = re.compile( r"\.avi$", re.IGNORECASE ).sub( "", releaseName )
 		releaseName = re.compile( r"\.mkv$", re.IGNORECASE ).sub( "", releaseName )
 		releaseName = re.compile( r"\.mp4$", re.IGNORECASE ).sub( "", releaseName )
-		if not releaseInfo.IsReleaseNameSet():
+		if ( not releaseInfo.IsReleaseNameSet() ) or releaseInfo.ReleaseName == "none": # "none" can come from FlexGet from the announcement directory.
 			releaseInfo.ReleaseName = releaseName
 
 		# Make sure it is under the movie category.
