@@ -30,6 +30,8 @@ class ReleaseNameParser:
 				pass
 			elif self.__HandleSpecialGroupName( [ "vh", "prod" ] ):
 				pass
+			elif name.endswith( " h 264" ): # For release names without group names. E.g.: Critters.1986.720p.WEB-DL.AAC2.0.H.264
+				pass
 			else:
 				self.Group = self.Tags.List.pop()
 
