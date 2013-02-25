@@ -257,6 +257,12 @@
 			<option value="34">Ukrainian</option>
 			<option value="25">Vietnamese</option>
 		</select>
+		<input id="TrumpableForNoEnglishSubtitles" name="TrumpableForNoEnglishSubtitles" type="checkbox"
+			{% if job.TrumpableForNoEnglishSubtitles %}
+				checked
+			{% endif %}
+		>
+		<label for="TrumpableForNoEnglishSubtitles">Trumpable for no English subtitles</label>
 	</td>
 </tr>
 

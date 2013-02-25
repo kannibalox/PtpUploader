@@ -28,6 +28,8 @@ class ReleaseInfoFlags:
 	# Job will be stopped before uploading.
 	StopBeforeUploading                 = 1 << 4
 
+	TrumpableForNoEnglishSubtitles      = 1 << 5
+
 class ReleaseInfo(Database.Base):
 	__tablename__ = "release"
 
@@ -281,6 +283,12 @@ class ReleaseInfo(Database.Base):
 	# See the description at the flag.
 	def IsStopBeforeUploading(self):
 		return ( self.Flags & ReleaseInfoFlags.StopBeforeUploading ) != 0
+
+	def IsTrumpableForNoEnglishSubtitles( self ):
+		return ( self.Flags & ReleaseInfoFlags.TrumpableForNoEnglishSubtitles ) != 0
+
+	def SetTrumpableForNoEnglishSubtitles( self ):
+		self.Flags |= ReleaseInfoFlags.TrumpableForNoEnglishSubtitles
 
 	# See the description at the flag.
 	def SetStopBeforeUploading(self, stop):

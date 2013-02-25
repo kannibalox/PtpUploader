@@ -174,6 +174,10 @@ class Ptp:
 		if len( releaseInfo.RemasterYear ) > 0 or len( releaseInfo.RemasterTitle ) > 0:
 			paramList.append( poster.encode.MultipartParam( "remaster", "on" ) )
 
+		# Trumpable for no English subtitles is only needed if it is specified.
+		if releaseInfo.IsTrumpableForNoEnglishSubtitles():
+			paramList.append( poster.encode.MultipartParam( "trumpable[]", "14" ) )
+
 		subtitles = releaseInfo.GetSubtitles()
 		for subtitle in subtitles:
 			multipartParam = poster.encode.MultipartParam( "subtitles[]", subtitle )
