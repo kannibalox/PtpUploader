@@ -144,7 +144,7 @@ class Gft(SourceBase):
 
 		if ( not releaseInfo.IsSceneRelease() ) and self.AutomaticJobFilter == "SceneOnly":
 			raise PtpUploaderException( JobRunningState.Ignored, "Non-scene release." )
-	
+
 	def PrepareDownload(self, logger, releaseInfo):
 		if releaseInfo.IsUserCreatedJob():
 			self.__HandleUserCreatedJob( logger, releaseInfo )

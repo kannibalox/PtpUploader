@@ -1,6 +1,7 @@
 from Source.Cinemageddon import Cinemageddon
 from Source.Cinematik import Cinematik
 from Source.File import File
+from Source.FunFile import FunFile
 from Source.Gft import Gft
 from Source.Karagarga import Karagarga
 from Source.SceneAccess import SceneAccess
@@ -17,9 +18,10 @@ class SourceFactory:
 
 		self.__AddSource( File() )
 		self.__AddSource( Torrent() )
-		
+
 		self.__AddSource( Cinemageddon() )
 		self.__AddSource( Cinematik() )
+		self.__AddSource( FunFile() )
 		self.__AddSource( Gft() )
 		self.__AddSource( Karagarga() )
 		self.__AddSource( TheDarkSyndicate() )

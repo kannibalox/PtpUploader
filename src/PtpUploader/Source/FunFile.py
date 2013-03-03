@@ -14,52 +14,50 @@ import time
 import urllib
 import urllib2
 
-class SceneAccess( SourceBase ):
+class FunFile(SourceBase):
 	def __init__( self ):
 		SourceBase.__init__( self )
 
-		self.Name = "scc"
-		self.NameInSettings = "SceneAccess"
+		self.Name = "ff"
+		self.NameInSettings = "FunFile"
 
 	def LoadSettings( self, settings ):
 		SourceBase.LoadSettings( self, settings )
-
-		self.IrcEnabled = settings.GetDefault( self.NameInSettings, "IrcEnabled", "" ).lower() == "yes"
 
 	def IsEnabled( self ):
 		return len( self.Username ) > 0 and len( self.Password ) > 0
 
 	def Login( self ):
-		MyGlobals.Logger.info( "Logging in to SceneAccess." );
-
+		MyGlobals.Logger.info( "Logging in to FunFile." )
 		opener = urllib2.build_opener( urllib2.HTTPCookieProcessor( MyGlobals.CookieJar ) )
 		postData = urllib.urlencode( { "username": self.Username, "password": self.Password } )
-		result = opener.open( "https://sceneaccess.eu/login", postData )
+		request = urllib2.Request( "https://www.funfile.org/takelogin.php", postData )
+		result = opener.open( request )
 		response = result.read()
 		self.CheckIfLoggedInFromResponse( response );
-	
+
 	def CheckIfLoggedInFromResponse( self, response ):
-		if response.find( """<div id="login_box_rcvr">""" ) != -1:
-			raise PtpUploaderException( "Looks like you are not logged in to SceneAccess. Probably due to the bad user name or password in settings." )
-	
+		if response.find( 'action="takelogin.php"' ) != -1:
+			raise PtpUploaderException( "Looks like you are not logged in to FunFile. Probably due to the bad user name or password in settings." )
+
 	# Sets IMDb if presents in the torrent description.
 	# Returns with the release name.
 	def __ReadTorrentPage( self, logger, releaseInfo ):
-		url = "https://sceneaccess.eu/details?id=%s" % releaseInfo.AnnouncementId
+		url = "https://www.funfile.org/details.php?id=%s&filelist=1" % releaseInfo.AnnouncementId
 		logger.info( "Downloading NFO from page '%s'." % url )
 
 		response = MakeRetryingHttpRequest( url )
 		self.CheckIfLoggedInFromResponse( response )
 
 		# Make sure we only get information from the description and not from the comments.
-		descriptionEndIndex = response.find( """<p><a name="comments"></a></p>""" )
+		descriptionEndIndex = response.find( """<p><a name="startcomments"></a></p>""" )
 		if descriptionEndIndex == -1:
 			raise PtpUploaderException( JobRunningState.Ignored_MissingInfo, "Description can't found. Probably the layout of the site has changed." )
-		
+
 		description = response[ :descriptionEndIndex ]
 
 		# Get release name.
-		matches = re.search( r"""<div id="details_box_header"><h1>(.+?)</h1></div>""", description )
+		matches = re.search( r"""Details for torrent &quot;(.+)&quot;</title>""", description )
 		if matches is None:
 			raise PtpUploaderException( JobRunningState.Ignored_MissingInfo, "Release name can't be found on torrent page." )
 
@@ -71,20 +69,20 @@ class SceneAccess( SourceBase ):
 
 		# Get size.
 		# <tr><td class="td_head">Size</td><td class="td_col">699.98 MB (733,983,002 bytes)</td></tr>
-		matches = re.search( r"""<tr><td class="td_head">Size</td><td class="td_col">.+ \((.+bytes)\)</td></tr>""", description )
+		matches = re.search( r"""<tr><td class="rowhead" >Size<span id="filelist"></span></td><td class="row1" >.+ \((.+bytes)\)""", description )
 		if matches is None:
 			logger.warning( "Size not found on torrent page." )
 		else:
 			size = matches.group( 1 )
 			releaseInfo.Size = GetSizeFromText( size )
-			
+
 		# Store the download URL.
 		# <td class="td_head">Download</td><td class="td_col"><a href="download/442572/AAAA/Winnie.the.Pooh.RERIP.DVDRip.XviD-NeDiVx.torrent">
-		matches = re.search( r"""<td class="td_head">Download</td><td class="td_col"><a .*?href="download/(.+?)">""", description )
+		matches = re.search( r"""<tr><td class="rowhead">Action</td><td class="row1"><span style="float:left"><a class="index" href="download.php/(.+?)">""", description )
 		if matches is None:
 			raise PtpUploaderException( JobRunningState.Ignored_MissingInfo, "Download link can't be found on torrent page." )
 
-		releaseInfo.SceneAccessDownloadUrl = "https://sceneaccess.eu/download/" + matches.group( 1 )
+		releaseInfo.SceneAccessDownloadUrl = "https://www.funfile.org/download.php/" + matches.group( 1 )
 
 		return releaseName
 
@@ -95,6 +93,8 @@ class SceneAccess( SourceBase ):
 
 		releaseNameParser = ReleaseNameParser( releaseInfo.ReleaseName )
 		releaseNameParser.GetSourceAndFormat( releaseInfo )
+		if releaseNameParser.Scene:
+			releaseInfo.SetSceneRelease()
 
 	def __HandleAutoCreatedJob( self, logger, releaseInfo ):
 		# In case of automatic announcement we have to check the release name if it is valid.
@@ -105,10 +105,16 @@ class SceneAccess( SourceBase ):
 			raise PtpUploaderException( JobRunningState.Ignored, isAllowedMessage )
 
 		releaseNameParser.GetSourceAndFormat( releaseInfo )
-		
+
 		releaseName = self.__ReadTorrentPage( logger, releaseInfo )
 		if releaseName != releaseInfo.ReleaseName:
-			raise PtpUploaderException( "Announcement release name '%s' and release name '%s' on SceneAccess are different." % ( releaseInfo.ReleaseName, releaseName ) )
+			raise PtpUploaderException( "Announcement release name '%s' and release name '%s' on FunFile are different." % ( releaseInfo.ReleaseName, releaseName ) )
+
+		if releaseNameParser.Scene:
+			releaseInfo.SetSceneRelease()
+
+		if ( not releaseInfo.IsSceneRelease() ) and self.AutomaticJobFilter == "SceneOnly":
+			raise PtpUploaderException( JobRunningState.Ignored, "Non-scene release." )
 
 	def PrepareDownload( self, logger, releaseInfo ):
 		if releaseInfo.IsUserCreatedJob():
@@ -116,16 +122,13 @@ class SceneAccess( SourceBase ):
 		else:
 			self.__HandleAutoCreatedJob( logger, releaseInfo )
 
-		# There are only scene releases on SceneAccess.
-		releaseInfo.SetSceneRelease()
-
 	def DownloadTorrent( self, logger, releaseInfo, path ):
 		# This can't happen.
 		if len( releaseInfo.SceneAccessDownloadUrl ) <= 0:
-			raise PtpUploaderException( "SceneAccessDownloadUrl is not set." )			
-		
+			raise PtpUploaderException( "Download URL is not set." )
+
 		# We don't log the download URL because it is sensitive information.
-		logger.info( "Downloading torrent file from SceneAccess to '%s'." % path )
+		logger.info( "Downloading torrent file from FunFile to '%s'." % path )
 
 		response = MakeRetryingHttpRequest( releaseInfo.SceneAccessDownloadUrl )
 		self.CheckIfLoggedInFromResponse( response );
@@ -143,32 +146,19 @@ class SceneAccess( SourceBase ):
 			raise PtpUploaderException( "Torrent '%s' contains multiple NFO files." % path )
 
 	def GetIdFromUrl( self, url ):
-		result = re.match( r".*sceneaccess\.eu/details\?id=(\d+).*", url )
+		result = re.match( r".*funfile\.org/details.php\?id=(\d+).*", url )
 		if result is None:
 			return ""
 		else:
 			return result.group( 1 )
 
 	def GetUrlFromId( self, id ):
-		return "https://sceneaccess.eu/details?id=" + id
-	
+		return "https://www.funfile.org/details.php?id=" + id
+
 	def GetIdFromAutodlIrssiUrl( self, url ):
-		# http://sceneaccess.org/download/897257/AAAAA/a.torrent
-		result = re.match( r".*sceneaccess\.org/download/(\d+)/.*", url )
+		# http://www.funfile.org/download.php/897257/
+		result = re.match( r".*funfile\.org/download.php/(\d+)/.*", url )
 		if result is None:
 			return ""
 		else:
 			return result.group( 1 )
-
-	def InviteToIrc( self ):
-		if not self.IrcEnabled:
-			return
-
-		MyGlobals.Logger.info( "Requesting IRC invite on SceneAccess." );
-		
-		opener = urllib2.build_opener( urllib2.HTTPCookieProcessor( MyGlobals.CookieJar ) )
-		postData = urllib.urlencode( { "announce": "yes" } )
-		result = opener.open( "https://sceneaccess.eu/irc", postData )
-		response = result.read()
-		self.CheckIfLoggedInFromResponse( response );
-
