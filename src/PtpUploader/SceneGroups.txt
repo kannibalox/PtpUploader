@@ -16,6 +16,7 @@ BeFRee
 BeStDivX
 BestHD
 BiFOS
+BiQ
 BiRDHOUSE
 BLOW
 BRMP
