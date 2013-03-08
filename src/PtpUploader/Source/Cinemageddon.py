@@ -2,7 +2,7 @@
 from Job.JobRunningState import JobRunningState
 from Source.SourceBase import SourceBase
 
-from Helper import GetSizeFromText, RemoveDisallowedCharactersFromPath, ValidateTorrentFile
+from Helper import DecodeHtmlEntities, GetSizeFromText, RemoveDisallowedCharactersFromPath, ValidateTorrentFile
 from MyGlobals import MyGlobals
 from NfoParser import NfoParser
 from PtpUploaderException import PtpUploaderException
@@ -60,7 +60,7 @@ class Cinemageddon(SourceBase):
 		if matches is None:
 			raise PtpUploaderException( JobRunningState.Ignored_MissingInfo, "Can't get release name from torrent page." )
 		
-		releaseInfo.ReleaseName = matches.group( 2 )
+		releaseInfo.ReleaseName = DecodeHtmlEntities( matches.group( 2 ) )
 
 		# Get source and format type
 		sourceType = ""
