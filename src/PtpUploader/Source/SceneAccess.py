@@ -1,7 +1,7 @@
 from Job.JobRunningState import JobRunningState
 from Source.SourceBase import SourceBase
 
-from Helper import GetSizeFromText, MakeRetryingHttpRequest
+from Helper import DecodeHtmlEntities, GetSizeFromText, MakeRetryingHttpRequest
 from MyGlobals import MyGlobals
 from NfoParser import NfoParser
 from PtpUploaderException import PtpUploaderException
@@ -63,7 +63,7 @@ class SceneAccess( SourceBase ):
 		if matches is None:
 			raise PtpUploaderException( JobRunningState.Ignored_MissingInfo, "Release name can't be found on torrent page." )
 
-		releaseName = matches.group( 1 )
+		releaseName = DecodeHtmlEntities( matches.group( 1 ) )
 
 		# Get IMDb id.
 		if ( not releaseInfo.HasImdbId() ) and ( not releaseInfo.HasPtpId() ):

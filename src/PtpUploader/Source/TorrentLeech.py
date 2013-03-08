@@ -1,7 +1,7 @@
 from Job.JobRunningState import JobRunningState
 from Source.SourceBase import SourceBase
 
-from Helper import GetSizeFromText
+from Helper import DecodeHtmlEntities, GetSizeFromText
 from MyGlobals import MyGlobals
 from NfoParser import NfoParser
 from PtpUploaderException import *
@@ -59,7 +59,8 @@ class TorrentLeech(SourceBase):
 		matches = re.search( "<title>Torrent Details for (.+) :: TorrentLeech.org</title>", response )
 		if matches is None:
 			raise PtpUploaderException( JobRunningState.Ignored_MissingInfo, "Release name can't be found on torrent page." )
-		releaseName = self.__RestoreReleaseName( matches.group( 1 ) )
+		releaseName = DecodeHtmlEntities( matches.group( 1 ) )
+		releaseName = self.__RestoreReleaseName( releaseName )
 
 		# Get size.
 		# <td class="label">Size</td><td>5.47 GB</td></tr>

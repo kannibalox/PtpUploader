@@ -2,7 +2,7 @@
 from Job.JobRunningState import JobRunningState
 from Source.SourceBase import SourceBase
 
-from Helper import GetSizeFromText, GetFileListFromTorrent, RemoveDisallowedCharactersFromPath, ValidateTorrentFile
+from Helper import DecodeHtmlEntities, GetSizeFromText, GetFileListFromTorrent, RemoveDisallowedCharactersFromPath, ValidateTorrentFile
 from MyGlobals import MyGlobals
 from NfoParser import NfoParser
 from PtpUploaderException import PtpUploaderException
@@ -60,11 +60,11 @@ class Cinematik(SourceBase):
 		if matches is None:
 			raise PtpUploaderException( JobRunningState.Ignored_MissingInfo, "Can't get resolution type, codec and container from torrent page." )
 
-		title = matches.group( 1 ).strip()
-		year = matches.group( 2 ).strip()
-		resolutionType = matches.group( 3 ).strip()
-		codec = matches.group( 4 ).strip()
-		container = matches.group( 5 ).strip()
+		title = DecodeHtmlEntities( matches.group( 1 ) ).strip()
+		year = DecodeHtmlEntities( matches.group( 2 ) ).strip()
+		resolutionType = DecodeHtmlEntities( matches.group( 3 ) ).strip()
+		codec = DecodeHtmlEntities( matches.group( 4 ) ).strip()
+		container = DecodeHtmlEntities( matches.group( 5 ) ).strip()
 
 		releaseName = "%s (%s) %s %s" % ( title, year, resolutionType, codec )
 		releaseInfo.ReleaseName = RemoveDisallowedCharactersFromPath( releaseName )

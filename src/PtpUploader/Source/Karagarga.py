@@ -2,7 +2,7 @@
 from Job.JobRunningState import JobRunningState
 from Source.SourceBase import SourceBase
 
-from Helper import GetSizeFromText, RemoveDisallowedCharactersFromPath, ValidateTorrentFile
+from Helper import DecodeHtmlEntities, GetSizeFromText, RemoveDisallowedCharactersFromPath, ValidateTorrentFile
 from MyGlobals import MyGlobals
 from NfoParser import NfoParser
 from PtpUploaderException import *
@@ -182,7 +182,7 @@ class Karagarga(SourceBase):
 		if matches is None:
 			raise PtpUploaderException( JobRunningState.Ignored_MissingInfo, "Can't get release name from torrent page." )
 
-		releaseName = matches.group( 2 )
+		releaseName = DecodeHtmlEntities( matches.group( 2 ) )
 		
 		# Remove the extension of the container from the release name. (It is there on single file releases.)
 		# Optional flags parameter for sub function was only introduced in Python v2.7 so we use compile.sub instead. 

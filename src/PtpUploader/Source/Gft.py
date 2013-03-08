@@ -1,7 +1,7 @@
 from Job.JobRunningState import JobRunningState
 from Source.SourceBase import SourceBase
 
-from Helper import GetSizeFromText
+from Helper import DecodeHtmlEntities, GetSizeFromText
 from MyGlobals import MyGlobals
 from NfoParser import NfoParser
 from PtpUploaderException import PtpUploaderException
@@ -62,11 +62,11 @@ class Gft(SourceBase):
 
 	def __ReadTorrentPageInternal( self, logger, releaseInfo, description ):
 		# Get release name.
-		matches = re.search( r"<title>GFT \d+ :: Details for torrent &quot;(.+)&quot;</title>", description );
+		matches = re.search( r"<title>GFT \d+ :: Details for torrent &quot;(.+)&quot;</title>", description )
 		if matches is None:
-			raise PtpUploaderException( JobRunningState.Ignored_MissingInfo, "Release name can't be found on torrent page." );
-	
-		releaseName = matches.group( 1 );
+			raise PtpUploaderException( JobRunningState.Ignored_MissingInfo, "Release name can't be found on torrent page." )
+
+		releaseName = DecodeHtmlEntities( matches.group( 1 ) )
 
 		# Get IMDb id.
 		if ( not releaseInfo.HasImdbId() ) and ( not releaseInfo.HasPtpId() ):

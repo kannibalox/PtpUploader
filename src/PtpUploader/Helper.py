@@ -4,6 +4,7 @@ from MyGlobals import MyGlobals
 from PtpUploaderException import *
 
 from datetime import datetime
+import HTMLParser # For HTML entity reference decoding...
 import os
 import re
 import time
@@ -180,3 +181,9 @@ def GetSuggestedReleaseNameAndSizeFromTorrentFile( torrentPath ):
 			size += file[ "length" ]
 
 		return name, size
+
+def DecodeHtmlEntities( html ):
+	# We are using an internal function of HTMLParser. 
+	# See this: http://fredericiana.com/2010/10/08/decoding-html-entities-to-text-in-python/
+	htmlParser = HTMLParser.HTMLParser()
+	return htmlParser.unescape( html )
