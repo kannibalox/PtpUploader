@@ -49,7 +49,7 @@ class Ffmpeg:
 
 		self.ScaleSize = "%sx%s" % ( newWidth, height )
 
-	def MakeScreenshotInPng(self, timeInSeconds, outputPngPath):
+	def MakeScreenshotInPng( self, timeInSeconds, outputPngPath ):
 		self.Logger.info( "Making screenshot with ffmpeg from '%s' to '%s'." % ( self.InputVideoPath, outputPngPath ) )
 
 		if os.path.exists( outputPngPath ):
@@ -57,6 +57,7 @@ class Ffmpeg:
 
 		# -an: disable audio
 		# -sn: disable subtitle
+		# There is no way to set PNG compression level. :(
 		args = []
 		time = str( int( timeInSeconds ) )
 		if self.ScaleSize is None:

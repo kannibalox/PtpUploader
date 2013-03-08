@@ -24,30 +24,26 @@ class ScreenshotMaker:
 	def GetScaleSize(self):
 		return self.InternalScreenshotMaker.ScaleSize
 
-	def __MakeUsingMplayer(self, timeInSeconds, outputImageDirectory):
-		return self.InternalScreenshotMaker.MakeScreenshotInJpg( timeInSeconds, outputImageDirectory )
+	def __MakeUsingMplayer( self, timeInSeconds, outputImageDirectory ):
+		return self.InternalScreenshotMaker.MakeScreenshotInPng( timeInSeconds, outputImageDirectory )
 
-	def __MakeUsingFfmpeg(self, timeInSeconds, outputImageDirectory):
+	def __MakeUsingFfmpeg( self, timeInSeconds, outputImageDirectory ):
 		outputPngPath = os.path.join( outputImageDirectory, "00000001.png" )
 		self.InternalScreenshotMaker.MakeScreenshotInPng( timeInSeconds, outputPngPath )
-
-		if ImageMagick.IsEnabled():
-			outputJpgPath = os.path.join( outputImageDirectory, "00000001.jpg" )
-			ImageMagick.ConvertImageToJpg( self.Logger, outputPngPath, outputJpgPath )
-			os.remove( outputPngPath )
-			return outputJpgPath
-		else:
-			return outputPngPath
+		return outputPngPath
 
 	# Returns with the URL of the uploaded image.
 	def __TakeAndUploadScreenshot(self, timeInSeconds, outputImageDirectory):
 		screenshotPath = None
-		
+
 		if self.UsingMplayer:
 			screenshotPath = self.__MakeUsingMplayer( timeInSeconds, outputImageDirectory )
 		else:
 			screenshotPath = self.__MakeUsingFfmpeg( timeInSeconds, outputImageDirectory )
-		
+
+		if ImageMagick.IsEnabled():
+			ImageMagick.OptimizePng( self.Logger, screenshotPath )
+
 		imageUrl = ImageUploader.Upload( self.Logger, imagePath = screenshotPath )
 		os.remove( screenshotPath )
 		return imageUrl

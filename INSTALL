@@ -56,8 +56,10 @@ One of them is required:
 	- MPlayer: http://www.mplayerhq.hu/
 
 Optional programs:
+	- ImageMagick: http://www.imagemagick.org/
+		- Highly recommended for losslessly compressing the PNGs
 	- FlexGet: http://flexget.com/
-	- ImageMagick (for JPG making with ffmpeg): http://www.imagemagick.org/
+	- autodl-irssi: http://sourceforge.net/projects/autodl-irssi/
 	- pyWHATauto: http://whatscripts.com/
 
 =====================================================================================================================================================

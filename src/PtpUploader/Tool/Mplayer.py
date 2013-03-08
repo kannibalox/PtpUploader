@@ -59,18 +59,18 @@ class Mplayer:
 		if outputWidth != width or outputHeight != height:
 			self.ScaleSize = "%sx%s" % ( outputWidth, outputHeight )
 
-	def MakeScreenshotInJpg(self, timeInSeconds, outputDirectory):
+	def MakeScreenshotInPng(self, timeInSeconds, outputDirectory):
 		self.Logger.info( "Making screenshot with MPlayer from '%s' to '%s'." % ( self.InputVideoPath, outputDirectory ) )
 
-		outputJpgPath = os.path.join( outputDirectory, "00000001.jpg" )
-		if os.path.exists( outputJpgPath ):
-			raise PtpUploaderException( "Can't create screenshot because file '%s' already exists." % outputJpgPath )
+		outputPngPath = os.path.join( outputDirectory, "00000001.png" )
+		if os.path.exists( outputPngPath ):
+			raise PtpUploaderException( "Can't create screenshot because file '%s' already exists." % outputPngPath )
 
-		# mplayer -ss 101 -vo jpeg:quality=77:outdir="/home/tnsuser/temp/a b/" -frames 1 -vf scale=0:0 -nosound -nosub -noautosub -nolirc a.vob
+		# mplayer -ss 101 -vo png:z=9:outdir="/home/tnsuser/temp/a b/" -frames 1 -vf scale=0:0 -nosound -nosub -noautosub -nolirc a.vob
 		# outdir is not working with the Windows version of MPlayer, so for the sake of easier testing we set the output directory with by setting the current working directory.
 		# -vf scale=0:0 -- use display aspect ratio
 		time = str( int( timeInSeconds ) )
-		args = [ Settings.MplayerPath, "-ss", time, "-vo", "jpeg:quality=97", "-frames", "1", "-vf", "scale=0:0", "-nosound", "-nosub", "-nolirc" ]
+		args = [ Settings.MplayerPath, "-ss", time, "-vo", "png:z=9", "-frames", "1", "-vf", "scale=0:0", "-nosound", "-nosub", "-nolirc" ]
 		if Mplayer.NoAutoSubParameterSupported:
 			args.append( "-noautosub" )
 		args.append( self.InputVideoPath )
@@ -79,7 +79,7 @@ class Mplayer:
 		if errorCode != 0:
 			raise PtpUploaderException( "Process execution '%s' returned with error code '%s'." % ( args, errorCode ) )
 
-		return outputJpgPath
+		return outputPngPath
 
 	@staticmethod
 	def IsEnabled():
