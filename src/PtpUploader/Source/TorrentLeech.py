@@ -105,7 +105,7 @@ class TorrentLeech(SourceBase):
 
 	def __HandleAutoCreatedJob(self, logger, releaseInfo):
 		releaseInfo.ReleaseName = self.__RestoreReleaseName( releaseInfo.ReleaseName )
-		
+
 		# In case of automatic announcement we have to check the release name if it is valid.
 		# We know the release name from the announcement, so we can filter it without downloading anything (yet) from the source.
 		releaseNameParser = ReleaseNameParser( releaseInfo.ReleaseName )
@@ -117,7 +117,7 @@ class TorrentLeech(SourceBase):
 		
 		releaseName, releaseInfo.Size = self.__GetReleaseNameAndSize( logger, releaseInfo )
 		if releaseName != releaseInfo.ReleaseName:
-			raise PtpUploaderException( "Announcement release name '%s' and release name '%s' on page '%s' are different." % ( releaseInfo.ReleaseName, releaseName, url ) )
+			raise PtpUploaderException( "Announcement release name '%s' and release name '%s' on torrent page are different." % ( releaseInfo.ReleaseName, releaseName ) )
 
 		# Pretime is not indicated on TorrentLeech so we have to rely on our scene groups list.
 		if releaseNameParser.Scene:
@@ -127,12 +127,12 @@ class TorrentLeech(SourceBase):
 			raise PtpUploaderException( JobRunningState.Ignored, "Non-scene release." )
 
 		self.__ReadImdbIdFromNfoPage( logger, releaseInfo )
-	
+
 	def PrepareDownload(self, logger, releaseInfo):
 		# TODO: temp
 		# TorrentLeech has a bad habit of logging out, so we put this here.
 		self.Login()
-		
+
 		if releaseInfo.IsUserCreatedJob():
 			self.__HandleUserCreatedJob( logger, releaseInfo )
 		else:
