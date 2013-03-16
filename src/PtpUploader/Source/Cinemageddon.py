@@ -37,36 +37,32 @@ class Cinemageddon(SourceBase):
 		if response.find( 'action="takelogin.php"' ) != -1:
 			raise PtpUploaderException( "Looks like you are not logged in to Cinemageddon. Probably due to the bad user name or password in settings." )
 
-	def __DownloadNfo(self, logger, releaseInfo):
-		url = "http://cinemageddon.net/details.php?id=%s&filelist=1" % releaseInfo.AnnouncementId
-		logger.info( "Collecting info from torrent page '%s'." % url )
-		
-		opener = urllib2.build_opener( urllib2.HTTPCookieProcessor( MyGlobals.CookieJar ) )
-		request = urllib2.Request( url )
-		result = opener.open( request )
-		response = result.read()
-		response = response.decode( "ISO-8859-1", "ignore" )
-		self.__CheckIfLoggedInFromResponse( response )
-
+	def __ParsePage( self, logger, releaseInfo, html, parseForExternalCreateJob = False ):
 		# Make sure we only get information from the description and not from the comments.
-		descriptionEndIndex = response.find( '<p><a name="startcomments"></a></p>' )
+		descriptionEndIndex = html.find( '<p><a name="startcomments"></a></p>' )
 		if descriptionEndIndex == -1:
 			raise PtpUploaderException( JobRunningState.Ignored_MissingInfo, "Description can't found on torrent page. Probably the layout of the site has changed." )
 		
-		description = response[ :descriptionEndIndex ]			
+		description = html[ :descriptionEndIndex ]			
 
 		# We will use the torrent's name as release name.
-		matches = re.search( r'href="download.php\?id=(\d+)&name=.+">(.+)\.torrent</a>', description )
-		if matches is None:
-			raise PtpUploaderException( JobRunningState.Ignored_MissingInfo, "Can't get release name from torrent page." )
+		if not parseForExternalCreateJob:
+			matches = re.search( r'href="download.php\?id=(\d+)&name=.+">(.+)\.torrent</a>', description )
+			if matches is None:
+				raise PtpUploaderException( JobRunningState.Ignored_MissingInfo, "Can't get release name from torrent page." )
 		
-		releaseInfo.ReleaseName = DecodeHtmlEntities( matches.group( 2 ) )
+			releaseInfo.ReleaseName = DecodeHtmlEntities( matches.group( 2 ) )
 
 		# Get source and format type
 		sourceType = ""
 		formatType = ""
 		if ( not releaseInfo.IsSourceSet() ) or ( not releaseInfo.IsCodecSet() ):
-			matches = re.search( r"torrent details for &quot;(.+) \[(\d+)/(.+)/(.+)\]&quot;", description )
+			matches = None
+			if parseForExternalCreateJob:
+				matches = re.search( r'torrent details for "(.+) \[(\d+)/(.+)/(.+)\]"', description )
+			else:
+				matches = re.search( r"torrent details for &quot;(.+) \[(\d+)/(.+)/(.+)\]&quot;", description )
+
 			if matches is None:
 				raise PtpUploaderException( JobRunningState.Ignored_MissingInfo, "Can't get release source and format type from torrent page." )
 			
@@ -101,7 +97,20 @@ class Cinemageddon(SourceBase):
 		# Make sure that this is not a wrongly categorized DVDR.
 		if ( not releaseInfo.IsDvdImage() ) and ( re.search( r"\.vob</td>", description, re.IGNORECASE ) or re.search( r"\.iso</td>", description, re.IGNORECASE ) ):
 			raise PtpUploaderException( JobRunningState.Ignored_NotSupported, "Wrongly categorized DVDR." )
-		
+
+	def __DownloadNfo( self, logger, releaseInfo ):
+		url = "http://cinemageddon.net/details.php?id=%s&filelist=1" % releaseInfo.AnnouncementId
+		logger.info( "Collecting info from torrent page '%s'." % url )
+
+		opener = urllib2.build_opener( urllib2.HTTPCookieProcessor( MyGlobals.CookieJar ) )
+		request = urllib2.Request( url )
+		result = opener.open( request )
+		response = result.read()
+		response = response.decode( "ISO-8859-1", "ignore" )
+		self.__CheckIfLoggedInFromResponse( response )
+
+		self.__ParsePage( logger, releaseInfo, response )
+
 	def __MapSourceAndFormatToPtp(self, releaseInfo, sourceType, formatType):
 		sourceType = sourceType.lower()
 		formatType = formatType.lower()
@@ -147,6 +156,9 @@ class Cinemageddon(SourceBase):
 			#	logger.info( "Ignoring release '%s' because of its name." % releaseInfo.ReleaseName )
 			#	return None
 			self.__DownloadNfo( logger, releaseInfo )
+
+	def ParsePageForExternalCreateJob( self, logger, releaseInfo, html ):
+		self.__ParsePage( logger, releaseInfo, html, parseForExternalCreateJob = True )
 
 	def DownloadTorrent(self, logger, releaseInfo, path):
 		url = "http://cinemageddon.net/download.php?id=%s" % releaseInfo.AnnouncementId
@@ -201,7 +213,7 @@ class Cinemageddon(SourceBase):
 
 	def IncludeReleaseNameInReleaseDescription(self):
 		return False
-	
+
 	def GetIdFromUrl(self, url):
 		result = re.match( r".*cinemageddon\.net/details.php\?id=(\d+).*", url )
 		if result is None:

@@ -159,38 +159,29 @@ class Karagarga(SourceBase):
 		if len( subtitleIds ) > 0:
 			releaseInfo.SetSubtitles( subtitleIds )
 
-	def __DownloadNfo(self, logger, releaseInfo):
-		url = "http://karagarga.net/details.php?id=%s&filelist=1" % releaseInfo.AnnouncementId
-		logger.info( "Collecting info from torrent page '%s'." % url )
-		
-		opener = urllib2.build_opener( urllib2.HTTPCookieProcessor( MyGlobals.CookieJar ) )
-		request = urllib2.Request( url )
-		result = opener.open( request )
-		response = result.read()
-		response = response.decode( "ISO-8859-1", "ignore" )
-		self.__CheckIfLoggedInFromResponse( response )
-
+	def __ParsePage( self, logger, releaseInfo, html, parseForExternalCreateJob = False ):
 		# Make sure we only get information from the description and not from the comments.
-		descriptionEndIndex = response.find( '<p><a name="startcomments"></a></p>' )
+		descriptionEndIndex = html.find( '<p><a name="startcomments"></a></p>' )
 		if descriptionEndIndex == -1:
 			raise PtpUploaderException( JobRunningState.Ignored_MissingInfo, "Description can't found on torrent page. Probably the layout of the site has changed." )
 		
-		description = response[ :descriptionEndIndex ]			
+		description = html[ :descriptionEndIndex ]			
 
 		# We will use the torrent's name as release name.
-		matches = re.search( r'href="down.php/(\d+)/.+?">(.+?)\.torrent</a>', description )
-		if matches is None:
-			raise PtpUploaderException( JobRunningState.Ignored_MissingInfo, "Can't get release name from torrent page." )
+		if not parseForExternalCreateJob:
+			matches = re.search( r'href="down.php/(\d+)/.+?">(.+?)\.torrent</a>', description )
+			if matches is None:
+				raise PtpUploaderException( JobRunningState.Ignored_MissingInfo, "Can't get release name from torrent page." )
 
-		releaseName = DecodeHtmlEntities( matches.group( 2 ) )
-		
-		# Remove the extension of the container from the release name. (It is there on single file releases.)
-		# Optional flags parameter for sub function was only introduced in Python v2.7 so we use compile.sub instead. 
-		releaseName = re.compile( r"\.avi$", re.IGNORECASE ).sub( "", releaseName )
-		releaseName = re.compile( r"\.mkv$", re.IGNORECASE ).sub( "", releaseName )
-		releaseName = re.compile( r"\.mp4$", re.IGNORECASE ).sub( "", releaseName )
-		if ( not releaseInfo.IsReleaseNameSet() ) or releaseInfo.ReleaseName == "none": # "none" can come from FlexGet from the announcement directory.
-			releaseInfo.ReleaseName = releaseName
+			releaseName = DecodeHtmlEntities( matches.group( 2 ) )
+
+			# Remove the extension of the container from the release name. (It is there on single file releases.)
+			# Optional flags parameter for sub function was only introduced in Python v2.7 so we use compile.sub instead. 
+			releaseName = re.compile( r"\.avi$", re.IGNORECASE ).sub( "", releaseName )
+			releaseName = re.compile( r"\.mkv$", re.IGNORECASE ).sub( "", releaseName )
+			releaseName = re.compile( r"\.mp4$", re.IGNORECASE ).sub( "", releaseName )
+			if ( not releaseInfo.IsReleaseNameSet() ) or releaseInfo.ReleaseName == "none": # "none" can come from FlexGet from the announcement directory.
+				releaseInfo.ReleaseName = releaseName
 
 		# Make sure it is under the movie category.
 		# <tr><td class="heading" align="right" valign="top">Type</td><td colspan="2" align="left" valign="top"><a href="browse.php?cat=1">Movie</a></td></tr>
@@ -222,7 +213,20 @@ class Karagarga(SourceBase):
 		# Make sure that this is not a wrongly categorized DVDR.
 		if ( not releaseInfo.IsDvdImage() ) and ( re.search( r"<td>.+?\.vob</td>", description, re.IGNORECASE ) or re.search( r"<td>.+?\.iso</td>", description, re.IGNORECASE ) ):
 			raise PtpUploaderException( JobRunningState.Ignored_NotSupported, "Wrongly categorized DVDR." )
-	
+
+	def __DownloadNfo(self, logger, releaseInfo):
+		url = "http://karagarga.net/details.php?id=%s&filelist=1" % releaseInfo.AnnouncementId
+		logger.info( "Collecting info from torrent page '%s'." % url )
+
+		opener = urllib2.build_opener( urllib2.HTTPCookieProcessor( MyGlobals.CookieJar ) )
+		request = urllib2.Request( url )
+		result = opener.open( request )
+		response = result.read()
+		response = response.decode( "ISO-8859-1", "ignore" )
+		self.__CheckIfLoggedInFromResponse( response )
+
+		self.__ParsePage( logger, releaseInfo, response )
+
 	def PrepareDownload(self, logger, releaseInfo):
 		if releaseInfo.IsUserCreatedJob():
 			self.__DownloadNfo( logger, releaseInfo )
@@ -239,6 +243,9 @@ class Karagarga(SourceBase):
 			releaseInfo.Logger.info( "Resolution type '%s' is already set, not getting from the torrent page." % releaseInfo.ResolutionType )
 		else:
 			releaseInfo.ResolutionType = "Other"
+
+	def ParsePageForExternalCreateJob( self, logger, releaseInfo, html ):
+		self.__ParsePage( logger, releaseInfo, html, parseForExternalCreateJob = True )
 
 	def DownloadTorrent(self, logger, releaseInfo, path):
 		# Any non empty filename can be specified.

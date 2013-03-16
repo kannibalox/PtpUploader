@@ -16,19 +16,30 @@ from werkzeug import secure_filename
 import os
 import uuid
 
+def MakeExternalCreateJobErrorResponse( errorMessage ):
+	response = make_response( jsonify( result = "Error", message = errorMessage ) )
+	response.headers[ 'Access-Control-Allow-Origin' ] = '*' # Enable cross-origin resource sharing.
+	return response
+
+def DoParsePageForExternalCreateJob( releaseInfo, sourceUrl, pageContent ):
+	source, id = MyGlobals.SourceFactory.GetSourceAndIdByUrl( sourceUrl )
+	if source is None:
+		return False
+
+	try:
+		source.ParsePageForExternalCreateJob( MyGlobals.Logger, releaseInfo, pageContent )
+	except Exception:
+		MyGlobals.Logger.exception( "Got exception in DoParsePageForExternalCreateJob." )
+
 @app.route( "/ajaxexternalcreatejob/", methods = [ "POST" ] )
 def ajaxExternalCreateJob():
 	if ( "Password" not in request.values ) or request.values[ "Password" ] != Settings.GreasemonkeyTorrentSenderPassword:
-		response = make_response( jsonify( result = "Error", message = "Invalid Greasemonkey Send to Script password!" ) )
-		response.headers[ 'Access-Control-Allow-Origin' ] = '*' # Enable cross-origin resource sharing.
-		return response
+		return MakeExternalCreateJobErrorResponse( "Invalid Greasemonkey Send to Script password!" )
 
 	file = request.files.get( "Torrent" )
 	# file is not None even there is no file specified, but checking file as a boolean is OK. (As shown in the Flask example.) 
 	if not file:
-		response = make_response( jsonify( result = "Error", message = "Got no torrent file!" ) )
-		response.headers[ 'Access-Control-Allow-Origin' ] = '*' # Enable cross-origin resource sharing.
-		return response
+		return MakeExternalCreateJobErrorResponse( "Got no torrent file!" )
 
 	filename = "external job." + str( uuid.uuid1() ) + ".torrent"
 	sourceTorrentFilePath = os.path.join( Settings.GetTemporaryPath(), filename )
@@ -50,6 +61,9 @@ def ajaxExternalCreateJob():
 		imdbId = NfoParser.GetImdbId( request.values[ "ImdbUrl" ] )
 		if len( imdbId ) > 0:
 			releaseInfo.ImdbId = imdbId
+
+	if "PageContent" in request.values:
+		DoParsePageForExternalCreateJob( releaseInfo, request.values[ "SourceUrl" ], request.values[ "PageContent" ] )
 
 	Database.DbSession.add( releaseInfo )
 	Database.DbSession.commit()

@@ -40,6 +40,9 @@ class SourceBase:
 	def PrepareDownload(self, logger, releaseInfo):
 		pass
 
+	def ParsePageForExternalCreateJob( self, logger, releaseInfo, html ):
+		pass
+
 	def CheckSynopsis( self, logger, releaseInfo ):
 		# If it exists on PTP then we don't need a synopsis.
 		if ( not releaseInfo.IsSynopsisSet() ) and ( not releaseInfo.HasPtpId() ):

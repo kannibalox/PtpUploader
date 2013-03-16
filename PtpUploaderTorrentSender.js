@@ -27,6 +27,8 @@
 // @include     http*://*tehconnection.eu/torrents.php*
 // @include     http*://*thedarksyndicate.me/browse.php*
 // @include     http*://*thegft.org/details.php*
+// @include     http*://*torrentleech.org/torrent/*
+// @include     http*://*digitalhive.org/details.php*
 // ==/UserScript==
 
 // START OF SETTINGS
@@ -43,7 +45,7 @@ var openPtpAndPtpUploaderInNewTab = false;
 
 // END OF SETTINGS
 
-function SendTorrentToPtpUploader( rawTorrentData, imdbUrl, sendToLink )
+function SendTorrentToPtpUploader( rawTorrentData, imdbUrl, sendToLink, sendPageContent )
 {
 	var uploadUrl = ptpUploaderUrl + "/ajaxexternalcreatejob/";
 
@@ -51,6 +53,12 @@ function SendTorrentToPtpUploader( rawTorrentData, imdbUrl, sendToLink )
 	formData.append( "Password", ptpUploaderTorrentSenderPassword );
 	formData.append( "Torrent", rawTorrentData );
 	formData.append( "ImdbUrl", imdbUrl );
+
+	if ( sendPageContent )
+	{
+		formData.append( "SourceUrl", window.location.href );
+		formData.append( "PageContent", document.documentElement.innerHTML );
+	}
 
 	var xhr = new XMLHttpRequest();
 	xhr.onload = function( e )
@@ -98,7 +106,7 @@ function SendTorrentToPtpUploader( rawTorrentData, imdbUrl, sendToLink )
 	xhr.send( formData );
 }
 
-function DownloadTorrent( downloadUrl, imdbUrl, sendToLink )
+function DownloadTorrent( downloadUrl, imdbUrl, sendToLink, sendPageContent )
 {
 	// Use XMLHttpRequest Level 2.
 	var xhr = new XMLHttpRequest();
@@ -109,7 +117,7 @@ function DownloadTorrent( downloadUrl, imdbUrl, sendToLink )
 		if ( this.status == 200 )
 		{
 			var blob = new Blob( [ this.response ], { type: "application/x-bittorrent" } );
-			SendTorrentToPtpUploader( blob, imdbUrl, sendToLink );
+			SendTorrentToPtpUploader( blob, imdbUrl, sendToLink, sendPageContent );
 		}
 		else
 		{
@@ -124,7 +132,7 @@ function DownloadTorrent( downloadUrl, imdbUrl, sendToLink )
 	xhr.send();
 }
 
-function CreateSendToPtpUploaderLink( downloadLink, imdbUrl )
+function CreateSendToPtpUploaderLink( downloadLinkElement, downloadUrl, imdbUrl, sendPageContent )
 {
 	var ptpLink = document.createElement( "a" );
 	ptpLink.title = "Check movie page on PTP";
@@ -133,9 +141,9 @@ function CreateSendToPtpUploaderLink( downloadLink, imdbUrl )
 	if ( openPtpAndPtpUploaderInNewTab )
 		ptpLink.setAttribute( "target", "_blank" );
 
-	downloadLink.parentNode.insertBefore( ptpLink, downloadLink );
+	downloadLinkElement.parentNode.insertBefore( ptpLink, downloadLinkElement );
 
-	downloadLink.parentNode.insertBefore( document.createTextNode( " | " ), downloadLink );
+	downloadLinkElement.parentNode.insertBefore( document.createTextNode( " | " ), downloadLinkElement );
 
 	var sendToLink = document.createElement( "a" );
 	sendToLink.title = "Send to PtpUploader";
@@ -143,13 +151,12 @@ function CreateSendToPtpUploaderLink( downloadLink, imdbUrl )
 	sendToLink.href = "#";
 	sendToLink.onclick = function()
 	{
-		var downloadUrl = downloadLink.href;
-		DownloadTorrent( downloadUrl, imdbUrl, sendToLink );
+		DownloadTorrent( downloadUrl ? downloadUrl : downloadLinkElement.href, imdbUrl, sendToLink, sendPageContent );
 		return false;
 	};
 
-	downloadLink.parentNode.insertBefore( sendToLink, downloadLink );
-	downloadLink.parentNode.insertBefore( document.createTextNode( " | " ), downloadLink );
+	downloadLinkElement.parentNode.insertBefore( sendToLink, downloadLinkElement );
+	downloadLinkElement.parentNode.insertBefore( document.createTextNode( " | " ), downloadLinkElement );
 }
 
 // Make sure to get the correct IMDb link that is in the IMDB info section.
@@ -185,9 +192,12 @@ function GetImdbUrl( urlNode, siteName )
 
 function Main()
 {
+	var downloadLinkElement = null;
 	var downloadLinkRegEx = null;
+	var downloadUrl = null;
 	var siteName = null;
 	var imdbUrl = "";
+	var sendPageContent = false;
 
 	if ( /https?:\/\/all\.hdvnbits\.org\/.*/.test( document.URL ) )
 		downloadLinkRegEx = /download.php\?id=\d+.*/;
@@ -201,7 +211,10 @@ function Main()
 	else if ( /https?:\/\/.*?chdbits\.org\/details\.php\?id=.*/.test( document.URL ) )
 		downloadLinkRegEx = /download.php\?id=\d+.*/;
 	else if ( /https?:\/\/.*?cinemageddon\.net\/details\.php\?id=.*/.test( document.URL ) )
+	{
 		downloadLinkRegEx = /download.php\?id=\d+.*/;
+		sendPageContent = true;
+	}
 	else if ( /https?:\/\/.*?fuckyeahtorrents\.com\/details\.php\?id=.*/.test( document.URL ) )
 		downloadLinkRegEx = /download.php\?torrent=\d+.*/;
 	else if ( /https?:\/\/.*?hd-torrents\.org\/details\.php\?id=.*/.test( document.URL ) )
@@ -215,7 +228,10 @@ function Main()
 	else if ( /https?:\/\/.*?iptorrents\.(?:com|me|ru)\/details\.php\?id=.*/.test( document.URL ) )
 		downloadLinkRegEx = /download.php\/\d+\/.*/;
 	else if ( /https?:\/\/.*?karagarga\.net\/details\.php\?id=.*/.test( document.URL ) )
+	{
 		downloadLinkRegEx = /down.php\/\d+\/.*/;
+		sendPageContent = true;
+	}
 	else if ( /https?:\/\/.*?piratethenet\.org\/details\.php\?id=.*/.test( document.URL ) )
 		downloadLinkRegEx = /download.php\?torrent=\d+.*/;
 	else if ( /https?:\/\/.*?pretome\.info\/details\.php\?id=.*/.test( document.URL ) )
@@ -226,6 +242,8 @@ function Main()
 		downloadLinkRegEx = /torrents.php\?action=download.*?id=\d+.*/;
 	else if ( /https?:\/\/.*?thedarksyndicate\.me\/browse\.php\?id=.*/.test( document.URL ) )
 		downloadLinkRegEx = /browse.php\?action=download.*?id=\d+.*/;
+	else if ( /https?:\/\/.*?digitalhive\.org\/details\.php\?id=.*/.test( document.URL ) )
+		downloadLinkRegEx = /download.php\?id=\d+.*/;
 	else if ( /https?:\/\/.*?thegft\.org\/details\.php\?id=.*/.test( document.URL ) )
 	{
 		downloadLinkRegEx = /download.php\?torrent=\d+.*/;
@@ -235,8 +253,20 @@ function Main()
 		if ( match )
 			imdbUrl = match[ 0 ];
 	}
+	else if ( /https?:\/\/.*?torrentleech\.org\/torrent\/.*/.test( document.URL ) )
+	{
+		downloadLinkElement = document.getElementById( "downloadButton" );
+		if ( !downloadLinkElement )
+			return;
 
-	if ( !downloadLinkRegEx )
+		var action = downloadLinkElement.parentNode.getAttribute( "action" )
+		if ( !action )
+			return;
+
+		downloadUrl = window.location.protocol + "//" + window.location.host + action;
+	}
+
+	if ( !downloadLinkRegEx && !downloadLinkElement )
 		return;
 
 	var allLinks = new Array();
@@ -252,11 +282,18 @@ function Main()
 	if ( imdbUrl.length <= 0 )
 		return;
 
-	for ( var i = 0; i < allLinks.length; ++i )
+	if ( downloadLinkElement )
 	{
-		var link = allLinks[ i ];
-		if ( downloadLinkRegEx.test( link.href ) )
-			CreateSendToPtpUploaderLink( link, imdbUrl );
+		CreateSendToPtpUploaderLink( downloadLinkElement, downloadUrl, imdbUrl, sendPageContent );
+	}
+	else
+	{
+		for ( var i = 0; i < allLinks.length; ++i )
+		{
+			var link = allLinks[ i ];
+			if ( downloadLinkRegEx.test( link.href ) )
+				CreateSendToPtpUploaderLink( link, downloadUrl, imdbUrl, sendPageContent );
+		}
 	}
 }
 
