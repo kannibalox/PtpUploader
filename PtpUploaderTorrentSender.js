@@ -29,6 +29,7 @@
 // @include     http*://*thegft.org/details.php*
 // @include     http*://*torrentleech.org/torrent/*
 // @include     http*://*digitalhive.org/details.php*
+// @include     http://www.desitorrents.com/forums/showthread.php*
 // ==/UserScript==
 
 // START OF SETTINGS
@@ -253,6 +254,13 @@ function Main()
 		if ( match )
 			imdbUrl = match[ 0 ];
 	}
+	else if ( /https?:\/\/.*?desitorrents\.com\/forums\/showthread\.php\?t=.*/.test( document.URL ) )
+	{
+		downloadLinkRegEx = /attachment\.php\?attachmentid=.*d=.*/;
+		var match = document.body.innerHTML.match( /imdb\.com\/title\/tt\d+/ );
+		if ( match )
+			imdbUrl = match[ 0 ];
+    }
 	else if ( /https?:\/\/.*?torrentleech\.org\/torrent\/.*/.test( document.URL ) )
 	{
 		downloadLinkElement = document.getElementById( "downloadButton" );
