@@ -3,8 +3,8 @@
 // @author      TnS
 // @description Creates a send to PtpUploader link on the torrent details page.
 // @homepage    http://userscripts.org/scripts/show/133847
-// @version     1.02
-// @date        2013-01-11
+// @version     1.03
+// @date        2013-01-19
 // @namespace   http://greasemonkey.mozdev.com
 
 // @include     http*://*all.hdvnbits.org/*
@@ -29,7 +29,7 @@
 // @include     http*://*thegft.org/details.php*
 // @include     http*://*torrentleech.org/torrent/*
 // @include     http*://*digitalhive.org/details.php*
-// @include     http://www.desitorrents.com/forums/showthread.php*
+// @include     http*://www.desitorrents.com/forums/*
 // ==/UserScript==
 
 // START OF SETTINGS
@@ -254,13 +254,13 @@ function Main()
 		if ( match )
 			imdbUrl = match[ 0 ];
 	}
-	else if ( /https?:\/\/.*?desitorrents\.com\/forums\/showthread\.php\?t=.*/.test( document.URL ) )
-	{
-		downloadLinkRegEx = /attachment\.php\?attachmentid=.*d=.*/;
+	else if ( /https?:\/\/.*?desitorrents\.com\/forums\/.*/.test( document.URL ) )
+    {
+		downloadLinkRegEx = /.*\/attachment.*\/.*/;
 		var match = document.body.innerHTML.match( /imdb\.com\/title\/tt\d+/ );
 		if ( match )
 			imdbUrl = match[ 0 ];
-    }
+	}
 	else if ( /https?:\/\/.*?torrentleech\.org\/torrent\/.*/.test( document.URL ) )
 	{
 		downloadLinkElement = document.getElementById( "downloadButton" );
