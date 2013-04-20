@@ -12,19 +12,22 @@ class MyWatchdogEventHandler( FileSystemEventHandler ):
 		super( MyWatchdogEventHandler, self ).on_moved( event )
 
 		if not event.is_directory:
-			MyGlobals.PtpUploader.AddMessage( PtpUploaderMessageNewAnnouncementFile( event.dest_path ) )
+			path = event.dest_path.decode( sys.getfilesystemencoding() )
+			MyGlobals.PtpUploader.AddMessage( PtpUploaderMessageNewAnnouncementFile( path ) )
 
 	def on_created( self, event ):
 		super( MyWatchdogEventHandler, self ).on_created( event )
 
 		if not event.is_directory:
-			MyGlobals.PtpUploader.AddMessage( PtpUploaderMessageNewAnnouncementFile( event.src_path ) )
+			path = event.src_path.decode( sys.getfilesystemencoding() )
+			MyGlobals.PtpUploader.AddMessage( PtpUploaderMessageNewAnnouncementFile( path ) )
 
 	def on_modified( self, event ):
 		super( MyWatchdogEventHandler, self ).on_modified( event )
 
 		if not event.is_directory:
-			MyGlobals.PtpUploader.AddMessage( PtpUploaderMessageNewAnnouncementFile( event.src_path ) )
+			path = event.src_path.decode( sys.getfilesystemencoding() )
+			MyGlobals.PtpUploader.AddMessage( PtpUploaderMessageNewAnnouncementFile( path ) )
 
 class AnnouncementDirectoryWatcher:
 	def __init__( self ):
