@@ -3,8 +3,8 @@
 // @author      TnS
 // @description Creates a send to PtpUploader link on the torrent details page.
 // @homepage    http://userscripts.org/scripts/show/133847
-// @version     1.03
-// @date        2013-01-19
+// @version     1.04
+// @date        2013-05-01
 // @namespace   http://greasemonkey.mozdev.com
 
 // @include     http*://*all.hdvnbits.org/*
@@ -14,6 +14,7 @@
 // @include     http*://*cinemageddon.net/details.php*
 // @include     http*://*fuckyeahtorrents.com/details.php*
 // @include     http*://*hd-torrents.org/details.php*
+// @include 	http*://*hdts.ru/details.php*
 // @include     http*://*hdahoy.net/torrents.php*
 // @include     http*://*hdbits.org/details.php*
 // @include     http*://*hdme.eu/details.php*
@@ -30,6 +31,7 @@
 // @include     http*://*torrentleech.org/torrent/*
 // @include     http*://*digitalhive.org/details.php*
 // @include     http*://www.desitorrents.com/forums/*
+// @include 	http*://*bollywoodtorrents.me/*
 // ==/UserScript==
 
 // START OF SETTINGS
@@ -102,7 +104,7 @@ function SendTorrentToPtpUploader( rawTorrentData, imdbUrl, sendToLink, sendPage
 	{
 		alert( "An error happened while trying to send the torrent to PtpUploader!" );
 	};
-	
+
 	xhr.open( 'POST', uploadUrl, true );
 	xhr.send( formData );
 }
@@ -129,7 +131,7 @@ function DownloadTorrent( downloadUrl, imdbUrl, sendToLink, sendPageContent )
 	{
 		alert( "An error happened while trying to download the torrent from the source site!" );
 	};
-	
+
 	xhr.send();
 }
 
@@ -168,9 +170,9 @@ function IsCorrectAhdImdbUrl( urlNode )
 		urlNode = urlNode.parentNode;
 		if ( !urlNode )
 			break;
-		
+
 		if ( urlNode.id && urlNode.id.indexOf( "movieinfo_" ) != -1 )
-			return true;
+		return true;
 	}
 
 	return false;
@@ -182,7 +184,7 @@ function GetImdbUrl( urlNode, siteName )
 	if ( /.*?imdb\.com.*?title.*?tt\d+.*/.test( url ) )
 	{
 		if ( siteName == "ahd" && !IsCorrectAhdImdbUrl( urlNode ) )
-			return "";
+		return "";
 
 		// Handle urlencoded anonymized IMDb links too. E.g.: http://anonym.to/?http%3A%2F%2Fakas.imdb.com%2Ftitle%2Ftt0401729
 		return decodeURIComponent( url );
@@ -220,6 +222,8 @@ function Main()
 		downloadLinkRegEx = /download.php\?torrent=\d+.*/;
 	else if ( /https?:\/\/.*?hd-torrents\.org\/details\.php\?id=.*/.test( document.URL ) )
 		downloadLinkRegEx = /download.php\?id=.+/;
+	else if ( /https?:\/\/.*?hdts\.ru\/details\.php\?id=.*/.test( document.URL ) )
+		downloadLinkRegEx = /download.php\?id=.+/;
 	else if ( /https?:\/\/.*?hdahoy\.net\/torrents\.php\?id=.*/.test( document.URL ) )
 		downloadLinkRegEx = /torrents.php\?action=download.*?id=\d+.*/;
 	else if ( /https?:\/\/.*?hdbits\.org\/details\.php\?id=.*/.test( document.URL ) )
@@ -254,9 +258,18 @@ function Main()
 		if ( match )
 			imdbUrl = match[ 0 ];
 	}
+	else if ( /https?:\/\/.*?bollywoodtorrents\.me\/.*/.test( document.URL ) )
+	{
+		downloadLinkRegEx = /attachmentid=(\d+)/;
+
+		var match = document.body.innerHTML.match( downloadLinkRegEx );
+		if ( match )
+			downloadUrl = window.location.protocol + "//" + window.location.host + "/attachment.php?" + match[ 0 ];
+
+	}
 	else if ( /https?:\/\/.*?desitorrents\.com\/forums\/.*/.test( document.URL ) )
-    {
-		downloadLinkRegEx = /.*\/attachment.*\/.*/;
+	{
+		downloadLinkRegEx = /attachment\.php.*/;
 		var match = document.body.innerHTML.match( /imdb\.com\/title\/tt\d+/ );
 		if ( match )
 			imdbUrl = match[ 0 ];
