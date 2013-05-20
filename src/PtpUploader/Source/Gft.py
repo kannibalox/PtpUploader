@@ -44,7 +44,7 @@ class Gft(SourceBase):
 
 	def __GetTorrentPageAsString( self, logger, releaseInfo ):
 		url = "http://www.thegft.org/details.php?id=%s" % releaseInfo.AnnouncementId;
-		logger.info( "Downloading NFO from page '%s'." % url );
+		logger.info( "Downloading description from page '%s'." % url );
 
 		opener = urllib2.build_opener( urllib2.HTTPCookieProcessor( MyGlobals.CookieJar ) );
 		request = urllib2.Request( url );
@@ -60,6 +60,19 @@ class Gft(SourceBase):
 		description = response[ :descriptionEndIndex ]
 		return description
 
+	def __TryGettingImdbIdFromNfoPage( self, logger, releaseInfo ):
+		url = "http://www.thegft.org/viewnfo.php?id=%s" % releaseInfo.AnnouncementId
+		logger.info( "Downloading NFO from page '%s'." % url );
+
+		opener = urllib2.build_opener( urllib2.HTTPCookieProcessor( MyGlobals.CookieJar ) );
+		request = urllib2.Request( url );
+		result = opener.open( request );
+		response = result.read();
+		response = response.decode( "ISO-8859-1", "ignore" )
+		self.CheckIfLoggedInFromResponse( response );
+
+		releaseInfo.ImdbId = NfoParser.GetImdbId( response )
+
 	def __ReadTorrentPageInternal( self, logger, releaseInfo, description ):
 		# Get release name.
 		matches = re.search( r"<title>GFT \d+ :: Details for torrent &quot;(.+)&quot;</title>", description )
@@ -71,6 +84,8 @@ class Gft(SourceBase):
 		# Get IMDb id.
 		if ( not releaseInfo.HasImdbId() ) and ( not releaseInfo.HasPtpId() ):
 			releaseInfo.ImdbId = NfoParser.GetImdbId( description )
+			if ( not releaseInfo.HasImdbId() ):
+				self.__TryGettingImdbIdFromNfoPage( logger, releaseInfo )
 
 		# Check if pretime presents.
 		# TODO: this is unreliable as the uploaders on GFT set this
