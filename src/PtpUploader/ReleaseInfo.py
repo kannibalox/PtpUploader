@@ -75,6 +75,7 @@ class ReleaseInfo(Database.Base):
 	Nfo = Column( String )
 	SourceTorrentFilePath = Column( String )
 	SourceTorrentInfoHash = Column( String )
+	UploadTorrentCreatePath = Column( String )
 	UploadTorrentFilePath = Column( String )
 	UploadTorrentInfoHash = Column( String )
 	ReleaseDownloadPath = Column( String )
@@ -131,6 +132,7 @@ class ReleaseInfo(Database.Base):
 		self.Nfo = u"" # TODO: it is pointless to store this is in the database
 		self.SourceTorrentFilePath = ""
 		self.SourceTorrentInfoHash = ""
+		self.UploadTorrentCreatePath = "" # This is the final path where the torrent was created from. It's either a directory or a file (for single file uploads).
 		self.UploadTorrentFilePath = ""
 		self.UploadTorrentInfoHash = ""
 		self.ReleaseDownloadPath = "" # Empty if using the default path. See GetReleaseDownloadPath.

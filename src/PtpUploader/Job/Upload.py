@@ -260,15 +260,20 @@ class Upload(WorkerBase):
 		uploadTorrentFilePath = self.ReleaseInfo.AnnouncementSource.GetTemporaryFolderForImagesAndTorrent( self.ReleaseInfo )
 		uploadTorrentFilePath = os.path.join( uploadTorrentFilePath, uploadTorrentName )
 
+		uploadTorrentCreatePath = ""
+
 		# Make torrent with the parent directory's name included if there is more than one file or requested by the source (it is a scene release).
 		totalFileCount = len( self.VideoFiles ) + len( self.AdditionalFiles )
 		if totalFileCount > 1 or ( self.ReleaseInfo.AnnouncementSource.IsSingleFileTorrentNeedsDirectory( self.ReleaseInfo ) and not self.ReleaseInfo.IsForceDirectorylessSingleFileTorrent() ):
-			MakeTorrent.Make( self.ReleaseInfo.Logger, self.ReleaseInfo.GetReleaseUploadPath(), uploadTorrentFilePath )
+			uploadTorrentCreatePath = self.ReleaseInfo.GetReleaseUploadPath()
 		else: # Create the torrent including only the single video file.
-			MakeTorrent.Make( self.ReleaseInfo.Logger, self.MainMediaInfo.Path, uploadTorrentFilePath )
-			
-		# Local variable is used temporarily to make sure that UploadTorrentFilePath is only gets stored in the database if MakeTorrent.Make succeeded.
+			uploadTorrentCreatePath = self.MainMediaInfo.Path
+
+		MakeTorrent.Make( self.ReleaseInfo.Logger, uploadTorrentCreatePath, uploadTorrentFilePath )
+
+		# Local variables are used temporarily to make sure that values only get stored in the database if MakeTorrent.Make succeeded.
 		self.ReleaseInfo.UploadTorrentFilePath = uploadTorrentFilePath
+		self.ReleaseInfo.UploadTorrentCreatePath = uploadTorrentCreatePath
 		Database.DbSession.commit()
 
 	def __CheckIfExistsOnPtp(self):
@@ -360,8 +365,8 @@ class Upload(WorkerBase):
 			return
 
 		uploadedTorrentUrl = "http://passthepopcorn.me/torrents.php?id=" + self.ReleaseInfo.PtpId
-		command = Settings.OnSuccessfulUpload % { "releaseName": self.ReleaseInfo.ReleaseName, "uploadedTorrentUrl": uploadedTorrentUrl }
-		
+		command = Settings.OnSuccessfulUpload % { "releaseName": self.ReleaseInfo.ReleaseName, "uploadPath": self.ReleaseInfo.UploadTorrentCreatePath, "uploadedTorrentUrl": uploadedTorrentUrl }
+
 		# We don't care if this fails. Our upload is complete anyway. :)
 		try: 
 			subprocess.Popen( command, shell = True )
