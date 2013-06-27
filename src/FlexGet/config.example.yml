@@ -3,7 +3,7 @@
 # For Cinematik you have to copy your RSS link to the url field.
 # For TorrentLeech you have to copy your RSS link from your edit profile page to the url field.
 
-feeds:
+tasks:
 # Cinemageddon
   _cinemageddon:
     rss:
