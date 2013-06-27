@@ -154,7 +154,7 @@ class SceneAccess( SourceBase ):
 	
 	def GetIdFromAutodlIrssiUrl( self, url ):
 		# http://sceneaccess.org/download/897257/AAAAA/a.torrent
-		result = re.match( r".*sceneaccess\.org/download/(\d+)/.*", url )
+		result = re.match( r".*sceneaccess\.eu/download/(\d+)/.*", url )
 		if result is None:
 			return ""
 		else:
