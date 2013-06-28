@@ -31,7 +31,7 @@ See the "Starting PtpUploader in the background" section for how to start it.
 Installation details
 =====================================================================================================================================================
 
-PtpUploader needs Python. Only version 2.5 and 2.6 are supported because of pyWHATauto.
+PtpUploader needs Python. Only version 2.5, 2.6 and 2.7 are supported.
 
 Depends on the following Python packages:
 	- CherryPy: http://www.cherrypy.org/
@@ -60,7 +60,6 @@ Optional programs:
 		- Highly recommended for losslessly compressing the PNGs
 	- FlexGet: http://flexget.com/
 	- autodl-irssi: http://sourceforge.net/projects/autodl-irssi/
-	- pyWHATauto: http://whatscripts.com/
 
 =====================================================================================================================================================
 Extracting PtpUploader
@@ -70,7 +69,6 @@ Recommended directory structure:
 	- PTP
 		- FlexGet
 		- PtpUploader
-		- pyWHATauto
 	- WorkingDirectory
 
 The easiest way is to get the source straight from Subversion:
@@ -99,38 +97,6 @@ Installing FFmpeg (optional)
 4. Move the file "ffmpeg" to a more convenient location
 5. Delete the temporary folder
 6. Set the FfmpegPath in Settings.ini and make sure that MplayerPath is commented out.
-
-=====================================================================================================================================================
-Configuring pyWHATauto (optional)
-=====================================================================================================================================================
-
-This is optional and can be used for GFT, SCC and TL. The steps here are for GFT.
-
-	- Make sure that on your control panel on GFT the #GFTracker-spam channel is checked.
-	- Copy every .confg file from pyWHATauto/config_example/ to pyWHATauto/
-	- in pyWHATauto/setup.conf
-		- edit torrentDir
-			- it is not used not for anything, so you can simply point to a temporary folder
-		- edit drive
-		- under [sites] enable thegft
-	- in pyWHATauto/credentials.conf
-		- edit the following keys under [thegft]
-			- nickowner
-				- register a virtual host yourself on GFT's IRC network and set your host address here
-			- username
-			- botnick
-			- nickservpass
-			- irckey
-				- The IRC password that you set at your control panel on GFT.
-			- cmd
-				- Replace YourBotName with the name that you set to botnick.
-	- Starting pyWHATauto in the background:
-		- from command line: screen -S pywa MyEnv/bin/python /path to pyWHATauto/PtpUploaderIrcBot.py /path to WorkingDirectory/
-		- Use Ctrl+A, D to disconnect from screen. You can use "screen -r PtpUploader" from command line to reconnect.
-
-Please note that SCC works a bit differently. pyWHATauto can't automatically join its announcement channel.
-You either use the Invite button on their IRC page.
-Or set the SceneAccessIrcEnabled property to yes in Settings.ini and then PtpUploader will do the inviting upon starting.
 
 =====================================================================================================================================================
 Configuring autodl-irssi (optional)
