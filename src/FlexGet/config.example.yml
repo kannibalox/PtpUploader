@@ -93,21 +93,6 @@ tasks:
           extract: 'http://karagarga.net/details.php\?id=(\d+)'
     exec: echo >> "/path to WorkingDirectory/announcement/[source=kg][id=%(TorrentId)s][title=none]"
 
-# SceneAccess
-  _sceneaccess:
-    rss:
-      # Make sure that at the RSS Link Generator you select Web link as the feed type.
-      url: http://www.sceneaccess.org/rss.php?cat=AAAAAAAAAAAAAAAA&passkey=AAAAAAAAAAAAAAAA
-      # Force ASCII just to be sure.
-      ascii: yes
-    accept_all: yes
-    manipulate:
-      # Create TorrentId field by extracting the id from the URL.
-      - TorrentId:
-          from: url
-          extract: 'http://www\.sceneaccess\.org/details\.php\?id=(\d+).*'
-    exec: echo >> "/path to WorkingDirectory/announcement/[source=scc][id=%(TorrentId)s][title=%(title)s]"
-
 # TorrentLeech
   _torrentleech:
     rss:

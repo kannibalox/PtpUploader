@@ -4,7 +4,6 @@ from Source.File import File
 from Source.FunFile import FunFile
 from Source.Gft import Gft
 from Source.Karagarga import Karagarga
-from Source.SceneAccess import SceneAccess
 from Source.Torrent import Torrent
 from Source.TheDarkSyndicate import TheDarkSyndicate
 from Source.TorrentLeech import TorrentLeech
@@ -26,11 +25,6 @@ class SourceFactory:
 		self.__AddSource( Karagarga() )
 		self.__AddSource( TheDarkSyndicate() )
 		self.__AddSource( TorrentLeech() )
-
-		sceneAccess = SceneAccess()
-		self.__AddSource( sceneAccess )
-		if sceneAccess.IsEnabled():
-			sceneAccess.InviteToIrc()
 
 		MyGlobals.Logger.info( "Sources initialized." )
 
