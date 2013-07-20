@@ -31,7 +31,10 @@
 // @include     http*://*torrentleech.org/torrent/*
 // @include     http*://*digitalhive.org/details.php*
 // @include     http*://www.desitorrents.com/forums/*
-// @include 	http*://*bollywoodtorrents.me/*
+// @include     http*://*bollywoodtorrents.me/*
+// @include     http*://*hdwing.com/details.php*
+// @include     http*://*cinematik.net/details.php*
+// @include     http*://*horrorcharnel.kicks-ass.org/details.php*
 // ==/UserScript==
 
 // START OF SETTINGS
@@ -249,6 +252,12 @@ function Main()
 		downloadLinkRegEx = /browse.php\?action=download.*?id=\d+.*/;
 	else if ( /https?:\/\/.*?digitalhive\.org\/details\.php\?id=.*/.test( document.URL ) )
 		downloadLinkRegEx = /download.php\?id=\d+.*/;
+	else if ( /https?:\/\/.*?horrorcharnel.kicks-ass\.org\/details\.php\?id=.*/.test( document.URL ) )
+		downloadLinkRegEx = /download.php\?torrent=\d+.*/;
+	else if ( /https?:\/\/.*?cinematik\.net\/details\.php\?id=.*/.test( document.URL ) )
+		downloadLinkRegEx = /download.php\?id=\d+.*/;
+	else if ( /https?:\/\/.*?hdwing\.com\/details\.php\?id=.*/.test( document.URL ) )
+		downloadLinkRegEx = /download.php\/\d+\/.*/;
 	else if ( /https?:\/\/.*?thegft\.org\/details\.php\?id=.*/.test( document.URL ) )
 	{
 		downloadLinkRegEx = /download.php\?torrent=\d+.*/;
