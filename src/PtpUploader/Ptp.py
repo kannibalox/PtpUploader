@@ -258,11 +258,9 @@ class Ptp:
 		# If the repsonse contains our announce url then we are on the upload page and the upload wasn't successful.
 		if response.find( Settings.PtpAnnounceUrl ) != -1:
 			# Get the error message.
-			# Possible formats:
-			# <p style="color: red; text-align: center;">No torrent file uploaded, or file is empty.</p>
-			# <p style="color: red;text-align:center;">Please enter at least one director</p>
+			# <div class="alert alert--error text--center">No torrent file uploaded, or file is empty.</div>
 			errorMessage = ""
-			match = re.search( r"""<p style="color: ?red; ?text-align: ?center;">(.+?)</p>""", response )
+			match = re.search( r"""<div class="alert alert--error.*?>(.+?)</div>""", response )
 			if match is not None:
 				errorMessage = match.group( 1 )
 
