@@ -161,6 +161,9 @@ Using https (optional)
 
 This is useful if you want to use the Torrent Sender Greasemonkey script from https sites.
 
+Install pyOpenSSL:
+MyEnv/bin/easy_install pyopenssl
+
 To create a self-signed SSL certificate run the following commands (when asked for input just press Enter):
 openssl genrsa -des3 -passout pass:x -out server.pass.key 2048
 openssl rsa -passin pass:x -in server.pass.key -out server.key
