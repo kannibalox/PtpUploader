@@ -3,8 +3,8 @@
 // @author      TnS
 // @description Creates a send to PtpUploader link on the torrent details page.
 // @homepage    http://userscripts.org/scripts/show/133847
-// @version     1.05
-// @date        2013-07-20
+// @version     1.06
+// @date        2014-02-08
 // @namespace   http://greasemonkey.mozdev.com
 
 // @include     http*://*all.hdvnbits.org/*
@@ -35,6 +35,7 @@
 // @include     http*://*hdwing.com/details.php*
 // @include     http*://*cinematik.net/details.php*
 // @include     http*://*horrorcharnel.kicks-ass.org/details.php*
+// @include     http*://torrentshack.net/torrents.php?torrentid=*
 // ==/UserScript==
 
 // START OF SETTINGS
@@ -181,6 +182,13 @@ function IsCorrectAhdImdbUrl( urlNode )
 	return false;
 }
 
+// Links in the NFO are not linkified on some sites.
+function GetNonLinkifiedImdbUrl()
+{
+	var match = document.body.innerHTML.match( /imdb\.com\/title\/tt\d+/ );
+	return match ? match[ 0 ] : "";
+}
+
 function GetImdbUrl( urlNode, siteName )
 {
 	var url = urlNode.href;
@@ -261,11 +269,12 @@ function Main()
 	else if ( /https?:\/\/.*?thegft\.org\/details\.php\?id=.*/.test( document.URL ) )
 	{
 		downloadLinkRegEx = /download.php\?torrent=\d+.*/;
-
-		// Links in the NFO are not linkified on GFT.
-		var match = document.body.innerHTML.match( /imdb\.com\/title\/tt\d+/ );
-		if ( match )
-			imdbUrl = match[ 0 ];
+		imdbUrl = GetNonLinkifiedImdbUrl(); // Links in the NFO are not linkified on GFT.
+	}
+	else if ( /https?:\/\/.*?torrentshack\.net\/torrents\.php\?torrentid=.*/.test( document.URL ) )
+	{
+		downloadLinkRegEx = /(?!.*ssl=1$)torrents.php\?action=download.*?id=\d+.*?$/;
+		imdbUrl = GetNonLinkifiedImdbUrl(); // Links in the NFO are not linkified on Torrent Shack.
 	}
 	else if ( /https?:\/\/.*?bollywoodtorrents\.me\/.*/.test( document.URL ) )
 	{
@@ -274,14 +283,11 @@ function Main()
 		var match = document.body.innerHTML.match( downloadLinkRegEx );
 		if ( match )
 			downloadUrl = window.location.protocol + "//" + window.location.host + "/attachment.php?" + match[ 0 ];
-
 	}
 	else if ( /https?:\/\/.*?desitorrents\.com\/forums\/.*/.test( document.URL ) )
 	{
 		downloadLinkRegEx = /attachment\.php.*/;
-		var match = document.body.innerHTML.match( /imdb\.com\/title\/tt\d+/ );
-		if ( match )
-			imdbUrl = match[ 0 ];
+		imdbUrl = GetNonLinkifiedImdbUrl();
 	}
 	else if ( /https?:\/\/.*?torrentleech\.org\/torrent\/.*/.test( document.URL ) )
 	{
