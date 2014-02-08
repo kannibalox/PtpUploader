@@ -152,6 +152,9 @@ class Settings(object):
 
 		Settings.WebServerUsername = Settings.__GetDefault( configParser, "Settings", "WebServerUsername", "admin" )
 		Settings.WebServerPassword = Settings.__GetDefault( configParser, "Settings", "WebServerPassword", "" )
+		Settings.WebServerSslCertificatePath = Settings.__GetDefault( configParser, "Settings", "WebServerSslCertificatePath", "" )
+		Settings.WebServerSslPrivateKeyPath = Settings.__GetDefault( configParser, "Settings", "WebServerSslPrivateKeyPath", "" )
+
 		Settings.GreasemonkeyTorrentSenderPassword = Settings.__GetDefault( configParser, "Settings", "GreasemonkeyTorrentSenderPassword", "" )
 		Settings.OpenJobPageLinksInNewTab = Settings.__GetDefault( configParser, "Settings", "OpenJobPageLinksInNewTab", "0" )
 

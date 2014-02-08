@@ -24,10 +24,17 @@ class MyWebServer(threading.Thread):
 			port = 5500
 
 		app.logger.addHandler( MyGlobals.Logger )
-		MyGlobals.Logger.info( "Starting webserver on %s:%s." % ( host, port ) )
 
 		# We are using CherryPy because there is no way to stop Flask's built-in test server.
 		# See: https://github.com/mitsuhiko/werkzeug/issues#issue/36
+
+		if len( Settings.WebServerSslCertificatePath ) > 0 and len( Settings.WebServerSslPrivateKeyPath ) > 0:
+			MyGlobals.Logger.info( "Starting webserver on https://%s:%s." % ( host, port ) )
+			wsgiserver.CherryPyWSGIServer.ssl_certificate = Settings.WebServerSslCertificatePath
+			wsgiserver.CherryPyWSGIServer.ssl_private_key = Settings.WebServerSslPrivateKeyPath
+		else:
+			MyGlobals.Logger.info( "Starting webserver on http://%s:%s." % ( host, port ) )
+
 		dispatcher = wsgiserver.WSGIPathInfoDispatcher( { '/': app } )
 		self.CherryPyServer = wsgiserver.CherryPyWSGIServer( ( host, port ), dispatcher )
 		self.CherryPyServer.start()

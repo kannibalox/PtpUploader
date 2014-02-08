@@ -156,6 +156,24 @@ Entering this command in your terminal should print out an Euro sign (€):
 echo -e '\xe2\x82\xac'
 
 =====================================================================================================================================================
+Using https (optional)
+=====================================================================================================================================================
+
+This is useful if you want to use the Torrent Sender Greasemonkey script from https sites.
+
+To create a self-signed SSL certificate run the following commands (when asked for input just press Enter):
+openssl genrsa -des3 -passout pass:x -out server.pass.key 2048
+openssl rsa -passin pass:x -in server.pass.key -out server.key
+rm server.pass.key
+openssl req -new -key server.key -out server.csr
+openssl x509 -req -days 365 -in server.csr -signkey server.key -out server.crt
+rm server.csr
+
+Set WebServerSslCertificatePath to the path of server.crt and WebServerSslPrivateKeyPath to the path of server.key in Settings.ini.
+
+When first accessing PtpUploader with the https address your browser will show a warning. Just add the exception.
+
+=====================================================================================================================================================
 Starting PtpUploader in the background
 =====================================================================================================================================================
 
