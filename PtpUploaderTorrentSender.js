@@ -3,8 +3,8 @@
 // @author      TnS
 // @description Creates a send to PtpUploader link on the torrent details page.
 // @homepage    http://userscripts.org/scripts/show/133847
-// @version     1.06
-// @date        2014-02-08
+// @version     1.07
+// @date        2014-02-19
 // @namespace   http://greasemonkey.mozdev.com
 
 // @include     http*://*all.hdvnbits.org/*
