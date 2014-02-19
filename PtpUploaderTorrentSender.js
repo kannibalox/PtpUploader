@@ -195,10 +195,15 @@ function GetImdbUrl( urlNode, siteName )
 	if ( /.*?imdb\.com.*?title.*?tt\d+.*/.test( url ) )
 	{
 		if ( siteName == "ahd" && !IsCorrectAhdImdbUrl( urlNode ) )
-		return "";
+			return "";
 
 		// Handle urlencoded anonymized IMDb links too. E.g.: http://anonym.to/?http%3A%2F%2Fakas.imdb.com%2Ftitle%2Ftt0401729
-		return decodeURIComponent( url );
+		url = decodeURIComponent( url );
+
+		// The first link is a trailer link on HDBits. Simply ignoring it would work too.
+		url = url.replace( "/trailers", "" )
+
+		return url;
 	}
 
 	return "";
