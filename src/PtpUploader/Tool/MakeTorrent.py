@@ -28,7 +28,7 @@ class MakeTorrent:
 		try:
 			errorCode = subprocess.call( args )
 		except OSError, e:
-			logger.error( "Execution of '%s' caused an exception. Error message: '%s'." % ( args, str( e ) ) )
+			logger.error( "Execution of mktorrent caused an exception. Error message: '%s'." % ( args, str( e ) ) )
 			raise PtpUploaderException( "mktorrent execution error. Probably wrong path in settings: '%s'." % Settings.MktorrentPath )
 
 		if errorCode != 0:
@@ -42,7 +42,7 @@ class MakeTorrent:
 		try:
 			errorCode = subprocess.call( args )
 		except OSError, e:
-			logger.error( "Execution of '%s' caused an exception. Error message: '%s'." % ( args, str( e ) ) )
+			logger.error( "Execution of chtor caused an exception. Error message: '%s'." % ( args, str( e ) ) )
 			raise PtpUploaderException( "chtor execution error. Probably wrong path in settings: '%s'." % Settings.ChtorPath )
 
 		if errorCode != 0:
