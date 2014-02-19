@@ -15,7 +15,6 @@ MyEnv/bin/easy_install poster
 MyEnv/bin/easy_install pyrobase
 MyEnv/bin/easy_install pyrocore
 MyEnv/bin/easy_install --upgrade sqlalchemy
-MyEnv/bin/easy_install cherrypy==3.1.2
 MyEnv/bin/easy_install flask
 MyEnv/bin/easy_install watchdog
 MyEnv/bin/pyroadmin --create-config
@@ -34,8 +33,6 @@ Installation details
 PtpUploader needs Python. Only version 2.5, 2.6 and 2.7 are supported.
 
 Depends on the following Python packages:
-	- CherryPy: http://www.cherrypy.org/
-		- 3.2.0 is buggy, use 3.1.2 instead. Install like this: easy_install cherrypy==3.1.2
 	- Flask: http://flask.pocoo.org/
 	- poster: http://atlee.ca/software/poster/
 	- PyroScope: http://code.google.com/p/pyroscope/

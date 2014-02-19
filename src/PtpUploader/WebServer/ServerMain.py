@@ -5,10 +5,9 @@ TODO:
 File selector:
 	- jQuery File Tree -- http://abeautifulsite.net/blog/2008/03/jquery-file-tree/
 	- jfiletree -- http://code.google.com/p/jfiletree/
-	- dirlister -- http://plugins.jquery.com/node/2257/release
 	- tree
+		- http://code.google.com/p/dynatree/
 		- http://www.jstree.com/ -- with json data source
-		- http://bassistance.de/jquery-plugins/jquery-plugin-treeview/
 
 jQuery File Upload
 https://github.com/blueimp/jQuery-File-Upload/
@@ -55,4 +54,8 @@ def log(jobId):
 @requires_auth
 def quit():
 	MyGlobals.PtpUploader.AddMessage( PtpUploaderMessageQuit() )
+
+	func = request.environ.get( 'werkzeug.server.shutdown' )
+	func()
+
 	return "Quitting."
