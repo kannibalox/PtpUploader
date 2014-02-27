@@ -9,11 +9,14 @@ import urllib
 import urllib2
 
 class WhatImg:
+	RequiredHttpHeader = { "User-Agent": "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:18.0) Gecko/20100101 Firefox/18.0" }
+
 	@staticmethod
 	def __Login(logger):
 		opener = urllib2.build_opener( urllib2.HTTPCookieProcessor( MyGlobals.CookieJar ) )
 		postData = urllib.urlencode( { "username": Settings.WhatImgUsername, "password": Settings.WhatImgPassword } )
-		result = opener.open( "https://whatimg.com/users.php?act=login-d", postData )
+		request = urllib2.Request( "https://whatimg.com/users.php?act=login-d", postData, WhatImg.RequiredHttpHeader );
+		result = opener.open( request )
 		response = result.read()
 
 		if response.find( "You have been successfully logged in." ) == -1:
@@ -28,7 +31,8 @@ class WhatImg:
 		if imagePath is None: # Rehost image from url.
 			opener = urllib2.build_opener( urllib2.HTTPCookieProcessor( MyGlobals.CookieJar ) )
 			postData = urllib.urlencode( { "upload_to": "0", "private_upload": "1", "upload_type": "url-standard", "userfile[]": imageUrl } )
-			result = opener.open( "https://whatimg.com/upload.php", postData )
+			request = urllib2.Request( "https://whatimg.com/upload.php", postData, WhatImg.RequiredHttpHeader );
+			result = opener.open( request )
 			response = result.read()
 		else: # Upload image from file.
 			opener = poster.streaminghttp.register_openers()
@@ -39,6 +43,7 @@ class WhatImg:
 			paramList.append( poster.encode.MultipartParam.from_file( "userfile[]", imagePath ) )
 			datagen, headers = poster.encode.multipart_encode( paramList )
 
+			headers.update( WhatImg.RequiredHttpHeader )
 			request = urllib2.Request( "https://whatimg.com/upload.php", datagen, headers )
 			result = opener.open( request )
 			response = result.read()
