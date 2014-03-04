@@ -65,7 +65,7 @@ class AnnouncementWatcher:
 			MyGlobals.Logger.info( "Invalid announcement name format: '%s'." % announcementFilename )
 			return None
 			
-		announcementSourceName = matches.group( 1 )
+		announcementSourceName = matches.group( 1 ).lower()
 		announcementId = matches.group( 2 )
 		releaseName = matches.group( 3 ).strip()
 			
