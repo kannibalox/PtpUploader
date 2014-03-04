@@ -3,7 +3,6 @@ from WebServer import app
 from MyGlobals import MyGlobals
 from Settings import Settings
 
-from OpenSSL import SSL
 import logging
 import threading
 
@@ -30,6 +29,7 @@ class MyWebServer(threading.Thread):
 		sslContext = None
 
 		if len( Settings.WebServerSslCertificatePath ) > 0 and len( Settings.WebServerSslPrivateKeyPath ) > 0:
+			from OpenSSL import SSL
 			MyGlobals.Logger.info( "Starting webserver on https://%s:%s." % ( host, port ) )
 			sslContext = SSL.Context( SSL.SSLv23_METHOD )
 			sslContext.use_certificate_file( Settings.WebServerSslCertificatePath )
