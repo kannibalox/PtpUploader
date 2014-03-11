@@ -80,7 +80,3 @@ class Mplayer:
 			raise PtpUploaderException( "Process execution '%s' returned with error code '%s'." % ( args, errorCode ) )
 
 		return outputPngPath
-
-	@staticmethod
-	def IsEnabled():
-		return len( Settings.MplayerPath ) > 0

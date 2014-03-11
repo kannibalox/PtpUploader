@@ -6,6 +6,7 @@ import ConfigParser
 import fnmatch
 import os
 import re
+import subprocess
 
 class Settings(object):
 	@staticmethod
@@ -81,6 +82,10 @@ class Settings(object):
 		return os.path.join( Settings.WorkingPath, "database.sqlite" )
 
 	@staticmethod
+	def IsMplayerEnabled():
+		return len( Settings.MplayerPath ) > 0
+
+	@staticmethod
 	def __LoadSceneGroups(path):
 		groups = []
 		file = open( path, "r" )
@@ -117,7 +122,7 @@ class Settings(object):
 		fp = codecs.open( settingsPath, "r", "utf-8" )
 		configParser.readfp( fp )
 		fp.close()
-		
+
 		Settings.VideoExtensionsToUpload = Settings.MakeListFromExtensionString( configParser.get( "Settings", "VideoExtensionsToUpload" ) )
 		Settings.AdditionalExtensionsToUpload = Settings.MakeListFromExtensionString( Settings.__GetDefault( configParser, "Settings", "AdditionalExtensionsToUpload", "bup, idx, ifo, srt, sub" ) )
 		Settings.IgnoreFile = Settings.MakeListFromExtensionString( Settings.__GetDefault( configParser, "Settings", "IgnoreFile", "" ) )
@@ -179,3 +184,50 @@ class Settings(object):
 		temporaryPath = Settings.GetTemporaryPath()
 		if not os.path.exists( temporaryPath ):
 			os.makedirs( temporaryPath )
+
+	@staticmethod
+	def __VerifyProgramPath( programName, arguments ):
+		if len( arguments[ 0 ] ) <= 0:
+			MyGlobals.Logger.error( "%s isn't set in the settings!" % programName )
+			return False
+
+		try:
+			proc = subprocess.Popen( arguments, stdout = subprocess.PIPE, stderr = subprocess.PIPE )
+			stdout, stderr = proc.communicate()
+			errorCode = proc.wait()
+		except OSError, e:
+			MyGlobals.Logger.error( "%s isn't set properly in the settings!" % programName )
+			MyGlobals.Logger.error( "Execution of %s at '%s' caused an exception. Error message: '%s'." % ( programName, arguments[ 0 ], str( e ) ) )
+			return False
+
+		return True
+
+	@staticmethod
+	def VerifyPaths():
+		MyGlobals.Logger.info( "Checking paths" ) 
+
+		if not Settings.__VerifyProgramPath( "chtor", [ Settings.ChtorPath, "--version" ] ):
+			return False
+
+		if not Settings.__VerifyProgramPath( "MediaInfo", [ Settings.MediaInfoPath, "--version" ] ):
+			return False
+
+		if not Settings.__VerifyProgramPath( "mktorrent", [ Settings.MktorrentPath ] ):
+			return False
+
+		if Settings.IsMplayerEnabled():
+			if not Settings.__VerifyProgramPath( "mplayer", [ Settings.MplayerPath ] ):
+				return False
+		else:
+			if not Settings.__VerifyProgramPath( "ffmpeg", [ Settings.FfmpegPath, "--help" ] ):
+				return False
+
+		# Optional
+		if len( Settings.UnrarPath ) > 0 and ( not Settings.__VerifyProgramPath( "unrar", [ Settings.UnrarPath ] ) ):
+			return False
+
+		# Optional
+		if len( Settings.ImageMagickConvertPath ) > 0 and ( not Settings.__VerifyProgramPath( "ImageMagick Convert", [ Settings.ImageMagickConvertPath, "--version" ] ) ):
+			return False
+
+		return True

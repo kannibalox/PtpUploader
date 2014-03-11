@@ -15,7 +15,7 @@ class ScreenshotMaker:
 		self.InternalScreenshotMaker = None
 		self.UsingMplayer = False
 		
-		if Mplayer.IsEnabled():
+		if Settings.IsMplayerEnabled():
 			self.InternalScreenshotMaker = Mplayer( logger, inputVideoPath )
 			self.UsingMplayer = True
 		else:

@@ -24,14 +24,9 @@ class MakeTorrent:
 			pieceSize = "-l 22"
 		
 		args = [ Settings.MktorrentPath, '-a', Settings.PtpAnnounceUrl, '-p', pieceSize, '-o', torrentPath, path ]
-		errorCode = 0
-		try:
-			errorCode = subprocess.call( args )
-		except OSError, e:
-			logger.error( "Execution of mktorrent caused an exception. Error message: '%s'." % ( args, str( e ) ) )
-			raise PtpUploaderException( "mktorrent execution error. Probably wrong path in settings: '%s'." % Settings.MktorrentPath )
-
+		errorCode = subprocess.call( args )
 		if errorCode != 0:
+			args[ 2 ] = "OMITTED" # Do not log the announce URL, so it less likely gets posted in the forums.
 			raise PtpUploaderException( "Process execution '%s' returned with error code '%s'." % ( args, errorCode ) )
 
 		# Torrents with exactly the same content and piece size get the same info hash regardless of the announcement URL.
@@ -39,11 +34,6 @@ class MakeTorrent:
 		# Another way would be to use a different piece size, but this solution is much more elegant.
 		# See: http://wiki.theory.org/BitTorrentSpecification#Metainfo_File_Structure 
 		args = [ Settings.ChtorPath, "--set=info.source=PTP", torrentPath ]
-		try:
-			errorCode = subprocess.call( args )
-		except OSError, e:
-			logger.error( "Execution of chtor caused an exception. Error message: '%s'." % ( args, str( e ) ) )
-			raise PtpUploaderException( "chtor execution error. Probably wrong path in settings: '%s'." % Settings.ChtorPath )
-
+		errorCode = subprocess.call( args )
 		if errorCode != 0:
 			raise PtpUploaderException( "Process execution '%s' returned with error code '%s'." % ( args, errorCode ) )

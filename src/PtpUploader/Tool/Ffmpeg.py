@@ -69,7 +69,3 @@ class Ffmpeg:
 		errorCode = subprocess.call( args )
 		if errorCode != 0:
 			raise PtpUploaderException( "Process execution '%s' returned with error code '%s'." % ( args, errorCode ) )
-
-	@staticmethod
-	def IsEnabled():
-		return len( Settings.FfmpegPath ) > 0

@@ -8,7 +8,13 @@ from Database import InitDb
 
 def Initialize():
 	Settings.LoadSettings()
+
 	MyGlobals.InitializeGlobals( Settings.WorkingPath )
+
+	if not Settings.VerifyPaths():
+		return False
+
+	return True
 
 def Run():
 	InitDb()
@@ -28,5 +34,5 @@ def Run():
 		webServerThread.StopServer()
 
 if __name__ == '__main__':
-	Initialize()
-	Run()
+	if Initialize():
+		Run()
