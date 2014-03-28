@@ -145,6 +145,10 @@ class Upload(WorkerBase):
 			codec = "DivX"
 			if mediaInfo.IsMkv():
 				raise PtpUploaderException( "DivX in MKV is not allowed." )
+		elif mediaInfo.IsVc1():
+			codec = "VC-1"
+		elif mediaInfo.IsMpeg2():
+			codec = "MPEG-2"
 		elif self.ReleaseInfo.IsDvdImage():
 			# Codec type DVD5 and DVD9 can't be figured out from MediaInfo.
 			codec = self.ReleaseInfo.Codec
