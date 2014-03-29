@@ -97,6 +97,8 @@ class ReleaseNameParser:
 			releaseInfo.ResolutionType = "720p"
 		elif self.Tags.IsContainsTag( "1080p" ):
 			releaseInfo.ResolutionType = "1080p"
+		elif self.Tags.IsContainsTag( "1080i" ):
+			releaseInfo.ResolutionType = "1080i"
 		else:
 			releaseInfo.ResolutionType = "Other"
 

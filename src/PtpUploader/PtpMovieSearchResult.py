@@ -159,19 +159,26 @@ class PtpMovieSearchResult:
 	def __IsFineSource(source):
 		return source == "DVD" or source == "Blu-ray" or source == "HD-DVD"
 
-	def __IsHdFineSourceReleaseExists(self, releaseInfo):
-		if ( releaseInfo.Source == "Blu-ray" or releaseInfo.Source == "HD-DVD" ) and releaseInfo.ResolutionType == "1080p":
-			return PtpMovieSearchResult.__IsInList( self.HdList, [ "x264", "H.264" ], [ "Blu-ray", "HD-DVD" ], [ "1080p" ], releaseInfo.IsRemux() )
-		elif ( releaseInfo.Source == "Blu-ray" or releaseInfo.Source == "HD-DVD" ) and releaseInfo.ResolutionType == "720p":
-			return PtpMovieSearchResult.__IsInList( self.HdList, [ "x264", "H.264" ], [ "Blu-ray", "HD-DVD" ], [ "720p" ] )
-		
+	def __IsHdFineSourceReleaseExists( self, releaseInfo ):
+		if releaseInfo.IsRemux():
+			if ( releaseInfo.Source == "Blu-ray" or releaseInfo.Source == "HD-DVD" ):
+				return PtpMovieSearchResult.__IsInList( self.HdList, None, [ "Blu-ray", "HD-DVD" ], [ "1080i", "1080p" ], True )
+		else:
+			if ( releaseInfo.Source == "Blu-ray" or releaseInfo.Source == "HD-DVD" ) and releaseInfo.ResolutionType == "1080p":
+				return PtpMovieSearchResult.__IsInList( self.HdList, [ "x264", "H.264" ], [ "Blu-ray", "HD-DVD" ], [ "1080p" ] )
+			elif ( releaseInfo.Source == "Blu-ray" or releaseInfo.Source == "HD-DVD" ) and releaseInfo.ResolutionType == "720p":
+				return PtpMovieSearchResult.__IsInList( self.HdList, [ "x264", "H.264" ], [ "Blu-ray", "HD-DVD" ], [ "720p" ] )
+
 		raise PtpUploaderException( "Can't check whether the release exist on PTP because its type is unsupported." )
 
 	def __IsHdNonFineSourceReleaseExists( self, releaseInfo, releaseSourceScore ):
-		if releaseInfo.ResolutionType == "1080p":
-			return PtpMovieSearchResult.__IsInListUsingSourceScore( self.HdList, [ "x264", "H.264" ], releaseSourceScore, [ "1080p" ], releaseInfo.IsRemux() )
-		elif releaseInfo.ResolutionType == "720p":
-			return PtpMovieSearchResult.__IsInListUsingSourceScore( self.HdList, [ "x264", "H.264" ], releaseSourceScore, [ "720p" ] )
+		if releaseInfo.IsRemux():
+			return PtpMovieSearchResult.__IsInListUsingSourceScore( self.HdList, None, releaseSourceScore, [ "1080i", "1080p" ], True )
+		else:
+			if releaseInfo.ResolutionType == "1080p":
+				return PtpMovieSearchResult.__IsInListUsingSourceScore( self.HdList, [ "x264", "H.264" ], releaseSourceScore, [ "1080p" ], releaseInfo.IsRemux() )
+			elif releaseInfo.ResolutionType == "720p":
+				return PtpMovieSearchResult.__IsInListUsingSourceScore( self.HdList, [ "x264", "H.264" ], releaseSourceScore, [ "720p" ] )
 		
 		raise PtpUploaderException( "Can't check whether the release exist on PTP because its type is unsupported." )
 
@@ -342,14 +349,31 @@ def UnitTest():
 		searchResult.HdList.append( MakeTestItem( "x264", "MKV", "Blu-ray", "1080p", "", "8000 MB" ) )
 
 		IsReleaseExists( searchResult, True, MakeTestItem( "x264", "MKV", "Blu-ray", "1080p", "", "8000 MB" ) )
+		IsReleaseExists( searchResult, False, MakeTestItem( "x264", "MKV", "Blu-ray", "1080i", "Remux", "8000 MB" ) )
 		IsReleaseExists( searchResult, False, MakeTestItem( "x264", "MKV", "Blu-ray", "1080p", "Remux", "8000 MB" ) )
+		IsReleaseExists( searchResult, False, MakeTestItem( "H.264", "MKV", "Blu-ray", "1080p", "Remux", "8000 MB" ) )
+		IsReleaseExists( searchResult, False, MakeTestItem( "MPEG-2", "MKV", "Blu-ray", "1080p", "Remux", "8000 MB" ) )
+		IsReleaseExists( searchResult, False, MakeTestItem( "VC-1", "MKV", "Blu-ray", "1080p", "Remux", "8000 MB" ) )
 
-	# Difference between remux and encode.
+	# Difference between remux (1080i) and encode.
+	if True:
+		searchResult = PtpMovieSearchResult( "1", None )
+		searchResult.HdList.append( MakeTestItem( "x264", "MKV", "Blu-ray", "1080i", "Remux", "8000 MB" ) )
+
+		IsReleaseExists( searchResult, True, MakeTestItem( "x264", "MKV", "Blu-ray", "1080i", "Remux", "8000 MB" ) )
+		IsReleaseExists( searchResult, True, MakeTestItem( "x264", "MKV", "Blu-ray", "1080p", "Remux", "8000 MB" ) )
+		IsReleaseExists( searchResult, False, MakeTestItem( "x264", "MKV", "Blu-ray", "1080p", "", "8000 MB" ) )
+
+	# Difference between remux (1080p) and encode.
 	if True:
 		searchResult = PtpMovieSearchResult( "1", None )
 		searchResult.HdList.append( MakeTestItem( "x264", "MKV", "Blu-ray", "1080p", "Remux", "8000 MB" ) )
 
+		IsReleaseExists( searchResult, True, MakeTestItem( "x264", "MKV", "Blu-ray", "1080i", "Remux", "8000 MB" ) )
 		IsReleaseExists( searchResult, True, MakeTestItem( "x264", "MKV", "Blu-ray", "1080p", "Remux", "8000 MB" ) )
+		IsReleaseExists( searchResult, True, MakeTestItem( "H.264", "MKV", "Blu-ray", "1080p", "Remux", "8000 MB" ) )
+		IsReleaseExists( searchResult, True, MakeTestItem( "MPEG-2", "MKV", "Blu-ray", "1080p", "Remux", "8000 MB" ) )
+		IsReleaseExists( searchResult, True, MakeTestItem( "VC-1", "MKV", "Blu-ray", "1080p", "Remux", "8000 MB" ) )
 		IsReleaseExists( searchResult, False, MakeTestItem( "x264", "MKV", "Blu-ray", "1080p", "", "8000 MB" ) )
 
 	# Same size.
@@ -359,13 +383,17 @@ def UnitTest():
 		searchResult.SdList.append( MakeTestItem( "x264", "MKV", "Blu-ray", "1x1", "", "700 MB" ) )
 		searchResult.HdList.append( MakeTestItem( "x264", "MKV", "HD-DVD", "720p", "", "4500 MB" ) )
 		searchResult.HdList.append( MakeTestItem( "x264", "MKV", "Blu-ray", "1080p", "", "8000 MB" ) )
-		searchResult.HdList.append( MakeTestItem( "x264", "MKV", "Blu-ray", "1080p", "Remux", "8000 MB" ) )
+		searchResult.HdList.append( MakeTestItem( "H.264", "MKV", "Blu-ray", "1080p", "Remux", "8000 MB" ) )
 
 		IsReleaseExists( searchResult, True, MakeTestItem( "XviD", "AVI", "Blu-ray", "1x1", "", "700 MB" ) )
 		IsReleaseExists( searchResult, True, MakeTestItem( "x264", "MKV", "HD-DVD", "1x1", "", "700 MB" ) )
 		IsReleaseExists( searchResult, True, MakeTestItem( "x264", "MKV", "Blu-ray", "720p", "", "4500 MB" ) )
 		IsReleaseExists( searchResult, True, MakeTestItem( "x264", "MKV", "Blu-ray", "1080p", "", "8000 MB" ) )
+		IsReleaseExists( searchResult, True, MakeTestItem( "x264", "MKV", "Blu-ray", "1080i", "Remux", "8000 MB" ) )
 		IsReleaseExists( searchResult, True, MakeTestItem( "x264", "MKV", "Blu-ray", "1080p", "Remux", "8000 MB" ) )
+		IsReleaseExists( searchResult, True, MakeTestItem( "H.264", "MKV", "Blu-ray", "1080p", "Remux", "8000 MB" ) )
+		IsReleaseExists( searchResult, True, MakeTestItem( "MPEG-2", "MKV", "Blu-ray", "1080p", "Remux", "8000 MB" ) )
+		IsReleaseExists( searchResult, True, MakeTestItem( "VC-1", "MKV", "Blu-ray", "1080p", "Remux", "8000 MB" ) )
 
 	# Under size.
 	if True:
@@ -380,6 +408,7 @@ def UnitTest():
 		IsReleaseExists( searchResult, True, MakeTestItem( "x264", "MKV", "HD-DVD", "1x1", "", "700 MB" ) )
 		IsReleaseExists( searchResult, True, MakeTestItem( "x264", "MKV", "Blu-ray", "720p", "", "4500 MB" ) )
 		IsReleaseExists( searchResult, True, MakeTestItem( "x264", "MKV", "Blu-ray", "1080p", "", "8000 MB" ) )
+		IsReleaseExists( searchResult, True, MakeTestItem( "x264", "MKV", "Blu-ray", "1080i", "Remux", "8000 MB" ) )
 		IsReleaseExists( searchResult, True, MakeTestItem( "x264", "MKV", "Blu-ray", "1080p", "Remux", "8000 MB" ) )
 
 	# Over size.
@@ -395,6 +424,7 @@ def UnitTest():
 		IsReleaseExists( searchResult, True, MakeTestItem( "x264", "MKV", "HD-DVD", "1x1", "", "1400 MB" ) )
 		IsReleaseExists( searchResult, True, MakeTestItem( "x264", "MKV", "Blu-ray", "720p", "", "6500 MB" ) )
 		IsReleaseExists( searchResult, True, MakeTestItem( "x264", "MKV", "Blu-ray", "1080p", "", "12500 MB" ) )
+		IsReleaseExists( searchResult, True, MakeTestItem( "x264", "MKV", "Blu-ray", "1080i", "Remux", "12500 MB" ) )
 		IsReleaseExists( searchResult, True, MakeTestItem( "x264", "MKV", "Blu-ray", "1080p", "Remux", "12500 MB" ) )
 
 	# Difference between encode and remux for pre-retail relases.
@@ -405,15 +435,28 @@ def UnitTest():
 		IsReleaseExists( searchResult, True, MakeTestItem( "x264", "MKV", "RC", "1080p", "", "8000 MB" ) )
 		IsReleaseExists( searchResult, False, MakeTestItem( "x264", "MKV", "RC", "1080p", "Remux", "8000 MB" ) )
 		IsReleaseExists( searchResult, False, MakeTestItem( "x264", "MKV", "Blu-ray", "1080p", "", "8000 MB" ) )
+		IsReleaseExists( searchResult, False, MakeTestItem( "x264", "MKV", "Blu-ray", "1080i", "Remux", "8000 MB" ) )
 		IsReleaseExists( searchResult, False, MakeTestItem( "x264", "MKV", "Blu-ray", "1080p", "Remux", "8000 MB" ) )
 
-	# Difference between remux and encode for pre-retail relases.
+	# Difference between remux (1080i) and encode for pre-retail relases.
 	if True:
 		searchResult = PtpMovieSearchResult( "1", None )
 		searchResult.HdList.append( MakeTestItem( "x264", "MKV", "RC", "1080p", "Remux", "8000 MB" ) )
 
 		IsReleaseExists( searchResult, True, MakeTestItem( "x264", "MKV", "RC", "1080p", "Remux", "8000 MB" ) )
 		IsReleaseExists( searchResult, False, MakeTestItem( "x264", "MKV", "RC", "1080p", "", "8000 MB" ) )
+		IsReleaseExists( searchResult, False, MakeTestItem( "x264", "MKV", "Blu-ray", "1080i", "Remux", "8000 MB" ) )
+		IsReleaseExists( searchResult, False, MakeTestItem( "x264", "MKV", "Blu-ray", "1080p", "Remux", "8000 MB" ) )
+		IsReleaseExists( searchResult, False, MakeTestItem( "x264", "MKV", "Blu-ray", "1080p", "", "8000 MB" ) )
+
+	# Difference between remux (1080p) and encode for pre-retail relases.
+	if True:
+		searchResult = PtpMovieSearchResult( "1", None )
+		searchResult.HdList.append( MakeTestItem( "x264", "MKV", "RC", "1080i", "Remux", "8000 MB" ) )
+
+		IsReleaseExists( searchResult, True, MakeTestItem( "x264", "MKV", "RC", "1080p", "Remux", "8000 MB" ) )
+		IsReleaseExists( searchResult, False, MakeTestItem( "x264", "MKV", "RC", "1080p", "", "8000 MB" ) )
+		IsReleaseExists( searchResult, False, MakeTestItem( "x264", "MKV", "Blu-ray", "1080i", "Remux", "8000 MB" ) )
 		IsReleaseExists( searchResult, False, MakeTestItem( "x264", "MKV", "Blu-ray", "1080p", "Remux", "8000 MB" ) )
 		IsReleaseExists( searchResult, False, MakeTestItem( "x264", "MKV", "Blu-ray", "1080p", "", "8000 MB" ) )
 
@@ -432,6 +475,7 @@ def UnitTest():
 		IsReleaseExists( searchResult, True, MakeTestItem( "x264", "MKV", "HDTV", "720p", "", "6500 MB" ) )
 		IsReleaseExists( searchResult, True, MakeTestItem( "x264", "MKV", "RC", "1080p", "", "12500 MB" ) )
 		IsReleaseExists( searchResult, True, MakeTestItem( "x264", "MKV", "WEB", "1080p", "", "12500 MB" ) )
+		IsReleaseExists( searchResult, True, MakeTestItem( "x264", "MKV", "RC", "1080i", "Remux", "12500 MB" ) )
 		IsReleaseExists( searchResult, True, MakeTestItem( "x264", "MKV", "RC", "1080p", "Remux", "12500 MB" ) )
 
 	# SD pre-retail is not allowed if HD retail exists.
@@ -448,18 +492,22 @@ def UnitTest():
 	if True:
 		searchResult = PtpMovieSearchResult( "1", None )
 		searchResult.SdList.append( MakeTestItem( "XviD", "AVI", "DVD", "1x1", "", "700 MB" ) )
+
 		IsReleaseExists( searchResult, False, MakeTestItem( "x264", "MKV", "HDTV", "720p", "", "6500 MB" ) )
 		IsReleaseExists( searchResult, False, MakeTestItem( "x264", "MKV", "WEB", "720p", "", "6500 MB" ) )
 		IsReleaseExists( searchResult, False, MakeTestItem( "x264", "MKV", "RC", "1080p", "", "12500 MB" ) )
+		IsReleaseExists( searchResult, False, MakeTestItem( "x264", "MKV", "RC", "1080i", "Remux", "12500 MB" ) )
 		IsReleaseExists( searchResult, False, MakeTestItem( "x264", "MKV", "RC", "1080p", "Remux", "12500 MB" ) )
 
 	# HD pre-retail is not allowed if HD sourced retail SD exists.
 	if True:
 		searchResult = PtpMovieSearchResult( "1", None )
 		searchResult.SdList.append( MakeTestItem( "XviD", "AVI", "Blu-ray", "1x1", "", "700 MB" ) )
+
 		IsReleaseExists( searchResult, True, MakeTestItem( "x264", "MKV", "HDTV", "720p", "", "6500 MB" ) )
 		IsReleaseExists( searchResult, True, MakeTestItem( "x264", "MKV", "WEB", "720p", "", "4500 MB" ) )
 		IsReleaseExists( searchResult, True, MakeTestItem( "x264", "MKV", "RC", "1080p", "", "12500 MB" ) )
+		IsReleaseExists( searchResult, True, MakeTestItem( "x264", "MKV", "RC", "1080i", "Remux", "12500 MB" ) )
 		IsReleaseExists( searchResult, True, MakeTestItem( "x264", "MKV", "RC", "1080p", "Remux", "12500 MB" ) )
 
 	# Only one pre-retail is allowed per category regardless of size.
@@ -475,6 +523,7 @@ def UnitTest():
 		IsReleaseExists( searchResult, True, MakeTestItem( "x264", "MKV", "R5", "1x1", "", "1400 MB" ) )
 		IsReleaseExists( searchResult, True, MakeTestItem( "x264", "MKV", "RC", "720p", "", "6500 MB" ) )
 		IsReleaseExists( searchResult, True, MakeTestItem( "x264", "MKV", "RC", "1080p", "", "12500 MB" ) )
+		IsReleaseExists( searchResult, True, MakeTestItem( "x264", "MKV", "RC", "1080i", "Remux", "12500 MB" ) )
 		IsReleaseExists( searchResult, True, MakeTestItem( "x264", "MKV", "RC", "1080p", "Remux", "12500 MB" ) )
 
 	# Pre-retail trumping other pre-retail.
@@ -509,7 +558,9 @@ def UnitTest():
 		IsReleaseExists( searchResult, False, MakeTestItem( "x264", "MKV", "Blu-ray", "720p", "", "6500 MB" ) )
 		IsReleaseExists( searchResult, False, MakeTestItem( "x264", "MKV", "HD-DVD", "1080p", "", "8500 MB" ) )
 		IsReleaseExists( searchResult, False, MakeTestItem( "x264", "MKV", "HD-DVD", "1080p", "", "12500 MB" ) )
+		IsReleaseExists( searchResult, False, MakeTestItem( "x264", "MKV", "Blu-ray", "1080i", "Remux", "4500 MB" ) )
 		IsReleaseExists( searchResult, False, MakeTestItem( "x264", "MKV", "Blu-ray", "1080p", "Remux", "4500 MB" ) )
+		IsReleaseExists( searchResult, False, MakeTestItem( "x264", "MKV", "Blu-ray", "1080i", "Remux", "6500 MB" ) )
 		IsReleaseExists( searchResult, False, MakeTestItem( "x264", "MKV", "Blu-ray", "1080p", "Remux", "6500 MB" ) )
 
 	# WEB #1
