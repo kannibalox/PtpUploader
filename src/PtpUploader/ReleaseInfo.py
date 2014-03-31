@@ -113,7 +113,7 @@ class ReleaseInfo(Database.Base):
 		self.ResolutionType = "" # Other, PAL, NTSC, 480p, 576p, 720p, 1080i, 1080p
 		self.Resolution = "" # Exact resolution when ResolutionType is Other. 
 		self.Source = "" # Other, CAM, TS, VHS, TV, DVD-Screener, TC, HDTV, WEB, R5, DVD, HD-DVD, Blu-ray
-		self.SourceOther = "" # Source type when Source is Other.
+		self.SourceOther = "" # TODO: no longer used. Only here because of SQLite.
 		self.RemasterTitle = "" # Eg.: Hardcoded English
 		self.RemasterYear = ""
 		# Release description text is also needed for PTP but we use the other members to fill that.

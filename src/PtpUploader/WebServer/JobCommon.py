@@ -97,10 +97,10 @@ class JobCommon:
 		releaseInfo.Resolution = request.values[ "other_resolution" ] 
 		
 		source = request.values.get( "source" )
-		if ( source is not None ) and source != "---":
+		if ( source is None ) or source == "---" or source == "Other":
+			releaseInfo.Source = request.values[ "other_source" ]
+		else:
 			releaseInfo.Source = source
-			
-		releaseInfo.SourceOther = request.values[ "other_source" ]
 		
 		releaseInfo.RemasterTitle = request.values[ "remaster_title" ]
 		releaseInfo.RemasterYear = request.values[ "remaster_year" ]
@@ -165,13 +165,10 @@ class JobCommon:
 			job[ "TrumpableForNoEnglishSubtitles" ] = "on"
 
 		job[ "codec" ] = releaseInfo.Codec
-		job[ "other_codec" ] = releaseInfo.CodecOther
 		job[ "container" ] = releaseInfo.Container
-		job[ "other_container" ] = releaseInfo.ContainerOther
 		job[ "resolution" ] = releaseInfo.ResolutionType 
 		job[ "other_resolution" ] = releaseInfo.Resolution 
 		job[ "source" ] = releaseInfo.Source
-		job[ "other_source" ] = releaseInfo.SourceOther
 		job[ "remaster_title" ] = releaseInfo.RemasterTitle
 		job[ "remaster_year" ] = releaseInfo.RemasterYear
 		

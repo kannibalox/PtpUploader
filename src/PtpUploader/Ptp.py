@@ -154,8 +154,8 @@ class Ptp:
 				"other_container": releaseInfo.Container,
 				"resolution": releaseInfo.ResolutionType,
 				"other_resolution": releaseInfo.Resolution,
-				"source": releaseInfo.Source,
-				"other_source": releaseInfo.SourceOther,
+				"source": "Other", # Sending the source as custom.
+				"other_source": releaseInfo.Source,
 				"release_desc": releaseDescription,
 				"nfo_text": releaseInfo.Nfo
 				};
