@@ -46,9 +46,24 @@
 
 {# Is not there an easier way than this? #}
 <script type='text/javascript'>
+	function SelectInComboboxOrUseOtherInput( comboboxId, otherInputId, value )
+	{
+		var combobox = document.getElementById( comboboxId );
+
+		for ( var i = 0; i < combobox.options.length; ++i )
+			if ( combobox.options[ i ].value === value )
+			{
+				combobox.value = "{{ job.type }}";
+				return;
+			}
+
+		combobox.value = "Other";
+		document.getElementById( otherInputId ).value = value;
+	}
+
 	document.getElementById ( "categories" ).value = "{{ job.type }}";
-	document.getElementById ( "codec" ).value = "{{ job.codec }}";
-	document.getElementById ( "container" ).value = "{{ job.container }}";
+	SelectInComboboxOrUseOtherInput( "codec", "other_codec", "{{ job.codec }}" );
+	SelectInComboboxOrUseOtherInput( "container", "other_container", "{{ job.container }}" );
 	document.getElementById ( "resolution" ).value = "{{ job.resolution }}";
 	document.getElementById ( "source" ).value = "{{ job.source }}";
 </script>

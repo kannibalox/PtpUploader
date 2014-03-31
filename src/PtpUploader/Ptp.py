@@ -148,10 +148,10 @@ class Ptp:
 				"type": releaseInfo.Type,
 				"remaster_year": releaseInfo.RemasterYear,
 				"remaster_title": releaseInfo.RemasterTitle,
-				"codec": releaseInfo.Codec,
-				"other_codec": releaseInfo.CodecOther,
-				"container": releaseInfo.Container,
-				"other_container": releaseInfo.ContainerOther,
+				"codec": "Other", # Sending the codec as custom.
+				"other_codec": releaseInfo.Codec,
+				"container": "Other", # Sending the container as custom.
+				"other_container": releaseInfo.Container,
 				"resolution": releaseInfo.ResolutionType,
 				"other_resolution": releaseInfo.Resolution,
 				"source": releaseInfo.Source,

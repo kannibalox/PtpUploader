@@ -79,17 +79,17 @@ class JobCommon:
 			releaseInfo.SetTrumpableForNoEnglishSubtitles()
 
 		codec = request.values.get( "codec" )
-		if ( codec is not None ) and codec != "---":
+		if ( codec is None ) or codec == "---" or codec == "Other":
+			releaseInfo.Codec = request.values[ "other_codec" ]
+		else:
 			releaseInfo.Codec = codec
-			 
-		releaseInfo.CodecOther = request.values[ "other_codec" ]
-	
+
 		container = request.values.get( "container" )
-		if ( container is not None ) and container != "---":
+		if ( container is None ) or container == "---" or container == "Other":
+			releaseInfo.Container = request.values[ "other_container" ]
+		else:
 			releaseInfo.Container = container
-		
-		releaseInfo.ContainerOther = request.values[ "other_container" ]
-		
+
 		resolutionType = request.values.get( "resolution" )
 		if ( resolutionType is not None ) and resolutionType != "---":
 			releaseInfo.ResolutionType = resolutionType

@@ -126,20 +126,20 @@
 <tr>
 	<td class="label">Codec</td>
 	<td>
-		<select id="codec" name="codec" onchange="Codec()">
+		<select id="codec" name="codec">
 			<option>---</option>
-				<option value="XviD">XviD</option>
-				<option value="DivX">DivX</option>
-				<option value="H.264">H.264</option>
-				<option value="x264">x264</option>
-				<option value="DVD5">DVD5</option>
-				<option value="DVD9">DVD9</option>
-				<option value="BD25">BD25</option>
-				<option value="BD50">BD50</option>
-				<option value="Other">Other</option>
+			<option value="XviD">XviD</option>
+			<option value="DivX">DivX</option>
+			<option value="H.264">H.264</option>
+			<option value="x264">x264</option>
+			<option value="DVD5">DVD5</option>
+			<option value="DVD9">DVD9</option>
+			<option value="BD25">BD25</option>
+			<option value="BD50">BD50</option>
+			<option value="Other">Other</option>
 		</select>
 
-		<span id="other_codec_span" class="hidden">
+		<span id="other_codec_span">
 			<input name="other_codec" size="5" id="other_codec" value="{{ job.other_codec }}" type="text">
 		</span>
 	</td>
@@ -148,7 +148,7 @@
 <tr>
 	<td class="label">Container</td>
 	<td>
-		<select id="container" name="container" onchange="Container()">
+		<select id="container" name="container">
 			<option>---</option>
 			<option value="AVI">AVI</option>
 			<option value="MPG">MPG</option>
@@ -160,7 +160,7 @@
 			<option value="Other">Other</option>
 		</select>
 
-		<span id="other_container_span" class="hidden">
+		<span id="other_container_span">
 			<input name="other_container" size="5" id="other_container" value="{{ job.other_container }}" type="text">
 		</span>
 	</td>
@@ -169,7 +169,7 @@
 <tr>
 	<td class="label">Resolution</td>
 	<td>
-		<select id="resolution" name="resolution" onchange="Resolution()">
+		<select id="resolution" name="resolution">
 			<option selected="selected">---</option>
 			<option value="NTSC">NTSC</option>
 			<option value="PAL">PAL</option>
@@ -181,7 +181,7 @@
 			<option value="Other">Other</option>
 		</select>
 
-		<span id="other_resolution_span" class="hidden">
+		<span id="other_resolution_span">
 			<input name="other_resolution" size="10" id="other_resolution" value="{{ job.other_resolution }}" type="text">
 		</span>
 	</td>
@@ -207,7 +207,7 @@
 			<option value="Other">Other</option>
 		</select>
 
-		<span id="other_source_span" class="hidden">
+		<span id="other_source_span">
 			<input name="other_source" size="5" id="other_source" value="{{ job.other_source }}" type="text">
 		</span>
 	</td>

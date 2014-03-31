@@ -107,9 +107,9 @@ class ReleaseInfo(Database.Base):
 		self.MetacriticUrl = "" # TODO: no longer used. Only here because of SQLite.
 		self.RottenTomatoesUrl = "" # TODO: no longer used. Only here because of SQLite.
 		self.Codec = "" # Other, DivX, XviD, H.264, x264, DVD5, DVD9, BD25, BD50
-		self.CodecOther = "" # Codec type when Codec is Other.
+		self.CodecOther = "" # TODO: no longer used. Only here because of SQLite.
 		self.Container = "" # Other, MPG, AVI, MP4, MKV, VOB IFO, ISO, m2ts
-		self.ContainerOther = "" # Container type when Container is Other.
+		self.ContainerOther = "" # TODO: no longer used. Only here because of SQLite.
 		self.ResolutionType = "" # Other, PAL, NTSC, 480p, 576p, 720p, 1080i, 1080p
 		self.Resolution = "" # Exact resolution when ResolutionType is Other. 
 		self.Source = "" # Other, CAM, TS, VHS, TV, DVD-Screener, TC, HDTV, WEB, R5, DVD, HD-DVD, Blu-ray
