@@ -2,10 +2,11 @@
 # http://docs.python.org/tutorial/modules.html
 
 from Database import Database
+from MyFlask import MyFlask
 
-from flask import Flask, request, url_for
+from flask import request, url_for
 
-app = Flask( __name__ )
+app = MyFlask( __name__ )
 
 import WebServer.MovieAvailabilityCheck
 import WebServer.DeleteJob
