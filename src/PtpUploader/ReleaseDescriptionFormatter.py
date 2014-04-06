@@ -137,9 +137,6 @@ class ReleaseDescriptionFormatter:
 		if includeReleaseName:
 			releaseDescription = u"[size=4][b]%s[/b][/size]\n\n" % self.ReleaseInfo.ReleaseName
 
-		if len( self.ReleaseInfo.ReleaseNotes ) > 0:
-			releaseDescription += u"%s\n\n" % self.ReleaseInfo.ReleaseNotes
-
 		for i in range( len( self.VideoEntries ) ):
 			entry = self.VideoEntries[ i ]
 
@@ -147,6 +144,9 @@ class ReleaseDescriptionFormatter:
 				releaseDescription += "\n\n"
 
 			releaseDescription += entry.ToReleaseDescription()
+
+		if len( self.ReleaseInfo.ReleaseNotes ) > 0:
+			releaseDescription += u"\n\n%s" % self.ReleaseInfo.ReleaseNotes
 
 		return releaseDescription
 	
