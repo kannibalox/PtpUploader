@@ -29,7 +29,7 @@ class MediaInfo:
 		self.__ParseMediaInfo( logger )
 		self.__ValidateParsedMediaInfo()
 
-	def __MediaInfoThread(self):
+	def __MediaInfoThread( self ):
 		try:
 			self.MediaInfoProcess = subprocess.Popen( self.MediaInfoArgs, stdout = subprocess.PIPE )
 			self.MediaInfoStdOut, stderr = self.MediaInfoProcess.communicate()
@@ -152,7 +152,7 @@ class MediaInfo:
 
 		self.FormattedMediaInfo = self.FormattedMediaInfo.strip()
 			
-	def __ValidateParsedMediaInfo(self):
+	def __ValidateParsedMediaInfo( self ):
 		if len( self.Container ) <= 0:
 			raise PtpUploaderException( "MediaInfo returned with no container." )
 
@@ -170,35 +170,35 @@ class MediaInfo:
 		if self.Height <= 0:
 			raise PtpUploaderException( "MediaInfo returned with invalid height: '%s'." % self.Height )
 			
-	def IsAvi(self):
+	def IsAvi( self ):
 		return self.Container == "avi"
 
-	def IsIfo(self):
+	def IsIfo( self ):
 		return self.Container == "dvd video"
 
-	def IsMkv(self):
+	def IsMkv( self ):
 		return self.Container == "matroska"
 
-	def IsMp4(self):
+	def IsMp4( self ):
 		return self.Container == "mpeg-4"
 
-	def IsVob(self):
+	def IsVob( self ):
 		return self.Container == "mpeg-ps"
 
-	def IsDivx(self):
+	def IsDivx( self ):
 		return self.Codec == "divx" or self.Codec == "dx50" or self.Codec == "div3"
 	
-	def IsXvid(self):
+	def IsXvid( self ):
 		return self.Codec == "xvid"
 
-	def IsX264(self):
+	def IsX264( self ):
 		return self.Codec == "x264" or ( ( self.Codec == "v_mpeg4/iso/avc" or self.Codec == "avc1" ) and self.VideoWritingLibrary.find( "x264 core" ) == 0 )
 
-	def IsH264(self):
+	def IsH264( self ):
 		return ( self.Codec == "v_mpeg4/iso/avc" or self.Codec == "avc1" ) and self.VideoWritingLibrary.find( "x264 core" ) == -1
 
 	def IsVc1( self ):
 		return self.Codec == "wvc1"
 
-	def IsMpeg2Codec():
+	def IsMpeg2Codec( self ):
 		return self.Codec == "v_mpeg2"
