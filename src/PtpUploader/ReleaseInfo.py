@@ -29,6 +29,7 @@ class ReleaseInfoFlags:
 	StopBeforeUploading                 = 1 << 4
 
 	TrumpableForNoEnglishSubtitles      = 1 << 5
+	OverrideScreenshots                 = 1 << 6
 
 class ReleaseInfo(Database.Base):
 	__tablename__ = "release"
@@ -291,6 +292,15 @@ class ReleaseInfo(Database.Base):
 
 	def SetTrumpableForNoEnglishSubtitles( self ):
 		self.Flags |= ReleaseInfoFlags.TrumpableForNoEnglishSubtitles
+
+	def IsOverrideScreenshotsSet( self ):
+		return ( self.Flags & ReleaseInfoFlags.OverrideScreenshots ) != 0
+
+	def SetOverrideScreenshots( self, override ):
+		if override:
+			self.Flags |= ReleaseInfoFlags.OverrideScreenshots
+		else:
+			self.Flags &= ~ReleaseInfoFlags.OverrideScreenshots
 
 	# See the description at the flag.
 	def SetStopBeforeUploading(self, stop):

@@ -327,7 +327,17 @@
 <tr>
 	<td class="label">Release Notes
 		<br>
+		<br>
 		<input type="button" id="ConvertComparisonCode" value="Convert comparison code" title="You can convert HTML source of an image comparison (obtained by View selection source and copy&paste) to BBCode.">
+		<br>
+		<br>
+		<label title="If checked then screens won't be taken, the ones listed in the release notes will be used.">
+			<input type="checkbox" name="OverrideScreenshots"
+				{% if job.OverrideScreenshots %}
+					checked
+				{% endif %}
+			> Override screens
+		</label>
 	</td>
 	<td>
 		<textarea name="ReleaseNotes" id="ReleaseNotes" cols="60" rows="8">{{ job.ReleaseNotes }}</textarea>

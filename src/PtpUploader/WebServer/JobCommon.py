@@ -122,6 +122,7 @@ class JobCommon:
 		releaseInfo.SetSubtitles( request.form.getlist( "subtitle[]" ) )
 		releaseInfo.IncludedFiles = request.values[ "IncludedFilesCustomizedList" ]
 		releaseInfo.DuplicateCheckCanIgnore = int( request.values.get( "SkipDuplicateCheckingButton", 0 ) )
+		releaseInfo.SetOverrideScreenshots( request.values.get( "OverrideScreenshots" ) is not None )
 
 	@staticmethod
 	def __GetPtpOrImdbLink(releaseInfo):
@@ -190,6 +191,9 @@ class JobCommon:
 		job[ "Subtitles" ] = releaseInfo.GetSubtitles()
 		job[ "IncludedFilesCustomizedList" ] = releaseInfo.IncludedFiles
 		job[ "SkipDuplicateCheckingButton" ] = int( releaseInfo.DuplicateCheckCanIgnore )
+
+		if releaseInfo.IsOverrideScreenshotsSet():
+			job[ "OverrideScreenshots" ] = 1
 
 		if releaseInfo.HasPtpId():
 			if releaseInfo.HasPtpTorrentId():

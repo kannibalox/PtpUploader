@@ -104,9 +104,13 @@ def upload():
 		Database.DbSession.commit()
 		
 		MyGlobals.PtpUploader.AddMessage( PtpUploaderMessageStartJob( releaseInfo.Id ) )
-	
+
 	# job parameter is needed because it uses the same template as edit job
 	job = {}
 	job[ "Subtitles" ] = []
 	job[ "SkipDuplicateCheckingButton" ] = 0
+
+	if Settings.OverrideScreenshots:
+		job[ "OverrideScreenshots" ] = 1
+
 	return render_template( "upload.html", job = job )
