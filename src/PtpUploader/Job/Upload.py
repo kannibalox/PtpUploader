@@ -187,7 +187,7 @@ class Upload(WorkerBase):
 		
 		includeReleaseName = self.ReleaseInfo.AnnouncementSource.IncludeReleaseNameInReleaseDescription()
 		outputImageDirectory = self.ReleaseInfo.AnnouncementSource.GetTemporaryFolderForImagesAndTorrent( self.ReleaseInfo )
-		makeScreenshots = not self.ReleaseDescription.IsOverrideScreenshotsSet()
+		makeScreenshots = not self.ReleaseInfo.IsOverrideScreenshotsSet()
 		releaseDescriptionFormatter = ReleaseDescriptionFormatter( self.ReleaseInfo, self.VideoFiles, self.AdditionalFiles, outputImageDirectory, makeScreenshots )
 		self.ReleaseDescription = releaseDescriptionFormatter.Format( includeReleaseName )
 		self.MainMediaInfo = releaseDescriptionFormatter.GetMainMediaInfo()
