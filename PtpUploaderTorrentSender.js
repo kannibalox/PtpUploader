@@ -35,7 +35,7 @@
 // @include     http*://*hdwing.com/details.php*
 // @include     http*://*cinematik.net/details.php*
 // @include     http*://*horrorcharnel.kicks-ass.org/details.php*
-// @include     http*://torrentshack.net/torrents.php?torrentid=*
+// @include     http*://*torrentshack.net/torrents.php?torrentid=*
 // ==/UserScript==
 
 // START OF SETTINGS
