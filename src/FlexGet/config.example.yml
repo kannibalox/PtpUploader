@@ -41,7 +41,7 @@ tasks:
   _gft:
     rss:
       # Make sure that at the Generates RSS link page you select Web link as the feed type.
-      url: http://www.thegft.org/rss.php?cat=AAAAAAAAAAAAAAAA&passkey=AAAAAAAAAAAAAAAA
+      url: https://www.thegft.org/rss.php?cat=AAAAAAAAAAAAAAAA&passkey=AAAAAAAAAAAAAAAA
       # Force ASCII just to be sure.
       ascii: yes
     accept_all: yes
@@ -49,7 +49,7 @@ tasks:
       # Create TorrentId field by extracting the id from the URL.
       - TorrentId:
           from: url
-          extract: 'http://www\.thegft\.org/details\.php\?id=(\d+).*'
+          extract: 'https://www\.thegft\.org/details\.php\?id=(\d+).*'
     exec: echo >> "/path to WorkingDirectory/announcement/[source=gft][id=%(TorrentId)s][title=%(title)s]"
 
 # Karagarga

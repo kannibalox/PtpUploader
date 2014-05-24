@@ -29,12 +29,12 @@ class Gft(SourceBase):
 		
 		# GFT stores a cookie when login.php is loaded that is needed for takeloin.php. 
 		opener = urllib2.build_opener( urllib2.HTTPCookieProcessor( MyGlobals.CookieJar ) )
-		result = opener.open( "http://www.thegft.org/login.php" )
+		result = opener.open( "https://www.thegft.org/login.php" )
 		response = result.read()
 
 		opener = urllib2.build_opener( urllib2.HTTPCookieProcessor( MyGlobals.CookieJar ) )
 		postData = urllib.urlencode( { "username": self.Username, "password": self.Password } )
-		result = opener.open( "http://www.thegft.org/takelogin.php", postData )
+		result = opener.open( "https://www.thegft.org/takelogin.php", postData )
 		response = result.read()
 		self.CheckIfLoggedInFromResponse( response );
 	
@@ -43,7 +43,7 @@ class Gft(SourceBase):
 			raise PtpUploaderException( "Looks like you are not logged in to GFT. Probably due to the bad user name or password in settings." )
 
 	def __GetTorrentPageAsString( self, logger, releaseInfo ):
-		url = "http://www.thegft.org/details.php?id=%s" % releaseInfo.AnnouncementId;
+		url = "https://www.thegft.org/details.php?id=%s" % releaseInfo.AnnouncementId;
 		logger.info( "Downloading description from page '%s'." % url );
 
 		opener = urllib2.build_opener( urllib2.HTTPCookieProcessor( MyGlobals.CookieJar ) );
@@ -61,7 +61,7 @@ class Gft(SourceBase):
 		return description
 
 	def __TryGettingImdbIdFromNfoPage( self, logger, releaseInfo ):
-		url = "http://www.thegft.org/viewnfo.php?id=%s" % releaseInfo.AnnouncementId
+		url = "https://www.thegft.org/viewnfo.php?id=%s" % releaseInfo.AnnouncementId
 		logger.info( "Downloading NFO from page '%s'." % url );
 
 		opener = urllib2.build_opener( urllib2.HTTPCookieProcessor( MyGlobals.CookieJar ) );
@@ -167,7 +167,7 @@ class Gft(SourceBase):
 			self.__HandleAutoCreatedJob( logger, releaseInfo )
 	
 	def DownloadTorrent(self, logger, releaseInfo, path):
-		url = "http://www.thegft.org/download.php?torrent=%s" % releaseInfo.AnnouncementId;
+		url = "https://www.thegft.org/download.php?torrent=%s" % releaseInfo.AnnouncementId;
 		logger.info( "Downloading torrent file from '%s' to '%s'." % ( url, path ) );
 
 		opener = urllib2.build_opener( urllib2.HTTPCookieProcessor( MyGlobals.CookieJar ) );
@@ -196,10 +196,10 @@ class Gft(SourceBase):
 			return result.group( 1 )
 
 	def GetUrlFromId(self, id):
-		return "http://www.thegft.org/details.php?id=" + id
+		return "https://www.thegft.org/details.php?id=" + id
 
 	def GetIdFromAutodlIrssiUrl( self, url ):
-		# http://www.thegft.org/download.php?torrent=897257&passkey=AAAAA
+		# https://www.thegft.org/download.php?torrent=897257&passkey=AAAAA
 		result = re.match( r".*thegft\.org/download\.php\?torrent=(\d+).*", url )
 		if result is None:
 			return ""
