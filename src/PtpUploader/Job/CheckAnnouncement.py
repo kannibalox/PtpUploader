@@ -25,6 +25,7 @@ class CheckAnnouncement(WorkerBase):
 			self.__FillOutDetailsForNewMovieByExternalSources,
 			self.__CheckSynopsis,
 			self.__CheckCoverArt,
+			self.__CheckImdbRatingAndVoteCount, 
 			self.__StopAutomaticJobBeforeDownloadingTorrentFile ]
 
 		# Instead of this if, it would be possible to make a totally generic downloader system through SourceBase.
@@ -119,6 +120,9 @@ class CheckAnnouncement(WorkerBase):
 		if existingRelease is not None:
 			raise PtpUploaderException( JobRunningState.Ignored_AlreadyExists, "Already exists on PTP: '%s'." % existingRelease )
 
+		self.ReleaseInfo.ImdbRating = movieOnPtpResult.ImdbRating
+		self.ReleaseInfo.ImdbVoteCount = movieOnPtpResult.ImdbVoteCount
+
 	def __FillOutDetailsForNewMovieByPtpApi(self):
 		# If already has a page on PTP then we don't have to do anything here.
 		if self.ReleaseInfo.HasPtpId():
@@ -200,6 +204,9 @@ class CheckAnnouncement(WorkerBase):
 			if not self.ReleaseInfo.IsCoverArtUrlSet():
 				self.ReleaseInfo.CoverArtUrl = MoviePoster.Get( self.ReleaseInfo.Logger, self.ReleaseInfo.GetImdbId() )
 
+		self.ReleaseInfo.ImdbRating = imdbInfo.ImdbRating
+		self.ReleaseInfo.ImdbVoteCount = imdbInfo.ImdbVoteCount
+
 	def __CheckSynopsis(self):
 		if Settings.StopIfSynopsisIsMissing.lower() == "beforedownloading":
 			self.ReleaseInfo.AnnouncementSource.CheckSynopsis( self.ReleaseInfo.Logger, self.ReleaseInfo )
@@ -207,6 +214,35 @@ class CheckAnnouncement(WorkerBase):
 	def __CheckCoverArt(self):
 		if Settings.StopIfCoverArtIsMissing.lower() == "beforedownloading":
 			self.ReleaseInfo.AnnouncementSource.CheckCoverArt( self.ReleaseInfo.Logger, self.ReleaseInfo )
+
+	def __IsAllowedImdbRating( self ):
+		if len( Settings.StopIfImdbRatingIsLessThan ) <= 0:
+			return True
+
+		if len( self.ReleaseInfo.ImdbRating ) <= 0:
+			return False
+
+		return float( self.ReleaseInfo.ImdbRating ) >= float( Settings.StopIfImdbRatingIsLessThan )
+
+	def __IsAllowedImdbVoteCount( self ):
+		if len( Settings.StopIfImdbVoteCountIsLessThan ) <= 0:
+			return True
+
+		if len( self.ReleaseInfo.ImdbVoteCount ) <= 0:
+			return False
+
+		return int( self.ReleaseInfo.ImdbVoteCount ) >= int( Settings.StopIfImdbVoteCountIsLessThan )
+
+	def __CheckImdbRatingAndVoteCount( self ): 
+		# Only applies to automatically created jobs.
+		if self.ReleaseInfo.IsUserCreatedJob():
+			return
+
+		if not self.__IsAllowedImdbRating():
+			raise PtpUploaderException( "Ignored because of IMDb rating: %s." % ( self.ReleaseInfo.ImdbRating ) )
+
+		if not self.__IsAllowedImdbVoteCount():
+			raise PtpUploaderException( "Ignored because of IMDb vote count: %s." % ( self.ReleaseInfo.ImdbVoteCount ) )
 
 	def __StopAutomaticJobBeforeDownloadingTorrentFile(self):
 		if self.ReleaseInfo.IsUserCreatedJob() or self.ReleaseInfo.AnnouncementSource.StopAutomaticJob != "beforedownloadingtorrentfile":

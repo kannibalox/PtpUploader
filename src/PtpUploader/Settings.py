@@ -167,6 +167,8 @@ class Settings(object):
 		Settings.SizeLimitForAutoCreatedJobs = float( Settings.__GetDefault( configParser, "Settings", "SizeLimitForAutoCreatedJobs", "0" ) ) * 1024 * 1024 * 1024
 		Settings.StopIfSynopsisIsMissing = Settings.__GetDefault( configParser, "Settings", "StopIfSynopsisIsMissing", "" )
 		Settings.StopIfCoverArtIsMissing = Settings.__GetDefault( configParser, "Settings", "StopIfCoverArtIsMissing", "" )
+		Settings.StopIfImdbRatingIsLessThan = Settings.__GetDefault( configParser, "Settings", "StopIfImdbRatingIsLessThan", "" )
+		Settings.StopIfImdbVoteCountIsLessThan = Settings.__GetDefault( configParser, "Settings", "StopIfImdbVoteCountIsLessThan", "" )
 		Settings.MediaInfoTimeOut = int( Settings.__GetDefault( configParser, "Settings", "MediaInfoTimeOut", "60" ) )
 
 		# Create the announcement directory.

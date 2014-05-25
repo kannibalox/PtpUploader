@@ -59,6 +59,8 @@ class PtpMovieSearchResult:
 	def __init__(self, ptpId, moviePageJsonText):
 		self.PtpId = ptpId;
 		self.ImdbId = ""
+		self.ImdbRating = ""
+		self.ImdbVoteCount = ""
 		self.SdList = []
 		self.HdList = []
 		self.OtherList = []
@@ -109,6 +111,8 @@ class PtpMovieSearchResult:
 			raise PtpUploaderException( "Unexpected movie page JSON response: '%s'." % moviePageJsonText )
 
 		self.ImdbId = moviePageJson.get( "ImdbId", "" )
+		self.ImdbRating = str( moviePageJson.get( "ImdbRating", "" ) )
+		self.ImdbVoteCount = str( moviePageJson.get( "ImdbVoteCount", "" ) )
 
 		torrents = moviePageJson[ "Torrents" ]
 		if len( torrents ) <= 0:

@@ -21,6 +21,8 @@ class ImdbInfo:
 		self.PosterUrl = ""
 		self.Plot = ""
 		self.IsSeries = False
+		self.ImdbRating = ""
+		self.ImdbVoteCount = ""
 
 class Imdb:
 	# It doesn't work with the default Python User-Agent...
@@ -50,6 +52,8 @@ class Imdb:
 		data = jsonLoad[ "data" ]
 		imdbInfo.Title = data[ "title" ].strip()
 		imdbInfo.Year = data[ "year" ]
+		imdbInfo.ImdbRating = str( data.get( "rating", "" ) )
+		imdbInfo.ImdbVoteCount = str( data.get( "num_votes", "" ) )
 
 		image = data.get( "image" )
 		if image:

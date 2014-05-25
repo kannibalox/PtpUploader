@@ -156,6 +156,8 @@ class ReleaseInfo(Database.Base):
 		self.Logger = None
 		self.SceneAccessDownloadUrl = "" # Temporary store for FunFile and SuperTorrents.
 		self.SourceIsAFile = False # Used by Source.File class.
+		self.ImdbRating = "" # Not saved in the database.
+		self.ImdbVoteCount = "" # Not saved in the database.
 		self.JobStartTimeUtc = datetime.datetime.utcnow()
 
 	def GetImdbId(self):
