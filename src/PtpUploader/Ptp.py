@@ -274,16 +274,8 @@ class Ptp:
 		ptpId = match.group( 1 )
 		releaseInfo.PtpTorrentId = match.group( 2 )
 
-		# We store the the auth key becaues it will be needed for adding the subtitles.
-		match = re.search( r"""var authkey = "(.+?)";""", response )
-		if match is None:
-			raise PtpUploaderException( "Authentication key can't be found in the response." )
-		authKey = match.group( 1 )
-
 		if not releaseInfo.HasPtpId():
 			releaseInfo.PtpId = ptpId
-
-		return authKey
 
 	@staticmethod
 	def SendPrivateMessage(userId, subject, message):
@@ -307,16 +299,6 @@ class Ptp:
 		# We always use HTTPS for sending message because if "Force HTTPS" is enabled in the profile then the HTTP message sending is not working.
 		postData = urllib.urlencode( { "toid": userId, "subject": subject, "body": message, "auth": auth, "action": "takecompose" } )
 		request = urllib2.Request( "https://tls.passthepopcorn.me/inbox.php", postData )
-		result = opener.open( request )
-		response = result.read()
-		Ptp.CheckIfLoggedInFromResponse( result, response )
-		
-	# languageId: see the source of the Subtitle manager page on PTP 
-	@staticmethod
-	def AddSubtitle(authKey, torrentId, languageId):
-		opener = urllib2.build_opener( urllib2.HTTPCookieProcessor( MyGlobals.CookieJar ) )
-		postData = urllib.urlencode( { "action": "takesubtitle", "auth": authKey, "torrentid": torrentId, "languageid": languageId, "included": "1" } )
-		request = urllib2.Request( "https://tls.passthepopcorn.me/torrents.php", postData )
 		result = opener.open( request )
 		response = result.read()
 		Ptp.CheckIfLoggedInFromResponse( result, response )

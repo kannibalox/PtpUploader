@@ -48,7 +48,6 @@ class Upload(WorkerBase):
 		self.AdditionalFiles = []
 		self.MainMediaInfo = None
 		self.ReleaseDescription = u""
-		self.AuthKey = u""
 
 	def __StopAutomaticJobBeforeExtracting(self):
 		if self.ReleaseInfo.IsUserCreatedJob() or self.ReleaseInfo.AnnouncementSource.StopAutomaticJob!= "beforeextracting":
@@ -345,7 +344,7 @@ class Upload(WorkerBase):
 			self.ReleaseInfo.Logger.info( "Upload movie phase has been reached previously, not uploading it again." )
 			return
 
-		self.AuthKey = Ptp.UploadMovie( self.ReleaseInfo.Logger, self.ReleaseInfo, self.ReleaseInfo.UploadTorrentFilePath, self.ReleaseDescription )
+		Ptp.UploadMovie( self.ReleaseInfo.Logger, self.ReleaseInfo, self.ReleaseInfo.UploadTorrentFilePath, self.ReleaseDescription )
 
 		# Delete the source torrent file.
 		if self.ReleaseInfo.IsSourceTorrentFilePathSet() and os.path.isfile( self.ReleaseInfo.SourceTorrentFilePath ):
