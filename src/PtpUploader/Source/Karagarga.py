@@ -82,26 +82,18 @@ class Karagarga(SourceBase):
 		
 		# <tr><td class="heading" align="right" valign="top">Rip Specs</td><td colspan="2" align="left" valign="top">[General] Format: AVI
 		# ...
-		# </td></tr>		
+		# </td></tr>
 		ripSpecs = re.search( r"<tr><td.*?>Rip Specs</td><td.*?>(.+?)</td></tr>", description, re.DOTALL )
 		if ripSpecs is None:
-			raise PtpUploaderException( JobRunningState.Ignored_MissingInfo, "Rip specifications can't be found on the page." )			
-		
-		ripSpecs = ripSpecs.group( 1 )
+			raise PtpUploaderException( JobRunningState.Ignored_MissingInfo, "Rip specifications can't be found on the page." )
 
-		# Some program makes a stupid output like this 'Video Codec Type(e.g. "DIV3"): xvid', so we have to handle this specially.
-		match = re.search( r"""Video Codec Type.*?\(e\.g\..+?\):(.+)""", ripSpecs, re.IGNORECASE )
-		if match:
-			ripSpecs = "Codec: " + match.group( 1 )
-		
-		if re.search( r"Codec.+?XviD", ripSpecs, re.IGNORECASE ) or\
-			re.search( r"Video Format.+?XviD", ripSpecs, re.IGNORECASE ):
+		ripSpecs = ripSpecs.group( 1 ).upper()
+
+		if ripSpecs.find( "XVID" ) >= 0:
 			releaseInfo.Codec = "XviD"
-		elif re.search( r"Codec.+?DivX", ripSpecs, re.IGNORECASE ) or\
-			re.search( r"Video Format.+?DivX", ripSpecs, re.IGNORECASE ):
+		elif ripSpecs.find( "DIVX" ) >= 0:
 			releaseInfo.Codec = "DivX"
-		elif re.search( r"Codec.+?V_MPEG4/ISO/AVC", ripSpecs, re.IGNORECASE ) or\
-			re.search( r"Codec.+?x264", ripSpecs, re.IGNORECASE ):
+		elif ripSpecs.find( "X264" ) >= 0 or ripSpecs.find( "V_MPEG4/ISO/AVC" ) >= 0:
 			releaseInfo.Codec = "x264"
 		else:
 			raise PtpUploaderException( JobRunningState.Ignored_NotSupported, "Can't figure out codec from the rip specifications." )
