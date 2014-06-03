@@ -40,7 +40,7 @@ class File(SourceBase):
 	def CheckFileList(self):
 		pass
 
-	def IsDownloadFinished(self, logger, releaseInfo, rtorrent):
+	def IsDownloadFinished( self, logger, releaseInfo, torrentClient ):
 		return True
 
 	def GetCustomUploadPath(self, logger, releaseInfo):
@@ -107,7 +107,7 @@ class File(SourceBase):
 			elif os.path.isfile( absolutePath ):
 				os.remove( absolutePath )
 
-	def Delete(self, releaseInfo, rtorrent, deleteSourceData, deleteUploadData):
+	def Delete( self, releaseInfo, torrentClient, deleteSourceData, deleteUploadData ):
 		# We have to make sure to not to delete source if it is single file because no hard link is being made in this case.
 		# Also see how GetCustomUploadPath works.
 		sourceIsAFile = None
@@ -127,9 +127,9 @@ class File(SourceBase):
 			if releaseInfo.IsUploadTorrentFilePathSet() and os.path.isfile( releaseInfo.UploadTorrentFilePath ):
 				os.remove( releaseInfo.UploadTorrentFilePath )
 
-			# Delete the uploaded torrent from rTorrent.
+			# Delete the uploaded torrent from the torrent client.
 			if len( releaseInfo.UploadTorrentInfoHash ) > 0:
-				rtorrent.DeleteTorrent( releaseInfo.Logger, releaseInfo.UploadTorrentInfoHash )
+				torrentClient.DeleteTorrent( releaseInfo.Logger, releaseInfo.UploadTorrentInfoHash )
 
 			# Delete the data of the uploaded torrent.
 			# If it is a single file then upload path is its parent directory, so it would be unfortunate to delete. (See GetCustomUploadPath.)

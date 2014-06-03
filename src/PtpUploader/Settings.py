@@ -171,6 +171,10 @@ class Settings(object):
 		Settings.StopIfImdbVoteCountIsLessThan = Settings.__GetDefault( configParser, "Settings", "StopIfImdbVoteCountIsLessThan", "" )
 		Settings.MediaInfoTimeOut = int( Settings.__GetDefault( configParser, "Settings", "MediaInfoTimeOut", "60" ) )
 
+		Settings.TorrentClientName = Settings.__GetDefault( configParser, "Settings", "TorrentClient", "rTorrent" )
+		Settings.TorrentClientAddress = Settings.__GetDefault( configParser, "Settings", "TorrentClientAddress", "127.0.0.1" )
+		Settings.TorrentClientPort = Settings.__GetDefault( configParser, "Settings", "TorrentClientPort", "9091" )
+
 		# Create the announcement directory.
 		# Invalid announcement directory is within the announcement directory, so we don't have to make the announcement directory separately.
 		announcementPath = Settings.GetAnnouncementInvalidPath()

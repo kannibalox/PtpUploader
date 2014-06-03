@@ -14,7 +14,7 @@ import datetime
 import os
 
 class CheckAnnouncement(WorkerBase):
-	def __init__(self, jobManager, jobManagerItem, rtorrent):
+	def __init__( self, jobManager, jobManagerItem, torrentClient ):
 		phases = [
 			self.__CheckAnnouncementSource,
 			self.__PrepareDownload,
@@ -40,7 +40,7 @@ class CheckAnnouncement(WorkerBase):
 				self.__AddToPendingDownloads ] )
 
 		WorkerBase.__init__( self, phases, jobManager, jobManagerItem )
-		self.Rtorrent = rtorrent
+		self.TorrentClient = torrentClient
 
 	def __CheckAnnouncementSource(self):
 		self.ReleaseInfo.Logger.info( u"Working on announcement from '%s' with id '%s' and name '%s'." % ( self.ReleaseInfo.AnnouncementSourceName, self.ReleaseInfo.AnnouncementId, self.ReleaseInfo.ReleaseName ) )
@@ -290,8 +290,8 @@ class CheckAnnouncement(WorkerBase):
 		if len( self.ReleaseInfo.SourceTorrentInfoHash ) > 0:
 			self.ReleaseInfo.Logger.info( u"Source torrent info hash is set, not starting torent again." )
 		else:
-			self.Rtorrent.CleanTorrentFile( self.ReleaseInfo.Logger, self.ReleaseInfo.SourceTorrentFilePath )
-			self.ReleaseInfo.SourceTorrentInfoHash = self.Rtorrent.AddTorrent( self.ReleaseInfo.Logger, self.ReleaseInfo.SourceTorrentFilePath, self.ReleaseInfo.GetReleaseDownloadPath() )
+			self.TorrentClient.CleanTorrentFile( self.ReleaseInfo.Logger, self.ReleaseInfo.SourceTorrentFilePath )
+			self.ReleaseInfo.SourceTorrentInfoHash = self.TorrentClient.AddTorrent( self.ReleaseInfo.Logger, self.ReleaseInfo.SourceTorrentFilePath, self.ReleaseInfo.GetReleaseDownloadPath() )
 			Database.DbSession.commit()
 
 	def __AddToPendingDownloads(self):

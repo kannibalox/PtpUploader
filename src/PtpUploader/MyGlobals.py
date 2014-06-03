@@ -13,7 +13,8 @@ class MyGlobalsClass:
 		self.PtpUploader = None
 		self.SourceFactory = None
 		self.PtpSubtitle = None
-	
+		self.TorrentClient = None
+
 	def InitializeGlobals(self, workingPath):
 		self.InitializeLogger( workingPath )
 		self.CookieJar = cookielib.CookieJar()
@@ -45,5 +46,21 @@ class MyGlobalsClass:
 		self.Logger.addHandler( console )
 		
 		self.Logger.setLevel( logging.INFO )
+
+	# Inline imports are used here to avoid unnecessary dependencies.
+	def GetTorrentClient( self ):
+		if self.TorrentClient is None:
+			from Settings import Settings
+
+			if Settings.TorrentClientName.lower() == "transmission":
+				from Tool.Transmission import Transmission
+
+				self.TorrentClient = Transmission( Settings.TorrentClientAddress, Settings.TorrentClientPort )
+			else:
+				from Tool.Rtorrent import Rtorrent
+
+				self.TorrentClient = Rtorrent()
+
+		return self.TorrentClient
 
 MyGlobals = MyGlobalsClass()

@@ -22,6 +22,8 @@ MyEnv/bin/pyroadmin --create-config
 mkdir WorkingDirectory
 cp PtpUploader/Settings.example.ini PtpUploader/Settings.ini
 
+If you're using Transmission also run this: MyEnv/bin/easy_install transmissionrpc
+
 Edit and fill out the details in PtpUploader/Settings.ini.
 
 See the "Starting PtpUploader in the background" section for how to start it.
@@ -39,6 +41,8 @@ Depends on the following Python packages:
 	- simplejson: http://undefined.org/python/#simplejson
 		- Because Python 2.5 doesn't have the json module.
 	- SQLAlchemy: http://www.sqlalchemy.org/
+	- transmissionrpc
+		- This is only needed for Transmission.
 	- watchdog: https://github.com/gorakhargosh/watchdog
 
 If you don't have root acces, use virtualenv ( http://pypi.python.org/pypi/virtualenv ) to install the required Python packages.
@@ -57,6 +61,11 @@ Optional programs:
 		- Highly recommended for losslessly compressing the PNGs
 	- FlexGet: http://flexget.com/
 	- autodl-irssi: http://sourceforge.net/projects/autodl-irssi/
+
+One of the following torrent clients is required:
+	- rTorrent: http://libtorrent.rakshasa.no/
+		- This is the recommended client. It supports fast resume.
+	- Transmission: https://www.transmissionbt.com/
 
 =====================================================================================================================================================
 Extracting PtpUploader

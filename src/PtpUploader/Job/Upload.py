@@ -20,7 +20,7 @@ import os
 import subprocess
 
 class Upload(WorkerBase):
-	def __init__(self, jobManager, jobManagerItem, rtorrent):
+	def __init__(self, jobManager, jobManagerItem, torrentClient ):
 		phases = [
 			self.__StopAutomaticJobBeforeExtracting,
 			self.__StopAutomaticJobIfThereAreMultipleVideosBeforeExtracting,
@@ -42,7 +42,7 @@ class Upload(WorkerBase):
 
 		WorkerBase.__init__( self, phases, jobManager, jobManagerItem )
 		
-		self.Rtorrent = rtorrent
+		self.TorrentClient = TorrentClient
 		self.IncludedFileList = None
 		self.VideoFiles = []
 		self.AdditionalFiles = []
@@ -335,7 +335,7 @@ class Upload(WorkerBase):
 			return
 		
 		# Add torrent without hash checking.
-		self.ReleaseInfo.UploadTorrentInfoHash = self.Rtorrent.AddTorrentSkipHashCheck( self.ReleaseInfo.Logger, self.ReleaseInfo.UploadTorrentFilePath, self.ReleaseInfo.GetReleaseUploadPath() )
+		self.ReleaseInfo.UploadTorrentInfoHash = self.TorrentClient.AddTorrentSkipHashCheck( self.ReleaseInfo.Logger, self.ReleaseInfo.UploadTorrentFilePath, self.ReleaseInfo.GetReleaseUploadPath() )
 		Database.DbSession.commit()
 
 	def __UploadMovie(self):

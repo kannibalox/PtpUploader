@@ -95,7 +95,7 @@ class WorkerThread(threading.Thread):
 		try:
 			if not self.__ProcessJobPhase():
 				# Sleep five seconds (or less if there is an event), if there was no work to do.
-				# Sleeping is needed to not to flood Rtorrent with continous requests.
+				# Sleeping is needed to not to flood the torrent client with continous requests.
 				self.WaitEvent.wait( 5 )
 				self.WaitEvent.clear()
 		except ( KeyboardInterrupt, SystemExit ):

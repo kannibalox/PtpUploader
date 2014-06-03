@@ -72,8 +72,8 @@ class SourceBase:
 		if numberOfVideoFiles > 1:
 			raise PtpUploaderException( "Release contains multiple video files." )
 
-	def IsDownloadFinished(self, logger, releaseInfo, rtorrent):
-		return rtorrent.IsTorrentFinished( logger, releaseInfo.SourceTorrentInfoHash )
+	def IsDownloadFinished( self, logger, releaseInfo, torrentClient ):
+		return torrentClient.IsTorrentFinished( logger, releaseInfo.SourceTorrentInfoHash )
 
 	def GetCustomUploadPath(self, logger, releaseInfo):
 		return ""
@@ -120,7 +120,7 @@ class SourceBase:
 
 		shutil.rmtree( path )
 
-	def Delete(self, releaseInfo, rtorrent, deleteSourceData, deleteUploadData):
+	def Delete( self, releaseInfo, torrentClient, deleteSourceData, deleteUploadData ):
 		# Only delete if the release directory has been created by this job.
 		# (This is needed because of the releases with the same name. This way deleting the second one won't delete the release directory of the first.)
 		if not releaseInfo.IsJobPhaseFinished( FinishedJobPhase.Download_CreateReleaseDirectory ):
@@ -131,9 +131,9 @@ class SourceBase:
 			if releaseInfo.IsSourceTorrentFilePathSet() and os.path.isfile( releaseInfo.SourceTorrentFilePath ):
 				os.remove( releaseInfo.SourceTorrentFilePath )
 
-			# Delete the source torrent from rTorrent.
+			# Delete the source torrent from the torrent client.
 			if len( releaseInfo.SourceTorrentInfoHash ) > 0:
-				rtorrent.DeleteTorrent( releaseInfo.Logger, releaseInfo.SourceTorrentInfoHash )
+				torrentClient.DeleteTorrent( releaseInfo.Logger, releaseInfo.SourceTorrentInfoHash )
 
 			# Delete the data of the source torrent.
 			if os.path.isdir( releaseInfo.GetReleaseDownloadPath() ):
@@ -144,9 +144,9 @@ class SourceBase:
 			if releaseInfo.IsUploadTorrentFilePathSet() and os.path.isfile( releaseInfo.UploadTorrentFilePath ):
 				os.remove( releaseInfo.UploadTorrentFilePath )
 
-			# Delete the uploaded torrent from rTorrent.
+			# Delete the uploaded torrent from the torrent client.
 			if len( releaseInfo.UploadTorrentInfoHash ) > 0:
-				rtorrent.DeleteTorrent( releaseInfo.Logger, releaseInfo.UploadTorrentInfoHash )
+				torrentClient.DeleteTorrent( releaseInfo.Logger, releaseInfo.UploadTorrentInfoHash )
 
 			# Delete the data of the uploaded torrent.
 			if os.path.isdir( releaseInfo.GetReleaseUploadPath() ):

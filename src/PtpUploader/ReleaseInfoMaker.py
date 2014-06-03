@@ -1,5 +1,4 @@
 from Tool.MakeTorrent import MakeTorrent
-from Tool.Rtorrent import Rtorrent
 
 from IncludedFileList import IncludedFileList
 from MyGlobals import MyGlobals
@@ -104,8 +103,7 @@ class ReleaseInfoMaker:
 		# Create the torrent
 		if createTorrent:
 			MakeTorrent.Make( logger, self.Path, torrentPath )
-			rtorrent = Rtorrent()
-			rtorrent.AddTorrentSkipHashCheck( logger, torrentPath, self.TorrentDataPath )
+			MyGlobals.GetTorrentClient().AddTorrentSkipHashCheck( logger, torrentPath, self.TorrentDataPath )
 
 def Main(argv):
 	print "PtpUploader Release Description Maker by TnS"

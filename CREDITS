@@ -1,6 +1,10 @@
 Code:
 	- TnS
 
+Contributors:
+	- dhosha (FunFile support, PtpUploaderTorrentSender sites)
+	- verysofttoiletpaper (Transmission support)
+
 Additional code:
 	- jQuery -- http://jquery.org/
 	- jQuery BlockUI by M. Alsup -- http://malsup.com/jquery/block/

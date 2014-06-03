@@ -1,11 +1,11 @@
 from Job.CheckAnnouncement import CheckAnnouncement
 from Job.JobRunningState import JobRunningState
 from Job.Upload import Upload
-from Tool.Rtorrent import Rtorrent
 
 from AnnouncementWatcher import *
 from Database import Database
 from Logger import Logger
+from MyGlobals import MyGlobals
 
 import datetime
 import Queue
@@ -27,7 +27,6 @@ class JobManagerItem:
 class JobManager:
 	def __init__(self):
 		self.Lock = threading.RLock()
-		self.Rtorrent = Rtorrent()
 		self.PendingAnnouncements = [] # Contains JobManagerItem.
 		self.PendingAnnouncementsFiles = [] # Contains announcement file paths.
 		self.PendingDownloads = [] # Contains JobManagerItem.
@@ -123,7 +122,7 @@ class JobManager:
 			jobManagerItem = self.PendingDownloads[ downloadIndex ]
 			releaseInfo = self.__GetJobManagerItemAsReleaseInfo( jobManagerItem )
 			logger = releaseInfo.Logger
-			if releaseInfo.AnnouncementSource.IsDownloadFinished( logger, releaseInfo, self.Rtorrent ):
+			if releaseInfo.AnnouncementSource.IsDownloadFinished( logger, releaseInfo, MyGlobals.GetTorrentClient() ):
 				return self.PendingDownloads.pop( downloadIndex )
 
 		return None
@@ -175,14 +174,14 @@ class JobManager:
 			# If there is a finished download, then upload it.
 			jobManagerItem = self.__GetFinishedDownloadToProcess()
 			if jobManagerItem is not None:
-				return Upload( self, jobManagerItem, self.Rtorrent ) 
+				return Upload( self, jobManagerItem, MyGlobals.GetTorrentClient() ) 
 
 			self.__ProcessPendingAnnouncementFiles()
 
 			# If there is a new announcement, then check and start downloading it.
 			jobManagerItem = self.__GetAnnouncementToProcess()
 			if jobManagerItem is not None:
-				return CheckAnnouncement( self, jobManagerItem, self.Rtorrent )
+				return CheckAnnouncement( self, jobManagerItem, MyGlobals.GetTorrentClient() )
 			
 			return None
 		finally:
