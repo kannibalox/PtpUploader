@@ -42,7 +42,7 @@ class Upload(WorkerBase):
 
 		WorkerBase.__init__( self, phases, jobManager, jobManagerItem )
 		
-		self.TorrentClient = TorrentClient
+		self.TorrentClient = torrentClient
 		self.IncludedFileList = None
 		self.VideoFiles = []
 		self.AdditionalFiles = []
