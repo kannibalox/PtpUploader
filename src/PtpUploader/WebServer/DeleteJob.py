@@ -31,8 +31,7 @@ def DeleteTheJob(jobId):
 	if releaseInfo.Logger is None:
 		releaseInfo.Logger = Logger( releaseInfo.GetLogFilePath() )
 
-	rtorrent = MyGlobals.PtpUploader.WorkerThread.JobManager.Rtorrent
-	announcementSource.Delete( releaseInfo, rtorrent, deleteSourceData, deleteUploadData )
+	announcementSource.Delete( releaseInfo, MyGlobals.GetTorrentClient(), deleteSourceData, deleteUploadData )
 
 	Database.DbSession.delete( releaseInfo )
 	Database.DbSession.commit()
