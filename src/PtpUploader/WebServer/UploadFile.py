@@ -2,6 +2,7 @@
 from WebServer.Authentication import requires_auth
 
 from NfoParser import NfoParser
+from Settings import Settings
 
 from flask import jsonify, request
 
@@ -21,12 +22,11 @@ def ajaxGetDirectoryList():
 			# If it is file then start browsing from its parent directory.
 			path = os.path.dirname( path )
 		elif not os.path.isdir( path ):
-			# Start from the user's home directory if the directory doesn't exist.
-			path = os.path.expanduser( u"~" )
-		
+			path = os.path.expanduser( Settings.WebServerFileTreeInitRoot )
+
 		directories = []
 		files = []
-		
+
 		for fileName in os.listdir( path ):
 			currentPath = os.path.join( path, fileName )
 			item = currentPath, fileName # Add as a tuple.

@@ -3,6 +3,7 @@ Code:
 
 Contributors:
 	- dhosha (FunFile support, PtpUploaderTorrentSender sites)
+	- kannibalox (configurable initial directory for the file picker)
 	- verysofttoiletpaper (Transmission support)
 
 Additional code:
