@@ -21,14 +21,9 @@ def IsFileAllowed(filename):
 	root, extension = os.path.splitext( filename )
 	return extension == ".torrent"
 
-# See the comment at MyGlobals.PostAuthToken for the reason
-# why this doesn't use requires_auth.
 @app.route( "/ajaxuploadtorrentfile/", methods = [ "POST" ] )
+@requires_auth
 def ajaxUploadTorrentFile():
-	postAuthToken = request.values.get( "PostAuthToken" )
-	if ( not postAuthToken ) or postAuthToken != MyGlobals.PostAuthToken:
-		return jsonify( myResult = "ERROR" )
-
 	file = request.files.get( "files[]" )
 	# file is not None even there is no file specified, but checking file as a boolean is OK. (As shown in the Flask example.) 
 	if ( not file ) or ( not IsFileAllowed( file.filename ) ):
@@ -114,7 +109,6 @@ def upload():
 	job = {}
 	job[ "Subtitles" ] = []
 	job[ "SkipDuplicateCheckingButton" ] = 0
-	job[ "PostAuthToken" ] = MyGlobals.PostAuthToken
 
 	if Settings.OverrideScreenshots:
 		job[ "OverrideScreenshots" ] = 1

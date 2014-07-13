@@ -12,7 +12,6 @@
 			<tr>
 				<td class="label">Upload a torrent file</td>
 				<td>
-					<input name="PostAuthToken" type="hidden" value="{{ job.PostAuthToken }}">
 					<input type="file" id="upload_field" accept="application/x-bittorrent" title="You have to specify an IMDB or PTP link too."/>
 					<input id="uploaded_torrentfilename" name="uploaded_torrentfilename" type="hidden">
 					<img src="{{ url_for( "static", filename = "throbber.gif" ) }}" style="display: none;" id="uploadtorrentfile_throbber">
