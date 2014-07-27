@@ -119,7 +119,7 @@ class Settings(object):
 		settingsDirectory, moduleFilename = os.path.split( __file__ ) # __file__ contains the full path of the current running module
 		settingsPath = os.path.join( settingsDirectory, "Settings.ini" )
 		print "Loading settings from '%s'." % settingsPath # MyGlobals.Logger is not initalized yet. 
-		fp = codecs.open( settingsPath, "r", "utf-8" )
+		fp = codecs.open( settingsPath, "r", "utf-8-sig" )
 		configParser.readfp( fp )
 		fp.close()
 
