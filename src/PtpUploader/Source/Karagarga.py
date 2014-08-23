@@ -156,12 +156,12 @@ class Karagarga(SourceBase):
 		descriptionEndIndex = html.find( '<p><a name="startcomments"></a></p>' )
 		if descriptionEndIndex == -1:
 			raise PtpUploaderException( JobRunningState.Ignored_MissingInfo, "Description can't found on torrent page. Probably the layout of the site has changed." )
-		
+
 		description = html[ :descriptionEndIndex ]			
 
 		# We will use the torrent's name as release name.
 		if not parseForExternalCreateJob:
-			matches = re.search( r'href="down.php/(\d+)/.+?">(.+?)\.torrent</a>', description )
+			matches = re.search( r'href="/down.php/(\d+)/.+?">(.+?)\.torrent.+?</a>', description )
 			if matches is None:
 				raise PtpUploaderException( JobRunningState.Ignored_MissingInfo, "Can't get release name from torrent page." )
 
