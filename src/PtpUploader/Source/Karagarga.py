@@ -66,11 +66,11 @@ class Karagarga(SourceBase):
 
 		if sourceType == "blu-ray":
 			releaseInfo.Source = "Blu-ray"
-		elif sourceType == "dvdrip":
+		elif sourceType == "dvd":
 			releaseInfo.Source = "DVD"
-		elif sourceType == "vhsrip":
+		elif sourceType == "vhs":
 			releaseInfo.Source = "VHS"
-		elif sourceType == "tvrip":
+		elif sourceType == "tv":
 			releaseInfo.Source = "TV"
 		else:
 			raise PtpUploaderException( JobRunningState.Ignored_NotSupported, "Unsupported source type '%s'." % sourceType )
@@ -161,7 +161,7 @@ class Karagarga(SourceBase):
 
 		# We will use the torrent's name as release name.
 		if not parseForExternalCreateJob:
-			matches = re.search( r'href="/down.php/(\d+)/.+?">(.+?)\.torrent.+?</a>', description )
+			matches = re.search( r'href="/down.php/(\d+)/.+?">(.+?)\.torrent</a>', description )
 			if matches is None:
 				raise PtpUploaderException( JobRunningState.Ignored_MissingInfo, "Can't get release name from torrent page." )
 
