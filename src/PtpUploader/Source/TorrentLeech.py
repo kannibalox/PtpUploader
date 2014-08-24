@@ -14,6 +14,8 @@ import urllib
 import urllib2
 
 class TorrentLeech(SourceBase):
+	RequiredHttpHeader = { "User-Agent": "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:18.0) Gecko/20100101 Firefox/18.0" }
+
 	def __init__(self):
 		SourceBase.__init__( self )
 
@@ -27,7 +29,7 @@ class TorrentLeech(SourceBase):
 		MyGlobals.Logger.info( "Logging in to TorrentLeech." )
 		opener = urllib2.build_opener( urllib2.HTTPCookieProcessor( MyGlobals.CookieJar ) )
 		postData = urllib.urlencode( { "username": self.Username, "password": self.Password } )
-		request = urllib2.Request( "http://www.torrentleech.org/user/account/login/", postData )
+		request = urllib2.Request( "http://www.torrentleech.org/user/account/login/", postData, TorrentLeech.RequiredHttpHeader )
 		result = opener.open( request )
 		response = result.read()
 		self.CheckIfLoggedInFromResponse( response )
@@ -50,7 +52,7 @@ class TorrentLeech(SourceBase):
 		logger.info( "Downloading release name and size from page '%s'." % url )
 		
 		opener = urllib2.build_opener( urllib2.HTTPCookieProcessor( MyGlobals.CookieJar ) )
-		request = urllib2.Request( url )
+		request = urllib2.Request( url, None, TorrentLeech.RequiredHttpHeader )
 		result = opener.open( request )
 		response = result.read()
 		self.CheckIfLoggedInFromResponse( response )
@@ -82,7 +84,7 @@ class TorrentLeech(SourceBase):
 		logger.info( "Downloading NFO from page '%s'." % url )
 		
 		opener = urllib2.build_opener( urllib2.HTTPCookieProcessor( MyGlobals.CookieJar ) )
-		request = urllib2.Request( url )
+		request = urllib2.Request( url, None, TorrentLeech.RequiredHttpHeader )
 		result = opener.open( request )
 		response = result.read()
 		self.CheckIfLoggedInFromResponse( response )
@@ -145,7 +147,7 @@ class TorrentLeech(SourceBase):
 		logger.info( "Downloading torrent file from '%s' to '%s'." % ( url, path ) )
 
 		opener = urllib2.build_opener( urllib2.HTTPCookieProcessor( MyGlobals.CookieJar ) )		
-		request = urllib2.Request( url )
+		request = urllib2.Request( url, None, TorrentLeech.RequiredHttpHeader )
 		result = opener.open( request )
 		response = result.read()
 		self.CheckIfLoggedInFromResponse( response )
