@@ -55,6 +55,7 @@ class PtpMovieSearchResultItem:
 # - We treat H.264 and x264 equally because of the uploading rules: "MP4 can only be trumped by MKV if the use of that container causes problems with video or audio".
 # - We treat XviD and DivX equally because of the uploading rules: "DivX may be trumped by XviD, if the latter improves on the quality of the former. In cases where the DivX is well distributed and the XviD offers no significant improvement in quality, the staff may decide to keep the former in order to preserve the availability of the movie."
 # - We support the checking of possible co-existence for different sized SD XviDs. (E.g.: an 1400 MB upload won't be treated as a duplicate of a 700 MB release.) 
+# - WEB-sourced 720p and 1080p rips are treated as equals due to site rules.
 class PtpMovieSearchResult:
 	def __init__(self, ptpId, moviePageJsonText):
 		self.PtpId = ptpId;
@@ -179,10 +180,13 @@ class PtpMovieSearchResult:
 		if releaseInfo.IsRemux():
 			return PtpMovieSearchResult.__IsInListUsingSourceScore( self.HdList, None, releaseSourceScore, [ "1080i", "1080p" ], True )
 		else:
-			if releaseInfo.ResolutionType == "1080p":
-				return PtpMovieSearchResult.__IsInListUsingSourceScore( self.HdList, [ "x264", "H.264" ], releaseSourceScore, [ "1080p" ], releaseInfo.IsRemux() )
-			elif releaseInfo.ResolutionType == "720p":
-				return PtpMovieSearchResult.__IsInListUsingSourceScore( self.HdList, [ "x264", "H.264" ], releaseSourceScore, [ "720p" ] )
+			if releaseInfo.Source == "WEB":
+				return PtpMovieSearchResult.__IsInListUsingSourceScore( self.HdList, [ "x264", "H.264" ], releaseSourceScore, [ "720p", "1080p" ] )
+			else:
+				if releaseInfo.ResolutionType == "1080p":
+					return PtpMovieSearchResult.__IsInListUsingSourceScore( self.HdList, [ "x264", "H.264" ], releaseSourceScore, [ "1080p" ], releaseInfo.IsRemux() )
+				elif releaseInfo.ResolutionType == "720p":
+					return PtpMovieSearchResult.__IsInListUsingSourceScore( self.HdList, [ "x264", "H.264" ], releaseSourceScore, [ "720p" ] )
 		
 		raise PtpUploaderException( "Can't check whether the release exist on PTP because its type is unsupported." )
 
@@ -575,7 +579,7 @@ def UnitTest():
 
 		IsReleaseExists( searchResult, True, MakeTestItem( "XviD", "AVI", "WEB", "1x1", "", "1400 MB" ) )
 		IsReleaseExists( searchResult, False, MakeTestItem( "XviD", "AVI", "DVD", "1x1", "", "1400 MB" ) )
-		IsReleaseExists( searchResult, False, MakeTestItem( "x264", "MKV", "WEB", "720p", "", "6500 MB" ) )
+		IsReleaseExists( searchResult, True, MakeTestItem( "x264", "MKV", "WEB", "720p", "", "6500 MB" ) )
 		IsReleaseExists( searchResult, True, MakeTestItem( "x264", "MKV", "WEB", "1080p", "", "6500 MB" ) )
 		IsReleaseExists( searchResult, True, MakeTestItem( "x264", "MKV", "HDTV", "1080p", "", "6500 MB" ) )
 		IsReleaseExists( searchResult, False, MakeTestItem( "x264", "MKV", "Blu-ray", "720p", "", "6500 MB" ) )
@@ -600,6 +604,20 @@ def UnitTest():
 		IsReleaseExists( searchResult, True, MakeTestItem( "XviD", "AVI", "WEB", "1x1", "", "1400 MB" ) )
 		IsReleaseExists( searchResult, True, MakeTestItem( "x264", "MKV", "WEB", "720p", "", "4500 MB" ) )
 		IsReleaseExists( searchResult, True, MakeTestItem( "x264", "MKV", "WEB", "720p", "", "6500 MB" ) )
+
+	# WEB 720p co-existing with 1080p
+	if True:
+		searchResult = PtpMovieSearchResult( "1", None )
+		searchResult.HdList.append( MakeTestItem( "x264", "MKV", "WEB", "1080p", "", "6500 MB" ) )
+
+		IsReleaseExists( searchResult, True, MakeTestItem( "H.264", "MKV", "WEB", "720p", "", "4400 MB" ) )
+
+	# WEB 1080p co-existing with 720p
+	if True:
+		searchResult = PtpMovieSearchResult( "1", None )
+		searchResult.HdList.append( MakeTestItem( "H.264", "MKV", "WEB", "720p", "", "4400 MB" ) )
+
+		IsReleaseExists( searchResult, True, MakeTestItem( "x264", "MKV", "WEB", "1080p", "", "6500 MB" ) )
 
 	# WEB trumps
 	if True:
