@@ -154,7 +154,7 @@ class ReleaseInfo(Database.Base):
 	def MyConstructor(self):
 		self.AnnouncementSource = None # A class from the Source namespace.
 		self.Logger = None
-		self.SceneAccessDownloadUrl = "" # Temporary store for FunFile and SuperTorrents.
+		self.SceneAccessDownloadUrl = "" # Temporary store for FunFile.
 		self.SourceIsAFile = False # Used by Source.File class.
 		self.ImdbRating = "" # Not saved in the database.
 		self.ImdbVoteCount = "" # Not saved in the database.

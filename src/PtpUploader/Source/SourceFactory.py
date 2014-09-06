@@ -5,7 +5,6 @@ from Source.FunFile import FunFile
 from Source.Gft import Gft
 from Source.Karagarga import Karagarga
 from Source.Torrent import Torrent
-from Source.TheDarkSyndicate import TheDarkSyndicate
 from Source.TorrentLeech import TorrentLeech
 
 from MyGlobals import MyGlobals

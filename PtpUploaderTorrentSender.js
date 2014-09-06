@@ -26,7 +26,6 @@
 // @include     http*://*pretome.info/details.php*
 // @include     http*://*sceneaccess.eu/details*
 // @include     http*://*tehconnection.eu/torrents.php*
-// @include     http*://*thedarksyndicate.me/browse.php*
 // @include     http*://*thegft.org/details.php*
 // @include     http*://*torrentleech.org/torrent/*
 // @include     http*://*digitalhive.org/details.php*
@@ -261,8 +260,6 @@ function Main()
 		downloadLinkRegEx = /download\/\d+\/.*/;
 	else if ( /https?:\/\/.*?tehconnection\.eu\/torrents\.php\?id=.*/.test( document.URL ) )
 		downloadLinkRegEx = /torrents.php\?action=download.*?id=\d+.*/;
-	else if ( /https?:\/\/.*?thedarksyndicate\.me\/browse\.php\?id=.*/.test( document.URL ) )
-		downloadLinkRegEx = /browse.php\?action=download.*?id=\d+.*/;
 	else if ( /https?:\/\/.*?digitalhive\.org\/details\.php\?id=.*/.test( document.URL ) )
 		downloadLinkRegEx = /download.php\?id=\d+.*/;
 	else if ( /https?:\/\/.*?horrorcharnel.kicks-ass\.org\/details\.php\?id=.*/.test( document.URL ) )
