@@ -6,9 +6,9 @@ Run these commands from Linux's shell. (Most likely you have to use PuTTY.)
 
 svn checkout http://ptpuploader.googlecode.com/svn/trunk/src/ PTP
 cd PTP
-# Note: we're using version 1.8 of virtualenv because of this: https://tls.passthepopcorn.me/forums.php?action=viewthread&threadid=9245&post=2128#post692858
-wget --no-check-certificate https://raw.github.com/pypa/virtualenv/119e624547128f6dd485a30238eaf9d1686baf89/virtualenv.py
-python virtualenv.py -v --distribute MyEnv
+wget https://pypi.python.org/packages/source/v/virtualenv/virtualenv-1.11.tar.gz
+tar xvfz virtualenv-1.11.tar.gz
+python virtualenv-1.11/virtualenv.py -v --distribute MyEnv
 
 MyEnv/bin/easy_install simplejson
 MyEnv/bin/easy_install poster
