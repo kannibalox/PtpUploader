@@ -11,6 +11,8 @@ import urllib2
 import uuid
 
 class PtpImg:
+	RequiredHttpHeader = { "User-Agent": "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:18.0) Gecko/20100101 Firefox/18.0" }
+
 	@staticmethod
 	def Upload(logger, imagePath = None, imageUrl = None):
 		if imageUrl is None:
@@ -44,12 +46,14 @@ class PtpImg:
 		if imagePath is None: # Rehost image from url.
 			encodedData = urllib.urlencode( { "urls": imageUrl } )
 			headers = { "Content-Type": "application/x-www-form-urlencoded", "Content-Length": str( len( encodedData ) ) }
+			headers.update( PtpImg.RequiredHttpHeader )
 			request = urllib2.Request( "http://ptpimg.me/index.php?type=uploadv2&key=QT5LGz7ktGFVZpfFArVHCpEvDcC3qrUZrf0kP&uid=999999&url=c_h_e_c_k_p_o_s_t", encodedData, headers )
 			result = urllib2.urlopen( request )
 			response = result.read()
 		else: # Upload image from file.
 			opener = poster.streaminghttp.register_openers()
 			datagen, headers = poster.encode.multipart_encode( [ poster.encode.MultipartParam.from_file( "uploadfile", imagePath ) ] )
+			headers.update( PtpImg.RequiredHttpHeader )
 			request = urllib2.Request( "http://ptpimg.me/index.php?type=uploadv3&key=QT5LGz7ktGFVZpfFArVHCpEvDcC3qrUZrf0kP", datagen, headers )
 			result = opener.open( request )
 			response = result.read()
