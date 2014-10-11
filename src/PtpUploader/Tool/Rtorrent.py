@@ -4,6 +4,7 @@ from MyGlobals import MyGlobals
 from PtpUploaderException import PtpUploaderException
 from Settings import Settings
 
+from pyrobase import bencode
 from pyrocore.util import load_config, metafile
 from pyrocore import config
 
@@ -68,11 +69,10 @@ class Rtorrent:
 		
 		shutil.copyfile( torrentPath, destinationTorrentPath );
 		
-		args = [ Settings.ChtorPath, "-H", downloadPath, destinationTorrentPath ];
-		errorCode = subprocess.call( args );
-		if errorCode != 0:
-			raise PtpUploaderException( "Process execution '%s' returned with error code '%s'." % ( args, errorCode ) );
-		
+		metainfo = bencode.bread( destinationTorrentPath )
+		metafile.add_fast_resume( metainfo, downloadPath.encode( 'utf-8' ) )
+		bencode.bwrite( destinationTorrentPath, metainfo )
+
 		infoHash = ""
 		try:
 			infoHash = self.AddTorrent( logger, destinationTorrentPath, downloadPath )
@@ -109,8 +109,7 @@ class Rtorrent:
 	# This can happen if the uploader uploaded the wrong torrent to the tracker.
 	def CleanTorrentFile(self, logger, torrentPath):
 		logger.info( "Cleaning torrent file '%s'." % torrentPath )		
-		
-		args = [ Settings.ChtorPath, "--clean", torrentPath ]
-		errorCode = subprocess.call( args )
-		if errorCode != 0:
-			raise PtpUploaderException( "Process execution '%s' returned with error code '%s'." % ( args, errorCode ) )
+
+		metainfo = bencode.bread( torrentPath )
+		metafile.clean_meta( metainfo, including_info = False, logger = logger.info )
+		bencode.bwrite( torrentPath, metainfo )

@@ -135,7 +135,6 @@ class Settings(object):
 		Settings.WhatImgPassword = Settings.__GetDefault( configParser, "Settings", "WhatImgPassword", "" )
 		Settings.OnSuccessfulUpload = Settings.__GetDefault( configParser, "Settings", "OnSuccessfulUpload", "", raw = True )
 
-		Settings.ChtorPath = configParser.get( "Settings", "ChtorPath" )
 		Settings.FfmpegPath = Settings.__GetDefault( configParser, "Settings", "FfmpegPath", "" )
 		Settings.MediaInfoPath = configParser.get( "Settings", "MediaInfoPath" )
 		Settings.MplayerPath = Settings.__GetDefault( configParser, "Settings", "MplayerPath", "" )
@@ -213,9 +212,6 @@ class Settings(object):
 	@staticmethod
 	def VerifyPaths():
 		MyGlobals.Logger.info( "Checking paths" ) 
-
-		if not Settings.__VerifyProgramPath( "chtor", [ Settings.ChtorPath, "--version" ] ):
-			return False
 
 		if not Settings.__VerifyProgramPath( "MediaInfo", [ Settings.MediaInfoPath, "--version" ] ):
 			return False
