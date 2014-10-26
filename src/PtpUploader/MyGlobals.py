@@ -5,6 +5,7 @@ import datetime
 import logging
 import os
 import sys
+import requests
 
 class MyGlobalsClass:
 	def __init__(self):
@@ -14,6 +15,7 @@ class MyGlobalsClass:
 		self.SourceFactory = None
 		self.PtpSubtitle = None
 		self.TorrentClient = None
+		self.session = requests.session()
 
 	def InitializeGlobals(self, workingPath):
 		self.InitializeLogger( workingPath )

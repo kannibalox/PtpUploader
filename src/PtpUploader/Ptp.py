@@ -3,7 +3,7 @@ from PtpMovieSearchResult import PtpMovieSearchResult
 from PtpUploaderException import *
 from Settings import Settings
 
-import poster
+import requests
 import simplejson as json
 
 import mimetypes
@@ -11,13 +11,8 @@ import os
 import re
 import time
 import traceback
-import urllib
-import urllib2
 
 class Ptp:
-	# It doesn't work with the default Python User-Agent...
-	RequiredHttpHeader = { "User-Agent": "Wget/1.13.4" }
-
 	@staticmethod
 	def __LoginInternal():
 		if len( Settings.PtpUserName ) <= 0:
@@ -33,11 +28,22 @@ class Ptp:
 		passKey = passKey.group( 1 )
 
 		MyGlobals.Logger.info( "Logging in to PTP." );
-		opener = urllib2.build_opener( urllib2.HTTPCookieProcessor( MyGlobals.CookieJar ) );
-		postData = urllib.urlencode( { "username": Settings.PtpUserName, "password": Settings.PtpPassword, "passkey": passKey, "keeplogged": "1" } )
-		request = urllib2.Request( "http://passthepopcorn.me/ajax.php?action=login", postData, Ptp.RequiredHttpHeader );
-		result = opener.open( request );
-		response = result.read();
+	
+		postData = { "username": Settings.PtpUserName, "password": Settings.PtpPassword, "passkey": passKey, "keeplogged": "1" }	
+		
+		# It doesn't work with the default Python User-Agent...
+		MyGlobals.session.headers.update( { "User-Agent": "Wget/1.13.4" } )
+
+		# Use cloudflare-scrape if installed.
+		try:	
+			from ThirdParty.cfscrape import CloudflareAdapter
+			MyGlobals.session.mount( "http://", CloudflareAdapter() )
+		except ImportError:
+			pass
+
+		MyGlobals.session.get( "http://passthepopcorn.me/ajax.php?action=login" )
+		response = MyGlobals.session.post( "http://passthepopcorn.me/ajax.php?action=login", data=postData )
+		response = response.text
 
 		jsonLoad = None
 		try:
@@ -69,16 +75,16 @@ class Ptp:
 					raise
 
 	@staticmethod
-	def __CheckIfLoggedInFromResponseLogResponse(result, responseBody):
-		MyGlobals.Logger.info( "MSG: %s" % result.msg  )
-		MyGlobals.Logger.info( "CODE: %s" % result.code  )
+	def __CheckIfLoggedInFromResponseLogResponse( result, responseBody ):
+		MyGlobals.Logger.info( "MSG: %s" % result.msg )
+		MyGlobals.Logger.info( "CODE: %s" % result.code )
 		MyGlobals.Logger.info( "URL: %s" % result.url )
 		MyGlobals.Logger.info( "HEADERS: %s" % result.headers )
 		MyGlobals.Logger.info( "STACK: %s" % traceback.format_stack() ) 
 		MyGlobals.Logger.info( "RESPONSE BODY: %s" % responseBody ) 
 
 	@staticmethod
-	def CheckIfLoggedInFromResponse(result, responseBody):
+	def CheckIfLoggedInFromResponse( result, responseBody ):
 		if responseBody.find( """<a href="login.php?act=recover">""" ) != -1:
 			Ptp.__CheckIfLoggedInFromResponseLogResponse( result, responseBody )
 			raise PtpUploaderException( "Looks like you are not logged in to PTP. Probably due to the bad user name or password." )
@@ -100,11 +106,9 @@ class Ptp:
 	def GetMoviePageOnPtp(logger, ptpId):
 		logger.info( "Getting movie page for PTP id '%s'." % ptpId )
 		
-		opener = urllib2.build_opener( urllib2.HTTPCookieProcessor( MyGlobals.CookieJar ) )
-		request = urllib2.Request( "http://passthepopcorn.me/torrents.php?id=%s&json=1" % ptpId )
-		result = opener.open( request )
-		response = result.read()
-		Ptp.CheckIfLoggedInFromResponse( result, response )
+		response = MyGlobals.session.get( "http://passthepopcorn.me/torrents.php?id=%s&json=1" % ptpId )
+		response = response.text
+		Ptp.CheckIfLoggedInFromResponse( MyGlobals.session, response )
 
 		if response.find( "<h2>Error 404</h2>" ) != -1:
 			raise PtpUploaderException( "Movie with PTP id '%s' doesn't exists." % ptpId )
@@ -116,12 +120,10 @@ class Ptp:
 	@staticmethod
 	def GetMoviePageOnPtpByImdbId(logger, imdbId):
 		logger.info( "Trying to find movie with IMDb id '%s' on PTP." % imdbId );
-		
-		opener = urllib2.build_opener( urllib2.HTTPCookieProcessor( MyGlobals.CookieJar ) );
-		request = urllib2.Request( "http://passthepopcorn.me/torrents.php?imdb=%s&json=1" % Ptp.NormalizeImdbIdForPtp( imdbId ) )
-		result = opener.open( request );
-		response = result.read();
-		Ptp.CheckIfLoggedInFromResponse( result, response );
+				
+		result = MyGlobals.session.get( "http://passthepopcorn.me/torrents.php?imdb=%s&json=1" % Ptp.NormalizeImdbIdForPtp( imdbId ) )
+		response = result.text
+		Ptp.CheckIfLoggedInFromResponse( MyGlobals.session, response );
 
 		# If there is a movie: result.url = http://passthepopcorn.me/torrents.php?id=28577
 		# If there is no movie: result.url = http://passthepopcorn.me/torrents.php?imdb=1535492
@@ -143,7 +145,7 @@ class Ptp:
 
 	@staticmethod
 	def __UploadMovieGetParamsCommon( releaseInfo, releaseDescription ):
-		commonParams = {
+		paramList = {
 				"submit": "true",
 				"type": releaseInfo.Type,
 				"remaster_year": releaseInfo.RemasterYear,
@@ -160,30 +162,21 @@ class Ptp:
 				"nfo_text": releaseInfo.Nfo
 				};
 
-		paramList = commonParams.items()
-
 		# scene only needed if it is specified
 		if releaseInfo.IsSceneRelease():
-			paramList.append( poster.encode.MultipartParam( "scene", "on" ) )
-
+			paramList.update( {"scene": "on"} )
 		# other category is only needed if it is specified
 		if releaseInfo.IsSpecialRelease():
-			paramList.append( poster.encode.MultipartParam( "special", "on" ) )
-
+			paramList.update( { "special": "on" } )
 		# remaster is only needed if it is specified
 		if len( releaseInfo.RemasterYear ) > 0 or len( releaseInfo.RemasterTitle ) > 0:
-			paramList.append( poster.encode.MultipartParam( "remaster", "on" ) )
-
+			paramList.update( { "remaster": "on" } )
 		# Trumpable for no English subtitles is only needed if it is specified.
 		if releaseInfo.IsTrumpableForNoEnglishSubtitles():
-			paramList.append( poster.encode.MultipartParam( "trumpable[]", "14" ) )
-
+			paramList.update( { "trumpable[]": "14" } )
 		subtitles = releaseInfo.GetSubtitles()
 		for subtitle in subtitles:
-			multipartParam = poster.encode.MultipartParam( "subtitles[]", subtitle )
-			multipartParam.name = "subtitles[]" # MultipartParam escapes the square brackets to "%5B%5D". Change it back. :)
-			paramList.append( multipartParam )
-
+			paramList.update( { "subtitles[]": subtitle } )
 		return paramList;
 	
 	@staticmethod
@@ -201,28 +194,20 @@ class Ptp:
 			"album_desc": releaseInfo.MovieDescription,
 			"trailer": releaseInfo.YouTubeId,
 			};
-			
-		paramList = params.items();
 
 		# Add the IMDb ID.
 		if releaseInfo.IsZeroImdbId():
-			paramList.append( poster.encode.MultipartParam( "imdb", "0" ) )
+			params.update( { "imdb": "0" } )
 		else:
-			paramList.append( poster.encode.MultipartParam( "imdb", Ptp.NormalizeImdbIdForPtp( releaseInfo.GetImdbId() ) ) )
-
+			params.update( { "imdb": Ptp.NormalizeImdbIdForPtp( releaseInfo.GetImdbId() ) } )
 		# Add the directors.
 		# These needs to be added in order because of the "importance" field follows them.
 		directors = releaseInfo.GetDirectors()
 		for i in range( len( directors ) ):
-			multipartParam = poster.encode.MultipartParam( "artists[]", directors[ i ] );
-			multipartParam.name = "artists[]"; # MultipartParam escapes the square brackets to "artists%5B%5D". Change it back. :)
-			paramList.append( multipartParam );
-
-			multipartParam = poster.encode.MultipartParam( "importance[]", "1" );
-			multipartParam.name = "importance[]"; # MultipartParam escapes the square brackets to "importance%5B%5D". Change it back. :)
-			paramList.append( multipartParam );
+			params.update( { "artist[]": directors[ i ] } )
+			params.update( { "importance[]": "1" } )
 			
-		return paramList;
+		return params
 	
 	# Returns with the auth key.
 	@staticmethod
@@ -234,27 +219,19 @@ class Ptp:
 		if releaseInfo.HasPtpId():
 			logger.info( "Uploading torrent '%s' to PTP as a new format for 'http://passthepopcorn.me/torrents.php?id=%s'." % ( torrentPath, releaseInfo.PtpId ) );
 			url = "https://tls.passthepopcorn.me/upload.php?groupid=%s" % releaseInfo.PtpId;
-			paramList.extend( Ptp.__UploadMovieGetParamsForAddFormat( releaseInfo.PtpId ) ); 	
+			paramList.update( Ptp.__UploadMovieGetParamsForAddFormat( releaseInfo.PtpId ) );
 		else:
 			logger.info( "Uploading torrent '%s' to PTP as a new movie." % torrentPath );
 			url = "https://tls.passthepopcorn.me/upload.php";
-			paramList.extend( Ptp.__UploadMovieGetParamsForNewMovie( releaseInfo ) );
+			paramList.update( Ptp.__UploadMovieGetParamsForNewMovie( releaseInfo ) );
 		
 		# Add the torrent file.
 		torrentFilename = os.path.basename( torrentPath ); # Filename without path.
-		mimeType = mimetypes.guess_type( torrentFilename )[ 0 ] or 'application/x-bittorrent';
-		multipartParam = poster.encode.MultipartParam( name = "file_input", filename = torrentFilename, filetype = mimeType, fileobj = open( torrentPath, "rb" ) );
-		paramList.append( multipartParam );
+		files = { "file_input": ( torrentFilename, open( torrentPath, "rb" ), "application/x-bittorent" ) }
+		result = MyGlobals.session.post( url, data = paramList, files=files )
+		response = response.text
+		Ptp.CheckIfLoggedInFromResponse( MyGlobals.session, response );
 
-		opener = poster.streaminghttp.register_openers()
-		opener.add_handler( urllib2.HTTPCookieProcessor( MyGlobals.CookieJar ) )
-		datagen, headers = poster.encode.multipart_encode( paramList )
-		request = urllib2.Request( url, datagen, headers )
-		result = opener.open( request )
-		response = result.read();
-		response = response.decode( "utf-8", "ignore" )
-		Ptp.CheckIfLoggedInFromResponse( result, response );
-		
 		# If the repsonse contains our announce url then we are on the upload page and the upload wasn't successful.
 		if response.find( Settings.PtpAnnounceUrl ) != -1:
 			# Get the error message.
@@ -282,11 +259,9 @@ class Ptp:
 		MyGlobals.Logger.info( "Sending private message on PTP." );
 
 		# We need to load the send message page for the authentication key.
-		opener = urllib2.build_opener( urllib2.HTTPCookieProcessor( MyGlobals.CookieJar ) )
-		request = urllib2.Request( "http://passthepopcorn.me/inbox.php?action=compose&to=%s" % userId )
-		result = opener.open( request )
-		response = result.read()
-		Ptp.CheckIfLoggedInFromResponse( result, response )
+		response = MyGlobals.session.get( "http://passthepopcorn.me/inbox.php?action=compose&to=%s" % userId )
+		response = response.text
+		Ptp.CheckIfLoggedInFromResponse( MyGlobals.session, response )
 
 		matches = re.search( r"""<input type="hidden" name="auth" value="(.+)" />""", response )
 		if not matches:
@@ -297,8 +272,7 @@ class Ptp:
 
 		# Send the message.
 		# We always use HTTPS for sending message because if "Force HTTPS" is enabled in the profile then the HTTP message sending is not working.
-		postData = urllib.urlencode( { "toid": userId, "subject": subject, "body": message, "auth": auth, "action": "takecompose" } )
-		request = urllib2.Request( "https://tls.passthepopcorn.me/inbox.php", postData )
-		result = opener.open( request )
-		response = result.read()
-		Ptp.CheckIfLoggedInFromResponse( result, response )
+		postData = { "toid": userId, "subject": subject, "body": message, "auth": auth, "action": "takecompose" }
+		response = MyGlobals.session.post( "https://tls.passthepopcorn.me/inbox.php", postData )
+		response = response.text
+		Ptp.CheckIfLoggedInFromResponse( MyGlobals.session, response )

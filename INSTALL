@@ -16,11 +16,14 @@ MyEnv/bin/easy_install pyrobase
 MyEnv/bin/easy_install pyrocore
 MyEnv/bin/easy_install --upgrade sqlalchemy
 MyEnv/bin/easy_install flask
+MyEnv/bin/easy_install requests
 MyEnv/bin/easy_install watchdog
 MyEnv/bin/pyroadmin --create-config
 
 mkdir WorkingDirectory
 cp PtpUploader/Settings.example.ini PtpUploader/Settings.ini
+
+If you want to bypass CloudFlare's browser verification also run this: MyEnv/bin/easy_install PyV8
 
 If you're using Transmission also run this: MyEnv/bin/easy_install transmissionrpc
 
@@ -38,6 +41,9 @@ Depends on the following Python packages:
 	- Flask: http://flask.pocoo.org/
 	- poster: http://atlee.ca/software/poster/
 	- PyroScope: http://code.google.com/p/pyroscope/
+	- PyV8: https://code.google.com/p/pyv8/
+		- Optional dependency, used by cfscrape to bypass CloudFlare.
+	- Requests: http://docs.python-requests.org/en/latest/
 	- simplejson: http://undefined.org/python/#simplejson
 		- Because Python 2.5 doesn't have the json module.
 	- SQLAlchemy: http://www.sqlalchemy.org/

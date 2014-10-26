@@ -4,9 +4,11 @@ Code:
 Contributors:
 	- dhosha (FunFile support, PtpUploaderTorrentSender sites)
 	- kannibalox (configurable initial directory for the file picker)
+	- Mako_1 (TorrentShack support, CloudFlare verification)
 	- verysofttoiletpaper (Transmission support)
 
 Additional code:
+	- cloudflare-scrape by Anorov -- https://github.com/Anorov/cloudflare-scrape
 	- jQuery -- http://jquery.org/
 	- jQuery BlockUI by M. Alsup -- http://malsup.com/jquery/block/
 	- jQuery contextMenu by Rodney Rehm, Christian Baartse & Addy Osmani -- http://medialize.github.com/jQuery-contextMenu/
