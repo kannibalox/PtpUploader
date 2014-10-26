@@ -23,7 +23,12 @@ MyEnv/bin/pyroadmin --create-config
 mkdir WorkingDirectory
 cp PtpUploader/Settings.example.ini PtpUploader/Settings.ini
 
-If you want to bypass CloudFlare's browser verification also run this: MyEnv/bin/easy_install PyV8
+If you want to bypass CloudFlare's browser verification also run this:
+wget https://github.com/emmetio/pyv8-binaries/raw/master/pyv8-linux64.zip
+unzip pyv8-linux64.zip
+mv _PyV8.so PtpUploader/
+mv PyV8.py PtpUploader/
+rm pyv8-linux64.zip
 
 If you're using Transmission also run this: MyEnv/bin/easy_install transmissionrpc
 
