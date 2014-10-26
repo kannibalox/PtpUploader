@@ -76,8 +76,8 @@ class Ptp:
 
 	@staticmethod
 	def __CheckIfLoggedInFromResponseLogResponse( result, responseBody ):
-		MyGlobals.Logger.info( "MSG: %s" % result.msg )
-		MyGlobals.Logger.info( "CODE: %s" % result.code )
+		MyGlobals.Logger.info( "MSG: %s" % result.reason )
+		MyGlobals.Logger.info( "CODE: %s" % result.status_code )
 		MyGlobals.Logger.info( "URL: %s" % result.url )
 		MyGlobals.Logger.info( "HEADERS: %s" % result.headers )
 		MyGlobals.Logger.info( "STACK: %s" % traceback.format_stack() ) 
@@ -106,9 +106,9 @@ class Ptp:
 	def GetMoviePageOnPtp(logger, ptpId):
 		logger.info( "Getting movie page for PTP id '%s'." % ptpId )
 		
-		response = MyGlobals.session.get( "http://passthepopcorn.me/torrents.php?id=%s&json=1" % ptpId )
-		response = response.text
-		Ptp.CheckIfLoggedInFromResponse( MyGlobals.session, response )
+		result = MyGlobals.session.get( "http://passthepopcorn.me/torrents.php?id=%s&json=1" % ptpId )
+		response = result.text
+		Ptp.CheckIfLoggedInFromResponse( result, response )
 
 		if response.find( "<h2>Error 404</h2>" ) != -1:
 			raise PtpUploaderException( "Movie with PTP id '%s' doesn't exists." % ptpId )
@@ -123,7 +123,7 @@ class Ptp:
 				
 		result = MyGlobals.session.get( "http://passthepopcorn.me/torrents.php?imdb=%s&json=1" % Ptp.NormalizeImdbIdForPtp( imdbId ) )
 		response = result.text
-		Ptp.CheckIfLoggedInFromResponse( MyGlobals.session, response );
+		Ptp.CheckIfLoggedInFromResponse( result, response );
 
 		# If there is a movie: result.url = http://passthepopcorn.me/torrents.php?id=28577
 		# If there is no movie: result.url = http://passthepopcorn.me/torrents.php?imdb=1535492
@@ -229,8 +229,8 @@ class Ptp:
 		torrentFilename = os.path.basename( torrentPath ); # Filename without path.
 		files = { "file_input": ( torrentFilename, open( torrentPath, "rb" ), "application/x-bittorent" ) }
 		result = MyGlobals.session.post( url, data = paramList, files=files )
-		response = response.text
-		Ptp.CheckIfLoggedInFromResponse( MyGlobals.session, response );
+		response = result.text
+		Ptp.CheckIfLoggedInFromResponse( result, response );
 
 		# If the repsonse contains our announce url then we are on the upload page and the upload wasn't successful.
 		if response.find( Settings.PtpAnnounceUrl ) != -1:
@@ -259,9 +259,9 @@ class Ptp:
 		MyGlobals.Logger.info( "Sending private message on PTP." );
 
 		# We need to load the send message page for the authentication key.
-		response = MyGlobals.session.get( "http://passthepopcorn.me/inbox.php?action=compose&to=%s" % userId )
-		response = response.text
-		Ptp.CheckIfLoggedInFromResponse( MyGlobals.session, response )
+		result = MyGlobals.session.get( "http://passthepopcorn.me/inbox.php?action=compose&to=%s" % userId )
+		response = result.text
+		Ptp.CheckIfLoggedInFromResponse( result, response )
 
 		matches = re.search( r"""<input type="hidden" name="auth" value="(.+)" />""", response )
 		if not matches:
@@ -273,6 +273,6 @@ class Ptp:
 		# Send the message.
 		# We always use HTTPS for sending message because if "Force HTTPS" is enabled in the profile then the HTTP message sending is not working.
 		postData = { "toid": userId, "subject": subject, "body": message, "auth": auth, "action": "takecompose" }
-		response = MyGlobals.session.post( "https://tls.passthepopcorn.me/inbox.php", postData )
-		response = response.text
-		Ptp.CheckIfLoggedInFromResponse( MyGlobals.session, response )
+		result = MyGlobals.session.post( "https://tls.passthepopcorn.me/inbox.php", postData )
+		response = result.text
+		Ptp.CheckIfLoggedInFromResponse( result, response )

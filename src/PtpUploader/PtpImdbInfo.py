@@ -25,9 +25,9 @@ class PtpImdbInfo:
 		self.HtmlParser = HTMLParser.HTMLParser()
  
 		# Get IMDb info through PTP's ajax API used by the site when the user presses the auto fill button.
-		response = MyGlobals.session.get( "http://passthepopcorn.me/ajax.php?action=torrent_info&imdb=%s" % Ptp.NormalizeImdbIdForPtp( self.ImdbId ) )
-		self.JsonResponse = response.text
-		Ptp.CheckIfLoggedInFromResponse( MyGlobals.session, self.JsonResponse )
+		result = MyGlobals.session.get( "http://passthepopcorn.me/ajax.php?action=torrent_info&imdb=%s" % Ptp.NormalizeImdbIdForPtp( self.ImdbId ) )
+		self.JsonResponse = result.text
+		Ptp.CheckIfLoggedInFromResponse( result, self.JsonResponse )
 
 		# The response is JSON.
 		# [{"title":"Devil's Playground","plot":"As the world succumbs to a zombie apocalypse, Cole a hardened mercenary, is chasing the one person who can provide a cure. Not only to the plague but to Cole's own incumbent destiny. DEVIL'S PLAYGROUND is a cutting edge British horror film that features zombies portrayed by free runners for a terrifyingly authentic representation of the undead","art":false,"year":"2010","director":[{"imdb":"1654324","name":"Mark McQueen","role":null}],"tags":"action, horror","writers":[{"imdb":"1057010","name":"Bart Ruspoli","role":" screenplay"}]}]
