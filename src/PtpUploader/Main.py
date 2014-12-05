@@ -19,7 +19,14 @@ def Initialize():
 def Run():
 	InitDb()
 
-	MyGlobals.SourceFactory = SourceFactory()
+	try: 
+		MyGlobals.SourceFactory = SourceFactory()
+	except ( KeyboardInterrupt, SystemExit ):
+		raise
+	except Exception, e:
+		MyGlobals.Logger.exception( "Got exception while creating SourceFactory()" )
+		raise
+
 	MyGlobals.PtpUploader = PtpUploader()
 
 	# Do not start the web server if the username or the password is not set.
