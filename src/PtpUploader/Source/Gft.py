@@ -31,8 +31,9 @@ class Gft(SourceBase):
 		MyGlobals.session.get( "https://www.thegft.org/login.php" )
 
 		postData = { "username": self.Username, "password": self.Password }
-		response = MyGlobals.session.post( "https://www.thegft.org/takelogin.php", data=postData )
-		self.CheckIfLoggedInFromResponse( response.text )
+		result = MyGlobals.session.post( "https://www.thegft.org/takelogin.php", data=postData )
+		result.raise_for_status()
+		self.CheckIfLoggedInFromResponse( result.text )
 
 	def CheckIfLoggedInFromResponse(self, response):
 		if response.find( """action='takelogin.php'""" ) != -1 or response.find( """<a href='login.php'>Back to Login</a>""" ) != -1:
@@ -43,6 +44,7 @@ class Gft(SourceBase):
 		logger.info( "Downloading description from page '%s'." % url )
 
 		result = MyGlobals.session.get( url )
+		result.raise_for_status()
 		response = result.text
 		self.CheckIfLoggedInFromResponse( response )
 
@@ -59,6 +61,7 @@ class Gft(SourceBase):
 		logger.info( "Downloading NFO from page '%s'." % url )
 
 		result = MyGlobals.session.get( url )
+		result.raise_for_status()
 		response = result.text
 		response = response.decode( "ISO-8859-1", "ignore" )
 		self.CheckIfLoggedInFromResponse( response )
@@ -163,6 +166,7 @@ class Gft(SourceBase):
 		logger.info( "Downloading torrent file from '%s' to '%s'." % ( url, path ) )
 
 		result = MyGlobals.session.get( url )
+		result.raise_for_status()
 		response = result.content
 		self.CheckIfLoggedInFromResponse( response )
 		

@@ -39,6 +39,7 @@ class TorrentShack(SourceBase):
 		while True:
 			try:
 				result = MyGlobals.session.post( "http://torrentshack.eu/login.php", data=postData )
+				result.raise_for_status()
 				break
 			except requests.exceptions.ConnectionError, e:
 				if maximumTries > 1:
@@ -60,6 +61,7 @@ class TorrentShack(SourceBase):
 		logger.info( "Downloading NFO from page '%s'." % url )
 
 		result = MyGlobals.session.get( url )
+		result.raise_for_status()
 		response = result.text
 		self.CheckIfLoggedInFromResponse( response )
 
@@ -143,6 +145,7 @@ class TorrentShack(SourceBase):
 		logger.info( "Downloading torrent file from TorrentShack to '%s'." % path )
 
 		result = MyGlobals.session.get( releaseInfo.SceneAccessDownloadUrl )
+		result.raise_for_status()
 		response = result.content
 		self.CheckIfLoggedInFromResponse( response )
 
