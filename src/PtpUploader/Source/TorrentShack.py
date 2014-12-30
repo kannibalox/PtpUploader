@@ -32,7 +32,20 @@ class TorrentShack(SourceBase):
 
 		# Check the "keep logged in?" checkbox, otherwise we lose our loginsession after some time.
 		postData = { "username": self.Username, "password": self.Password, "keeplogged": "1" }
-		result = MyGlobals.session.post( "http://torrentshack.eu/login.php", data=postData )
+
+		result = None
+
+		maximumTries = 3
+		while True:
+			try:
+				result = MyGlobals.session.post( "http://torrentshack.eu/login.php", data=postData )
+			except requests.exceptions.ConnectionError, e:
+				if maximumTries > 1:
+					maximumTries -= 1
+					time.sleep( 3 ) # Sleep three seconds.
+				else:
+					raise
+
 		self.CheckIfLoggedInFromResponse( result.text )
 
 	def CheckIfLoggedInFromResponse( self, response ):
