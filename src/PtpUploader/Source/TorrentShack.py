@@ -44,7 +44,7 @@ class TorrentShack(SourceBase):
 	# Sets IMDb if presents in the torrent description.
 	# Returns with the release name.
 	def __ReadTorrentPage( self, logger, releaseInfo ):
-		url = "http://www.torrentshack.eu/torrents.php?torrentid=%s" % releaseInfo.AnnouncementId
+		url = "http://torrentshack.eu/torrents.php?torrentid=%s" % releaseInfo.AnnouncementId
 		logger.info( "Downloading NFO from page '%s'." % url )
 
 		response = MakeRetryingHttpRequest( url )
@@ -82,7 +82,7 @@ class TorrentShack(SourceBase):
 		if matches is None:
 			raise PtpUploaderException( JobRunningState.Ignored_MissingInfo, "Download link can't be found on torrent page." )
 		# We have to change "&amp;" to "&".
-		releaseInfo.SceneAccessDownloadUrl = "http://www.torrentshack.eu/torrents.php" + matches.group( 1 ).replace("&amp;", "&")
+		releaseInfo.SceneAccessDownloadUrl = "http://torrentshack.eu/torrents.php" + matches.group( 1 ).replace("&amp;", "&")
 		return releaseName
 
 	def __HandleUserCreatedJob( self, logger, releaseInfo ):
@@ -152,7 +152,7 @@ class TorrentShack(SourceBase):
 			return result.group( 1 )
 
 	def GetUrlFromId( self, id ):
-		return "http://www.torrentshack.eu/torrents.php?torrentid=" + id
+		return "http://torrentshack.eu/torrents.php?torrentid=" + id
 
 	def GetIdFromAutodlIrssiUrl( self, url ):
 		# http://www.torrentshack.eu/torrents.php?action=diwnload&id=12345
