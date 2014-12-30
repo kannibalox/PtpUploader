@@ -39,6 +39,7 @@ class TorrentShack(SourceBase):
 		while True:
 			try:
 				result = MyGlobals.session.post( "http://torrentshack.eu/login.php", data=postData )
+				break
 			except requests.exceptions.ConnectionError, e:
 				if maximumTries > 1:
 					maximumTries -= 1
