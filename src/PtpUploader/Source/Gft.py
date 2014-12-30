@@ -9,10 +9,10 @@ from ReleaseExtractor import ReleaseExtractor
 from ReleaseInfo import ReleaseInfo
 from ReleaseNameParser import ReleaseNameParser
 
+import requests
+
 import re
 import time
-import urllib
-import urllib2
 
 class Gft(SourceBase):
 	def __init__(self):
@@ -25,32 +25,26 @@ class Gft(SourceBase):
 		return len( self.Username ) > 0 and len( self.Password ) > 0
 
 	def Login(self):
-		MyGlobals.Logger.info( "Logging in to GFT." );
+		MyGlobals.Logger.info( "Logging in to GFT." )
 		
-		# GFT stores a cookie when login.php is loaded that is needed for takeloin.php. 
-		opener = urllib2.build_opener( urllib2.HTTPCookieProcessor( MyGlobals.CookieJar ) )
-		result = opener.open( "https://www.thegft.org/login.php" )
-		response = result.read()
+		# GFT stores a cookie when login.php is loaded that is needed for takelogin.php. 
+		MyGlobals.session.get( "https://www.thegft.org/login.php" )
 
-		opener = urllib2.build_opener( urllib2.HTTPCookieProcessor( MyGlobals.CookieJar ) )
-		postData = urllib.urlencode( { "username": self.Username, "password": self.Password } )
-		result = opener.open( "https://www.thegft.org/takelogin.php", postData )
-		response = result.read()
-		self.CheckIfLoggedInFromResponse( response );
-	
+		postData = { "username": self.Username, "password": self.Password }
+		response = MyGlobals.session.post( "https://www.thegft.org/takelogin.php", data=postData )
+		self.CheckIfLoggedInFromResponse( response.text )
+
 	def CheckIfLoggedInFromResponse(self, response):
 		if response.find( """action='takelogin.php'""" ) != -1 or response.find( """<a href='login.php'>Back to Login</a>""" ) != -1:
 			raise PtpUploaderException( "Looks like you are not logged in to GFT. Probably due to the bad user name or password in settings." )
 
 	def __GetTorrentPageAsString( self, logger, releaseInfo ):
-		url = "https://www.thegft.org/details.php?id=%s" % releaseInfo.AnnouncementId;
-		logger.info( "Downloading description from page '%s'." % url );
+		url = "https://www.thegft.org/details.php?id=%s" % releaseInfo.AnnouncementId
+		logger.info( "Downloading description from page '%s'." % url )
 
-		opener = urllib2.build_opener( urllib2.HTTPCookieProcessor( MyGlobals.CookieJar ) );
-		request = urllib2.Request( url );
-		result = opener.open( request );
-		response = result.read();
-		self.CheckIfLoggedInFromResponse( response );
+		result = MyGlobals.session.get( url )
+		response = result.text
+		self.CheckIfLoggedInFromResponse( response )
 
 		# Make sure we only get information from the description and not from the comments.
 		descriptionEndIndex = response.find( """<p><a name="startcomments"></a></p>""" )
@@ -62,14 +56,12 @@ class Gft(SourceBase):
 
 	def __TryGettingImdbIdFromNfoPage( self, logger, releaseInfo ):
 		url = "https://www.thegft.org/viewnfo.php?id=%s" % releaseInfo.AnnouncementId
-		logger.info( "Downloading NFO from page '%s'." % url );
+		logger.info( "Downloading NFO from page '%s'." % url )
 
-		opener = urllib2.build_opener( urllib2.HTTPCookieProcessor( MyGlobals.CookieJar ) );
-		request = urllib2.Request( url );
-		result = opener.open( request );
-		response = result.read();
+		result = MyGlobals.session.get( url )
+		response = result.text
 		response = response.decode( "ISO-8859-1", "ignore" )
-		self.CheckIfLoggedInFromResponse( response );
+		self.CheckIfLoggedInFromResponse( response )
 
 		releaseInfo.ImdbId = NfoParser.GetImdbId( response )
 
@@ -167,18 +159,16 @@ class Gft(SourceBase):
 			self.__HandleAutoCreatedJob( logger, releaseInfo )
 	
 	def DownloadTorrent(self, logger, releaseInfo, path):
-		url = "https://www.thegft.org/download.php?torrent=%s" % releaseInfo.AnnouncementId;
-		logger.info( "Downloading torrent file from '%s' to '%s'." % ( url, path ) );
+		url = "https://www.thegft.org/download.php?torrent=%s" % releaseInfo.AnnouncementId
+		logger.info( "Downloading torrent file from '%s' to '%s'." % ( url, path ) )
 
-		opener = urllib2.build_opener( urllib2.HTTPCookieProcessor( MyGlobals.CookieJar ) );
-		request = urllib2.Request( url );
-		result = opener.open( request );
-		response = result.read();
-		self.CheckIfLoggedInFromResponse( response );
+		result = MyGlobals.session.get( url )
+		response = result.content
+		self.CheckIfLoggedInFromResponse( response )
 		
-		file = open( path, "wb" );
-		file.write( response );
-		file.close();
+		file = open( path, "wb" )
+		file.write( response )
+		file.close()
 		
 		# Calling Helper.ValidateTorrentFile is not needed because NfoParser.IsTorrentContainsMultipleNfos will throw an exception if it is not a valid torrent file.
 

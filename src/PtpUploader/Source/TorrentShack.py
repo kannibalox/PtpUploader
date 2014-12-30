@@ -1,7 +1,7 @@
 from Job.JobRunningState import JobRunningState
 from Source.SourceBase import SourceBase
 
-from Helper import DecodeHtmlEntities, GetSizeFromText, MakeRetryingHttpRequest
+from Helper import DecodeHtmlEntities, GetSizeFromText
 from MyGlobals import MyGlobals
 from NfoParser import NfoParser
 from PtpUploaderException import PtpUploaderException
@@ -9,10 +9,10 @@ from ReleaseExtractor import ReleaseExtractor
 from ReleaseInfo import ReleaseInfo
 from ReleaseNameParser import ReleaseNameParser
 
+import requests
+
 import re
 import time
-import urllib
-import urllib2
 
 class TorrentShack(SourceBase):
 	def __init__( self ):
@@ -29,13 +29,11 @@ class TorrentShack(SourceBase):
 
 	def Login( self ):
 		MyGlobals.Logger.info( "Logging in to TorrentShack." )
-		opener = urllib2.build_opener( urllib2.HTTPCookieProcessor( MyGlobals.CookieJar ) )
+
 		# Check the "keep logged in?" checkbox, otherwise we lose our loginsession after some time.
-		postData = urllib.urlencode( { "username": self.Username, "password": self.Password, "keeplogged": "1" } )
-		request = urllib2.Request( "http://torrentshack.eu/login.php", postData )
-		result = opener.open( request )
-		response = result.read()
-		self.CheckIfLoggedInFromResponse( response );
+		postData = { "username": self.Username, "password": self.Password, "keeplogged": "1" }
+		result = MyGlobals.session.post( "http://torrentshack.eu/login.php", data=postData )
+		self.CheckIfLoggedInFromResponse( result.text )
 
 	def CheckIfLoggedInFromResponse( self, response ):
 		if response.find( 'action="login.php"' ) != -1:
@@ -47,7 +45,8 @@ class TorrentShack(SourceBase):
 		url = "http://torrentshack.eu/torrents.php?torrentid=%s" % releaseInfo.AnnouncementId
 		logger.info( "Downloading NFO from page '%s'." % url )
 
-		response = MakeRetryingHttpRequest( url )
+		result = MyGlobals.session.get( url )
+		response = result.text
 		self.CheckIfLoggedInFromResponse( response )
 
 		# Make sure we only get information from the description and not from the comments.
@@ -129,12 +128,13 @@ class TorrentShack(SourceBase):
 		# We don't log the download URL because it is sensitive information.
 		logger.info( "Downloading torrent file from TorrentShack to '%s'." % path )
 
-		response = MakeRetryingHttpRequest( releaseInfo.SceneAccessDownloadUrl )
-		self.CheckIfLoggedInFromResponse( response );
+		result = MyGlobals.session.get( releaseInfo.SceneAccessDownloadUrl )
+		response = result.content
+		self.CheckIfLoggedInFromResponse( response )
 
-		file = open( path, "wb" );
-		file.write( response );
-		file.close();
+		file = open( path, "wb" )
+		file.write( response )
+		file.close()
 
 		# Calling Helper.ValidateTorrentFile is not needed because NfoParser.IsTorrentContainsMultipleNfos will throw an exception if it is not a valid torrent file.
 
