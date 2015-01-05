@@ -1,7 +1,7 @@
 from Job.JobRunningState import JobRunningState
 from Source.SourceBase import SourceBase
 
-from Helper import DecodeHtmlEntities, GetSizeFromText
+from Helper import DecodeHtmlEntities, GetSizeFromText, MakeRetryingHttpGetRequestWithRequests, MakeRetryingHttpPostRequestWithRequests
 from MyGlobals import MyGlobals
 from NfoParser import NfoParser
 from PtpUploaderException import PtpUploaderException
@@ -33,21 +33,7 @@ class TorrentShack(SourceBase):
 		# Check the "keep logged in?" checkbox, otherwise we lose our loginsession after some time.
 		postData = { "username": self.Username, "password": self.Password, "keeplogged": "1" }
 
-		result = None
-
-		maximumTries = 3
-		while True:
-			try:
-				result = MyGlobals.session.post( "http://torrentshack.eu/login.php", data=postData )
-				result.raise_for_status()
-				break
-			except requests.exceptions.ConnectionError, e:
-				if maximumTries > 1:
-					maximumTries -= 1
-					time.sleep( 3 ) # Sleep three seconds.
-				else:
-					raise
-
+		result = MakeRetryingHttpPostRequestWithRequests( "http://torrentshack.eu/login.php", postData )
 		self.CheckIfLoggedInFromResponse( result.text )
 
 	def CheckIfLoggedInFromResponse( self, response ):
@@ -60,8 +46,7 @@ class TorrentShack(SourceBase):
 		url = "http://torrentshack.eu/torrents.php?torrentid=%s" % releaseInfo.AnnouncementId
 		logger.info( "Downloading NFO from page '%s'." % url )
 
-		result = MyGlobals.session.get( url )
-		result.raise_for_status()
+		result = MakeRetryingHttpGetRequestWithRequests( url )
 		response = result.text
 		self.CheckIfLoggedInFromResponse( response )
 
@@ -144,8 +129,7 @@ class TorrentShack(SourceBase):
 		# We don't log the download URL because it is sensitive information.
 		logger.info( "Downloading torrent file from TorrentShack to '%s'." % path )
 
-		result = MyGlobals.session.get( releaseInfo.SceneAccessDownloadUrl )
-		result.raise_for_status()
+		result = MakeRetryingHttpGetRequestWithRequests( releaseInfo.SceneAccessDownloadUrl )
 		response = result.content
 		self.CheckIfLoggedInFromResponse( response )
 

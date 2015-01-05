@@ -115,6 +115,33 @@ def MakeRetryingHttpRequest( url, maximumTries = 3, delayBetweenRetriesInSec = 1
 			else:
 				raise
 
+# It differs from MakeRetryingHttpRequest in the returned value too! It doesn't return with the response body.
+def MakeRetryingHttpGetRequestWithRequests( url, maximumTries = 3, delayBetweenRetriesInSec = 10 ):
+	while True:
+		try:
+			result = MyGlobals.session.get( url )
+			result.raise_for_status()
+			return result
+		except requests.exceptions.ConnectionError, e:
+			if maximumTries > 1:
+				maximumTries -= 1
+				time.sleep( delayBetweenRetriesInSec )
+			else:
+				raise
+
+def MakeRetryingHttpPostRequestWithRequests( url, postData, maximumTries = 3, delayBetweenRetriesInSec = 10 ):
+	while True:
+		try:
+			result = MyGlobals.session.post( url, data=postData )
+			result.raise_for_status()
+			return result
+		except requests.exceptions.ConnectionError, e:
+			if maximumTries > 1:
+				maximumTries -= 1
+				time.sleep( delayBetweenRetriesInSec )
+			else:
+				raise
+
 # Path can be a file or a directory. (Obviously.)
 def GetPathSize(path):
 	if os.path.isfile( path ):
