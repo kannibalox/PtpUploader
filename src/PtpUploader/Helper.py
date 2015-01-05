@@ -3,6 +3,8 @@ from Tool.PyrocoreBencode import bencode
 from MyGlobals import MyGlobals
 from PtpUploaderException import *
 
+import requests
+
 from datetime import datetime
 import HTMLParser # For HTML entity reference decoding...
 import os
