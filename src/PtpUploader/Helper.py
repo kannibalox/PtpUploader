@@ -119,9 +119,11 @@ def MakeRetryingHttpRequest( url, maximumTries = 3, delayBetweenRetriesInSec = 1
 
 # It differs from MakeRetryingHttpRequest in the returned value too! It doesn't return with the response body.
 def MakeRetryingHttpGetRequestWithRequests( url, maximumTries = 3, delayBetweenRetriesInSec = 10 ):
+	headers = { "User-Agent": "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:34.0) Gecko/20100101 Firefox/34.0" }
+
 	while True:
 		try:
-			result = MyGlobals.session.get( url )
+			result = MyGlobals.session.get( url, headers=headers )
 			result.raise_for_status()
 			return result
 		except requests.exceptions.ConnectionError, e:
@@ -132,9 +134,11 @@ def MakeRetryingHttpGetRequestWithRequests( url, maximumTries = 3, delayBetweenR
 				raise
 
 def MakeRetryingHttpPostRequestWithRequests( url, postData, maximumTries = 3, delayBetweenRetriesInSec = 10 ):
+	headers = { "User-Agent": "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:34.0) Gecko/20100101 Firefox/34.0" }
+
 	while True:
 		try:
-			result = MyGlobals.session.post( url, data=postData )
+			result = MyGlobals.session.post( url, data=postData, headers=headers )
 			result.raise_for_status()
 			return result
 		except requests.exceptions.ConnectionError, e:

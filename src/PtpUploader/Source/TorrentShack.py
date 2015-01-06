@@ -9,12 +9,10 @@ from ReleaseExtractor import ReleaseExtractor
 from ReleaseInfo import ReleaseInfo
 from ReleaseNameParser import ReleaseNameParser
 
-import requests
-
 import re
 import time
 
-class TorrentShack(SourceBase):
+class TorrentShack( SourceBase ):
 	def __init__( self ):
 		SourceBase.__init__( self )
 
