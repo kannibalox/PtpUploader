@@ -268,3 +268,11 @@ class Karagarga(SourceBase):
 
 	def GetUrlFromId(self, id):
 		return "http://karagarga.net/details.php?id=" + id
+
+	def GetIdFromAutodlIrssiUrl( self, url ):
+		# https://karagarga.net/down.php/10287/Zhuangzhuang%20Tian%20-%20Lan%20feng%20zheng%20AKA%20The%20Blue%20Kite.torrent
+		matches = re.match( r"https?://karagarga.net/down.php/(\d+)/.+?\.torrent", url )
+		if matches is None:
+			return ""
+		else:
+			return matches.group( 1 )
