@@ -55,15 +55,6 @@ class Karagarga(SourceBase):
 
 		sourceType = matches.group( 1 ).lower()
 
-		# DVDR and HD are present in the genre list. These are not supported.
-		# <td style="border:none;"><img src="genreimages/dvdr.png" width="40" height="40" border="0" title="DVDR"></td>
-		# <td style="border: medium none;"><img src="genreimages/hdrip.png" title="HD" border="0" height="40" width="40"></td>
-		matches = re.search( """<td.*?><img src="genreimages/.+?" .*?title="(.+?)".*?></td>""", description )
-		if matches is not None:
-			notSupportedSourceType = matches.group( 1 ).lower()
-			if notSupportedSourceType == "dvdr" or notSupportedSourceType == "hd":
-				sourceType = notSupportedSourceType
-
 		if sourceType == "blu-ray":
 			releaseInfo.Source = "Blu-ray"
 		elif sourceType == "dvd":
@@ -97,6 +88,30 @@ class Karagarga(SourceBase):
 			releaseInfo.Codec = "x264"
 		else:
 			raise PtpUploaderException( JobRunningState.Ignored_NotSupported, "Can't figure out codec from the rip specifications." )
+
+	def __DownloadNfoParseResolution( self, releaseInfo, description ):
+		if releaseInfo.IsResolutionTypeSet():
+			releaseInfo.Logger.info( "Resolution type '%s' is already set, not getting from the torrent page." % releaseInfo.ResolutionType )
+			return
+
+		if description.find( '"genreimages/hdrip720.png"' ) != -1:
+			releaseInfo.ResolutionType = "720"
+		elif description.find( '"genreimages/hdrip1080.png"' ) != -1:
+			releaseInfo.ResolutionType = "1080"
+		elif description.find( '"genreimages/dvdr.png"' ) != -1:
+			raise PtpUploaderException( JobRunningState.Ignored_NotSupported, "Untouched DVDs aren't supported." )
+		elif description.find( '"genreimages/bluray.png"' ) != -1:
+			raise PtpUploaderException( JobRunningState.Ignored_NotSupported, "Untouched Blu-ray aren't supported." )
+		else:
+			# DVDR and other HD in the genre list. They're not supported.
+			# <td style="border:none;"><img src="genreimages/dvdr.png" width="40" height="40" border="0" title="DVDR"></td>
+			matches = re.search( """<td.*?><img src="genreimages/.+?" .*?title="(.+?)".*?></td>""", description )
+			if matches is not None:
+				notSupportedType = matches.group( 1 ).lower()
+				if notSupportedType == "dvdr" or notSupportedType == "hd":
+					raise PtpUploaderException( JobRunningState.Ignored_NotSupported, "Unsupported source or resolution type '%s'." % notSupportedType )
+
+			releaseInfo.ResolutionType = "Other"
 
 	def __DownloadNfoParseSubtitles(self, releaseInfo, description):
 		# Only detect subtitles if they are not specified.
@@ -200,6 +215,7 @@ class Karagarga(SourceBase):
 
 		self.__DownloadNfoParseSourceType( releaseInfo, description )
 		self.__DownloadNfoParseFormatType( releaseInfo, description )
+		self.__DownloadNfoParseResolution( releaseInfo, description )
 		self.__DownloadNfoParseSubtitles( releaseInfo, description )
 		
 		# Make sure that this is not a wrongly categorized DVDR.
@@ -230,11 +246,6 @@ class Karagarga(SourceBase):
 			#	logger.info( "Ignoring release '%s' because of its name." % releaseInfo.ReleaseName )
 			#	return None
 			self.__DownloadNfo( logger, releaseInfo )
-
-		if releaseInfo.IsResolutionTypeSet():
-			releaseInfo.Logger.info( "Resolution type '%s' is already set, not getting from the torrent page." % releaseInfo.ResolutionType )
-		else:
-			releaseInfo.ResolutionType = "Other"
 
 	def ParsePageForExternalCreateJob( self, logger, releaseInfo, html ):
 		self.__ParsePage( logger, releaseInfo, html, parseForExternalCreateJob = True )
