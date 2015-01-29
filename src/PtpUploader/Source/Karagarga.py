@@ -21,6 +21,13 @@ class Karagarga(SourceBase):
 		self.Name = "kg"
 		self.NameInSettings = "Karagarga"
 
+	def LoadSettings( self, settings ):
+		SourceBase.LoadSettings( self, settings )
+
+		self.AutoUploadSd = int( settings.GetDefault( self.NameInSettings, "AutoUploadSd", "1" ) ) != 0
+		self.AutoUpload720p = int( settings.GetDefault( self.NameInSettings, "AutoUpload720p", "0" ) ) != 0
+		self.AutoUpload1080p = int( settings.GetDefault( self.NameInSettings, "AutoUpload1080p", "0" ) ) != 0
+
 	def IsEnabled(self):
 		return len( self.Username ) > 0 and len( self.Password ) > 0
 
@@ -235,17 +242,30 @@ class Karagarga(SourceBase):
 
 		self.__ParsePage( logger, releaseInfo, response )
 
+	def __HandleAutoCreatedJob( self, releaseInfo ):
+		if releaseInfo.ResolutionType == "720":
+			if not self.AutoUpload720p:
+				raise PtpUploaderException( JobRunningState.Ignored, "720p is on your ignore list." )
+		elif releaseInfo.ResolutionType == "1080":
+			if not self.AutoUpload1080p:
+				raise PtpUploaderException( JobRunningState.Ignored, "1080p is on your ignore list." )
+		elif releaseInfo.ResolutionType == "Other":
+			if not self.AutoUploadSd:
+				raise PtpUploaderException( JobRunningState.Ignored, "SD is on your ignore list." )
+
+		# TODO: add filtering support for Karagarga
+		# In case of automatic announcement we have to check the release name if it is valid.
+		# We know the release name from the announcement, so we can filter it without downloading anything (yet) from the source. 
+		#if not ReleaseFilter.IsValidReleaseName( releaseInfo.ReleaseName ):
+		#	logger.info( "Ignoring release '%s' because of its name." % releaseInfo.ReleaseName )
+		#	return None
+
 	def PrepareDownload(self, logger, releaseInfo):
 		if releaseInfo.IsUserCreatedJob():
 			self.__DownloadNfo( logger, releaseInfo )
 		else:
-			# TODO: add filtering support for Karagarga
-			# In case of automatic announcement we have to check the release name if it is valid.
-			# We know the release name from the announcement, so we can filter it without downloading anything (yet) from the source. 
-			#if not ReleaseFilter.IsValidReleaseName( releaseInfo.ReleaseName ):
-			#	logger.info( "Ignoring release '%s' because of its name." % releaseInfo.ReleaseName )
-			#	return None
 			self.__DownloadNfo( logger, releaseInfo )
+			self.__HandleAutoCreatedJob( releaseInfo )
 
 	def ParsePageForExternalCreateJob( self, logger, releaseInfo, html ):
 		self.__ParsePage( logger, releaseInfo, html, parseForExternalCreateJob = True )
