@@ -63,7 +63,7 @@ class Gft(SourceBase):
 		result = MyGlobals.session.get( url )
 		result.raise_for_status()
 		response = result.text
-		response = response.decode( "ISO-8859-1", "ignore" )
+		response = response.encode( "ascii", "ignore" )
 		self.CheckIfLoggedInFromResponse( response )
 
 		releaseInfo.ImdbId = NfoParser.GetImdbId( response )
