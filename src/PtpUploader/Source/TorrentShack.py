@@ -31,7 +31,7 @@ class TorrentShack( SourceBase ):
 		# Check the "keep logged in?" checkbox, otherwise we lose our loginsession after some time.
 		postData = { "username": self.Username, "password": self.Password, "keeplogged": "1" }
 
-		result = MakeRetryingHttpPostRequestWithRequests( "http://torrentshack.eu/login.php", postData )
+		result = MakeRetryingHttpPostRequestWithRequests( "http://theshack.us.to/login.php", postData )
 		self.CheckIfLoggedInFromResponse( result.text )
 
 	def CheckIfLoggedInFromResponse( self, response ):
@@ -41,7 +41,7 @@ class TorrentShack( SourceBase ):
 	# Sets IMDb if presents in the torrent description.
 	# Returns with the release name.
 	def __ReadTorrentPage( self, logger, releaseInfo ):
-		url = "http://torrentshack.eu/torrents.php?torrentid=%s" % releaseInfo.AnnouncementId
+		url = "http://theshack.us.to/torrents.php?torrentid=%s" % releaseInfo.AnnouncementId
 		logger.info( "Downloading NFO from page '%s'." % url )
 
 		result = MakeRetryingHttpGetRequestWithRequests( url )
@@ -80,7 +80,7 @@ class TorrentShack( SourceBase ):
 		if matches is None:
 			raise PtpUploaderException( JobRunningState.Ignored_MissingInfo, "Download link can't be found on torrent page." )
 		# We have to change "&amp;" to "&".
-		releaseInfo.SceneAccessDownloadUrl = "http://torrentshack.eu/torrents.php" + matches.group( 1 ).replace("&amp;", "&")
+		releaseInfo.SceneAccessDownloadUrl = "http://theshack.us.to/torrents.php" + matches.group( 1 ).replace("&amp;", "&")
 		return releaseName
 
 	def __HandleUserCreatedJob( self, logger, releaseInfo ):
@@ -144,18 +144,18 @@ class TorrentShack( SourceBase ):
 			raise PtpUploaderException( "Torrent '%s' contains multiple NFO files." % path )
 
 	def GetIdFromUrl( self, url ):
-		result = re.match( r".*torrentshack\.eu/torrents.php\?torrentid=(\d+).*", url )
+		result = re.match( r".*theshack\.us\.to/torrents.php\?torrentid=(\d+).*", url )
 		if result is None:
 			return ""
 		else:
 			return result.group( 1 )
 
 	def GetUrlFromId( self, id ):
-		return "http://torrentshack.eu/torrents.php?torrentid=" + id
+		return "http://theshack.us.to/torrents.php?torrentid=" + id
 
 	def GetIdFromAutodlIrssiUrl( self, url ):
-		# http://www.torrentshack.eu/torrents.php?action=diwnload&id=12345
-		result = re.match( r".*torrentshack\.eu\/torrents\.php\?action=download\&id=(\d+).*", url )
+		# http://theshack.us.to/torrents.php?action=diwnload&id=12345
+		result = re.match( r".*theshack\.us\.to\/torrents\.php\?action=download\&id=(\d+).*", url )
 		if result is None:
 			return ""
 		else:
