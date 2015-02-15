@@ -92,15 +92,14 @@ class HDTorrents( SourceBase ):
 
 	def __HandleUserCreatedJob( self, logger, releaseInfo ):
 		releaseName = self.__ReadTorrentPage( logger, releaseInfo )
-		releaseInfo.ReleaseName = releaseName
+		if not releaseInfo.IsReleaseNameSet():
+			releaseInfo.ReleaseName = RemoveDisallowedCharactersFromPath( releaseName )
 
 		releaseNameParser = ReleaseNameParser( releaseInfo.ReleaseName )
 		isAllowedMessage = releaseNameParser.IsAllowed()
 		if isAllowedMessage is not None:
 			raise PtpUploaderException( JobRunningState.Ignored, isAllowedMessage )
 
-		releaseInfo.ReleaseName = RemoveDisallowedCharactersFromPath( releaseInfo.ReleaseName)
-		
 		releaseNameParser.GetSourceAndFormat( releaseInfo )
 		if releaseNameParser.Scene:
 			releaseInfo.SetSceneRelease()
@@ -110,13 +109,13 @@ class HDTorrents( SourceBase ):
 		# We know the release name from the announcement, so we can filter it without downloading anything (yet) from the source.
 
 		releaseInfo.ReleaseName = self.__ReadTorrentPage( logger, releaseInfo )
+		releaseInfo.ReleaseName = RemoveDisallowedCharactersFromPath( releaseInfo.ReleaseName )
+
 		releaseNameParser = ReleaseNameParser( releaseInfo.ReleaseName )
 		isAllowedMessage = releaseNameParser.IsAllowed()
 		if isAllowedMessage is not None:
 			raise PtpUploaderException( JobRunningState.Ignored, isAllowedMessage )
 
-		releaseInfo.ReleaseName = RemoveDisallowedCharactersFromPath( releaseInfo.ReleaseName)
-			
 		releaseNameParser.GetSourceAndFormat( releaseInfo )
 
 		if releaseNameParser.Scene:
