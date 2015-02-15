@@ -35,6 +35,7 @@
 // @include     http*://*cinematik.net/details.php*
 // @include     http*://*horrorcharnel.kicks-ass.org/details.php*
 // @include     http*://*theshack.us.to/torrents.php?torrentid=*
+// @include     http*://*bitvaulttorrent.com/details.php*
 // ==/UserScript==
 
 // START OF SETTINGS
@@ -224,6 +225,8 @@ function Main()
 		downloadLinkRegEx = /torrents.php\?action=download.*?id=\d+.*/;
 		siteName = "ahd";
 	}
+	else if ( /https?:\/\/.*?bitvaulttorrent\.com\/details\.php\?id=.*/.test( document.URL ) )
+		downloadLinkRegEx = /download.php\/\d+\/.*/; 
 	else if ( /https?:\/\/.*?bit-hdtv\.com\/details\.php\?id=.*/.test( document.URL ) )
 		downloadLinkRegEx = /download.php\?\/\d+\/.*/;
 	else if ( /https?:\/\/.*?chdbits\.org\/details\.php\?id=.*/.test( document.URL ) )
