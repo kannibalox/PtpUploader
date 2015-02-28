@@ -34,7 +34,7 @@
 // @include     http*://*hdwing.com/details.php*
 // @include     http*://*cinematik.net/details.php*
 // @include     http*://*horrorcharnel.kicks-ass.org/details.php*
-// @include     http*://*theshack.us.to/torrents.php?torrentid=*
+// @include     http*://*torrentshack.me/torrents.php?torrentid=*
 // @include     http*://*bitvaulttorrent.com/details.php*
 // ==/UserScript==
 
@@ -276,7 +276,7 @@ function Main()
 		downloadLinkRegEx = /download.php\?torrent=\d+.*/;
 		imdbUrl = GetNonLinkifiedImdbUrl(); // Links in the NFO are not linkified on GFT.
 	}
-	else if ( /https?:\/\/.*?theshack\.us\.to\/torrents\.php\?torrentid=.*/.test( document.URL ) )
+	else if ( /https?:\/\/.*?torrentshack\.me\/torrents\.php\?torrentid=.*/.test( document.URL ) )
 	{
 		downloadLinkRegEx = /(?!.*ssl=1$)torrents.php\?action=download.*?id=\d+.*?$/;
 		imdbUrl = GetNonLinkifiedImdbUrl(); // Links in the NFO are not linkified on Torrent Shack.
