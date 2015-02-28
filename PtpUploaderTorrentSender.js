@@ -7,7 +7,7 @@
 // @date        2014-02-19
 // @namespace   http://greasemonkey.mozdev.com
 
-// @include     http*://*all.hdvnbits.org/*
+// @include     http*://*torviet.com/*
 // @include     http*://*awesome-hd.net/torrents.php*
 // @include     http*://*bit-hdtv.com/details.php*
 // @include     http*://*chdbits.org/details.php*
@@ -29,19 +29,29 @@
 // @include     http*://*thegft.org/details.php*
 // @include     http*://*torrentleech.org/torrent/*
 // @include     http*://*digitalhive.org/details.php*
-// @include     http*://www.desitorrents.com/forums/*
+// @include     http*://*desitorrents.com/forums/*
 // @include     http*://*bollywoodtorrents.me/*
 // @include     http*://*hdwing.com/details.php*
 // @include     http*://*cinematik.net/details.php*
 // @include     http*://*horrorcharnel.kicks-ass.org/details.php*
 // @include     http*://*torrentshack.me/torrents.php?torrentid=*
 // @include     http*://*bitvaulttorrent.com/details.php*
+// @include     http*://*opensharing.org/torrent/*
+// @include     http*://*rarbg.com/*
+// @include     http*://*publichd.to/*
+// @include     http*://*extratorrent.cc/*
+// @include     http*://*hdaccess.net/*
+// @include     http*://*devilscore.org/*
+// @include     http*://*revolutiontt.me/*
+// @include     http*://*hon3yhd.com/*
+// @include     http*://*hdclub.com.ua/*
 // ==/UserScript==
 
 // START OF SETTINGS
 
 // Set the URL of your PtpUploader in the following link.
-var ptpUploaderUrl = "http://address.of-ptpuploader.com:5500";
+// E.g.: http://myhost.com:5500
+var ptpUploaderUrl = "http://<address>:<port>";
 
 // The GreasemonkeyTorrentSenderPassword set in your Settings.ini.
 var ptpUploaderTorrentSenderPassword = "password";
@@ -218,7 +228,7 @@ function Main()
 	var imdbUrl = "";
 	var sendPageContent = false;
 
-	if ( /https?:\/\/all\.hdvnbits\.org\/.*/.test( document.URL ) )
+	if ( /https?:\/\/torviet\.com\/.*/.test( document.URL ) )
 		downloadLinkRegEx = /download.php\?id=\d+.*/;
 	else if ( /https?:\/\/.*?awesome-hd\.net\/torrents\.php\?id=.*/.test( document.URL ) )
 	{
@@ -231,6 +241,11 @@ function Main()
 		downloadLinkRegEx = /download.php\?\/\d+\/.*/;
 	else if ( /https?:\/\/.*?chdbits\.org\/details\.php\?id=.*/.test( document.URL ) )
 		downloadLinkRegEx = /download.php\?id=\d+.*/;
+	else if ( /https?:\/\/.*?hon3yhd\.com\/.*/.test( document.URL ) )
+	{
+		downloadLinkRegEx = /download.php\?id=.*/;
+		imdbUrl = GetNonLinkifiedImdbUrl();
+	}
 	else if ( /https?:\/\/.*?cinemageddon\.net\/details\.php\?id=.*/.test( document.URL ) )
 	{
 		downloadLinkRegEx = /download.php\?id=\d+.*/;
@@ -240,12 +255,16 @@ function Main()
 		downloadLinkRegEx = /download.php\?torrent=\d+.*/;
 	else if ( /https?:\/\/.*?hd-torrents\.org\/details\.php\?id=.*/.test( document.URL ) )
 		downloadLinkRegEx = /download.php\?id=.+/;
+	else if ( /https?:\/\/.*?devilscore\.org\/details\.php\?id=.*/.test( document.URL ) )
+		downloadLinkRegEx = /download.php\?id=.+/;
 	else if ( /https?:\/\/.*?hdts\.ru\/details\.php\?id=.*/.test( document.URL ) )
 		downloadLinkRegEx = /download.php\?id=.+/;
 	else if ( /https?:\/\/.*?hdahoy\.net\/torrents\.php\?id=.*/.test( document.URL ) )
 		downloadLinkRegEx = /torrents.php\?action=download.*?id=\d+.*/;
 	else if ( /https?:\/\/.*?hdbits\.org\/details\.php\?id=.*/.test( document.URL ) )
 		downloadLinkRegEx = /download.php\/.*?\?id=\d+.*/;
+	else if ( /https?:\/\/.*?hdaccess\.net\/details\.php\?id=.*/.test( document.URL ) )
+		downloadLinkRegEx = /download.php\?torrent=\d+/;
 	else if ( /https?:\/\/.*?hdme\.eu\/details\.php\?id=.*/.test( document.URL ) )
 		downloadLinkRegEx = /download.php\?torrent=\d+.*/;
 	else if ( /https?:\/\/.*?iptorrents\.(?:com|me|ru)\/details\.php\?id=.*/.test( document.URL ) )
@@ -269,8 +288,25 @@ function Main()
 		downloadLinkRegEx = /download.php\?torrent=\d+.*/;
 	else if ( /https?:\/\/.*?cinematik\.net\/details\.php\?id=.*/.test( document.URL ) )
 		downloadLinkRegEx = /download.php\?id=\d+.*/;
+	else if ( /https?:\/\/.*?hdclub\.com\.ua\/details\.php\?id=.*/.test( document.URL ) )
+		downloadLinkRegEx = /download.php\?id=\d+.*/;
 	else if ( /https?:\/\/.*?hdwing\.com\/details\.php\?id=.*/.test( document.URL ) )
 		downloadLinkRegEx = /download.php\/\d+\/.*/;
+	else if ( /https?:\/\/.*?opensharing\.org\/.*/.test( document.URL ) )
+		downloadLinkRegEx = /download\/\d+.*/;
+	else if ( /https?:\/\/.*?rarbg\.com\/.*/.test( document.URL ) )
+		downloadLinkRegEx = /download.php\?id=\.*/;
+	else if ( /https?:\/\/.*?publichd\.to\/.*/.test( document.URL ) )
+		downloadLinkRegEx = /torrent\/download\/.*/;
+	else if ( /https?:\/\/.*?revolutiontt\.me\/.*/.test( document.URL ) )
+		downloadLinkRegEx = /download\.php\/.*/;
+	else if ( /https?:\/\/.*extratorrent\.cc\/.*/.test( document.URL ) )
+	{
+		downloadLinkRegEx = /xt=urn:btih:\/(\w+)/;
+		var match = document.body.innerHTML.match( downloadLinkRegEx );
+		if ( match )
+			downloadUrl = "http://178.73.198.210/torrent/" + match[ 1 ] + ".torrent";
+	}
 	else if ( /https?:\/\/.*?thegft\.org\/details\.php\?id=.*/.test( document.URL ) )
 	{
 		downloadLinkRegEx = /download.php\?torrent=\d+.*/;
@@ -289,9 +325,9 @@ function Main()
 		if ( match )
 			downloadUrl = window.location.protocol + "//" + window.location.host + "/attachment.php?" + match[ 0 ];
 	}
-	else if ( /https?:\/\/.*?desitorrents\.com\/forums\/.*/.test( document.URL ) )
+	else if ( /https?:\/\/.*?desitorrents\.com\/.*/.test( document.URL ) )
 	{
-		downloadLinkRegEx = /attachment\.php.*/;
+		downloadLinkRegEx = /attachment\.php\?.*/;
 		imdbUrl = GetNonLinkifiedImdbUrl();
 	}
 	else if ( /https?:\/\/.*?torrentleech\.org\/torrent\/.*/.test( document.URL ) )
