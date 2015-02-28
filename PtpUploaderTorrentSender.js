@@ -14,7 +14,7 @@
 // @include     http*://*cinemageddon.net/details.php*
 // @include     http*://*fuckyeahtorrents.com/details.php*
 // @include     http*://*hd-torrents.org/details.php*
-// @include 	http*://*hdts.ru/details.php*
+// @include     http*://*hdts.ru/details.php*
 // @include     http*://*hdahoy.net/torrents.php*
 // @include     http*://*hdbits.org/details.php*
 // @include     http*://*hdme.eu/details.php*
@@ -176,7 +176,7 @@ function IsCorrectAhdImdbUrl( urlNode )
 			break;
 
 		if ( urlNode.id && urlNode.id.indexOf( "movieinfo_" ) != -1 )
-		return true;
+			return true;
 	}
 
 	return false;
