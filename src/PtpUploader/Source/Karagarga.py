@@ -66,6 +66,8 @@ class Karagarga(SourceBase):
 			releaseInfo.Source = "Blu-ray"
 		elif sourceType == "dvd":
 			releaseInfo.Source = "DVD"
+		elif sourceType == "web":
+			releaseInfo.Source = "WEB"
 		elif sourceType == "vhs":
 			releaseInfo.Source = "VHS"
 		elif sourceType == "tv":
