@@ -4,8 +4,9 @@ Quick installation
 
 Run these commands from Linux's shell. (Most likely you have to use PuTTY.)
 
-svn checkout http://ptpuploader.googlecode.com/svn/trunk/src/ PTP
+mkdir PTP
 cd PTP
+git clone https://github.com/TnS-hun/PtpUploader.git Program
 wget https://pypi.python.org/packages/source/v/virtualenv/virtualenv-1.11.tar.gz
 tar xvfz virtualenv-1.11.tar.gz
 python virtualenv-1.11/virtualenv.py -v --distribute MyEnv
@@ -21,19 +22,19 @@ MyEnv/bin/easy_install watchdog
 MyEnv/bin/pyroadmin --create-config
 
 mkdir WorkingDirectory
-cp PtpUploader/Settings.example.ini PtpUploader/Settings.ini
+cp Program/src/PtpUploader/Settings.example.ini Program/src/PtpUploader/Settings.ini
 
 If you want to bypass CloudFlare's browser verification also run this:
 MyEnv/bin/easy_install PyExecJS
 wget https://github.com/emmetio/pyv8-binaries/raw/master/pyv8-linux64.zip
 unzip pyv8-linux64.zip
-mv _PyV8.so PtpUploader/
-mv PyV8.py PtpUploader/
+mv _PyV8.so Program/src/PtpUploader/
+mv PyV8.py Program/src/PtpUploader/
 rm pyv8-linux64.zip
 
 If you're using Transmission also run this: MyEnv/bin/easy_install transmissionrpc
 
-Edit and fill out the details in PtpUploader/Settings.ini.
+Edit and fill out the details in Program/src/PtpUploader/Settings.ini.
 
 See the "Starting PtpUploader in the background" section for how to start it.
 
@@ -85,12 +86,12 @@ Extracting PtpUploader
 
 Recommended directory structure:
 	- PTP
-		- FlexGet
-		- PtpUploader
-	- WorkingDirectory
+		- Program
+		- WorkingDirectory
 
-The easiest way is to get the source straight from Subversion:
-svn checkout http://ptpuploader.googlecode.com/svn/trunk/src/ /path to your PTP directory/
+The easiest way is to get the source straight from GitHub:
+cd ~/PTP
+git clone https://github.com/TnS-hun/PtpUploader.git Program
 
 =====================================================================================================================================================
 Configuring PyroScope
@@ -103,7 +104,7 @@ pyroadmin --create-config
 Configuring PtpUploader
 =====================================================================================================================================================
 
-Copy PtpUploader/Settings.example.ini to Settings.ini and edit the latter.
+Copy Program/src/PtpUploader/Settings.example.ini to Settings.ini and edit the latter.
 
 =====================================================================================================================================================
 Installing FFmpeg (optional)
@@ -154,7 +155,7 @@ Edit ~/.autodl/autodl.cfg and fill out the details (everything that starts with 
 Configuring FlexGet (optional)
 =====================================================================================================================================================
 
-Copy FlexGet/config.example.yml to config.yml.
+Copy Program/src/FlexGet/config.example.yml to config.yml.
 Make sure you change the path of the working directory in the config file.
 FlexGet needs to run periodically to update the RSS feeds.
 See FlexGet's documentation for details: http://flexget.com/wiki/InstallWizard/Linux/NoRoot/Virtualenv/Scheduling
@@ -198,7 +199,8 @@ When first accessing PtpUploader with the https address your browser will show a
 Starting PtpUploader in the background
 =====================================================================================================================================================
 
-screen -S PtpUploader MyEnv/bin/python /path to PtpUploader/Main.py
+Enter into your PTP directory (e.g.: cd ~/PTP) then use the following command:
+screen -S PtpUploader MyEnv/bin/python Program/src/PtpUploader/Main.py
 
 Use Ctrl+A, D to disconnect from screen. You can use "screen -r PtpUploader" to reconnect.
 
@@ -207,5 +209,6 @@ Updating PtpUploader
 =====================================================================================================================================================
 
 1. Stop PtpUploader
-2. svn update /path/to/PtpUploader/
+2. Enter into your PTP directory (e.g.: cd ~/PTP) then use the following command
+2. cd Program && git pull --ff-only
 3. Restart PtpUploader
