@@ -18,7 +18,7 @@ a.multiSelect:link, a.multiSelect:visited, a.multiSelect:hover, a.multiSelect:ac
 
 a.multiSelect span
 {
-	margin: 1px 0px 1px 3px;
+	margin: 1px 0 1px 3px;
 	overflow: hidden;
 	display: -moz-inline-stack;
 	display: inline-block;
@@ -47,7 +47,7 @@ a.multiSelect.active {
 }
 
 .multiSelectOptions LABEL {
-	padding: 0px 2px;
+	padding: 0 2px;
 	display: block;
 	white-space: nowrap;
 }

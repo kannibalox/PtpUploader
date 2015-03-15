@@ -33,7 +33,7 @@ nav
 
 nav ul
 {
-	margin: 0px 0 10px 0;
+	margin: 0 0 10px 0;
 	padding: 0;
 }
 
@@ -66,7 +66,7 @@ span.title, span.title a
 
 table.jobs
 {
-	border-spacing: 0px;
+	border-spacing: 0;
 	width: 100%;
 }
 
@@ -166,6 +166,6 @@ div#IncludedFilesDialog
 .jobs_search_states_ul
 {
 	list-style: none outside none;
-	padding: 0px 8px 0px 0px;
+	padding: 0 8px 0 0;
 	margin: 0;
 }

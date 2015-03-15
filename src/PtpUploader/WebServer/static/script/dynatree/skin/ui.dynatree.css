@@ -117,12 +117,12 @@ span.dynatree-connector
 
 span.dynatree-expander
 {
-	background-position: 0px -80px;
+	background-position: 0 -80px;
 	cursor: pointer;
 }
 .dynatree-exp-cl span.dynatree-expander /* Collapsed, not delayed, last sibling */
 {
-	background-position: 0px -96px;
+	background-position: 0 -96px;
 }
 .dynatree-exp-cd span.dynatree-expander /* Collapsed, delayed, not last sibling */
 {
@@ -155,7 +155,7 @@ span.dynatree-expander
 span.dynatree-checkbox
 {
 	margin-left: 3px;
-	background-position: 0px -32px;
+	background-position: 0 -32px;
 }
 span.dynatree-checkbox:hover
 {
@@ -188,7 +188,7 @@ span.dynatree-checkbox:hover
 span.dynatree-radio
 {
 	margin-left: 3px;
-	background-position: 0px -48px;
+	background-position: 0 -48px;
 }
 span.dynatree-radio:hover
 {
@@ -226,12 +226,12 @@ span.dynatree-radio:hover
 span.dynatree-icon /* Default icon */
 {
 	margin-left: 3px;
-	background-position: 0px 0px;
+	background-position: 0 0;
 }
 
 .dynatree-ico-cf span.dynatree-icon  /* Collapsed Folder */
 {
-	background-position: 0px -16px;
+	background-position: 0 -16px;
 }
 
 .dynatree-ico-ef span.dynatree-icon  /* Expanded Folder */
@@ -248,7 +248,7 @@ span.dynatree-icon /* Default icon */
 
 .dynatree-statusnode-error span.dynatree-icon
 {
-	background-position: 0px -112px;
+	background-position: 0 -112px;
 /*	background-image: url("ltError.gif");*/
 }
 
@@ -272,7 +272,7 @@ ul.dynatree-container a
 	color: black; /* inherit doesn't work on IE */
 	text-decoration: none;
 	vertical-align: top;
-	margin: 0px;
+	margin: 0;
 	margin-left: 3px;
 /*	outline: 0; /* @ Firefox, prevent dotted border after click */
 }
