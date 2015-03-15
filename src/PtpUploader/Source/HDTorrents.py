@@ -22,7 +22,7 @@ class HDTorrents( SourceBase ):
 	def __init__( self ):
 		SourceBase.__init__( self )
 
-		self.Name = "hdt"
+		self.Name = "hdts"
 		self.NameInSettings = "HDTorrents"
 
 	def LoadSettings( self, settings ):
