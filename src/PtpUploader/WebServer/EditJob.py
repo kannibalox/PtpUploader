@@ -19,7 +19,7 @@ def EditJob(jobId):
 		releaseInfo = Database.DbSession.query( ReleaseInfo ).filter( ReleaseInfo.Id == jobId ).first()
 
 		# TODO: This is very far from perfect. There is no guarantee that the job didn't start meanwhile.
-		# Probably only the WorkerThred should change the running state.  		
+		# Probably only the WorkerThread should change the running state.  		
 		if not releaseInfo.CanEdited():
 			return "The job is currently running and can't be edited!"
 

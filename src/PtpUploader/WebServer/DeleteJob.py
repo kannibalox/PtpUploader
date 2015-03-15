@@ -16,7 +16,7 @@ def DeleteTheJob(jobId):
 	releaseInfo = Database.DbSession.query( ReleaseInfo ).filter( ReleaseInfo.Id == jobId ).first()
 
 	# TODO: This is very far from perfect. There is no guarantee that the job didn't start meanwhile.
-	# Probably the WorkerThred should do the deleting.
+	# Probably the WorkerThread should do the deleting.
 	if not releaseInfo.CanDeleted():
 		return "The job is currently running and can't be deleted!"
 
