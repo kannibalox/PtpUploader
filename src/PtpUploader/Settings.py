@@ -5,6 +5,7 @@ import codecs
 import ConfigParser
 import fnmatch
 import os
+import os.path
 import re
 import subprocess
 
@@ -142,7 +143,7 @@ class Settings(object):
 		Settings.UnrarPath = configParser.get( "Settings", "UnrarPath" )
 		Settings.ImageMagickConvertPath = Settings.__GetDefault( configParser, "Settings", "ImageMagickConvertPath", "" ) 
 		
-		Settings.WorkingPath = configParser.get( "Settings", "WorkingPath" )
+		Settings.WorkingPath = os.path.expanduser( configParser.get( "Settings", "WorkingPath" ) )
 		
 		Settings.AllowReleaseTag = Settings.MakeListOfListsFromString( Settings.__GetDefault( configParser, "Settings", "AllowReleaseTag", "" ) )
 		Settings.IgnoreReleaseTag = Settings.MakeListOfListsFromString( Settings.__GetDefault( configParser, "Settings", "IgnoreReleaseTag", "" ) )
