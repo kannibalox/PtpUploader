@@ -43,11 +43,12 @@ class ScreenshotMaker:
 
 		if ImageMagick.IsEnabled():
 			ImageMagick.OptimizePng( self.Logger, screenshotPath )
-                        
-                try:
-                        imageUrl = ImageUploader.Upload( self.Logger, imagePath = screenshotPath )
-                finally:
-                        os.remove( screenshotPath )
+
+		try:
+			imageUrl = ImageUploader.Upload( self.Logger, imagePath = screenshotPath )
+		finally:
+			os.remove( screenshotPath )
+
 		return imageUrl
 
 	# Takes maximum five screenshots from the first 30% of the video.
