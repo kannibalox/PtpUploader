@@ -9,6 +9,7 @@ from Source.Karagarga import Karagarga
 from Source.Torrent import Torrent
 from Source.TorrentLeech import TorrentLeech
 from Source.TorrentShack import TorrentShack
+from Source.RevolutionTT import RevolutionTT
 
 from MyGlobals import MyGlobals
 from Settings import Settings
@@ -29,6 +30,7 @@ class SourceFactory:
 		self.__AddSource( Karagarga() )
 		self.__AddSource( TorrentLeech() )
 		self.__AddSource( TorrentShack() )
+		self.__AddSource( RevolutionTT() )
 
 		MyGlobals.Logger.info( "Sources initialized." )
 
