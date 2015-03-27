@@ -2,7 +2,8 @@ Code:
 	- TnS
 
 Contributors:
-	- dhosha (FunFile support, PtpUploaderTorrentSender sites)
+	- cerbere (HDBits support)
+	- dhosha (FunFile, RevolutionTT support, PtpUploaderTorrentSender sites)
 	- kannibalox (configurable initial directory for the file picker)
 	- Mako_1 (HD-Torrents and TorrentShack support, CloudFlare verification)
 	- verysofttoiletpaper (Transmission support)

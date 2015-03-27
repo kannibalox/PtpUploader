@@ -2,18 +2,20 @@ With the PtpUploader's WebUI you can upload to PTP by specifying a torrent file 
 There is also an automatic mode built-in that can check announcements from IRC or RSS and upload everything automatically.
 
 Supported sites for automatic mode:
-* Cinemageddon (RSS)
-* Cinematik (RSS)
-* GFT (IRC, RSS)
-* HDBits (IRC)
+* Cinemageddon
+* Cinematik
+* GFT
+* HDBits
 	* Thanks to cerbere!
-* HD-Torrents (IRC)
+* HD-Torrents
 	* Thanks to Mako_1!
-*  Karagarga (RSS)
-*  TorrentLeech (IRC, RSS)
-*  TorrentShack (IRC)
+*  Karagarga
+*  TorrentLeech
+*  TorrentShack
 	* Thanks to Mako_1!
-*  FunFile (IRC)
+* FunFile
+	* Thanks to dhosha!
+* RevolutionTT
 	* Thanks to dhosha!
 
 SceneAccess support was removed on the 9th of July 2013 because of staff pressure...
