@@ -36,7 +36,7 @@ class Ptp:
 
 		# Use cloudflare-scrape if installed.
 		try:	
-			from ThirdParty.cfscrape import CloudflareAdapter
+			from cfscrape import CloudflareAdapter
 			MyGlobals.session.mount( "http://", CloudflareAdapter() )
 		except ImportError:
 			pass

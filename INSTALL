@@ -25,6 +25,7 @@ mkdir WorkingDirectory
 cp Program/src/PtpUploader/Settings.example.ini Program/src/PtpUploader/Settings.ini
 
 If you want to bypass CloudFlare's browser verification also run this:
+MyEnv/bin/easy_install cfscrape
 MyEnv/bin/easy_install PyExecJS
 wget https://github.com/emmetio/pyv8-binaries/raw/master/pyv8-linux64.zip
 unzip pyv8-linux64.zip
