@@ -125,6 +125,10 @@ class Upload(WorkerBase):
 			else:
 				raise PtpUploaderException( "Unsupported container: '%s'." % mediaInfo.Container )
 
+	@staticmethod
+	def __CanIgnoreDetectedAndSetCodecDifference( detected, set ):
+		return ( detected == "x264" and set == "H.264" ) or ( detected == "H.264" and set == "x264" )
+
 	def __GetMediaInfoCodec(self, mediaInfo):
 		codec = ""
 
@@ -154,7 +158,10 @@ class Upload(WorkerBase):
 
 		if self.ReleaseInfo.IsCodecSet():
 			if codec != self.ReleaseInfo.Codec:
-				if self.ReleaseInfo.IsForceUpload():
+				if Upload.__CanIgnoreDetectedAndSetCodecDifference( codec, self.ReleaseInfo.Codec ):
+					self.ReleaseInfo.Logger.info( "Codec is set to '%s', detected MediaInfo codec is '%s' ('%s'). Using the detected codec." % ( self.ReleaseInfo.Codec, codec, mediaInfo.Codec ) )
+					self.ReleaseInfo.Codec = codec
+				elif self.ReleaseInfo.IsForceUpload():
 					self.ReleaseInfo.Logger.info( "Codec is set to '%s', detected MediaInfo codec is '%s' ('%s'). Ignoring mismatch because of force upload." % ( self.ReleaseInfo.Codec, codec, mediaInfo.Codec ) )
 				else:
 					raise PtpUploaderException( "Codec is set to '%s', detected MediaInfo codec is '%s' ('%s')." % ( self.ReleaseInfo.Codec, codec, mediaInfo.Codec ) )
