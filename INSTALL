@@ -17,7 +17,7 @@ MyEnv/bin/easy_install pyrobase
 MyEnv/bin/easy_install pyrocore
 MyEnv/bin/easy_install --upgrade sqlalchemy
 MyEnv/bin/easy_install flask
-MyEnv/bin/easy_install requests[security]
+MyEnv/bin/easy_install requests[security] || MyEnv/bin/easy_install requests
 MyEnv/bin/easy_install watchdog
 MyEnv/bin/pyroadmin --create-config
 
