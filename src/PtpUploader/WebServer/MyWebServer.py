@@ -29,7 +29,6 @@ class MyWebServer(threading.Thread):
 		sslContext = None
 
 		if len( Settings.WebServerSslCertificatePath ) > 0 and len( Settings.WebServerSslPrivateKeyPath ) > 0:
-			from OpenSSL import SSL
 			MyGlobals.Logger.info( "Starting webserver on https://%s:%s." % ( host, port ) )
 			sslContext = ( Settings.WebServerSslCertificatePath, Settings.WebServerSslPrivateKeyPath )
 		else:
