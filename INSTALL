@@ -19,6 +19,7 @@ MyEnv/bin/easy_install --upgrade sqlalchemy
 MyEnv/bin/easy_install flask
 MyEnv/bin/easy_install requests[security] || MyEnv/bin/easy_install requests
 MyEnv/bin/easy_install watchdog
+MyEnv/bin/easy_install pip
 MyEnv/bin/pyroadmin --create-config
 
 mkdir WorkingDirectory
@@ -38,6 +39,15 @@ If you're using Transmission also run this: MyEnv/bin/easy_install transmissionr
 Edit and fill out the details in Program/src/PtpUploader/Settings.ini.
 
 See the "Starting PtpUploader in the background" section for how to start it.
+
+﻿=====================================================================================================================================================
+Upgrading Modules installed earlier (Should be done monthly or sooner)
+=====================================================================================================================================================
+
+cd PTP
+MyEnv/bin/pip freeze --local | grep -v '^\-e' | cut -d = -f 1  | xargs ~/PTP/MyEnv/bin/pip install -U
+
+You can also add this to crontab so it does it automatically.
 
 =====================================================================================================================================================
 Installation details
