@@ -11,30 +11,29 @@ wget https://pypi.python.org/packages/source/v/virtualenv/virtualenv-12.1.1.tar.
 tar xvfz virtualenv-12.1.1.tar.gz
 python virtualenv-12.1.1/virtualenv.py -v --distribute MyEnv
 
-MyEnv/bin/easy_install simplejson
-MyEnv/bin/easy_install poster
-MyEnv/bin/easy_install pyrobase
-MyEnv/bin/easy_install pyrocore
-MyEnv/bin/easy_install --upgrade sqlalchemy
-MyEnv/bin/easy_install flask
-MyEnv/bin/easy_install requests[security] || MyEnv/bin/easy_install requests
-MyEnv/bin/easy_install watchdog
-MyEnv/bin/easy_install pip
+MyEnv/bin/pip install simplejson
+MyEnv/bin/pip install poster
+MyEnv/bin/pip install pyrobase
+MyEnv/bin/pip install pyrocore
+MyEnv/bin/pip install --upgrade sqlalchemy
+MyEnv/bin/pip install flask
+MyEnv/bin/pip install requests[security] || MyEnv/bin/pip install requests
+MyEnv/bin/pip install watchdog
 MyEnv/bin/pyroadmin --create-config
 
 mkdir WorkingDirectory
 cp Program/src/PtpUploader/Settings.example.ini Program/src/PtpUploader/Settings.ini
 
 If you want to bypass CloudFlare's browser verification also run this:
-MyEnv/bin/easy_install cfscrape
-MyEnv/bin/easy_install PyExecJS
+MyEnv/bin/pip install cfscrape
+MyEnv/bin/pip install PyExecJS
 wget https://github.com/emmetio/pyv8-binaries/raw/master/pyv8-linux64.zip
 unzip pyv8-linux64.zip
 mv _PyV8.so Program/src/PtpUploader/
 mv PyV8.py Program/src/PtpUploader/
 rm pyv8-linux64.zip
 
-If you're using Transmission also run this: MyEnv/bin/easy_install transmissionrpc
+If you're using Transmission also run this: MyEnv/bin/pip install transmissionrpc
 
 Edit and fill out the details in Program/src/PtpUploader/Settings.ini.
 
@@ -192,7 +191,7 @@ Using https (optional)
 This is useful if you want to use the Torrent Sender Greasemonkey script from https sites.
 
 Install pyOpenSSL:
-MyEnv/bin/easy_install pyopenssl
+MyEnv/bin/pip install pyopenssl
 
 To create a self-signed SSL certificate run the following commands (when asked for input just press Enter):
 openssl genrsa -des3 -passout pass:x -out server.pass.key 2048
