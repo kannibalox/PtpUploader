@@ -117,7 +117,7 @@ class PtpMovieSearchResult:
 
 		torrents = moviePageJson[ "Torrents" ]
 		if len( torrents ) <= 0:
-			raise PtpUploaderException( "No torrents on movie page 'https://passthepopcorn.me/torrents.php?id=%s'." % self.PtpId )
+			raise PtpUploaderException( "No torrents on movie page 'https://tls.passthepopcorn.me/torrents.php?id=%s'." % self.PtpId )
 
 		# Get the list of torrents for each section.
 		for torrent in torrents:
