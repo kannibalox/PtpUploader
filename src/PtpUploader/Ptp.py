@@ -41,8 +41,8 @@ class Ptp:
 		except ImportError:
 			pass
 
-		MyGlobals.session.get( "http://passthepopcorn.me/ajax.php?action=login" )
-		response = MyGlobals.session.post( "http://passthepopcorn.me/ajax.php?action=login", data=postData )
+		MyGlobals.session.get( "https://tls.passthepopcorn.me/ajax.php?action=login" )
+		response = MyGlobals.session.post( "https://tls.passthepopcorn.me/ajax.php?action=login", data=postData )
 		response = response.text
 
 		jsonLoad = None
@@ -106,7 +106,7 @@ class Ptp:
 	def GetMoviePageOnPtp(logger, ptpId):
 		logger.info( "Getting movie page for PTP id '%s'." % ptpId )
 		
-		result = MyGlobals.session.get( "http://passthepopcorn.me/torrents.php?id=%s&json=1" % ptpId )
+		result = MyGlobals.session.get( "https://tls.passthepopcorn.me/torrents.php?id=%s&json=1" % ptpId )
 		response = result.text
 		Ptp.CheckIfLoggedInFromResponse( result, response )
 
@@ -121,12 +121,12 @@ class Ptp:
 	def GetMoviePageOnPtpByImdbId(logger, imdbId):
 		logger.info( "Trying to find movie with IMDb id '%s' on PTP." % imdbId );
 				
-		result = MyGlobals.session.get( "http://passthepopcorn.me/torrents.php?imdb=%s&json=1" % Ptp.NormalizeImdbIdForPtp( imdbId ) )
+		result = MyGlobals.session.get( "https://tls.passthepopcorn.me/torrents.php?imdb=%s&json=1" % Ptp.NormalizeImdbIdForPtp( imdbId ) )
 		response = result.text
 		Ptp.CheckIfLoggedInFromResponse( result, response );
 
-		# If there is a movie: result.url = http://passthepopcorn.me/torrents.php?id=28577
-		# If there is no movie: result.url = http://passthepopcorn.me/torrents.php?imdb=1535492
+		# If there is a movie: result.url = https://tls.passthepopcorn.me/torrents.php?id=28577
+		# If there is no movie: result.url = https://tls.passthepopcorn.me/torrents.php?imdb=1535492
 		match = re.match( r".*?passthepopcorn\.me/torrents\.php\?id=(\d+)", result.url );
 		if match is not None:
 			ptpId = match.group( 1 );
@@ -217,7 +217,7 @@ class Ptp:
 		
 		# We always use HTTPS for uploading because if "Force HTTPS" is enabled in the profile then the HTTP upload is not working.
 		if releaseInfo.HasPtpId():
-			logger.info( "Uploading torrent '%s' to PTP as a new format for 'http://passthepopcorn.me/torrents.php?id=%s'." % ( torrentPath, releaseInfo.PtpId ) );
+			logger.info( "Uploading torrent '%s' to PTP as a new format for 'https://tls.passthepopcorn.me/torrents.php?id=%s'." % ( torrentPath, releaseInfo.PtpId ) );
 			url = "https://tls.passthepopcorn.me/upload.php?groupid=%s" % releaseInfo.PtpId;
 			paramList.update( Ptp.__UploadMovieGetParamsForAddFormat( releaseInfo.PtpId ) );
 		else:
@@ -243,7 +243,7 @@ class Ptp:
 
 			raise PtpUploaderException( "Upload to PTP failed: '%s'. (We are still on the upload page.)" % errorMessage )
 
-		# URL format in case of successful upload: http://passthepopcorn.me/torrents.php?id=9329&torrentid=91868 
+		# URL format in case of successful upload: https://tls.passthepopcorn.me/torrents.php?id=9329&torrentid=91868 
 		match = re.match( r".*?passthepopcorn\.me/torrents\.php\?id=(\d+)&torrentid=(\d+)", result.url )
 		if match is None:
 			raise PtpUploaderException( "Upload to PTP failed: result URL '%s' is not the expected one." % result.url )
@@ -259,7 +259,7 @@ class Ptp:
 		MyGlobals.Logger.info( "Sending private message on PTP." );
 
 		# We need to load the send message page for the authentication key.
-		result = MyGlobals.session.get( "http://passthepopcorn.me/inbox.php?action=compose&to=%s" % userId )
+		result = MyGlobals.session.get( "https://tls.passthepopcorn.me/inbox.php?action=compose&to=%s" % userId )
 		response = result.text
 		Ptp.CheckIfLoggedInFromResponse( result, response )
 
