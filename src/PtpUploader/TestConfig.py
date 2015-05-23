@@ -26,7 +26,7 @@ class TestPtp:
 		MyGlobals.Logger.info( "Logging in to PTP." );
 		opener = urllib2.build_opener( urllib2.HTTPCookieProcessor( MyGlobals.CookieJar ) );
 		postData = urllib.urlencode( { "username": Settings.PtpUserName, "password": Settings.PtpPassword, "keeplogged": "1" } )
-		request = urllib2.Request( "http://passthepopcorn.me/login.php", postData );
+		request = urllib2.Request( "https://tls.passthepopcorn.me/login.php", postData );
 		MyGlobals.Logger.info( "DEBUG: Before result = opener.open( request );" )
 		result = opener.open( request );
 		MyGlobals.Logger.info( "DEBUG: Before response = result.read();" )
