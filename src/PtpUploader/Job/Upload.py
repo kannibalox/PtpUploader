@@ -375,7 +375,7 @@ class Upload(WorkerBase):
 		if len( Settings.OnSuccessfulUpload ) <= 0:
 			return
 
-		uploadedTorrentUrl = "http://passthepopcorn.me/torrents.php?id=" + self.ReleaseInfo.PtpId
+		uploadedTorrentUrl = "https://tls.passthepopcorn.me/torrents.php?id=" + self.ReleaseInfo.PtpId
 		command = Settings.OnSuccessfulUpload % { "releaseName": self.ReleaseInfo.ReleaseName, "uploadPath": self.ReleaseInfo.UploadTorrentCreatePath, "uploadedTorrentUrl": uploadedTorrentUrl }
 
 		# We don't care if this fails. Our upload is complete anyway. :)
