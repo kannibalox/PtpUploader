@@ -11,8 +11,6 @@ from ReleaseInfo import ReleaseInfo;
 
 import os
 import re
-import urllib
-import urllib2
 
 class Cinemageddon(SourceBase):
 	def __init__(self):
@@ -24,16 +22,15 @@ class Cinemageddon(SourceBase):
 	def IsEnabled(self):
 		return len( self.Username ) > 0 and len( self.Password ) > 0
 
-	def Login(self):
+	def Login( self ):
 		MyGlobals.Logger.info( "Logging in to Cinemageddon." )
-		opener = urllib2.build_opener( urllib2.HTTPCookieProcessor( MyGlobals.CookieJar ) )
-		postData = urllib.urlencode( { "username": self.Username, "password": self.Password } )
-		request = urllib2.Request( "http://cinemageddon.net/takelogin.php", postData )
-		result = opener.open( request )
-		response = result.read()
-		self.__CheckIfLoggedInFromResponse( response )
-	
-	def __CheckIfLoggedInFromResponse(self, response):
+
+		postData = { "username": self.Username, "password": self.Password }
+		result = MyGlobals.session.post( "http://cinemageddon.net/takelogin.php", data = postData )
+		result.raise_for_status()
+		self.__CheckIfLoggedInFromResponse( result.text )
+
+	def __CheckIfLoggedInFromResponse( self, response ):
 		if response.find( 'action="takelogin.php"' ) != -1:
 			raise PtpUploaderException( "Looks like you are not logged in to Cinemageddon. Probably due to the bad user name or password in settings." )
 
@@ -102,11 +99,9 @@ class Cinemageddon(SourceBase):
 		url = "http://cinemageddon.net/details.php?id=%s&filelist=1" % releaseInfo.AnnouncementId
 		logger.info( "Collecting info from torrent page '%s'." % url )
 
-		opener = urllib2.build_opener( urllib2.HTTPCookieProcessor( MyGlobals.CookieJar ) )
-		request = urllib2.Request( url )
-		result = opener.open( request )
-		response = result.read()
-		response = response.decode( "ISO-8859-1", "ignore" )
+		result = MyGlobals.session.get( url )
+		result.raise_for_status()
+		response = result.text
 		self.__CheckIfLoggedInFromResponse( response )
 
 		self.__ParsePage( logger, releaseInfo, response )
@@ -164,12 +159,11 @@ class Cinemageddon(SourceBase):
 		url = "http://cinemageddon.net/download.php?id=%s" % releaseInfo.AnnouncementId
 		logger.info( "Downloading torrent file from '%s' to '%s'." % ( url, path ) )
 
-		opener = urllib2.build_opener( urllib2.HTTPCookieProcessor( MyGlobals.CookieJar ) )
-		request = urllib2.Request( url )
-		result = opener.open( request )
-		response = result.read()
+		result = MyGlobals.session.get( url )
+		result.raise_for_status()
+		response = result.content
 		self.__CheckIfLoggedInFromResponse( response )
-		
+
 		# The number of maximum simultaneous downloads is limited on Cinemageddon.
 		if response.find( "<h2>Max Torrents Reached</h2>" ) != -1:
 			raise PtpUploaderException( "Maximum torrents reached on CG." )

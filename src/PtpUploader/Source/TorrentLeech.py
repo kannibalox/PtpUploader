@@ -10,12 +10,8 @@ from ReleaseInfo import ReleaseInfo
 from ReleaseNameParser import ReleaseNameParser
 
 import re
-import urllib
-import urllib2
 
 class TorrentLeech(SourceBase):
-	RequiredHttpHeader = { "User-Agent": "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:18.0) Gecko/20100101 Firefox/18.0" }
-
 	def __init__(self):
 		SourceBase.__init__( self )
 
@@ -25,16 +21,15 @@ class TorrentLeech(SourceBase):
 	def IsEnabled(self):
 		return len( self.Username ) > 0 and len( self.Password ) > 0
 
-	def Login(self):
+	def Login( self ):
 		MyGlobals.Logger.info( "Logging in to TorrentLeech." )
-		opener = urllib2.build_opener( urllib2.HTTPCookieProcessor( MyGlobals.CookieJar ) )
-		postData = urllib.urlencode( { "username": self.Username, "password": self.Password } )
-		request = urllib2.Request( "http://www.torrentleech.org/user/account/login/", postData, TorrentLeech.RequiredHttpHeader )
-		result = opener.open( request )
-		response = result.read()
-		self.CheckIfLoggedInFromResponse( response )
-	
-	def CheckIfLoggedInFromResponse(self, response):
+
+		postData = { "username": self.Username, "password": self.Password, "remember_me": "on" }
+		result = MyGlobals.session.post( "http://www.torrentleech.org/user/account/login/", data = postData )
+		result.raise_for_status()
+		self.__CheckIfLoggedInFromResponse( result.text )
+
+	def __CheckIfLoggedInFromResponse( self, response ):
 		if response.find( '<div class="recaptcha">' ) != -1:
 			raise PtpUploaderInvalidLoginException( "Can't login to TorrentLeech because there is a captcha on the login page." )
 		
@@ -51,11 +46,10 @@ class TorrentLeech(SourceBase):
 		url = "http://www.torrentleech.org/torrent/%s" % releaseInfo.AnnouncementId
 		logger.info( "Downloading release name and size from page '%s'." % url )
 		
-		opener = urllib2.build_opener( urllib2.HTTPCookieProcessor( MyGlobals.CookieJar ) )
-		request = urllib2.Request( url, None, TorrentLeech.RequiredHttpHeader )
-		result = opener.open( request )
-		response = result.read()
-		self.CheckIfLoggedInFromResponse( response )
+		result = MyGlobals.session.get( url )
+		result.raise_for_status()
+		response = result.text
+		self.__CheckIfLoggedInFromResponse( response )
 
 		# Get release name.
 		matches = re.search( "<title>Torrent Details for (.+) :: TorrentLeech.org</title>", response )
@@ -83,11 +77,10 @@ class TorrentLeech(SourceBase):
 		url = "http://www.torrentleech.org/torrents/torrent/nfotext?torrentID=%s" % releaseInfo.AnnouncementId
 		logger.info( "Downloading NFO from page '%s'." % url )
 		
-		opener = urllib2.build_opener( urllib2.HTTPCookieProcessor( MyGlobals.CookieJar ) )
-		request = urllib2.Request( url, None, TorrentLeech.RequiredHttpHeader )
-		result = opener.open( request )
-		response = result.read()
-		self.CheckIfLoggedInFromResponse( response )
+		result = MyGlobals.session.get( url )
+		result.raise_for_status()
+		response = result.text
+		self.__CheckIfLoggedInFromResponse( response )
 
 		releaseInfo.ImdbId = NfoParser.GetImdbId( response )
 	
@@ -146,12 +139,11 @@ class TorrentLeech(SourceBase):
 		url = "http://www.torrentleech.org/download/%s/TL.torrent" % releaseInfo.AnnouncementId
 		logger.info( "Downloading torrent file from '%s' to '%s'." % ( url, path ) )
 
-		opener = urllib2.build_opener( urllib2.HTTPCookieProcessor( MyGlobals.CookieJar ) )		
-		request = urllib2.Request( url, None, TorrentLeech.RequiredHttpHeader )
-		result = opener.open( request )
-		response = result.read()
-		self.CheckIfLoggedInFromResponse( response )
-		
+		result = MyGlobals.session.get( url )
+		result.raise_for_status()
+		response = result.content
+		self.__CheckIfLoggedInFromResponse( response )
+
 		file = open( path, "wb" )
 		file.write( response )
 		file.close()

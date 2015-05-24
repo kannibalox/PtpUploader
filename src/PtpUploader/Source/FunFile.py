@@ -1,7 +1,7 @@
 from Job.JobRunningState import JobRunningState
 from Source.SourceBase import SourceBase
 
-from Helper import DecodeHtmlEntities, GetSizeFromText, MakeRetryingHttpRequest
+from Helper import DecodeHtmlEntities, GetSizeFromText, MakeRetryingHttpGetRequestWithRequests
 from MyGlobals import MyGlobals
 from NfoParser import NfoParser
 from PtpUploaderException import PtpUploaderException
@@ -11,8 +11,6 @@ from ReleaseNameParser import ReleaseNameParser
 
 import re
 import time
-import urllib
-import urllib2
 
 class FunFile(SourceBase):
 	def __init__( self ):
@@ -29,14 +27,13 @@ class FunFile(SourceBase):
 
 	def Login( self ):
 		MyGlobals.Logger.info( "Logging in to FunFile." )
-		opener = urllib2.build_opener( urllib2.HTTPCookieProcessor( MyGlobals.CookieJar ) )
-		postData = urllib.urlencode( { "username": self.Username, "password": self.Password } )
-		request = urllib2.Request( "https://www.funfile.org/takelogin.php", postData )
-		result = opener.open( request )
-		response = result.read()
-		self.CheckIfLoggedInFromResponse( response );
 
-	def CheckIfLoggedInFromResponse( self, response ):
+		postData = { "username": self.Username, "password": self.Password }
+		result = MyGlobals.session.post( "https://www.funfile.org/takelogin.php", data = postData )
+		result.raise_for_status()
+		self.__CheckIfLoggedInFromResponse( result.text )
+
+	def __CheckIfLoggedInFromResponse( self, response ):
 		if response.find( 'action="takelogin.php"' ) != -1:
 			raise PtpUploaderException( "Looks like you are not logged in to FunFile. Probably due to the bad user name or password in settings." )
 
@@ -46,8 +43,9 @@ class FunFile(SourceBase):
 		url = "https://www.funfile.org/details.php?id=%s&filelist=1" % releaseInfo.AnnouncementId
 		logger.info( "Downloading NFO from page '%s'." % url )
 
-		response = MakeRetryingHttpRequest( url )
-		self.CheckIfLoggedInFromResponse( response )
+		result = MakeRetryingHttpGetRequestWithRequests( url )
+		response = result.text
+		self.__CheckIfLoggedInFromResponse( response )
 
 		# Make sure we only get information from the description and not from the comments.
 		descriptionEndIndex = response.find( """<p><a name="startcomments"></a></p>""" )
@@ -130,8 +128,9 @@ class FunFile(SourceBase):
 		# We don't log the download URL because it is sensitive information.
 		logger.info( "Downloading torrent file from FunFile to '%s'." % path )
 
-		response = MakeRetryingHttpRequest( releaseInfo.SceneAccessDownloadUrl )
-		self.CheckIfLoggedInFromResponse( response );
+		result = MakeRetryingHttpGetRequestWithRequests( releaseInfo.SceneAccessDownloadUrl )
+		response = result.content
+		self.__CheckIfLoggedInFromResponse( response );
 
 		file = open( path, "wb" );
 		file.write( response );

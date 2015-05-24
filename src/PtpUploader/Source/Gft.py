@@ -33,9 +33,9 @@ class Gft(SourceBase):
 		postData = { "username": self.Username, "password": self.Password }
 		result = MyGlobals.session.post( "https://www.thegft.org/takelogin.php", data=postData )
 		result.raise_for_status()
-		self.CheckIfLoggedInFromResponse( result.text )
+		self.__CheckIfLoggedInFromResponse( result.text )
 
-	def CheckIfLoggedInFromResponse(self, response):
+	def __CheckIfLoggedInFromResponse(self, response):
 		if response.find( """action='takelogin.php'""" ) != -1 or response.find( """<a href='login.php'>Back to Login</a>""" ) != -1:
 			raise PtpUploaderException( "Looks like you are not logged in to GFT. Probably due to the bad user name or password in settings." )
 
@@ -46,7 +46,7 @@ class Gft(SourceBase):
 		result = MyGlobals.session.get( url )
 		result.raise_for_status()
 		response = result.text
-		self.CheckIfLoggedInFromResponse( response )
+		self.__CheckIfLoggedInFromResponse( response )
 
 		# Make sure we only get information from the description and not from the comments.
 		descriptionEndIndex = response.find( """<p><a name="startcomments"></a></p>""" )
@@ -64,7 +64,7 @@ class Gft(SourceBase):
 		result.raise_for_status()
 		response = result.text
 		response = response.encode( "ascii", "ignore" )
-		self.CheckIfLoggedInFromResponse( response )
+		self.__CheckIfLoggedInFromResponse( response )
 
 		releaseInfo.ImdbId = NfoParser.GetImdbId( response )
 
@@ -168,7 +168,7 @@ class Gft(SourceBase):
 		result = MyGlobals.session.get( url )
 		result.raise_for_status()
 		response = result.content
-		self.CheckIfLoggedInFromResponse( response )
+		self.__CheckIfLoggedInFromResponse( response )
 		
 		file = open( path, "wb" )
 		file.write( response )

@@ -10,7 +10,6 @@ import HTMLParser # For HTML entity reference decoding...
 import os
 import re
 import time
-import urllib2
 
 # Supported formats: "100 GB", "100 MB", "100 bytes". (Space is optional.)
 # Returns with an integer. 
@@ -102,22 +101,6 @@ except ImportError:
 def ParseQueryString(query):
 	return parse_qs( query )
 
-def MakeRetryingHttpRequest( url, maximumTries = 3, delayBetweenRetriesInSec = 10 ):
-	while True:
-		try:
-			opener = urllib2.build_opener( urllib2.HTTPCookieProcessor( MyGlobals.CookieJar ) )
-			request = urllib2.Request( url )
-			result = opener.open( request )
-			response = result.read()
-			return response
-		except urllib2.HTTPError, e:
-			if maximumTries > 1:
-				maximumTries -= 1
-				time.sleep( delayBetweenRetriesInSec )
-			else:
-				raise
-
-# It differs from MakeRetryingHttpRequest in the returned value too! It doesn't return with the response body.
 def MakeRetryingHttpGetRequestWithRequests( url, maximumTries = 3, delayBetweenRetriesInSec = 10 ):
 	headers = { "User-Agent": "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:34.0) Gecko/20100101 Firefox/34.0" }
 

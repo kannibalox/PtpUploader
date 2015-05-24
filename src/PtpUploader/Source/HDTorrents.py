@@ -1,7 +1,7 @@
 from Job.JobRunningState import JobRunningState
 from Source.SourceBase import SourceBase
 
-from Helper import DecodeHtmlEntities, GetSizeFromText, MakeRetryingHttpRequest, RemoveDisallowedCharactersFromPath
+from Helper import DecodeHtmlEntities, GetSizeFromText, RemoveDisallowedCharactersFromPath
 from MyGlobals import MyGlobals
 from NfoParser import NfoParser
 from PtpUploaderException import PtpUploaderException
@@ -11,14 +11,8 @@ from ReleaseNameParser import ReleaseNameParser
 
 import re
 import time
-import urllib
-import urllib2
 
 class HDTorrents( SourceBase ):
-	RequiredHttpHeader = { 'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.11 (KHTML, like Gecko) Chrome/23.0.1271.64 Safari/537.11',
-		'Referer': 'https://hd-torrents.org',
-		'Origin': 'https://hd-torrents.org' }
-
 	def __init__( self ):
 		SourceBase.__init__( self )
 
@@ -33,14 +27,13 @@ class HDTorrents( SourceBase ):
 
 	def Login( self ):
 		MyGlobals.Logger.info( "Logging in to HD-Torrents." )
-		opener = urllib2.build_opener( urllib2.HTTPCookieProcessor( MyGlobals.CookieJar ) )
-		postData = urllib.urlencode( { "uid": self.Username, "pwd": self.Password } )
-		request = urllib2.Request( "https://hd-torrents.org/login.php", postData, headers=HDTorrents.RequiredHttpHeader )
-		result = opener.open( request )
-		response = result.read()
-		self.CheckIfLoggedInFromResponse( response );
 
-	def CheckIfLoggedInFromResponse( self, response ):
+		postData = { "uid": self.Username, "pwd": self.Password }
+		result = MyGlobals.session.post( "https://hd-torrents.org/login.php", data=postData )
+		result.raise_for_status()
+		self.__CheckIfLoggedInFromResponse( result.text )
+
+	def __CheckIfLoggedInFromResponse( self, response ):
 		if response.find( 'form action="login.php""' ) != -1:
 			raise PtpUploaderException( "Looks like you are not logged in to HDTorrents. Probably due to the bad user name or password in settings." )
 
@@ -49,12 +42,11 @@ class HDTorrents( SourceBase ):
 	def __ReadTorrentPage( self, logger, releaseInfo ):
 		url = "http://hd-torrents.org/details.php?id=%s" % releaseInfo.AnnouncementId
 		logger.info( "Downloading NFO from page '%s'." % url )
-		opener = urllib2.build_opener( urllib2.HTTPCookieProcessor( MyGlobals.CookieJar ) )
-		request = urllib2.Request( url, headers=HDTorrents.RequiredHttpHeader )
-		result = opener.open( request )
-		response = result.read()
-		response = response.decode( "utf-8", "ignore" )
-		self.CheckIfLoggedInFromResponse( response )
+
+		result = MyGlobals.session.get( url )
+		result.raise_for_status()
+		response = result.text
+		self.__CheckIfLoggedInFromResponse( response )
 
 		# Make sure we only get information from the description and not from the comments.
 		descriptionEndIndex = response.find( """<a name="comments" />""" )
@@ -138,11 +130,10 @@ class HDTorrents( SourceBase ):
 		# We don't log the download URL because it is sensitive information.
 		logger.info( "Downloading torrent file from HD-Torrents to '%s'." % path )
 
-		opener = urllib2.build_opener( urllib2.HTTPCookieProcessor( MyGlobals.CookieJar ) )
-		request = urllib2.Request( releaseInfo.SceneAccessDownloadUrl, headers=HDTorrents.RequiredHttpHeader )
-		result = opener.open( request )
-		response = result.read()
-		self.CheckIfLoggedInFromResponse( response );
+		result = MyGlobals.session.get( url )
+		result.raise_for_status()
+		response = result.content
+		self.__CheckIfLoggedInFromResponse( response )
 
 		file = open( path, "wb" );
 		file.write( response );

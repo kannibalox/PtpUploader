@@ -1,3 +1,4 @@
+from MyGlobals import MyGlobals
 from PtpUploaderException import PtpUploaderException
 
 import simplejson as json
@@ -5,8 +6,6 @@ import simplejson as json
 import hashlib
 import hmac
 import time
-import urllib
-import urllib2
 import uuid
 
 # Uses the undocumented iPhone IMDb API.
@@ -25,9 +24,6 @@ class ImdbInfo:
 		self.ImdbVoteCount = ""
 
 class Imdb:
-	# It doesn't work with the default Python User-Agent...
-	RequiredHttpHeader = { "User-Agent": "Wget/1.13.4" }
-
 	@staticmethod
 	def __GetInfoInternal(imdbId):
 		# timestamp is needed
@@ -41,14 +37,12 @@ class Imdb:
 		# Sign the URL.
 		# "eRnAYqbvj2JWXyPcu62yCA" comes from the disassembled "IMDb Movies & TV" Android application by IMDb. 
 		url += "-%s" % hmac.HMAC( "eRnAYqbvj2JWXyPcu62yCA", url, hashlib.sha1 ).hexdigest()
-		
-		request = urllib2.Request( url, None, Imdb.RequiredHttpHeader )
-		result = urllib2.urlopen( request )
-		response = result.read()
+
+		result = MyGlobals.session.get( url )
+		result.raise_for_status()
+		jsonLoad = result.json()
 
 		imdbInfo = ImdbInfo()
-		
-		jsonLoad = json.loads( response )
 		data = jsonLoad[ "data" ]
 		imdbInfo.Title = data[ "title" ].strip()
 		imdbInfo.Year = data[ "year" ]

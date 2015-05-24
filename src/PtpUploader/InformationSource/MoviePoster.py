@@ -1,16 +1,16 @@
+from MyGlobals import MyGlobals
 from PtpUploaderException import PtpUploaderException
 
 import re
-import urllib2
 
 class MoviePoster:
 	# We use The Internet Movie Poster DataBase's embedding code to get the movie poster.
 	@staticmethod
 	def __GetFromMoviePosterDb(imdbId):
 		url = "http://www.movieposterdb.com/embed.inc.php?movie_id=%s" % imdbId 
-		request = urllib2.Request( url )
-		result = urllib2.urlopen( request )
-		response = result.read()
+		result = MyGlobals.session.get( url )
+		result.raise_for_status()
+		response = result.text
 
 		# Response looks like this:
 		# document.write('<a target=\"_new\" href=\"http://www.movieposterdb.com/movie/0333766/Garden-State.html\"><img title=\"Garden State\" alt=\"Garden State\" style=\"width: 100px; height: 143px; border: 0px;\" src=\"http://www.movieposterdb.com/posters/08_11/2004/333766/t_333766_b9a6e423.jpg\" /></a>');

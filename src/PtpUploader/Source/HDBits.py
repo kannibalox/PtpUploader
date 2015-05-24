@@ -1,7 +1,7 @@
 from Job.JobRunningState import JobRunningState
 from Source.SourceBase import SourceBase
 
-from Helper import DecodeHtmlEntities, GetSizeFromText, MakeRetryingHttpRequest, RemoveDisallowedCharactersFromPath
+from Helper import DecodeHtmlEntities, GetSizeFromText, RemoveDisallowedCharactersFromPath
 from MyGlobals import MyGlobals
 from NfoParser import NfoParser
 from PtpUploaderException import PtpUploaderException
@@ -32,9 +32,9 @@ class HDBits( SourceBase ):
 		url = 'https://hdbits.org/api/test'
 		data = { "username": self.Username, "passkey": self.Password }
 		response = requests.post( url, json.dumps( data ) )
-		self.CheckIfLoggedInFromResponse( response );
+		self.__CheckIfLoggedInFromResponse( response );
 
-	def CheckIfLoggedInFromResponse( self, response ):
+	def __CheckIfLoggedInFromResponse( self, response ):
 		if response.json()[ 'status' ] != 0:
 			raise PtpUploaderException( "Looks like you are not logged in to HDBits. Probably due to the bad user name or password in settings." )
 
@@ -45,7 +45,7 @@ class HDBits( SourceBase ):
 		logger.info( "Downloading NFO from page '%s'." % url )
 		data = { "username": self.Username, "passkey": self.Password, "id": releaseInfo.AnnouncementId }
 		response = requests.post( url, json.dumps( data ) )
-		self.CheckIfLoggedInFromResponse( response )
+		self.__CheckIfLoggedInFromResponse( response )
 
 		# Make sure we only get information from the description and not from the comments.
 		if response.json()[ 'status' ] != 0:

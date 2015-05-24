@@ -11,8 +11,6 @@ from ReleaseInfo import ReleaseInfo;
 
 import os
 import re
-import urllib
-import urllib2
 
 class Karagarga(SourceBase):
 	def __init__(self):
@@ -39,13 +37,12 @@ class Karagarga(SourceBase):
 			raise PtpUploaderInvalidLoginException( "Couldn't log in to Karagarga. Your password is not specified.." )
 	
 		MyGlobals.Logger.info( "Logging in to Karagarga." )
-		opener = urllib2.build_opener( urllib2.HTTPCookieProcessor( MyGlobals.CookieJar ) )
-		postData = urllib.urlencode( { "username": self.Username, "password": self.Password } )
-		request = urllib2.Request( "http://karagarga.net/takelogin.php", postData )
-		result = opener.open( request )
-		response = result.read()
-		self.__CheckIfLoggedInFromResponse( response )
-	
+
+		postData = { "username": self.Username, "password": self.Password }
+		result = MyGlobals.session.post( "http://karagarga.net/takelogin.php", data = postData )
+		result.raise_for_status()
+		self.__CheckIfLoggedInFromResponse( result.text )
+
 	def __CheckIfLoggedInFromResponse(self, response):
 		if response.find( 'action="takelogin.php"' ) != -1 or response.find( """<h2>Login failed!</h2>""" ) != -1:
 			raise PtpUploaderException( "Looks like you are not logged in to Karagarga. Probably due to the bad user name or password in settings." )
@@ -235,11 +232,9 @@ class Karagarga(SourceBase):
 		url = "http://karagarga.net/details.php?id=%s&filelist=1" % releaseInfo.AnnouncementId
 		logger.info( "Collecting info from torrent page '%s'." % url )
 
-		opener = urllib2.build_opener( urllib2.HTTPCookieProcessor( MyGlobals.CookieJar ) )
-		request = urllib2.Request( url )
-		result = opener.open( request )
-		response = result.read()
-		response = response.decode( "ISO-8859-1", "ignore" )
+		result = MyGlobals.session.get( url )
+		result.raise_for_status()
+		response = result.text
 		self.__CheckIfLoggedInFromResponse( response )
 
 		self.__ParsePage( logger, releaseInfo, response )
@@ -277,12 +272,11 @@ class Karagarga(SourceBase):
 		url = "http://karagarga.net/down.php/%s/filename.torrent" % releaseInfo.AnnouncementId
 		logger.info( "Downloading torrent file from '%s' to '%s'." % ( url, path ) )
 
-		opener = urllib2.build_opener( urllib2.HTTPCookieProcessor( MyGlobals.CookieJar ) )
-		request = urllib2.Request( url )
-		result = opener.open( request )
-		response = result.read()
+		result = MyGlobals.session.get( url )
+		result.raise_for_status()
+		response = result.content
 		self.__CheckIfLoggedInFromResponse( response )
-		
+
 		file = open( path, "wb" )
 		file.write( response )
 		file.close()

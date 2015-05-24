@@ -32,9 +32,9 @@ class TorrentShack( SourceBase ):
 		postData = { "username": self.Username, "password": self.Password, "keeplogged": "1" }
 
 		result = MakeRetryingHttpPostRequestWithRequests( "http://torrentshack.me/login.php", postData )
-		self.CheckIfLoggedInFromResponse( result.text )
+		self.__CheckIfLoggedInFromResponse( result.text )
 
-	def CheckIfLoggedInFromResponse( self, response ):
+	def __CheckIfLoggedInFromResponse( self, response ):
 		if response.find( 'action="login.php"' ) != -1:
 			raise PtpUploaderException( "Looks like you are not logged in to TorrentShack. Probably due to the bad user name or password in settings." )
 
@@ -46,7 +46,7 @@ class TorrentShack( SourceBase ):
 
 		result = MakeRetryingHttpGetRequestWithRequests( url )
 		response = result.text
-		self.CheckIfLoggedInFromResponse( response )
+		self.__CheckIfLoggedInFromResponse( response )
 
 		# Make sure we only get information from the description and not from the comments.
 		descriptionEndIndex = response.find( """<a name="comments">""" )
@@ -129,7 +129,7 @@ class TorrentShack( SourceBase ):
 
 		result = MakeRetryingHttpGetRequestWithRequests( releaseInfo.SceneAccessDownloadUrl )
 		response = result.content
-		self.CheckIfLoggedInFromResponse( response )
+		self.__CheckIfLoggedInFromResponse( response )
 
 		file = open( path, "wb" )
 		file.write( response )
