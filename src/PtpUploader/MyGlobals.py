@@ -15,7 +15,15 @@ class MyGlobalsClass:
 		self.SourceFactory = None
 		self.PtpSubtitle = None
 		self.TorrentClient = None
+
 		self.session = requests.session()
+
+		# Use cloudflare-scrape if installed.
+		try:	
+			from cfscrape import CloudflareAdapter
+			self.session.mount( "http://", CloudflareAdapter() )
+		except ImportError:
+			pass
 
 	def InitializeGlobals(self, workingPath):
 		self.InitializeLogger( workingPath )

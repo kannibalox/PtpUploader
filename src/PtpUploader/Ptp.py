@@ -34,13 +34,6 @@ class Ptp:
 		# It doesn't work with the default Python User-Agent...
 		MyGlobals.session.headers.update( { "User-Agent": "Wget/1.13.4" } )
 
-		# Use cloudflare-scrape if installed.
-		try:	
-			from cfscrape import CloudflareAdapter
-			MyGlobals.session.mount( "http://", CloudflareAdapter() )
-		except ImportError:
-			pass
-
 		MyGlobals.session.get( "https://tls.passthepopcorn.me/ajax.php?action=login" )
 		response = MyGlobals.session.post( "https://tls.passthepopcorn.me/ajax.php?action=login", data=postData )
 		response = response.text
