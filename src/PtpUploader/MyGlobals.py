@@ -22,6 +22,7 @@ class MyGlobalsClass:
 		# Use cloudflare-scrape if installed.
 		try:	
 			from cfscrape import CloudflareAdapter
+			self.session.mount( "http://", CloudflareAdapter() )
 			self.session.mount( "https://", CloudflareAdapter() )
 		except ImportError:
 			pass
