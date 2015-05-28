@@ -86,7 +86,7 @@ class ReleaseInfoMaker:
 		
 		# Make sure the files we are generating are not present.
 
-		releaseDescriptionFilePath = os.path.join( self.WorkingDirectory, "release description.txt" )
+		releaseDescriptionFilePath = os.path.join( self.WorkingDirectory, "PTP " + self.ReleaseName + ".release description.txt" )
 		if os.path.exists( releaseDescriptionFilePath ):
 			print "Can't create release description because '%s' already exists!" % releaseDescriptionFilePath
 			return
