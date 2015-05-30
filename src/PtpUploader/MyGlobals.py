@@ -17,11 +17,13 @@ class MyGlobalsClass:
 		self.TorrentClient = None
 
 		self.session = requests.session()
+		self.session.headers.update( { "User-Agent": "Mozilla/5.0 (Windows NT 6.3; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/40.0.2214.45 Safari/537.36" } )
 
 		# Use cloudflare-scrape if installed.
 		try:	
 			from cfscrape import CloudflareAdapter
 			self.session.mount( "http://", CloudflareAdapter() )
+			self.session.mount( "https://", CloudflareAdapter() )
 		except ImportError:
 			pass
 
