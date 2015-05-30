@@ -28,11 +28,8 @@ class Ptp:
 		passKey = passKey.group( 1 )
 
 		MyGlobals.Logger.info( "Logging in to PTP." );
-	
+
 		postData = { "username": Settings.PtpUserName, "password": Settings.PtpPassword, "passkey": passKey, "keeplogged": "1" }	
-		
-		# It doesn't work with the default Python User-Agent...
-		MyGlobals.session.headers.update( { "User-Agent": "Wget/1.13.4" } )
 
 		MyGlobals.session.get( "https://tls.passthepopcorn.me/ajax.php?action=login" )
 		response = MyGlobals.session.post( "https://tls.passthepopcorn.me/ajax.php?action=login", data=postData )
