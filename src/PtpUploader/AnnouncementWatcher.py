@@ -3,6 +3,7 @@ from Job.JobRunningState import JobRunningState
 from Database import Database
 from MyGlobals import MyGlobals
 from Logger import Logger
+from NfoParser import NfoParser
 from PtpUploaderException import PtpUploaderException
 from ReleaseInfo import ReleaseInfo
 from Settings import Settings
@@ -50,6 +51,71 @@ class AnnouncementWatcher:
 			releaseInfo.ScheduleTimeUtc = datetime.datetime.utcnow() + datetime.timedelta( seconds = startDelay )
 
 	@staticmethod
+	def __HandleFileSourceProperty( releaseInfo, property, value ):
+		if property == "path":
+			path = value
+
+			if os.path.isdir( path ):
+				# Make sure that path doesn't end with a trailing slash or else os.path.split would return with wrong values.
+				path = path.rstrip( "\\/" )
+				releaseInfo.SetReleaseDownloadPath( path )
+	
+				# Release name will be the directory's name. Eg. it will be "anything" for "/something/anything"
+				basePath, releaseName = os.path.split( path )
+				releaseInfo.ReleaseName = releaseName
+
+				# Try to read the NFO.
+				nfo = NfoParser.FindAndReadNfoFileToUnicode( path )
+				releaseInfo.ImdbId = NfoParser.GetImdbId( nfo )
+			elif os.path.isfile( path ):
+				releaseInfo.SetReleaseDownloadPath( path )
+
+				# Release name will be the file's name without extension. 
+				basePath, releaseName = os.path.split( path )
+				releaseName, extension = os.path.splitext( releaseName )
+				releaseInfo.ReleaseName = releaseName
+		
+				# Try to read the NFO.
+				nfoPath = os.path.join( basePath, releaseName ) + ".nfo"
+				if os.path.isfile( nfoPath ):
+					nfo = NfoParser.ReadNfoFileToUnicode( nfoPath )
+					releaseInfo.ImdbId = NfoParser.GetImdbId( nfo )
+
+	@staticmethod
+	def __HandleFileSourceInternal( releaseInfo, announcementFilePath ):
+		file = open( announcementFilePath, "r" )
+
+		for line in file:
+			index = line.find( "=" )
+			if index == -1:
+				continue
+
+			property = line[ :index ].strip().lower()
+			value = line[ index + 1 : ].strip()
+			if len( property ) <= 0 or len( value ) <= 0:
+				continue
+
+			AnnouncementWatcher.__HandleFileSourceProperty( releaseInfo, property, value )
+
+		file.close()
+
+		success = len( releaseInfo.ReleaseDownloadPath ) > 0
+		return success
+
+	@staticmethod
+	def __HandleFileSource( releaseInfo, announcementFilePath ):
+		if AnnouncementWatcher.__HandleFileSourceInternal( releaseInfo, announcementFilePath ):
+			return True
+
+		# Because we use a directory watcher we might have tried to read the file too early.
+		# Retry after three seconds of waiting.
+		time.sleep( 3 )
+		if AnnouncementWatcher.__HandleFileSourceInternal( releaseInfo, announcementFilePath ):
+			return True
+
+		return False
+
+	@staticmethod
 	def __TryGettingIdFromContents( path, announcementSource ):
 		file = open( path, "r" )
 		contents = file.read()
@@ -74,23 +140,28 @@ class AnnouncementWatcher:
 			MyGlobals.Logger.error( "Unknown announcement source: '%s'." % announcementSourceName )
 			return None
 
-		# For announcements made by autodl-irssi the torrent ID is in the file.
-		if announcementId == "0":
+		releaseInfo = ReleaseInfo()
+		releaseInfo.LastModificationTime = Database.MakeTimeStamp()
+		releaseInfo.ReleaseName = releaseName
+		releaseInfo.AnnouncementSource = announcementSource
+		releaseInfo.AnnouncementSourceName = announcementSource.Name
+
+		if announcementSourceName == "file":
+			if not AnnouncementWatcher.__HandleFileSource( releaseInfo, announcementFilePath ):
+				MyGlobals.Logger.error( "Invalid announcement file: '%s'." % announcementFilePath )
+				return None
+		elif announcementId == "0":
+			# For announcements made by autodl-irssi the torrent ID is in the file.
 			announcementId = AnnouncementWatcher.__TryGettingIdFromContents( announcementFilePath, announcementSource )
 			if len( announcementId ) <= 0:
 				# Retry after three seconds of waiting.
-				# Because we use a directory watcher the first message may have come to early.
+				# Because we use a directory watcher we might have tried to read the file too early.
 				time.sleep( 3 )
 				announcementId = AnnouncementWatcher.__TryGettingIdFromContents( announcementFilePath, announcementSource )
 				if len( announcementId ) <= 0:
 					MyGlobals.Logger.error( "Invalid torrent ID in announcement: '%s'." % announcementSourceName )
 					return None
 
-		releaseInfo = ReleaseInfo()
-		releaseInfo.LastModificationTime = Database.MakeTimeStamp()
-		releaseInfo.ReleaseName = releaseName
-		releaseInfo.AnnouncementSource = announcementSource
-		releaseInfo.AnnouncementSourceName = announcementSource.Name
 		releaseInfo.AnnouncementId = announcementId
 		AnnouncementWatcher.__SetScheduling( releaseInfo )
 
