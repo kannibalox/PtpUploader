@@ -130,7 +130,7 @@ class HDTorrents( SourceBase ):
 		# We don't log the download URL because it is sensitive information.
 		logger.info( "Downloading torrent file from HD-Torrents to '%s'." % path )
 
-		result = MyGlobals.session.get( url )
+		result = MyGlobals.session.get( releaseInfo.SceneAccessDownloadUrl )
 		result.raise_for_status()
 		response = result.content
 		self.__CheckIfLoggedInFromResponse( response )
