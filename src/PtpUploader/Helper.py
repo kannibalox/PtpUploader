@@ -45,6 +45,8 @@ def SizeToText(size):
 # timeDifference must be datetime.timedelta.
 def TimeDifferenceToText( timeDifference, levels = 2, agoText = " ago", noDifferenceText = "Just now" ):
 	timeDifference = ( timeDifference.microseconds / 1000000 ) + timeDifference.seconds + ( timeDifference.days * 24 * 3600 )
+	if timeDifference < 0:
+		timeDifference = 0
 
 	years = timeDifference / 31556926 # 31556926 seconds = 1 year
 	timeDifference %= 31556926
