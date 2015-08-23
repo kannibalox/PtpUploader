@@ -1,4 +1,4 @@
-from MyGlobals import MyGlobals
+﻿from MyGlobals import MyGlobals
 from PtpMovieSearchResult import PtpMovieSearchResult
 from PtpUploaderException import *
 from Settings import Settings
@@ -46,6 +46,8 @@ class Ptp:
 
 		if jsonLoad[ "Result" ] != "Ok":
 			raise PtpUploaderInvalidLoginException( "Failed to login to PTP. Probably due to the bad user name, password or pass key." )
+
+		Ptp.AntiCsrfToken = jsonLoad[ "AntiCsrfToken" ] 
 
 	@staticmethod
 	def Login():
@@ -149,7 +151,8 @@ class Ptp:
 				"source": "Other", # Sending the source as custom.
 				"other_source": releaseInfo.Source,
 				"release_desc": releaseDescription,
-				"nfo_text": releaseInfo.Nfo
+				"nfo_text": releaseInfo.Nfo,
+				"AntiCsrfToken:": Ptp.AntiCsrfToken
 				};
 
 		# scene only needed if it is specified
@@ -262,7 +265,16 @@ class Ptp:
 
 		# Send the message.
 		# We always use HTTPS for sending message because if "Force HTTPS" is enabled in the profile then the HTTP message sending is not working.
-		postData = { "toid": userId, "subject": subject, "body": message, "auth": auth, "action": "takecompose" }
+
+		postData = {
+			"toid": userId,
+			"subject": subject,
+			"body": message,
+			"auth": auth,
+			"action": "takecompose",
+			"AntiCsrfToken:": Ptp.AntiCsrfToken
+			}
+
 		result = MyGlobals.session.post( "https://tls.passthepopcorn.me/inbox.php", postData )
 		response = result.text
 		Ptp.CheckIfLoggedInFromResponse( result, response )
