@@ -152,7 +152,7 @@ class Ptp:
 				"other_source": releaseInfo.Source,
 				"release_desc": releaseDescription,
 				"nfo_text": releaseInfo.Nfo,
-				"AntiCsrfToken:": Ptp.AntiCsrfToken
+				"AntiCsrfToken": Ptp.AntiCsrfToken
 				};
 
 		# scene only needed if it is specified
@@ -234,12 +234,12 @@ class Ptp:
 			if match is not None:
 				errorMessage = match.group( 1 )
 
-			raise PtpUploaderException( "Upload to PTP failed: '%s'. (We are still on the upload page.)" % errorMessage )
+			raise PtpUploaderException( "Upload to PTP failed: '%s' (%s). (We are still on the upload page.)" % ( errorMessage, result.status_code ) )
 
 		# URL format in case of successful upload: https://tls.passthepopcorn.me/torrents.php?id=9329&torrentid=91868 
 		match = re.match( r".*?passthepopcorn\.me/torrents\.php\?id=(\d+)&torrentid=(\d+)", result.url )
 		if match is None:
-			raise PtpUploaderException( "Upload to PTP failed: result URL '%s' is not the expected one." % result.url )
+			raise PtpUploaderException( "Upload to PTP failed: result URL '%s' (%s) is not the expected one." % ( result.url, result.status_code ) )
 		
 		ptpId = match.group( 1 )
 		releaseInfo.PtpTorrentId = match.group( 2 )
@@ -272,7 +272,7 @@ class Ptp:
 			"body": message,
 			"auth": auth,
 			"action": "takecompose",
-			"AntiCsrfToken:": Ptp.AntiCsrfToken
+			"AntiCsrfToken": Ptp.AntiCsrfToken
 			}
 
 		result = MyGlobals.session.post( "https://tls.passthepopcorn.me/inbox.php", postData )
