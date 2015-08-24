@@ -22,9 +22,17 @@ class MakeTorrent:
 		# Optimal piece size should be automatically calculated by mktorrent...
 		# Use 512 KB piece size as default.
 		# Use 4 MB piece size for torrents that are longer than 4 GB.
-		pieceSize = "-l 19"
-		if sourceSize > ( 4 * 1024 * 1024 * 1024 ):
-			pieceSize = "-l 22"
+		                pieceSize = "-l 19"
+                if sourceSize > ( 1 * 1024 * 1024 * 1024 ) and sourceSize <= ( 2 * 1024 * 1024 * 1024 ):
+                        pieceSize = "-l 20"
+                if sourceSize > ( 2 * 1024 * 1024 * 1024 ) and sourceSize <= ( 4 * 1024 * 1024 * 1024 ):
+                        pieceSize = "-l 21"
+                if sourceSize > ( 4 * 1024 * 1024 * 1024 ) and sourceSize <= ( 8 * 1024 * 1024 * 1024 ):
+                        pieceSize = "-l 22"
+                if sourceSize > ( 8 * 1024 * 1024 * 1024 ) and sourceSize <= ( 16 * 1024 * 1024 * 1024 ):
+                        pieceSize = "-l 23"
+                if sourceSize > ( 16 * 1024 * 1024 * 1024 ):
+                        pieceSize = "-l 24"
 		
 		args = [ Settings.MktorrentPath, '-a', Settings.PtpAnnounceUrl, '-p', pieceSize, '-o', torrentPath, path ]
 		errorCode = subprocess.call( args )
