@@ -55,7 +55,7 @@ tasks:
 # Karagarga
   _karagarga:
     rss:
-      url: https://karagarga.net/rss.php?passkey=AAAAAAAAAAAAAAAA&user=AAAAAAAAAAAAAAAA
+      url: https://karagarga.in/rss.php?passkey=AAAAAAAAAAAAAAAA&user=AAAAAAAAAAAAAAAA
       # Force ASCII just to be sure.
       ascii: yes
     regexp:
@@ -90,7 +90,7 @@ tasks:
       # Create TorrentId field by extracting the ID from the URL.
       - TorrentId:
           from: url
-          extract: 'https?://(?:www\.)?karagarga\.net/details\.php\?id=(\d+)'
+          extract: 'https?://(?:www\.)?karagarga\.in/details\.php\?id=(\d+)'
     exec: echo >> "/path to WorkingDirectory/announcement/[source=kg][id=%(TorrentId)s][title=none]"
 
 # TorrentLeech
