@@ -1,12 +1,10 @@
-from Helper import GetFileListFromTorrent
+﻿from Helper import GetFileListFromTorrent
 from PtpUploaderException import PtpUploaderException
 
 import fnmatch 
 import os
 import re
-import textwrap
 
-# TnS (14 Oct 2012): the stripping is no longer used.
 class NfoParser:
 	# Return with the IMDb id.
 	# Eg.: 0111161 for http://www.imdb.com/title/tt0111161/
@@ -20,32 +18,6 @@ class NfoParser:
 			return matches.group( 1 )
 		else:
 			return ""
-	
-	@staticmethod
-	def __StripNonAscii(string):
-		stripped = ( c for c in string if 0 < ord( c ) < 127 )
-		return "".join( stripped )
-
-	@staticmethod
-	def __IsLineContainsAnyUsefulCharacter(line):
-		for c in line:
-			if ( c >= '0' and c <= '9' ) or ( c >= 'a' and c <= 'z' ) or ( c >= 'A' and c <= 'Z' ):
-				return True
-		return False
-	
-	@staticmethod
-	def __IsUsefulLine(line):
-		# If a line doesn't contain any useful characters (digit or letter) then we throw the whole line away. 
-		if len( line ) <= 0 or ( not NfoParser.__IsLineContainsAnyUsefulCharacter( line ) ):
-			return False
-
-		# If the line doesn't contain spaces or a periods than it most likely doesn't contain any text, just drawing by text. (See an NFO of a Japhson release for example.)
-		# (Period is checked because some NFOs are padded by them instead of spaces.)
-		for c in line:
-			if c == ' ' or c == '.':
-				return True
-			
-		return False
 
 	# Reads an NFO file and converts it to Unicode.
 	@staticmethod
@@ -60,44 +32,9 @@ class NfoParser:
 		nfo = nfo.decode( "cp437", "ignore" )
 		return nfo
 
-	@staticmethod
-	def __ReadNfoProcessWrappedLines(wrappedLines):
-		nfo = u""
-		for wrappedLine in wrappedLines:
-			line = NfoParser.__StripNonAscii( wrappedLine )
-			line = line.strip()
-			if NfoParser.__IsUsefulLine( line ):
-				nfo += line + "\n"
-
-		return nfo
-
-	# Reads an NFO file and converts it to Unicode.
-	# Removes the graphics from NFO.
-	# Breaks too long lines (more than 100 character) to separate lines. 
-	@staticmethod
-	def ReadNfoFileToUnicodeAndStrip(path):
-		nfo = NfoParser.ReadNfoFileToUnicode( path )
-		
-		lines = nfo.split( "\n" )
-		nfo = u""
-		textWrapper = textwrap.TextWrapper( width = 100 )
-		previousLineWasEmpty = True
-		
-		for line in lines:
-			wrappedLines = textWrapper.wrap( line )
-			nfoLine = NfoParser.__ReadNfoProcessWrappedLines( wrappedLines )
-			if len( nfoLine ) > 0:
-				nfo += nfoLine
-				previousLineWasEmpty = False
-			elif not previousLineWasEmpty:
-				nfo += "\n"
-				previousLineWasEmpty = True
-
-		return nfo.strip()
-
 	# If there are multiple NFOs, it returns with empty string.
 	@staticmethod
-	def FindAndReadNfoFileToUnicode( directoryPath, stripNfo = False ):
+	def FindAndReadNfoFileToUnicode( directoryPath ):
 		nfoPath = None
 		nfoFound = False
 
@@ -115,10 +52,7 @@ class NfoParser:
 		if nfoPath is None:
 			return u""
 		else:
-			if stripNfo:
-				return NfoParser.ReadNfoFileToUnicodeAndStrip( nfoPath )
-			else:
-				return NfoParser.ReadNfoFileToUnicode( nfoPath )
+			return NfoParser.ReadNfoFileToUnicode( nfoPath )
 
 	@staticmethod
 	def IsTorrentContainsMultipleNfos(torrentPath):
