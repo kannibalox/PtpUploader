@@ -1,4 +1,4 @@
-from Job.FinishedJobPhase import FinishedJobPhase
+﻿from Job.FinishedJobPhase import FinishedJobPhase
 
 from IncludedFileList import IncludedFileList
 from NfoParser import NfoParser
@@ -7,6 +7,7 @@ from ReleaseExtractor import ReleaseExtractor
 from Settings import Settings
 
 import os
+import re
 import shutil
 
 class SourceBase:
@@ -71,6 +72,21 @@ class SourceBase:
 
 		if numberOfVideoFiles > 1:
 			raise PtpUploaderException( "Release contains multiple video files." )
+
+	# fileList must be an instance of IncludedFileList.
+	def DetectSceneReleaseFromFileList( self, releaseInfo, fileList ):
+		rarRe = re.compile( r".+\.(?:rar|r\d+)$", re.IGNORECASE )
+		rarCount = 0
+
+		for file in fileList.Files:
+			if rarRe.match( file.Name ) is None:
+				continue
+
+			# If there are multiple RAR files then it's likely a scene release.
+			rarCount += 1
+			if rarCount > 1:
+				releaseInfo.SetSceneRelease()
+				break
 
 	def IsDownloadFinished( self, logger, releaseInfo, torrentClient ):
 		return torrentClient.IsTorrentFinished( logger, releaseInfo.SourceTorrentInfoHash )

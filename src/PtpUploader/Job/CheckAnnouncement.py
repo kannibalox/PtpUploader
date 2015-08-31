@@ -1,4 +1,4 @@
-from InformationSource.Imdb import Imdb
+﻿from InformationSource.Imdb import Imdb
 from InformationSource.MoviePoster import MoviePoster
 from Job.FinishedJobPhase import FinishedJobPhase
 from Job.JobRunningState import JobRunningState
@@ -30,12 +30,14 @@ class CheckAnnouncement(WorkerBase):
 
 		# Instead of this if, it would be possible to make a totally generic downloader system through SourceBase.
 		if jobManagerItem.ReleaseInfo.AnnouncementSourceName == "file":
+			phases.append( self.__DetectSceneReleaseFromFileList )
 			phases.append( self.__AddToPendingDownloads )
 		else:
 			phases.extend( [
 				self.__CreateReleaseDirectory,
 				self.__DownloadTorrentFile,
 				self.__StopAutomaticJobIfThereAreMultipleVideosBeforeDownloading,
+				self.__DetectSceneReleaseFromFileList,
 				self.__DownloadTorrent,
 				self.__AddToPendingDownloads ] )
 
@@ -285,6 +287,10 @@ class CheckAnnouncement(WorkerBase):
 
 		includedFileList = self.ReleaseInfo.AnnouncementSource.GetIncludedFileList( self.ReleaseInfo )
 		self.ReleaseInfo.AnnouncementSource.CheckFileList( self.ReleaseInfo, includedFileList )
+
+	def __DetectSceneReleaseFromFileList( self ):
+		includedFileList = self.ReleaseInfo.AnnouncementSource.GetIncludedFileList( self.ReleaseInfo )
+		self.ReleaseInfo.AnnouncementSource.DetectSceneReleaseFromFileList( self.ReleaseInfo, includedFileList )
 
 	def __DownloadTorrent(self):
 		if len( self.ReleaseInfo.SourceTorrentInfoHash ) > 0:
