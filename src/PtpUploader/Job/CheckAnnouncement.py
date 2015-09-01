@@ -289,6 +289,9 @@ class CheckAnnouncement(WorkerBase):
 		self.ReleaseInfo.AnnouncementSource.CheckFileList( self.ReleaseInfo, includedFileList )
 
 	def __DetectSceneReleaseFromFileList( self ):
+		if self.ReleaseInfo.IsSceneRelease():
+			return
+
 		includedFileList = self.ReleaseInfo.AnnouncementSource.GetIncludedFileList( self.ReleaseInfo )
 		self.ReleaseInfo.AnnouncementSource.DetectSceneReleaseFromFileList( self.ReleaseInfo, includedFileList )
 
