@@ -6,6 +6,7 @@
 tasks:
 # Cinemageddon
   _cinemageddon:
+    disable_urlrewriters: [urlrewrite_redirect]
     rss:
       url: http://cinemageddon.net/rss.xml
       # Force ASCII because the feed is not encoded properly.
@@ -25,6 +26,7 @@ tasks:
 
 # Cinematik
   _cinematik:
+    disable_urlrewriters: [urlrewrite_redirect]
     rss:
       url: http://cinematik.net/rss.php?key=AAAAAAAAAAAAAAAA&which=1
       # Force ASCII just to be sure.
@@ -39,6 +41,7 @@ tasks:
 
 # GFT
   _gft:
+    disable_urlrewriters: [urlrewrite_redirect]
     rss:
       # Make sure that at the Generates RSS link page you select Web link as the feed type.
       url: https://www.thegft.org/rss.php?cat=AAAAAAAAAAAAAAAA&passkey=AAAAAAAAAAAAAAAA
@@ -54,6 +57,7 @@ tasks:
 
 # Karagarga
   _karagarga:
+    disable_urlrewriters: [urlrewrite_redirect]
     rss:
       url: https://karagarga.in/rss.php?passkey=AAAAAAAAAAAAAAAA&user=AAAAAAAAAAAAAAAA
       # Force ASCII just to be sure.
@@ -95,6 +99,7 @@ tasks:
 
 # TorrentLeech
   _torrentleech:
+    disable_urlrewriters: [urlrewrite_redirect]
     rss:
       url: http://rss.torrentleech.org/AAAAAAAAAAAAAAAA
       # Get the category field from the RSS.
