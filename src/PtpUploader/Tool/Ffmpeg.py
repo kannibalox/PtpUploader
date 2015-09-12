@@ -1,4 +1,4 @@
-from PtpUploaderException import PtpUploaderException
+﻿from PtpUploaderException import PtpUploaderException
 from Settings import Settings
 
 import os
@@ -37,17 +37,32 @@ class Ffmpeg:
 		# We ignore invalid resolutions, invalid aspect ratios and aspect ratio 1:1.			
 		if width <= 0 or height <= 0 or darX <= 0 or darY <= 0 or ( darX == 1 and darY == 1 ):
 			return
-		
-		newWidth = ( height * darX ) / darY
-		newWidth = int( newWidth )
-		if abs( newWidth - width ) <= 1:
-			return
 
-		# For FFmpeg frame size must be a multiple of 2.
-		if ( newWidth % 2 ) != 0:
-			newWidth += 1
+		# Choose whether we resize height or width.
+		if ( float( darX ) / darY ) >= ( float( width ) / height ):
+			# Resize width
+			newWidth = ( height * darX ) / darY
+			newWidth = int( newWidth )
+			if abs( newWidth - width ) <= 1:
+				return
 
-		self.ScaleSize = "%sx%s" % ( newWidth, height )
+			# For FFmpeg frame size must be a multiple of 2.
+			if ( newWidth % 2 ) != 0:
+				newWidth += 1
+
+			self.ScaleSize = "%sx%s" % ( newWidth, height )
+		else:
+			# Resize height
+			newHeight = ( width * darY ) / darX
+			newHeight = int( newHeight )
+			if abs( newHeight - height ) <= 1:
+				return
+
+			# For FFmpeg frame size must be a multiple of 2.
+			if ( newHeight % 2 ) != 0:
+				newHeight += 1
+
+			self.ScaleSize = "%sx%s" % ( width, newHeight )
 
 	def MakeScreenshotInPng( self, timeInSeconds, outputPngPath ):
 		self.Logger.info( "Making screenshot with ffmpeg from '%s' to '%s'." % ( self.InputVideoPath, outputPngPath ) )
