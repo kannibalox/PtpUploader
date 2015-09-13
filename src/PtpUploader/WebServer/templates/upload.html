@@ -124,15 +124,15 @@
 			}
 		} );
 
-                // Do a quick naive check that a necessary field is filled
-                $( "#post" ).click( function( event )
-                {
-                        if ( ! ( $('#torrent_site_link').val() || $('#existingfile').val() || $('#upload_field').val() ) )
-                        {
-                                alert("Select something to upload!");
-                                event.preventDefault();
-                        }
-                } );
+		// Do a quick naive check that a necessary field is filled
+		$( "#post" ).click( function( event )
+		{
+			if ( ! ( $( "#torrent_site_link" ).val() || $( "#existingfile" ).val() || $( "#upload_field" ).val() ) )
+			{
+				alert( "Select something to upload!" );
+				event.preventDefault();
+			}
+		} );
 
 		// Go to parent directory.
 		// TODO: this is not too nice. ".." should be supported by the directory selector control...
