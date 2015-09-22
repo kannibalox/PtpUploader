@@ -20,6 +20,6 @@ class ImageUploader:
 		elif Settings.ImageHost == "whatimg":
 			return WhatImg.Upload( logger, imagePath, imageUrl )
 		elif Settings.ImageHost == "imges.link":
-                        return Imges.Upload( logger, imagePath, imageUrl )
+			return Imges.Upload( logger, imagePath, imageUrl )
 
 		raise PtpUploaderException( "Unknown image host: '%s'." % Settings.ImageHost )
