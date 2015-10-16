@@ -38,7 +38,7 @@ class Rtorrent:
 
 		# If load_raw is slow then set_directory_base throws an exception (Fault: <Fault -501: 'Could not find info-hash.'>),
 		# so we retry adding the torrent some delay.
-		maximumTries = 3
+		maximumTries = 15
 		while True:
 			try:
 				self.proxy.d.set_directory_base( infoHash, downloadPath );
@@ -47,7 +47,7 @@ class Rtorrent:
 			except Exception:
 				if maximumTries > 1:
 					maximumTries -= 1
-					time.sleep( 6 ) # Six seconds.
+					time.sleep( 2 ) # Six seconds.
 				else:
 					raise
 
