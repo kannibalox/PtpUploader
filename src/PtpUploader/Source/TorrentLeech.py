@@ -1,4 +1,4 @@
-from Job.JobRunningState import JobRunningState
+﻿from Job.JobRunningState import JobRunningState
 from Source.SourceBase import SourceBase
 
 from Helper import DecodeHtmlEntities, GetSizeFromText
@@ -25,7 +25,7 @@ class TorrentLeech(SourceBase):
 		MyGlobals.Logger.info( "Logging in to TorrentLeech." )
 
 		postData = { "username": self.Username, "password": self.Password, "remember_me": "on" }
-		result = MyGlobals.session.post( "http://www.torrentleech.org/user/account/login/", data = postData )
+		result = MyGlobals.session.post( "https://www.torrentleech.org/user/account/login/", data = postData )
 		result.raise_for_status()
 		self.__CheckIfLoggedInFromResponse( result.text )
 
@@ -43,7 +43,7 @@ class TorrentLeech(SourceBase):
 	
 	# On TorrentLeech the torrent page doesn't contain the NFO, and the NFO page doesn't contain the release name so we have to read them separately. 
 	def __GetReleaseNameAndSize(self, logger, releaseInfo):
-		url = "http://www.torrentleech.org/torrent/%s" % releaseInfo.AnnouncementId
+		url = "https://www.torrentleech.org/torrent/%s" % releaseInfo.AnnouncementId
 		logger.info( "Downloading release name and size from page '%s'." % url )
 		
 		result = MyGlobals.session.get( url )
@@ -74,7 +74,7 @@ class TorrentLeech(SourceBase):
 		if releaseInfo.HasImdbId() or releaseInfo.HasPtpId():
 			return
 		
-		url = "http://www.torrentleech.org/torrents/torrent/nfotext?torrentID=%s" % releaseInfo.AnnouncementId
+		url = "https://www.torrentleech.org/torrents/torrent/nfotext?torrentID=%s" % releaseInfo.AnnouncementId
 		logger.info( "Downloading NFO from page '%s'." % url )
 		
 		result = MyGlobals.session.get( url )
@@ -136,7 +136,7 @@ class TorrentLeech(SourceBase):
 	
 	def DownloadTorrent(self, logger, releaseInfo, path):
 		# Filename in the URL could be anything.
-		url = "http://www.torrentleech.org/download/%s/TL.torrent" % releaseInfo.AnnouncementId
+		url = "https://www.torrentleech.org/download/%s/TL.torrent" % releaseInfo.AnnouncementId
 		logger.info( "Downloading torrent file from '%s' to '%s'." % ( url, path ) )
 
 		result = MyGlobals.session.get( url )
@@ -164,10 +164,10 @@ class TorrentLeech(SourceBase):
 			return result.group( 1 )
 
 	def GetUrlFromId(self, id):
-		return "http://www.torrentleech.org/torrent/" + id
+		return "https://www.torrentleech.org/torrent/" + id
 
 	def GetIdFromAutodlIrssiUrl( self, url ):
-		# http://www.torrentleech.org/rss/download/897257/rsskey/AAAAA/a.torrent
+		# https://www.torrentleech.org/rss/download/897257/rsskey/AAAAA/a.torrent
 		result = re.match( r".*torrentleech\.org/rss/download/(\d+)/.*", url )
 		if result is None:
 			return ""
