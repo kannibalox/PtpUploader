@@ -44,7 +44,7 @@
 // @include     http*://*devilscore.org/*
 // @include     http*://*revolutiontt.me/*
 // @include     http*://*hon3yhd.com/*
-// @include     http*://*hdclub.com.ua/*
+// @include     http*://*hdclub.org/*
 // ==/UserScript==
 
 // START OF SETTINGS
@@ -288,7 +288,7 @@ function Main()
 		downloadLinkRegEx = /download.php\?torrent=\d+.*/;
 	else if ( /https?:\/\/.*?cinematik\.net\/details\.php\?id=.*/.test( document.URL ) )
 		downloadLinkRegEx = /download.php\?id=\d+.*/;
-	else if ( /https?:\/\/.*?hdclub\.com\.ua\/details\.php\?id=.*/.test( document.URL ) )
+	else if ( /https?:\/\/.*?hdclub\.org\/details\.php\?id=.*/.test( document.URL ) )
 		downloadLinkRegEx = /download.php\?id=\d+.*/;
 	else if ( /https?:\/\/.*?hdwing\.com\/details\.php\?id=.*/.test( document.URL ) )
 		downloadLinkRegEx = /download.php\/\d+\/.*/;
