@@ -1,10 +1,9 @@
-from MyGlobals import MyGlobals
+﻿from MyGlobals import MyGlobals
 from Ptp import Ptp
 from PtpUploaderException import *
 
 import simplejson as json
 
-import HTMLParser # For HTML entity reference decoding...
 import re
 
 class PtpImdbInfo:
@@ -12,18 +11,12 @@ class PtpImdbInfo:
 		self.ImdbId = imdbId
 		self.JsonResponse = ""
 		self.JsonMovie = None
-		self.HtmlParser = None
 	
 	def __LoadmdbInfo(self):
 		# Already loaded
 		if self.JsonMovie is not None:
 			return
-		
-		# PTP doesn't decodes the HTML entity references (like "&#x26;" to "&") in the JSON response, so we have to.
-		# We are using an internal function of HTMLParser. 
-		# See this: http://fredericiana.com/2010/10/08/decoding-html-entities-to-text-in-python/
-		self.HtmlParser = HTMLParser.HTMLParser()
- 
+
 		# Get IMDb info through PTP's ajax API used by the site when the user presses the auto fill button.
 		result = MyGlobals.session.get( "https://tls.passthepopcorn.me/ajax.php?action=torrent_info&imdb=%s" % Ptp.NormalizeImdbIdForPtp( self.ImdbId ) )
 		self.JsonResponse = result.text
@@ -43,7 +36,7 @@ class PtpImdbInfo:
 		title = self.JsonMovie[ "title" ]
 		if ( title is None ) or len( title ) == 0:
 			raise PtpUploaderException( "Bad PTP movie info JSON response: title is empty.\nFull response:\n%s" % self.JsonResponse )
-		return self.HtmlParser.unescape( title ).strip() # PTP doesn't decodes properly the text.
+		return title
 
 	def GetYear(self):
 		self.__LoadmdbInfo()
