@@ -68,15 +68,16 @@ class PtpImdbInfo:
 
 		# It may be false... Eg.: "art": false
 		if isinstance( coverArtUrl, basestring ):
-			# Force height to 480 pixels.
+			# Maximize height in 768 pixels.
 			# Example links:
 			# http://ia.media-imdb.com/images/M/MV5BMTM2MjE0NTcwNl5BMl5BanBnXkFtZTcwOTM0MDQ1NA@@._V1._SY317_CR1,0,214,317_.jpg
 			# http://ia.media-imdb.com/images/M/MV5BMjEwNjQ5NDU4OF5BMl5BanBnXkFtZTYwOTI2NzA5._V1._SY317_CR1,0,214,317_.jpg
-			match = re.match( r"""(.+?\._V1\.)(.*)\.jpg""", coverArtUrl )
+			# http://ia.media-imdb.com/images/M/MV5BMzE3NTMwOTk5OF5BMl5BanBnXkFtZTgwODcxNTE1NDE@._V1_UX182_CR0,0,182,268_AL_.jpg
+			match = re.match( r"""(.+?\._V1).*\.jpg""", coverArtUrl )
 			if match is None:
 				return coverArtUrl
 			else:
-				return match.group( 1 ) + "_SY480.jpg"
+				return match.group( 1 ) + "_SY768_.jpg"
 		else:
 			return ""
 
