@@ -47,14 +47,14 @@ class Imges:
                         encodedData = urllib.urlencode( { "source": imageUrl } )
                         headers = { "Content-Type": "application/x-www-form-urlencoded", "Content-Length": str( len( encodedData ) ) }
                         headers.update( Imges.RequiredHttpHeader )
-                        request = urllib2.Request( "https://imges.link/ptp/1/upload/?key=UUuotnQ9TqmFYwvWPZRJe8GpVRyeK2otfmCXn9a7ZUcGfEYrBU&format=json&", encodedData, headers )
+                        request = urllib2.Request( "https://imges.link/ptpapi/1/upload/?key=UUuotnQ9TqmFYwvWPZRJe8GpVRyeK2otfmCXn9a7ZUcGfEYrBU&format=json&", encodedData, headers )
                         result = urllib2.urlopen( request )
                         response = result.read()
                 else: # Upload image from file.
                         opener = poster.streaminghttp.register_openers()
                         datagen, headers = poster.encode.multipart_encode( [ poster.encode.MultipartParam.from_file( "source", imagePath ) ] )
                         headers.update( Imges.RequiredHttpHeader )
-                        request = urllib2.Request( "https://imges.link/ptp/1/upload/?key=UUuotnQ9TqmFYwvWPZRJe8GpVRyeK2otfmCXn9a7ZUcGfEYrBU&format=json&", datagen, headers )
+                        request = urllib2.Request( "https://imges.link/ptpapi/1/upload/?key=UUuotnQ9TqmFYwvWPZRJe8GpVRyeK2otfmCXn9a7ZUcGfEYrBU&format=json&", datagen, headers )
                         result = opener.open( request )
                         response = result.read()
 
