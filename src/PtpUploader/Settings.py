@@ -113,6 +113,11 @@ class Settings(object):
 			return default
 
 	@staticmethod
+	def __GetPath( section, option, default = "" ):
+		path = Settings.GetDefault( section, option, default )
+		return os.path.expanduser( path )
+
+	@staticmethod
 	def LoadSettings():
 		Settings.configParser = configParser = ConfigParser.ConfigParser()
 
@@ -136,13 +141,13 @@ class Settings(object):
 		Settings.WhatImgPassword = Settings.__GetDefault( configParser, "Settings", "WhatImgPassword", "" )
 		Settings.OnSuccessfulUpload = Settings.__GetDefault( configParser, "Settings", "OnSuccessfulUpload", "", raw = True )
 
-		Settings.FfmpegPath = Settings.__GetDefault( configParser, "Settings", "FfmpegPath", "" )
-		Settings.MediaInfoPath = configParser.get( "Settings", "MediaInfoPath" )
-		Settings.MplayerPath = Settings.__GetDefault( configParser, "Settings", "MplayerPath", "" )
-		Settings.MktorrentPath = configParser.get( "Settings", "MktorrentPath" )
-		Settings.UnrarPath = configParser.get( "Settings", "UnrarPath" )
-		Settings.ImageMagickConvertPath = Settings.__GetDefault( configParser, "Settings", "ImageMagickConvertPath", "" ) 
-		
+		Settings.FfmpegPath = Settings.__GetPath( "Settings", "FfmpegPath" )
+		Settings.MediaInfoPath = Settings.__GetPath( "Settings", "MediaInfoPath" )
+		Settings.MplayerPath = Settings.__GetPath( "Settings", "MplayerPath" )
+		Settings.MktorrentPath = Settings.__GetPath( "Settings", "MktorrentPath" )
+		Settings.UnrarPath = Settings.__GetPath( "Settings", "UnrarPath" )
+		Settings.ImageMagickConvertPath = Settings.__GetPath( "Settings", "ImageMagickConvertPath" ) 
+
 		Settings.WorkingPath = os.path.expanduser( configParser.get( "Settings", "WorkingPath" ) )
 		
 		Settings.AllowReleaseTag = Settings.MakeListOfListsFromString( Settings.__GetDefault( configParser, "Settings", "AllowReleaseTag", "" ) )
@@ -157,9 +162,9 @@ class Settings(object):
 
 		Settings.WebServerUsername = Settings.__GetDefault( configParser, "Settings", "WebServerUsername", "admin" )
 		Settings.WebServerPassword = Settings.__GetDefault( configParser, "Settings", "WebServerPassword", "" )
-		Settings.WebServerSslCertificatePath = Settings.__GetDefault( configParser, "Settings", "WebServerSslCertificatePath", "" )
-		Settings.WebServerSslPrivateKeyPath = Settings.__GetDefault( configParser, "Settings", "WebServerSslPrivateKeyPath", "" )
-		Settings.WebServerFileTreeInitRoot = Settings.__GetDefault( configParser, "Settings", "WebServerFileTreeInitRoot", u"~" )
+		Settings.WebServerSslCertificatePath = Settings.__GetPath( "Settings", "WebServerSslCertificatePath" )
+		Settings.WebServerSslPrivateKeyPath = Settings.__GetPath( "Settings", "WebServerSslPrivateKeyPath" )
+		Settings.WebServerFileTreeInitRoot = Settings.__GetPath( "Settings", "WebServerFileTreeInitRoot", u"~" )
 
 		Settings.GreasemonkeyTorrentSenderPassword = Settings.__GetDefault( configParser, "Settings", "GreasemonkeyTorrentSenderPassword", "" )
 		Settings.OpenJobPageLinksInNewTab = Settings.__GetDefault( configParser, "Settings", "OpenJobPageLinksInNewTab", "0" )

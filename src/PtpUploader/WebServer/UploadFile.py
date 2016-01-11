@@ -22,7 +22,7 @@ def ajaxGetDirectoryList():
 			# If it is file then start browsing from its parent directory.
 			path = os.path.dirname( path )
 		elif not os.path.isdir( path ):
-			path = os.path.expanduser( Settings.WebServerFileTreeInitRoot )
+			path = Settings.WebServerFileTreeInitRoot
 
 		directories = []
 		files = []
