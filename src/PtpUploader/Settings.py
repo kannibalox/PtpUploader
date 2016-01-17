@@ -145,6 +145,7 @@ class Settings(object):
 		Settings.MediaInfoPath = Settings.__GetPath( "Settings", "MediaInfoPath" )
 		Settings.MplayerPath = Settings.__GetPath( "Settings", "MplayerPath" )
 		Settings.MktorrentPath = Settings.__GetPath( "Settings", "MktorrentPath" )
+		Settings.SevenZipPath = Settings.__GetPath( "Settings", "7zipPath" )
 		Settings.UnrarPath = Settings.__GetPath( "Settings", "UnrarPath" )
 		Settings.ImageMagickConvertPath = Settings.__GetPath( "Settings", "ImageMagickConvertPath" ) 
 
@@ -232,6 +233,10 @@ class Settings(object):
 			if not Settings.__VerifyProgramPath( "ffmpeg", [ Settings.FfmpegPath, "--help" ] ):
 				return False
 
+		# Optional
+		if len( Settings.SevenZipPath ) > 0 and ( not Settings.__VerifyProgramPath( "7z", [ Settings.SevenZipPath ] ) ):
+			return False
+                        
 		# Optional
 		if len( Settings.UnrarPath ) > 0 and ( not Settings.__VerifyProgramPath( "unrar", [ Settings.UnrarPath ] ) ):
 			return False
