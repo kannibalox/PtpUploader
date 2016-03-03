@@ -198,7 +198,7 @@ class MediaInfo:
 		return ( self.Codec == "v_mpeg4/iso/avc" or self.Codec == "avc1" ) and self.VideoWritingLibrary.find( "x264 core" ) == -1
 
 	def IsVc1( self ):
-		return self.Codec == "wvc1"
+		return self.Codec == "wvc1" or self.Codec == "v_ms/vfw/fourcc / wvc1"
 
 	def IsMpeg2Codec( self ):
 		return self.Codec == "v_mpeg2"
