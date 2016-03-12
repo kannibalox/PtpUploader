@@ -134,8 +134,14 @@ class ReleaseDescriptionFormatter:
 		self.ReleaseInfo.Logger.info( "Making release description" )
 		releaseDescription = u""
 
-		if includeReleaseName:
+		if len( self.ReleaseInfo.ReleaseNotes ) > 0 and Settings.ReleaseNotesAt == "top":
+			releaseDescription += u"%s\n\n" % self.ReleaseInfo.ReleaseNotes
+
+                if includeReleaseName:
 			releaseDescription = u"[size=4][b]%s[/b][/size]\n\n" % self.ReleaseInfo.ReleaseName
+
+                if len( self.ReleaseInfo.ReleaseNotes ) > 0 and Settings.ReleaseNotesAt == "afterName":
+			releaseDescription += u"%s\n\n" % self.ReleaseInfo.ReleaseNotes
 
 		for i in range( len( self.VideoEntries ) ):
 			entry = self.VideoEntries[ i ]
@@ -145,7 +151,7 @@ class ReleaseDescriptionFormatter:
 
 			releaseDescription += entry.ToReleaseDescription()
 
-		if len( self.ReleaseInfo.ReleaseNotes ) > 0:
+		if len( self.ReleaseInfo.ReleaseNotes ) > 0 and Settings.ReleaseNotesAt == "bottom":
 			releaseDescription += u"\n\n%s" % self.ReleaseInfo.ReleaseNotes
 
 		return releaseDescription
