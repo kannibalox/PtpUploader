@@ -21,7 +21,7 @@
 // @include     http*://*iptorrents.com/details.php*
 // @include     http*://*iptorrents.me/details.php*
 // @include     http*://*iptorrents.ru/details.php*
-// @include     http*://*karagarga.net/details.php*
+// @include     http*://*karagarga.in/details.php*
 // @include     http*://*piratethenet.org/details.php*
 // @include     http*://*pretome.info/details.php*
 // @include     http*://*sceneaccess.eu/details*
@@ -269,7 +269,7 @@ function Main()
 		downloadLinkRegEx = /download.php\?torrent=\d+.*/;
 	else if ( /https?:\/\/.*?iptorrents\.(?:com|me|ru)\/details\.php\?id=.*/.test( document.URL ) )
 		downloadLinkRegEx = /download.php\/\d+\/.*/;
-	else if ( /https?:\/\/.*?karagarga\.net\/details\.php\?id=.*/.test( document.URL ) )
+	else if ( /https?:\/\/.*?karagarga\.in\/details\.php\?id=.*/.test( document.URL ) )
 	{
 		downloadLinkRegEx = /down.php\/\d+\/.*/;
 		sendPageContent = true;
