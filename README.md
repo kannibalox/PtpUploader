@@ -19,7 +19,7 @@ Supported sites for automatic mode:
 SceneAccess support was removed on the 9th of July 2013 because of staff pressure...
 RevolutionTT support was removed on the 15th of May 2015 because of staff pressure...
 
-There is a helper [Greasemonkey script](https://raw.githubusercontent.com/TnS-hun/PtpUploader/master/PtpUploaderTorrentSender.js) available at to send torrents from a wide variety of sites directly to PtpUploader.
+There is a helper [Greasemonkey script](https://raw.githubusercontent.com/TnS-hun/PtpUploader/master/PtpUploaderTorrentSender.user.js) available at to send torrents from a wide variety of sites directly to PtpUploader.
 
 #### Command line only usage
 
