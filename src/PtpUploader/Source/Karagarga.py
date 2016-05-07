@@ -23,6 +23,7 @@ class Karagarga(SourceBase):
 		SourceBase.LoadSettings( self, settings )
 
 		self.AutoUploadSd = int( settings.GetDefault( self.NameInSettings, "AutoUploadSd", "1" ) ) != 0
+		self.AutoUploadDvdImage = int( settings.GetDefault( self.NameInSettings, "AutoUploadDvdImage", "0" ) ) != 0
 		self.AutoUpload720p = int( settings.GetDefault( self.NameInSettings, "AutoUpload720p", "0" ) ) != 0
 		self.AutoUpload1080p = int( settings.GetDefault( self.NameInSettings, "AutoUpload1080p", "0" ) ) != 0
 
@@ -72,6 +73,38 @@ class Karagarga(SourceBase):
 		else:
 			raise PtpUploaderException( JobRunningState.Ignored_NotSupported, "Unsupported source type '%s'." % sourceType )
 
+	@staticmethod
+	def __DownloadNfoParseDvdImage( releaseInfo, ripSpecs ):
+		if ripSpecs.find( "DVD FORMAT: NTSC" ) >= 0:
+			releaseInfo.ResolutionType = "NTSC"
+		elif ripSpecs.find( "DVD FORMAT: PAL" ) >= 0:
+			releaseInfo.ResolutionType = "PAL"
+		else:
+			raise PtpUploaderException( JobRunningState.Ignored_NotSupported, "Can't figure out DVD resolution type from the rip specifications." )
+
+		if ripSpecs.find( "VIDEO: " ) < 0:
+			raise PtpUploaderException( JobRunningState.Ignored_NotSupported, "DVD video info can't be found in the rip specifications." )
+
+		if ripSpecs.find( "AUDIO: " ) < 0:
+			raise PtpUploaderException( JobRunningState.Ignored_NotSupported, "DVD audio info can't be found in the rip specifications." )
+
+		if ripSpecs.find( "VIDEO: UNTOUCHED" ) < 0 \
+			or ripSpecs.find( "AUDIO: UNTOUCHED" ) < 0 \
+			or ( ripSpecs.find( "MENUS: " ) >= 0 and ripSpecs.find( "MENUS: UNTOUCHED" ) < 0 ) \
+			or ( ripSpecs.find( "DVD EXTRAS: " ) >= 0 and ripSpecs.find( "DVD EXTRAS: UNTOUCHED" ) < 0 ):
+			raise PtpUploaderException( JobRunningState.Ignored_NotSupported, "The DVD is not untouched." )
+
+		if releaseInfo.Size <= 0:
+			raise PtpUploaderException( JobRunningState.Ignored_NotSupported, "Size not set, can't detect DVD's size." )
+
+		# TODO: this isn't correct for multi disc torrents. It must be detected from the file list.
+		if releaseInfo.Size > 4707319808:
+			releaseInfo.Codec = "DVD9"
+		else:
+			releaseInfo.Codec = "DVD5"
+
+		releaseInfo.Container = "VOB IFO"
+
 	def __DownloadNfoParseFormatType(self, releaseInfo, description):
 		if releaseInfo.IsCodecSet():
 			releaseInfo.Logger.info( "Codec '%s' is already set, not getting from the torrent page." % releaseInfo.Codec )
@@ -86,7 +119,9 @@ class Karagarga(SourceBase):
 
 		ripSpecs = ripSpecs.group( 1 ).upper()
 
-		if ripSpecs.find( "XVID" ) >= 0:
+		if ripSpecs.find( "DVD FORMAT:" ) >= 0:
+			self.__DownloadNfoParseDvdImage( releaseInfo, ripSpecs )
+		elif ripSpecs.find( "XVID" ) >= 0:
 			releaseInfo.Codec = "XviD"
 		elif ripSpecs.find( "DIVX" ) >= 0:
 			releaseInfo.Codec = "DivX"
@@ -104,17 +139,15 @@ class Karagarga(SourceBase):
 			releaseInfo.ResolutionType = "720"
 		elif description.find( '"genreimages/hdrip1080.png"' ) != -1:
 			releaseInfo.ResolutionType = "1080"
-		elif description.find( '"genreimages/dvdr.png"' ) != -1:
-			raise PtpUploaderException( JobRunningState.Ignored_NotSupported, "Untouched DVDs aren't supported." )
 		elif description.find( '"genreimages/bluray.png"' ) != -1:
 			raise PtpUploaderException( JobRunningState.Ignored_NotSupported, "Untouched Blu-ray aren't supported." )
 		else:
-			# DVDR and other HD in the genre list. They're not supported.
+			# Other HD is in the genre list. It's not supported.
 			# <td style="border:none;"><img src="genreimages/dvdr.png" width="40" height="40" border="0" title="DVDR"></td>
 			matches = re.search( """<td.*?><img src="genreimages/.+?" .*?title="(.+?)".*?></td>""", description )
 			if matches is not None:
 				notSupportedType = matches.group( 1 ).lower()
-				if notSupportedType == "dvdr" or notSupportedType == "hd":
+				if notSupportedType == "hd":
 					raise PtpUploaderException( JobRunningState.Ignored_NotSupported, "Unsupported source or resolution type '%s'." % notSupportedType )
 
 			releaseInfo.ResolutionType = "Other"
@@ -240,7 +273,10 @@ class Karagarga(SourceBase):
 		self.__ParsePage( logger, releaseInfo, response )
 
 	def __HandleAutoCreatedJob( self, releaseInfo ):
-		if releaseInfo.ResolutionType == "720":
+		if releaseInfo.IsDvdImage():
+			if not self.AutoUploadDvdImage:
+				raise PtpUploaderException( JobRunningState.Ignored, "DVD image is on your ignore list." )
+		elif releaseInfo.ResolutionType == "720":
 			if not self.AutoUpload720p:
 				raise PtpUploaderException( JobRunningState.Ignored, "720p is on your ignore list." )
 		elif releaseInfo.ResolutionType == "1080":
