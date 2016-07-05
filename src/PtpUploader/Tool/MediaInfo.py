@@ -82,13 +82,16 @@ class MediaInfo:
 		return int( mediaPropertyValue );
 
 	# Matches duration in the following format. All units and spaces are optional.
-	# 1h 2mn 3s
+	# 1h 2min 3s
+	# 1h2mn3s
 	@staticmethod
 	def __GetDurationInSec(duration):
 		# Nice regular expression. :)
 		# r means to do not unescape the string
 		# ?: means to do not store that group capture
-		match = re.match( r"(?:(\d+)h\s?)?(?:(\d+)mn\s?)?(?:(\d+)s\s?)?" , duration )
+		duration = duration.replace( "mn", "min" )
+		duration = duration.replace( " ", "" )
+		match = re.match( r"(?:(\d+)h)?(?:(\d+)min)?(?:(\d+)s)?" , duration )
 		if not match:
 			return 0;
 	
