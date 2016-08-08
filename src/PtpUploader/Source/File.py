@@ -97,7 +97,7 @@ class File(SourceBase):
 
 		entries = os.listdir( path )
 		for entry in entries:
-			if entry == UploadDirectoryName:
+			if entry == File.UploadDirectoryName:
 				continue
 
 			absolutePath = os.path.join( path, entry )
