@@ -57,7 +57,7 @@ def ajaxGetInfoForFileUpload():
 	path = request.values.get( "path" )
 	# file is not None even there is no file specified, but checking file as a boolean is OK. (As shown in the Flask example.) 
 	if ( not path ):
-		return jsonify( result = "ERROR" )
+		return jsonify( result = "ERROR", message = "Missing request parameter: path." )
 
 	releaseName = ""
 	imdbId = ""
@@ -83,7 +83,8 @@ def ajaxGetInfoForFileUpload():
 			nfo = NfoParser.ReadNfoFileToUnicode( nfoPath )
 			imdbId = NfoParser.GetImdbId( nfo )
 	else:
-		return jsonify( result = "ERROR" )
+		message = "Path '%s' is neither a directory nor a file." % path
+		return jsonify( result = "ERROR", message = message )
 
 	imdbUrl = ""
 	if len( imdbId ) > 0:

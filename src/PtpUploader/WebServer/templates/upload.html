@@ -200,7 +200,8 @@
 						}
 						else
 						{
-							alert( "Error!" );
+							var message = typeof( data.message ) === "undefined" ? "Unknown error!" : data.message;
+							alert( message );
 						}
 					} );
 				}
