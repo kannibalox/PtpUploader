@@ -59,7 +59,6 @@ class Imges:
                         response = result.read()
 
                 # Response is JSON.
-                # [{"status":1,"code":"8qy8is","ext":"jpg"}]
                 jsonLoad = None
                 try:
                         jsonLoad = json.loads( response )
