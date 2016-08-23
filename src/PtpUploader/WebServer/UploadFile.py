@@ -83,7 +83,7 @@ def ajaxGetInfoForFileUpload():
 			nfo = NfoParser.ReadNfoFileToUnicode( nfoPath )
 			imdbId = NfoParser.GetImdbId( nfo )
 	else:
-		message = "Path '%s' is neither a directory nor a file." % path
+		message = "Path '%s' does not exist." % path
 		return jsonify( result = "ERROR", message = message )
 
 	imdbUrl = ""
