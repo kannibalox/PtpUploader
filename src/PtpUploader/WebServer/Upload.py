@@ -116,4 +116,6 @@ def upload():
 	if Settings.OverrideScreenshots:
 		job[ "OverrideScreenshots" ] = 1
 
+	job[ "ReleaseNotes" ] = Settings.ReleaseNotes
+
 	return render_template( "upload.html", job = job )
