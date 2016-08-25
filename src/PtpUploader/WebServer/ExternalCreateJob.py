@@ -56,6 +56,7 @@ def ajaxExternalCreateJob():
 	releaseInfo.ReleaseName = releaseName
 	releaseInfo.Size = torrentContentSize
 	releaseInfo.SetOverrideScreenshots( Settings.OverrideScreenshots )
+	releaseInfo.SetForceDirectorylessSingleFileTorrent( Settings.ForceDirectorylessSingleFileTorrent )
 
 	imdbId = ""
 	if "ImdbUrl" in request.values:

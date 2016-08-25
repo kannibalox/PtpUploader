@@ -169,6 +169,7 @@ class Settings(object):
 		Settings.GreasemonkeyTorrentSenderPassword = Settings.__GetDefault( configParser, "Settings", "GreasemonkeyTorrentSenderPassword", "" )
 		Settings.OpenJobPageLinksInNewTab = Settings.__GetDefault( configParser, "Settings", "OpenJobPageLinksInNewTab", "0" )
 		Settings.OverrideScreenshots = int( Settings.__GetDefault( configParser, "Settings", "OverrideScreenshots", "0" ) ) != 0
+		Settings.ForceDirectorylessSingleFileTorrent = int( Settings.__GetDefault( configParser, "Settings", "MakeTorrentWithoutDirectory", "0" ) ) != 0
 
 		Settings.SizeLimitForAutoCreatedJobs = float( Settings.__GetDefault( configParser, "Settings", "SizeLimitForAutoCreatedJobs", "0" ) ) * 1024 * 1024 * 1024
 		Settings.StopIfSynopsisIsMissing = Settings.__GetDefault( configParser, "Settings", "StopIfSynopsisIsMissing", "" )
@@ -217,7 +218,7 @@ class Settings(object):
 
 	@staticmethod
 	def VerifyPaths():
-		MyGlobals.Logger.info( "Checking paths" ) 
+		MyGlobals.Logger.info( "Checking paths" )
 
 		if not Settings.__VerifyProgramPath( "MediaInfo", [ Settings.MediaInfoPath, "--version" ] ):
 			return False

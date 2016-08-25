@@ -110,6 +110,9 @@ def upload():
 	job[ "Subtitles" ] = []
 	job[ "SkipDuplicateCheckingButton" ] = 0
 
+	if Settings.ForceDirectorylessSingleFileTorrent:
+		job[ "ForceDirectorylessSingleFileTorrent" ] = 1
+
 	if Settings.OverrideScreenshots:
 		job[ "OverrideScreenshots" ] = 1
 
