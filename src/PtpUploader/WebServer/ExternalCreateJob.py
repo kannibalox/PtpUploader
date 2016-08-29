@@ -14,6 +14,7 @@ from flask import jsonify, make_response, request
 from werkzeug import secure_filename
 
 import os
+import sys
 import uuid
 
 def MakeExternalCreateJobErrorResponse( errorMessage ):
@@ -60,6 +61,9 @@ def ajaxExternalCreateJob():
 
 	if Settings.ForceDirectorylessSingleFileTorrent:
 		releaseInfo.SetForceDirectorylessSingleFileTorrent()
+
+	if Settings.SkipDuplicateChecking:
+		releaseInfo.DuplicateCheckCanIgnore = sys.maxint
 
 	imdbId = ""
 	if "ImdbUrl" in request.values:

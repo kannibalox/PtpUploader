@@ -14,7 +14,7 @@ from flask import jsonify, render_template, request
 from werkzeug import secure_filename
 
 import os
-import re
+import sys
 import uuid
 
 def IsFileAllowed(filename):
@@ -115,6 +115,9 @@ def upload():
 
 	if Settings.OverrideScreenshots:
 		job[ "OverrideScreenshots" ] = 1
+
+	if Settings.SkipDuplicateChecking:
+		job[ "SkipDuplicateCheckingButton" ] = sys.maxint
 
 	job[ "ReleaseNotes" ] = Settings.ReleaseNotes
 

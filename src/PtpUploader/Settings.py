@@ -171,6 +171,7 @@ class Settings(object):
 		Settings.OverrideScreenshots = int( Settings.__GetDefault( configParser, "Settings", "OverrideScreenshots", "0" ) ) != 0
 		Settings.ForceDirectorylessSingleFileTorrent = int( Settings.__GetDefault( configParser, "Settings", "MakeTorrentWithoutDirectory", "0" ) ) != 0
 		Settings.ReleaseNotes = Settings.__GetDefault( configParser, "Settings", "ReleaseNotes", "" ).strip()
+		Settings.SkipDuplicateChecking = int( Settings.__GetDefault( configParser, "Settings", "SkipDuplicateChecking", "0" ) ) != 0
 
 		Settings.SizeLimitForAutoCreatedJobs = float( Settings.__GetDefault( configParser, "Settings", "SizeLimitForAutoCreatedJobs", "0" ) ) * 1024 * 1024 * 1024
 		Settings.StopIfSynopsisIsMissing = Settings.__GetDefault( configParser, "Settings", "StopIfSynopsisIsMissing", "" )
