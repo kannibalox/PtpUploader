@@ -31,6 +31,8 @@ class ReleaseInfoFlags:
 	TrumpableForNoEnglishSubtitles      = 1 << 5
 	OverrideScreenshots                 = 1 << 6
 
+	PersonalRip                         = 1 << 7
+
 class ReleaseInfo(Database.Base):
 	__tablename__ = "release"
 
@@ -242,6 +244,12 @@ class ReleaseInfo(Database.Base):
 				raise PtpUploaderException( "Language id '%s' contains a comma." % name )
 		
 		self.Subtitles = ", ".join( list )
+
+	def IsPersonalRip( self ):
+		return ( self.Flags & ReleaseInfoFlags.PersonalRip ) != 0
+
+	def SetPersonalRip( self ):
+		self.Flags |= ReleaseInfoFlags.PersonalRip
 
 	def IsSceneRelease(self):
 		return ( self.Flags & ReleaseInfoFlags.SceneRelease ) != 0

@@ -155,9 +155,13 @@ class Ptp:
 				"AntiCsrfToken": Ptp.AntiCsrfToken
 				};
 
+		# personal rip only needed if it is specified
+		if releaseInfo.IsPersonalRip():
+			paramList.update( { "internalrip": "on" } )
+
 		# scene only needed if it is specified
 		if releaseInfo.IsSceneRelease():
-			paramList.update( {"scene": "on"} )
+			paramList.update( { "scene": "on" } )
 		# other category is only needed if it is specified
 		if releaseInfo.IsSpecialRelease():
 			paramList.update( { "special": "on" } )

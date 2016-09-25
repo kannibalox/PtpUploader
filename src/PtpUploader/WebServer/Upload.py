@@ -116,6 +116,9 @@ def upload():
 	if Settings.OverrideScreenshots:
 		job[ "OverrideScreenshots" ] = 1
 
+	if Settings.PersonalRip:
+		job[ "PersonalRip" ] = 1
+
 	if Settings.SkipDuplicateChecking:
 		job[ "SkipDuplicateCheckingButton" ] = sys.maxint
 

@@ -68,7 +68,10 @@ class JobCommon:
 		releaseInfo.MovieDescription = request.values[ "album_desc" ]
 		releaseInfo.CoverArtUrl = request.values[ "image" ].strip()
 		releaseInfo.YouTubeId = JobCommon.__GetYouTubeId( request.values[ "trailer" ] )
-		
+
+		if request.values.get( "personal_rip" ) is not None:
+			releaseInfo.SetPersonalRip()
+
 		if request.values.get( "scene" ) is not None:
 			releaseInfo.SetSceneRelease()
 		
@@ -155,7 +158,10 @@ class JobCommon:
 		job[ "album_desc" ] = releaseInfo.MovieDescription
 		job[ "image" ] = releaseInfo.CoverArtUrl
 		job[ "trailer" ] = JobCommon.__GetYouTubeLink( releaseInfo )
-		
+
+		if releaseInfo.IsPersonalRip():
+			job[ "PersonalRip" ] = "on"
+
 		if releaseInfo.IsSceneRelease():
 			job[ "scene" ] = "on"
 		
@@ -178,12 +184,12 @@ class JobCommon:
 		
 		if releaseInfo.JobStartMode == JobStartMode.ManualForced:
 			job[ "force_upload" ] = "on"
-	
+
 		if releaseInfo.IsForceDirectorylessSingleFileTorrent():
-			 job[ "ForceDirectorylessSingleFileTorrent" ] = "on"
+			job[ "ForceDirectorylessSingleFileTorrent" ] = "on"
 
 		if releaseInfo.IsStartImmediately():
-			 job[ "StartImmediately" ] = "on"
+			job[ "StartImmediately" ] = "on"
 	
 		job[ "ReleaseName" ] = releaseInfo.ReleaseName
 		job[ "ReleaseNotes" ] = releaseInfo.ReleaseNotes

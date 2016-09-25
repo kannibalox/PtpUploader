@@ -170,6 +170,7 @@ class Settings(object):
 		Settings.OpenJobPageLinksInNewTab = Settings.__GetDefault( configParser, "Settings", "OpenJobPageLinksInNewTab", "0" )
 		Settings.OverrideScreenshots = int( Settings.__GetDefault( configParser, "Settings", "OverrideScreenshots", "0" ) ) != 0
 		Settings.ForceDirectorylessSingleFileTorrent = int( Settings.__GetDefault( configParser, "Settings", "MakeTorrentWithoutDirectory", "0" ) ) != 0
+		Settings.PersonalRip = int( Settings.__GetDefault( configParser, "Settings", "PersonalRip", "0" ) ) != 0
 		Settings.ReleaseNotes = Settings.__GetDefault( configParser, "Settings", "ReleaseNotes", "" ).strip()
 		Settings.SkipDuplicateChecking = int( Settings.__GetDefault( configParser, "Settings", "SkipDuplicateChecking", "0" ) ) != 0
 

@@ -62,6 +62,9 @@ def ajaxExternalCreateJob():
 	if Settings.ForceDirectorylessSingleFileTorrent:
 		releaseInfo.SetForceDirectorylessSingleFileTorrent()
 
+	if Settings.PersonalRip:
+		releaseInfo.SetPersonalRip()
+
 	if Settings.SkipDuplicateChecking:
 		releaseInfo.DuplicateCheckCanIgnore = sys.maxint
 

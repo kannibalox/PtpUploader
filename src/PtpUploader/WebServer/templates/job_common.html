@@ -100,6 +100,18 @@
 </tr>
 
 <tr>
+	<td class="label">Personal rip</td>
+	<td>
+		<input id="personal_rip" name="personal_rip" type="checkbox" title="Check this only if you made this rip."
+
+			{% if job.PersonalRip %}
+				checked
+			{% endif %}
+		>
+	</td>
+</tr>
+
+<tr>
 	<td class="label">Scene</td>
 	<td>
 		<input id="scene" name="scene" type="checkbox"
