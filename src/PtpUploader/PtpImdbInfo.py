@@ -18,7 +18,7 @@ class PtpImdbInfo:
 			return
 
 		# Get IMDb info through PTP's ajax API used by the site when the user presses the auto fill button.
-		result = MyGlobals.session.get( "https://tls.passthepopcorn.me/ajax.php?action=torrent_info&imdb=%s" % Ptp.NormalizeImdbIdForPtp( self.ImdbId ) )
+		result = MyGlobals.session.get( "https://passthepopcorn.me/ajax.php?action=torrent_info&imdb=%s" % Ptp.NormalizeImdbIdForPtp( self.ImdbId ) )
 		self.JsonResponse = result.text
 		Ptp.CheckIfLoggedInFromResponse( result, self.JsonResponse )
 

@@ -32,4 +32,4 @@ Use the resulting torrent that starts with PTP for uploading to the tracker.
 
 #### Questions, help
 
-Support is provided on [PTP](https://tls.passthepopcorn.me/forums.php?action=viewthread&threadid=9245).
+Support is provided on [PTP](https://passthepopcorn.me/forums.php?action=viewthread&threadid=9245).

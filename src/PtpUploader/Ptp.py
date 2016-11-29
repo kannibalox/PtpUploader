@@ -31,8 +31,8 @@ class Ptp:
 
 		postData = { "username": Settings.PtpUserName, "password": Settings.PtpPassword, "passkey": passKey, "keeplogged": "1" }	
 
-		MyGlobals.session.get( "https://tls.passthepopcorn.me/ajax.php?action=login" )
-		response = MyGlobals.session.post( "https://tls.passthepopcorn.me/ajax.php?action=login", data=postData )
+		MyGlobals.session.get( "https://passthepopcorn.me/ajax.php?action=login" )
+		response = MyGlobals.session.post( "https://passthepopcorn.me/ajax.php?action=login", data=postData )
 		response = response.text
 
 		jsonLoad = None
@@ -98,7 +98,7 @@ class Ptp:
 	def GetMoviePageOnPtp(logger, ptpId):
 		logger.info( "Getting movie page for PTP id '%s'." % ptpId )
 		
-		result = MyGlobals.session.get( "https://tls.passthepopcorn.me/torrents.php?id=%s&json=1" % ptpId )
+		result = MyGlobals.session.get( "https://passthepopcorn.me/torrents.php?id=%s&json=1" % ptpId )
 		response = result.text
 		Ptp.CheckIfLoggedInFromResponse( result, response )
 
@@ -113,12 +113,12 @@ class Ptp:
 	def GetMoviePageOnPtpByImdbId(logger, imdbId):
 		logger.info( "Trying to find movie with IMDb id '%s' on PTP." % imdbId );
 				
-		result = MyGlobals.session.get( "https://tls.passthepopcorn.me/torrents.php?imdb=%s&json=1" % Ptp.NormalizeImdbIdForPtp( imdbId ) )
+		result = MyGlobals.session.get( "https://passthepopcorn.me/torrents.php?imdb=%s&json=1" % Ptp.NormalizeImdbIdForPtp( imdbId ) )
 		response = result.text
 		Ptp.CheckIfLoggedInFromResponse( result, response );
 
-		# If there is a movie: result.url = https://tls.passthepopcorn.me/torrents.php?id=28577
-		# If there is no movie: result.url = https://tls.passthepopcorn.me/torrents.php?imdb=1535492
+		# If there is a movie: result.url = https://passthepopcorn.me/torrents.php?id=28577
+		# If there is no movie: result.url = https://passthepopcorn.me/torrents.php?imdb=1535492
 		match = re.match( r".*?passthepopcorn\.me/torrents\.php\?id=(\d+)", result.url );
 		if match is not None:
 			ptpId = match.group( 1 );
@@ -214,12 +214,12 @@ class Ptp:
 		
 		# We always use HTTPS for uploading because if "Force HTTPS" is enabled in the profile then the HTTP upload is not working.
 		if releaseInfo.HasPtpId():
-			logger.info( "Uploading torrent '%s' to PTP as a new format for 'https://tls.passthepopcorn.me/torrents.php?id=%s'." % ( torrentPath, releaseInfo.PtpId ) );
-			url = "https://tls.passthepopcorn.me/upload.php?groupid=%s" % releaseInfo.PtpId;
+			logger.info( "Uploading torrent '%s' to PTP as a new format for 'https://passthepopcorn.me/torrents.php?id=%s'." % ( torrentPath, releaseInfo.PtpId ) );
+			url = "https://passthepopcorn.me/upload.php?groupid=%s" % releaseInfo.PtpId;
 			paramList.update( Ptp.__UploadMovieGetParamsForAddFormat( releaseInfo.PtpId ) );
 		else:
 			logger.info( "Uploading torrent '%s' to PTP as a new movie." % torrentPath );
-			url = "https://tls.passthepopcorn.me/upload.php";
+			url = "https://passthepopcorn.me/upload.php";
 			paramList.update( Ptp.__UploadMovieGetParamsForNewMovie( releaseInfo ) );
 		
 		# Add the torrent file.
@@ -240,7 +240,7 @@ class Ptp:
 
 			raise PtpUploaderException( "Upload to PTP failed: '%s' (%s). (We are still on the upload page.)" % ( errorMessage, result.status_code ) )
 
-		# URL format in case of successful upload: https://tls.passthepopcorn.me/torrents.php?id=9329&torrentid=91868 
+		# URL format in case of successful upload: https://passthepopcorn.me/torrents.php?id=9329&torrentid=91868
 		match = re.match( r".*?passthepopcorn\.me/torrents\.php\?id=(\d+)&torrentid=(\d+)", result.url )
 		if match is None:
 			raise PtpUploaderException( "Upload to PTP failed: result URL '%s' (%s) is not the expected one." % ( result.url, result.status_code ) )
@@ -256,7 +256,7 @@ class Ptp:
 		MyGlobals.Logger.info( "Sending private message on PTP." );
 
 		# We need to load the send message page for the authentication key.
-		result = MyGlobals.session.get( "https://tls.passthepopcorn.me/inbox.php?action=compose&to=%s" % userId )
+		result = MyGlobals.session.get( "https://passthepopcorn.me/inbox.php?action=compose&to=%s" % userId )
 		response = result.text
 		Ptp.CheckIfLoggedInFromResponse( result, response )
 
@@ -279,6 +279,6 @@ class Ptp:
 			"AntiCsrfToken": Ptp.AntiCsrfToken
 			}
 
-		result = MyGlobals.session.post( "https://tls.passthepopcorn.me/inbox.php", postData )
+		result = MyGlobals.session.post( "https://passthepopcorn.me/inbox.php", postData )
 		response = result.text
 		Ptp.CheckIfLoggedInFromResponse( result, response )

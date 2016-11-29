@@ -57,11 +57,11 @@ def ReleaseInfoToJobsPageData(releaseInfo, entry):
 
 	if releaseInfo.HasPtpId():
 		if releaseInfo.HasPtpTorrentId():
-			entry[ "PtpUrl" ] = "https://tls.passthepopcorn.me/torrents.php?id=%s&torrentid=%s" % ( releaseInfo.GetPtpId(), releaseInfo.GetPtpTorrentId() )
+			entry[ "PtpUrl" ] = "https://passthepopcorn.me/torrents.php?id=%s&torrentid=%s" % ( releaseInfo.GetPtpId(), releaseInfo.GetPtpTorrentId() )
 		else:
-			entry[ "PtpUrl" ] = "https://tls.passthepopcorn.me/torrents.php?id=%s" % releaseInfo.GetPtpId()
+			entry[ "PtpUrl" ] = "https://passthepopcorn.me/torrents.php?id=%s" % releaseInfo.GetPtpId()
 	elif releaseInfo.HasImdbId() and ( not releaseInfo.IsZeroImdbId() ):
-		entry[ "PtpUrl" ] = "https://tls.passthepopcorn.me/torrents.php?imdb=%s" % releaseInfo.GetImdbId()
+		entry[ "PtpUrl" ] = "https://passthepopcorn.me/torrents.php?imdb=%s" % releaseInfo.GetImdbId()
 
 	entry[ "LogPageUrl" ] = url_for( "log", jobId = releaseInfo.Id )
 	entry[ "Size" ] = SizeToText( releaseInfo.Size )

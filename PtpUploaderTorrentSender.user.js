@@ -154,7 +154,7 @@ function CreateSendToPtpUploaderLink( downloadLinkElement, downloadUrl, imdbUrl,
 	var ptpLink = document.createElement( "a" );
 	ptpLink.title = "Check movie page on PTP";
 	ptpLink.innerHTML = "PTP";
-	ptpLink.href = "https://tls.passthepopcorn.me/torrents.php?searchstr=" + imdbUrl;
+	ptpLink.href = "https://passthepopcorn.me/torrents.php?searchstr=" + imdbUrl;
 	if ( openPtpAndPtpUploaderInNewTab )
 		ptpLink.setAttribute( "target", "_blank" );
 

@@ -69,7 +69,7 @@ def movieAvailabilityCheck():
 			if ptpId is None:
 				resultHtml += """<a href="http://www.imdb.com/title/tt%s">%s</a> - NOT ON PTP</br>""" % ( match, match )
 			else:
-				resultHtml += """<a href="http://www.imdb.com/title/tt%s">%s</a> - <a href="https://tls.passthepopcorn.me/torrents.php?id=%s">PTP</a></br>""" % ( match, match, ptpId )
+				resultHtml += """<a href="http://www.imdb.com/title/tt%s">%s</a> - <a href="https://passthepopcorn.me/torrents.php?id=%s">PTP</a></br>""" % ( match, match, ptpId )
 			
 		return resultHtml
 
