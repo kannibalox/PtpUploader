@@ -22,7 +22,7 @@ tasks:
       - TorrentId:
           from: url
           extract: 'http://cinemageddon\.net/details\.php\?id=(\d+).*'
-    exec: echo >> "/path to WorkingDirectory/announcement/[source=cg][id=%(TorrentId)s][title=none]"
+    exec: echo >> "/path to WorkingDirectory/announcement/[source=cg][id={{TorrentId}}][title=none]"
 
 # Cinematik
   _cinematik:
@@ -37,7 +37,7 @@ tasks:
       - TorrentId:
           from: url
           extract: 'http://cinematik\.net/details\.php\?id=(\d+).*'
-    exec: echo >> "/path to WorkingDirectory/announcement/[source=tik][id=%(TorrentId)s][title=none]"
+    exec: echo >> "/path to WorkingDirectory/announcement/[source=tik][id={{TorrentId}}][title=none]"
 
 # GFT
   _gft:
@@ -53,7 +53,7 @@ tasks:
       - TorrentId:
           from: url
           extract: 'https://www\.thegft\.org/details\.php\?id=(\d+).*'
-    exec: echo >> "/path to WorkingDirectory/announcement/[source=gft][id=%(TorrentId)s][title=%(title)s]"
+    exec: echo >> "/path to WorkingDirectory/announcement/[source=gft][id={{TorrentId}}][title={{title}}]"
 
 # Karagarga
   _karagarga:
@@ -95,7 +95,7 @@ tasks:
       - TorrentId:
           from: url
           extract: 'https?://(?:www\.)?karagarga\.in/details\.php\?id=(\d+)'
-    exec: echo >> "/path to WorkingDirectory/announcement/[source=kg][id=%(TorrentId)s][title=none]"
+    exec: echo >> "/path to WorkingDirectory/announcement/[source=kg][id={{TorrentId}}][title=none]"
 
 # TorrentLeech
   _torrentleech:
@@ -118,4 +118,4 @@ tasks:
       - TorrentId:
           from: url
           extract: 'http://www\.torrentleech\.org/rss/download/(\d+)/.*'
-    exec: echo >> "/path to WorkingDirectory/announcement/[source=tl][id=%(TorrentId)s][title=%(title)s]"
+    exec: echo >> "/path to WorkingDirectory/announcement/[source=tl][id={{TorrentId}}][title={{title}}]"
