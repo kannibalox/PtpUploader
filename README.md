@@ -12,9 +12,7 @@ Supported sites for automatic mode:
 	* Thanks to Mako_1!
 *  Karagarga
 * TorrentBytes
-*  TorrentLeech
-*  TorrentShack
-	* Thanks to Mako_1!
+* TorrentLeech
 * FunFile
 	* Thanks to dhosha!
 
