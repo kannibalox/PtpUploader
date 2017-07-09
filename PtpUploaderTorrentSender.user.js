@@ -8,6 +8,7 @@
 // @namespace   http://greasemonkey.mozdev.com
 
 // @include     http*://*torviet.com/*
+// @include     https://*alpharatio.cc/torrents.php?torrentid=*
 // @include     http*://*awesome-hd.net/torrents.php*
 // @include     http*://*bit-hdtv.com/details.php*
 // @include     http*://*chdbits.org/details.php*
@@ -27,6 +28,7 @@
 // @include     http*://*sceneaccess.eu/details*
 // @include     http*://*tehconnection.eu/torrents.php*
 // @include     http*://*thegft.org/details.php*
+// @include     https://www.torrentbytes.net/details.php?id=
 // @include     http*://*torrentleech.org/torrent/*
 // @include     http*://*digitalhive.org/details.php*
 // @include     http*://*desitorrents.com/forums/*
@@ -228,7 +230,9 @@ function Main()
 	var imdbUrl = "";
 	var sendPageContent = false;
 
-	if ( /https?:\/\/torviet\.com\/.*/.test( document.URL ) )
+	if ( /https:\/\/.*?alpharatio\.cc\/torrents\.php\?torrentid=.*/.test( document.URL ) )
+		downloadLinkRegEx = /torrents.php\?action=download.*?id=\d+.*$/;
+	else if ( /https?:\/\/torviet\.com\/.*/.test( document.URL ) )
 		downloadLinkRegEx = /download.php\?id=\d+.*/;
 	else if ( /https?:\/\/.*?awesome-hd\.net\/torrents\.php\?id=.*/.test( document.URL ) )
 	{
@@ -282,6 +286,11 @@ function Main()
 		downloadLinkRegEx = /download\/\d+\/.*/;
 	else if ( /https?:\/\/.*?tehconnection\.eu\/torrents\.php\?id=.*/.test( document.URL ) )
 		downloadLinkRegEx = /torrents.php\?action=download.*?id=\d+.*/;
+	else if ( /https:\/\/www.torrentbytes\.net\/details\.php\?id=.*/.test( document.URL ) )
+	{
+		downloadLinkRegEx = /download.php\?id=.*/;
+		imdbUrl = GetNonLinkifiedImdbUrl(); // The IMDb link uses a redirect, so we use the text.
+	}
 	else if ( /https?:\/\/.*?digitalhive\.org\/details\.php\?id=.*/.test( document.URL ) )
 		downloadLinkRegEx = /download.php\?id=\d+.*/;
 	else if ( /https?:\/\/.*?horrorcharnel.kicks-ass\.org\/details\.php\?id=.*/.test( document.URL ) )

@@ -1,3 +1,4 @@
+from Source.AlphaRatio import AlphaRatio
 from Source.Cinemageddon import Cinemageddon
 from Source.Cinematik import Cinematik
 from Source.File import File
@@ -7,6 +8,7 @@ from Source.HDBits import HDBits
 from Source.HDTorrents import HDTorrents
 from Source.Karagarga import Karagarga
 from Source.Torrent import Torrent
+from Source.TorrentBytes import TorrentBytes
 from Source.TorrentLeech import TorrentLeech
 from Source.TorrentShack import TorrentShack
 
@@ -20,6 +22,7 @@ class SourceFactory:
 		self.__AddSource( File() )
 		self.__AddSource( Torrent() )
 
+		self.__AddSource( AlphaRatio() )
 		self.__AddSource( Cinemageddon() )
 		self.__AddSource( Cinematik() )
 		self.__AddSource( FunFile() )
@@ -27,6 +30,7 @@ class SourceFactory:
 		self.__AddSource( HDBits() )
 		self.__AddSource( HDTorrents() )
 		self.__AddSource( Karagarga() )
+		self.__AddSource( TorrentBytes() )
 		self.__AddSource( TorrentLeech() )
 		self.__AddSource( TorrentShack() )
 
@@ -43,7 +47,7 @@ class SourceFactory:
 		return self.Sources.get( sourceName ) 
 
 	def GetSourceAndIdByUrl(self, url):
-		for key, source in self.Sources.iteritems():
+		for key, source in self.Sources.items():
 			id = source.GetIdFromUrl( url )
 			if len( id ) > 0:
 				return source, id

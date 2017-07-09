@@ -2,6 +2,7 @@ With the PtpUploader's WebUI you can upload to PTP by specifying a torrent file 
 There is also an automatic mode built-in that can check announcements from IRC or RSS and upload everything automatically.
 
 Supported sites for automatic mode:
+* AlphaRatio
 * Cinemageddon
 * Cinematik
 * GFT
@@ -10,6 +11,7 @@ Supported sites for automatic mode:
 * HD-Torrents
 	* Thanks to Mako_1!
 *  Karagarga
+* TorrentBytes
 *  TorrentLeech
 *  TorrentShack
 	* Thanks to Mako_1!
