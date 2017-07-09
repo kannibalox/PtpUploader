@@ -137,8 +137,6 @@ class Settings(object):
 		Settings.PtpPassword = configParser.get( "Settings", "PtpPassword" )
 		
 		Settings.ImageHost = Settings.__GetDefault( configParser, "Settings", "ImageHost", "ptpimg.me" ).lower()
-		Settings.WhatImgUsername = Settings.__GetDefault( configParser, "Settings", "WhatImgUsername", "" )
-		Settings.WhatImgPassword = Settings.__GetDefault( configParser, "Settings", "WhatImgPassword", "" )
 		Settings.PtpImgApiKey = Settings.__GetDefault( configParser, "Settings", "PtpImgApiKey", "" )
 		Settings.OnSuccessfulUpload = Settings.__GetDefault( configParser, "Settings", "OnSuccessfulUpload", "", raw = True )
 
