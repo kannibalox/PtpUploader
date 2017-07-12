@@ -5,6 +5,8 @@ Supported sites for automatic mode:
 * AlphaRatio
 * Cinemageddon
 * Cinematik
+* DigitalHive
+	* Thanks to CoFix!
 * GFT
 * HDBits
 	* Thanks to cerbere!

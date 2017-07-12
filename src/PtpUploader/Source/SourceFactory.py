@@ -1,6 +1,7 @@
 from Source.AlphaRatio import AlphaRatio
 from Source.Cinemageddon import Cinemageddon
 from Source.Cinematik import Cinematik
+from Source.DigitalHive import DigitalHive
 from Source.File import File
 from Source.FunFile import FunFile
 from Source.Gft import Gft
@@ -24,6 +25,7 @@ class SourceFactory:
 		self.__AddSource( AlphaRatio() )
 		self.__AddSource( Cinemageddon() )
 		self.__AddSource( Cinematik() )
+		self.__AddSource( DigitalHive() )
 		self.__AddSource( FunFile() )
 		self.__AddSource( Gft() )
 		self.__AddSource( HDBits() )
