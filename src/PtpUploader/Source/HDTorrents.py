@@ -56,7 +56,7 @@ class HDTorrents( SourceBase ):
 		description = response[ :descriptionEndIndex ]
 
 		# Get release name.
-		matches = re.search( r"""File Name</td><td class="detailsright" align="center">(.*)</a><br><small>""", description )
+		matches = re.search( r"""<title>HD-Torrents.org - (.+?)</title>""", description )
 		if matches is None:
 			raise PtpUploaderException( JobRunningState.Ignored_MissingInfo, "Release name can't be found on torrent page." )
 
@@ -67,6 +67,7 @@ class HDTorrents( SourceBase ):
 			releaseInfo.ImdbId = NfoParser.GetImdbId( description )
 
 		# Get size.
+		# <tr><td align=right class="detailsleft"> Size:</td><td class="detailsright" align="left">4.26 GiB</td></tr>
 		matches = re.search( r"""Size:</td><td class="detailsright" align="left">(.*)</td>""", description )
 		if matches is None:
 			logger.warning( "Size not found on torrent page." )
