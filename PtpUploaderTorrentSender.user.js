@@ -3,13 +3,13 @@
 // @author      TnS
 // @description Creates a send to PtpUploader link on the torrent details page.
 // @homepage    http://userscripts.org/scripts/show/133847
-// @version     1.07
-// @date        2014-02-19
+// @version     1.08
+// @date        2017-09-20
 // @namespace   http://greasemonkey.mozdev.com
 
 // @include     http*://*torviet.com/*
-// @include     https://*alpharatio.cc/torrents.php?torrentid=*
-// @include     http*://*awesome-hd.net/torrents.php*
+// @include     https://*alpharatio.cc/torrents.php?id=*
+// @include     http*://*awesome-hd.me/torrents.php*
 // @include     http*://*bit-hdtv.com/details.php*
 // @include     http*://*chdbits.org/details.php*
 // @include     http*://*cinemageddon.net/details.php*
@@ -25,7 +25,6 @@
 // @include     http*://*karagarga.in/details.php*
 // @include     http*://*piratethenet.org/details.php*
 // @include     http*://*pretome.info/details.php*
-// @include     http*://*sceneaccess.eu/details*
 // @include     http*://*tehconnection.eu/torrents.php*
 // @include     http*://*thegft.org/details.php*
 // @include     https://www.torrentbytes.net/details.php?id=
@@ -38,7 +37,7 @@
 // @include     http*://*horrorcharnel.kicks-ass.org/details.php*
 // @include     http*://*bitvaulttorrent.com/details.php*
 // @include     http*://*opensharing.org/torrent/*
-// @include     http*://*rarbg.com/*
+// @include     http*://*rarbg.to/*
 // @include     http*://*publichd.to/*
 // @include     http*://*extratorrent.cc/*
 // @include     http*://*hdaccess.net/*
@@ -229,11 +228,11 @@ function Main()
 	var imdbUrl = "";
 	var sendPageContent = false;
 
-	if ( /https:\/\/.*?alpharatio\.cc\/torrents\.php\?torrentid=.*/.test( document.URL ) )
+	if ( /https:\/\/.*?alpharatio\.cc\/torrents\.php\?id=.*/.test( document.URL ) )
 		downloadLinkRegEx = /torrents.php\?action=download.*?id=\d+.*$/;
 	else if ( /https?:\/\/torviet\.com\/.*/.test( document.URL ) )
 		downloadLinkRegEx = /download.php\?id=\d+.*/;
-	else if ( /https?:\/\/.*?awesome-hd\.net\/torrents\.php\?id=.*/.test( document.URL ) )
+	else if ( /https?:\/\/.*?awesome-hd\.me\/torrents\.php\?id=.*/.test( document.URL ) )
 	{
 		downloadLinkRegEx = /torrents.php\?action=download.*?id=\d+.*/;
 		siteName = "ahd";
@@ -281,8 +280,6 @@ function Main()
 		downloadLinkRegEx = /download.php\?torrent=\d+.*/;
 	else if ( /https?:\/\/.*?pretome\.info\/details\.php\?id=.*/.test( document.URL ) )
 		downloadLinkRegEx = /download.php\/\d+\/.*/;
-	else if ( /https?:\/\/.*?sceneaccess\.eu\/details\?id=.*/.test( document.URL ) )
-		downloadLinkRegEx = /download\/\d+\/.*/;
 	else if ( /https?:\/\/.*?tehconnection\.eu\/torrents\.php\?id=.*/.test( document.URL ) )
 		downloadLinkRegEx = /torrents.php\?action=download.*?id=\d+.*/;
 	else if ( /https:\/\/www.torrentbytes\.net\/details\.php\?id=.*/.test( document.URL ) )
@@ -302,7 +299,7 @@ function Main()
 		downloadLinkRegEx = /download.php\/\d+\/.*/;
 	else if ( /https?:\/\/.*?opensharing\.org\/.*/.test( document.URL ) )
 		downloadLinkRegEx = /download\/\d+.*/;
-	else if ( /https?:\/\/.*?rarbg\.com\/.*/.test( document.URL ) )
+	else if ( /https?:\/\/.*?rarbg\.to\/.*/.test( document.URL ) )
 		downloadLinkRegEx = /download.php\?id=\.*/;
 	else if ( /https?:\/\/.*?publichd\.to\/.*/.test( document.URL ) )
 		downloadLinkRegEx = /torrent\/download\/.*/;
