@@ -113,7 +113,7 @@ class ReleaseInfo(Database.Base):
 		self.CodecOther = "" # TODO: no longer used. Only here because of SQLite.
 		self.Container = "" # Other, MPG, AVI, MP4, MKV, VOB IFO, ISO, m2ts
 		self.ContainerOther = "" # TODO: no longer used. Only here because of SQLite.
-		self.ResolutionType = "" # Other, PAL, NTSC, 480p, 576p, 720p, 1080i, 1080p
+		self.ResolutionType = "" # Other, PAL, NTSC, 480p, 576p, 720p, 1080i, 1080p, 4K
 		self.Resolution = "" # Exact resolution when ResolutionType is Other. 
 		self.Source = "" # Other, CAM, TS, VHS, TV, DVD-Screener, TC, HDTV, WEB, R5, DVD, HD-DVD, Blu-ray
 		self.SourceOther = "" # TODO: no longer used. Only here because of SQLite.
@@ -261,7 +261,10 @@ class ReleaseInfo(Database.Base):
 		return self.ResolutionType == "720p" or self.ResolutionType == "1080i" or self.ResolutionType == "1080p"
 
 	def IsStandardDefinition(self):
-		return not self.IsHighDefinition()
+		return ( not self.IsHighDefinition() ) and ( not self.IsUltraHighDefinition() )
+
+	def IsUltraHighDefinition(self):
+		return self.ResolutionType == "4K"
 
 	def IsRemux(self):
 		return self.RemasterTitle.find( "Remux" ) != -1

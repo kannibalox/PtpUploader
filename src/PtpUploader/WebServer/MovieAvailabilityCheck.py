@@ -55,6 +55,11 @@ def movieAvailabilityCheck():
 			releaseInfo.Container = "MKV"
 			releaseInfo.ResolutionType = "1080p"
 			releaseInfo.Source = "Blu-ray"
+		elif format == "4K":
+			releaseInfo.Codec = "x264"
+			releaseInfo.Container = "MKV"
+			releaseInfo.ResolutionType = "4K"
+			releaseInfo.Source = "Blu-ray"
 		else:
 			return "Unknown format!"
 

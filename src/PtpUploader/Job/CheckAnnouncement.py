@@ -88,7 +88,7 @@ class CheckAnnouncement(WorkerBase):
 			raise PtpUploaderException( JobRunningState.Ignored_MissingInfo, "Resolution type of the release is not specified." )
 
 		# HD XviDs are not allowed.
-		if self.ReleaseInfo.IsHighDefinition() and ( self.ReleaseInfo.Codec == "XviD" or self.ReleaseInfo.Codec == "DivX" ):
+		if ( not self.ReleaseInfo.IsStandardDefinition() ) and ( self.ReleaseInfo.Codec == "XviD" or self.ReleaseInfo.Codec == "DivX" ):
 			raise PtpUploaderException( JobRunningState.Ignored_Forbidden, "HD XviDs and DivXs are not allowed." )
 
 		# We only support VOB IFO container for DVD images. 
