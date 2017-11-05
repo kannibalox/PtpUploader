@@ -13,16 +13,29 @@
 
 <form action="" enctype="multipart/form-data" method="post" id="resume_table">
 	<table id="editjob_table" class="border" border="0" cellpadding="3" cellspacing="1">
-		<tbody>
-			<td class="label">Release name</td>
-			<td>
-				{% if job.IsReleaseNameEditable %}
-					<input id="release_name" name="release_name" size="60" type="text" value="{{ job.ReleaseName }}" title="The specified release name will be the name of the directory in the torrent uploaded to PTP. (Not supported yet on CG.)">
-				{% else %}
+	        <tbody>
+                        <tr>
+			        <td class="label">Release name</td>
+			        <td>
+				        {% if job.IsReleaseNameEditable %}
+					<input id="release_name" name="release_name" size="60" type="text" value="{{ job.ReleaseName }}" title="The specified release name will be the name of the directory in the torrent uploaded to PTP. (Not supported yet on CG.)"/>
+				        {% else %}
 					{{ job.ReleaseName }}
-				{% endif %}
-			</td>
-
+				        {% endif %}
+			        </td>
+                        </tr>
+                        <tr>
+                                <td class="label">Release source</td>
+                                <td>
+                                        {% if job.SourceIcon %}
+                                                {% if job.SourceUrl %}
+                                                        <a href="{{ job.SourceUrl }}" {{ settings.OpenJobPageLinksInNewTab|safe }}><img src={{ job.SourceIcon }}></a>
+                                                {% else %}
+                                                        <img src={{ job.SourceIcon }}/>
+                                                {% endif %}
+                                        {% endif %}
+                                </td>
+                        </tr>
 			{% include "job_common.html" %}
 
 			{% if job.CanBeEdited %}

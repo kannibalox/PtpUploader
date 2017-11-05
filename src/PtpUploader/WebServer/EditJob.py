@@ -9,6 +9,7 @@ from MyGlobals import MyGlobals
 from Database import Database
 from PtpUploaderMessage import *
 from ReleaseInfo import ReleaseInfo
+from Settings import Settings
 
 from flask import render_template, redirect, request, url_for
 
@@ -45,4 +46,16 @@ def EditJob(jobId):
 
 		job[ "CanBeEdited" ] = True
 
-	return render_template( "edit_job.html", job = job )
+	settings = {}
+	if Settings.OpenJobPageLinksInNewTab == "0":
+		settings[ "OpenJobPageLinksInNewTab" ] = ""
+	else:
+		settings[ "OpenJobPageLinksInNewTab" ] = ' target="_blank"'
+                
+	source = MyGlobals.SourceFactory.GetSource( releaseInfo.AnnouncementSourceName )
+	if source is not None:
+		filename = "source_icon/%s.ico" % releaseInfo.AnnouncementSourceName
+		job[ "SourceIcon" ] = url_for( "static", filename = filename )
+		job[ "SourceUrl" ] = source.GetUrlFromId( releaseInfo.AnnouncementId )
+
+	return render_template( "edit_job.html", job = job, settings = settings )
