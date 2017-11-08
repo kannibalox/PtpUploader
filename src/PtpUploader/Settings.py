@@ -87,6 +87,10 @@ class Settings(object):
 		return len( Settings.MplayerPath ) > 0
 
 	@staticmethod
+	def IsMpvEnabled():
+		return len( Settings.MpvPath ) > 0
+
+	@staticmethod
 	def __LoadSceneGroups(path):
 		groups = []
 		file = open( path, "r" )
@@ -143,6 +147,7 @@ class Settings(object):
 		Settings.FfmpegPath = Settings.__GetPath( "Settings", "FfmpegPath" )
 		Settings.MediaInfoPath = Settings.__GetPath( "Settings", "MediaInfoPath" )
 		Settings.MplayerPath = Settings.__GetPath( "Settings", "MplayerPath" )
+		Settings.MpvPath = Settings.__GetPath( "Settings", "MpvPath" )
 		Settings.MktorrentPath = Settings.__GetPath( "Settings", "MktorrentPath" )
 		Settings.UnrarPath = Settings.__GetPath( "Settings", "UnrarPath" )
 		Settings.ImageMagickConvertPath = Settings.__GetPath( "Settings", "ImageMagickConvertPath" ) 
@@ -228,7 +233,10 @@ class Settings(object):
 		if not Settings.__VerifyProgramPath( "mktorrent", [ Settings.MktorrentPath ] ):
 			return False
 
-		if Settings.IsMplayerEnabled():
+		if Settings.IsMpvEnabled():
+			if not Settings.__VerifyProgramPath( "mpv", [ Settings.MpvPath ] ):
+				return False
+		elif Settings.IsMplayerEnabled():
 			if not Settings.__VerifyProgramPath( "mplayer", [ Settings.MplayerPath ] ):
 				return False
 		else:

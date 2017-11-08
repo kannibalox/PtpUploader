@@ -67,6 +67,7 @@ Required programs:
 	- unrar: http://www.rarlab.com/rar_add.htm
 
 One of them is required:
+	- mpv: https://mpv.io/ -- this is the recommended program for taking screenshots
 	- ffmpeg: http://www.ffmpeg.org/
 	- MPlayer: http://www.mplayerhq.hu/
 
@@ -116,7 +117,7 @@ Installing FFmpeg (optional)
 3. Extract it: tar xvjf name_of_the_file.tar.bz2
 4. Move the file "ffmpeg" to a more convenient location
 5. Delete the temporary folder
-6. Set the FfmpegPath in Settings.ini and make sure that MplayerPath is commented out.
+6. Set the FfmpegPath in Settings.ini and make sure that MplayerPath and MpvPath are commented out.
 
 =====================================================================================================================================================
 Compiling the latest version of MediaInfo (optional)
