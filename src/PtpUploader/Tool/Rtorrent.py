@@ -34,15 +34,16 @@ class Rtorrent:
 		metafile.check_meta( torrentData );
 		infoHash = metafile.info_hash( torrentData );
 
-		self.proxy.load_raw( contents );
+		self.proxy.load.raw( contents );
 
 		# If load_raw is slow then set_directory_base throws an exception (Fault: <Fault -501: 'Could not find info-hash.'>),
 		# so we retry adding the torrent some delay.
 		maximumTries = 15
 		while True:
 			try:
-				self.proxy.d.set_directory_base( infoHash, downloadPath );
+				self.proxy.d.directory_base.set( infoHash, downloadPath );
 				self.proxy.d.start( infoHash );
+				self.proxy.d.custom.set( infoHash, "PtpUploader", "true" ) # Provide a way to crudely filter on PtpUploader torrents
 				break
 			except Exception:
 				if maximumTries > 1:
@@ -90,7 +91,7 @@ class Rtorrent:
 		try:
 			# TODO: not the most sophisticated way.
 			# Even a watch dir with Pyinotify would be better probably. rTorrent could write the info hash to a directory watched by us. 
-			completed = self.proxy.d.get_complete( infoHash );
+			completed = self.proxy.d.complete( infoHash );
 			return completed == 1
 		except Exception:
 			logger.exception( "Got exception while trying to check torrent's completion status. Info hash: '%s'." % infoHash );
