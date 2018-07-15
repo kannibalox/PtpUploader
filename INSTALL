@@ -19,6 +19,7 @@ MyEnv/bin/pip install --upgrade sqlalchemy
 MyEnv/bin/pip install flask
 MyEnv/bin/pip install requests[security] || MyEnv/bin/pip install requests
 MyEnv/bin/pip install watchdog
+MyEnv/bin/pip install https://github.com/alberanid/imdbpy/archive/imdbpy-legacy.tar.gz
 MyEnv/bin/pyroadmin --create-config
 
 mkdir WorkingDirectory
