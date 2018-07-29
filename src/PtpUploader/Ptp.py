@@ -222,9 +222,8 @@ class Ptp:
 			url = "https://passthepopcorn.me/upload.php";
 			paramList.update( Ptp.__UploadMovieGetParamsForNewMovie( releaseInfo ) );
 		
-		# Add the torrent file.
-		torrentFilename = os.path.basename( torrentPath ); # Filename without path.
-		files = { "file_input": ( torrentFilename, open( torrentPath, "rb" ), "application/x-bittorent" ) }
+		# Add the torrent file, passing a fake string for the filename, since it's not necessary anyway
+		files = { "file_input": ( "placeholder.torrent", open( torrentPath, "rb" ), "application/x-bittorent" ) }
 		result = MyGlobals.session.post( url, data = paramList, files=files )
 		response = result.text
 		Ptp.CheckIfLoggedInFromResponse( result, response );
