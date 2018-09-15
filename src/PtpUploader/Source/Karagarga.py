@@ -40,7 +40,7 @@ class Karagarga(SourceBase):
 		MyGlobals.Logger.info( "Logging in to Karagarga." )
 
 		postData = { "username": self.Username, "password": self.Password }
-		result = MyGlobals.session.post( "http://karagarga.in/takelogin.php", data = postData )
+		result = MyGlobals.session.post( "https://karagarga.in/takelogin.php", data = postData )
 		result.raise_for_status()
 		self.__CheckIfLoggedInFromResponse( result.text )
 
@@ -262,7 +262,7 @@ class Karagarga(SourceBase):
 			raise PtpUploaderException( JobRunningState.Ignored_NotSupported, "Wrongly categorized DVDR." )
 
 	def __DownloadNfo(self, logger, releaseInfo):
-		url = "http://karagarga.in/details.php?id=%s&filelist=1" % releaseInfo.AnnouncementId
+		url = "https://karagarga.in/details.php?id=%s&filelist=1" % releaseInfo.AnnouncementId
 		logger.info( "Collecting info from torrent page '%s'." % url )
 
 		result = MyGlobals.session.get( url )
@@ -305,7 +305,7 @@ class Karagarga(SourceBase):
 
 	def DownloadTorrent(self, logger, releaseInfo, path):
 		# Any non empty filename can be specified.
-		url = "http://karagarga.in/down.php/%s/filename.torrent" % releaseInfo.AnnouncementId
+		url = "https://karagarga.in/down.php/%s/filename.torrent" % releaseInfo.AnnouncementId
 		logger.info( "Downloading torrent file from '%s' to '%s'." % ( url, path ) )
 
 		result = MyGlobals.session.get( url )
@@ -330,7 +330,7 @@ class Karagarga(SourceBase):
 			return result.group( 1 )	
 
 	def GetUrlFromId(self, id):
-		return "http://karagarga.in/details.php?id=" + id
+		return "https://karagarga.in/details.php?id=" + id
 
 	def GetIdFromAutodlIrssiUrl( self, url ):
 		# https://karagarga.in/down.php/10287/Zhuangzhuang%20Tian%20-%20Lan%20feng%20zheng%20AKA%20The%20Blue%20Kite.torrent
