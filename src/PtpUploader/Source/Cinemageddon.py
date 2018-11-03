@@ -71,11 +71,13 @@ class Cinemageddon(SourceBase):
 
 		# Get IMDb id.
 		if ( not releaseInfo.HasImdbId() ) and ( not releaseInfo.HasPtpId() ):
-			matches = re.search( r'imdb\.com/title/tt(\d+)', description )
-			if matches is None:
+			matches = re.findall( r'imdb\.com/title/tt(\d+)', description )
+			if not matches:
 				raise PtpUploaderException( JobRunningState.Ignored_MissingInfo, "IMDb id can't be found on torrent page." )
+                        elif len(matches) > 1:
+                                raise PtpUploaderException( JobRunningState.Ignored_MissingInfo, "Multiple IMDb IDs found on page." )
 
-			releaseInfo.ImdbId = matches.group( 1 )
+			releaseInfo.ImdbId = matches[0]
 
 		# Get size.
 		# Two possible formats:
