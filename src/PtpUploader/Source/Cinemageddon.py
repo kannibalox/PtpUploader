@@ -219,7 +219,7 @@ class Cinemageddon(SourceBase):
 		if len( releaseInfo.InternationalTitle ) <= 0:
 			raise PtpUploaderException( "Can't rename release because international title is empty." )
 
-		if len( releaseInfo.Year ) <= 0:
+		if releaseInfo.Year:
 			raise PtpUploaderException( "Can't rename release because year is empty." )
 
 		name = "%s (%s) %s %s" % ( releaseInfo.InternationalTitle, releaseInfo.Year, releaseInfo.Source, releaseInfo.Codec )
