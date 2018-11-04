@@ -71,7 +71,7 @@ class Cinemageddon(SourceBase):
 
 		# Get IMDb id.
 		if ( not releaseInfo.HasImdbId() ) and ( not releaseInfo.HasPtpId() ):
-			matches = re.findall( r'imdb\.com/title/tt(\d+)', description )
+                        matches = re.search(r'<span id="torrent_imdb">(.*?)</span>', description).group(1).replace('t', '').split(' ')
 			if not matches:
 				raise PtpUploaderException( JobRunningState.Ignored_MissingInfo, "IMDb id can't be found on torrent page." )
                         elif len(matches) > 1:
