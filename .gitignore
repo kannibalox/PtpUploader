@@ -1,3 +1,7 @@
 src/FlexGet/config.yml
 src/PtpUploader/Settings.ini
 *.pyc
+*~
+_build
+*.egg-info/
+*.egg

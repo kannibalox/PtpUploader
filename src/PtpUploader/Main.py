@@ -40,6 +40,9 @@ def Run():
 	if webServerThread is not None:
 		webServerThread.StopServer()
 
-if __name__ == '__main__':
+def Main():
 	if Initialize():
-		Run()
+		Run()        
+
+if __name__ == '__main__':
+        Main()

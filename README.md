@@ -27,11 +27,14 @@ There is a helper [Greasemonkey script](https://raw.githubusercontent.com/TnS-hu
 
 PtpUploader can create release description (with media info and screenshots) for manual uploading from command line.
 Syntax:
-* `ReleaseInfoMaker.py <target directory or filename>` creates the release description and starts seeding the torrent.
-* `ReleaseInfoMaker.py --notorrent <target directory or filename>` creates the release description.
-		
+* `ReleaseInfoMaker <target directory or filename>` creates the release description and starts seeding the torrent.
+* `ReleaseInfoMaker --notorrent <target directory or filename>` creates the release description.
+* `ReleaseInfoMaker --notorrent <target directory or filename>` creates the release description, without screenshots.
+
 Use the resulting torrent that starts with PTP for uploading to the tracker.
 
 #### Questions, help
+
+See [INSTALL.md](INSTALL.md) for installation instructions.
 
 Support is provided on [PTP](https://passthepopcorn.me/forums.php?action=viewthread&threadid=9245).

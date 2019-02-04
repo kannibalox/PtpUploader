@@ -1,11 +1,10 @@
-from ImageHost.ImageUploader import ImageUploader
-from Tool.ImageMagick import ImageMagick
-from Tool.Ffmpeg import Ffmpeg
-from Tool.Mplayer import Mplayer
-from Tool.Mpv import Mpv
+from ..ImageHost.ImageUploader import ImageUploader
+from .ImageMagick import ImageMagick
+from .Ffmpeg import Ffmpeg
+from .Mplayer import Mplayer
+from .Mpv import Mpv
 
-from PtpUploaderException import PtpUploaderException
-from Settings import Settings
+from ..Settings import Settings
 
 import os
 

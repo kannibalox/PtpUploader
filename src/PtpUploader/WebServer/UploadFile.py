@@ -1,8 +1,8 @@
-﻿from WebServer import app
-from WebServer.Authentication import requires_auth
+﻿from . import app
+from .Authentication import requires_auth
 
-from NfoParser import NfoParser
-from Settings import Settings
+from ..NfoParser import NfoParser
+from ..Settings import Settings
 
 from flask import jsonify, request
 

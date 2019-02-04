@@ -14,13 +14,13 @@ https://github.com/blueimp/jQuery-File-Upload/
 
 '''
 
-from WebServer import app
+from . import app
 
-from Authentication import requires_auth
-from Database import Database
-from MyGlobals import MyGlobals
-from PtpUploaderMessage import *
-from ReleaseInfo import ReleaseInfo
+from .Authentication import requires_auth
+from ..Database import Database
+from ..MyGlobals import MyGlobals
+from ..PtpUploaderMessage import *
+from ..ReleaseInfo import ReleaseInfo
 
 from flask import render_template, request, redirect, url_for
 

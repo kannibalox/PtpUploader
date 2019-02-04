@@ -1,7 +1,7 @@
-from Job.JobRunningState import JobRunningState
+from .JobRunningState import JobRunningState
 
-from Database import Database
-from PtpUploaderException import *
+from ..Database import Database
+from ..PtpUploaderException import *
 
 class WorkerBase:
 	def __init__(self, phases, jobManager, jobManagerItem):

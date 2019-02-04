@@ -1,10 +1,10 @@
-from WebServer import app
+from . import app
 
-from Authentication import requires_auth
-from MyGlobals import MyGlobals
-from Database import Database
-from Logger import Logger
-from ReleaseInfo import ReleaseInfo
+from .Authentication import requires_auth
+from ..MyGlobals import MyGlobals
+from ..Database import Database
+from ..Logger import Logger
+from ..ReleaseInfo import ReleaseInfo
 
 from flask import render_template, redirect, request, url_for
 

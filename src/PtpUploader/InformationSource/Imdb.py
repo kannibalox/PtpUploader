@@ -1,13 +1,4 @@
-from MyGlobals import MyGlobals
-from PtpUploaderException import PtpUploaderException
-
-import simplejson as json
 from imdb import IMDb
-
-import hashlib
-import hmac
-import time
-import uuid
 
 class ImdbInfo:
 	def __init__(self):

@@ -1,7 +1,7 @@
-from WebServer import app
+from . import app
 
-from MyGlobals import MyGlobals
-from Settings import Settings
+from ..MyGlobals import MyGlobals
+from ..Settings import Settings
 
 import logging
 import threading

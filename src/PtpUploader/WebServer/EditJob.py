@@ -1,15 +1,13 @@
-from Job.FinishedJobPhase import FinishedJobPhase
-from Job.JobRunningState import JobRunningState
-from Job.JobStartMode import JobStartMode
-from WebServer import app
-from WebServer.JobCommon import JobCommon
+from ..Job.JobRunningState import JobRunningState
+from . import app
+from .JobCommon import JobCommon
 
-from Authentication import requires_auth
-from MyGlobals import MyGlobals
-from Database import Database
-from PtpUploaderMessage import *
-from ReleaseInfo import ReleaseInfo
-from Settings import Settings
+from .Authentication import requires_auth
+from ..MyGlobals import MyGlobals
+from ..Database import Database
+from ..PtpUploaderMessage import *
+from ..ReleaseInfo import ReleaseInfo
+from ..Settings import Settings
 
 from flask import render_template, redirect, request, url_for
 

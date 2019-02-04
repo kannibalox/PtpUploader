@@ -1,14 +1,14 @@
-﻿from InformationSource.Imdb import Imdb
-from InformationSource.MoviePoster import MoviePoster
-from Job.FinishedJobPhase import FinishedJobPhase
-from Job.JobRunningState import JobRunningState
-from Job.WorkerBase import WorkerBase
+﻿from ..InformationSource.Imdb import Imdb
+from ..InformationSource.MoviePoster import MoviePoster
+from .FinishedJobPhase import FinishedJobPhase
+from .JobRunningState import JobRunningState
+from .WorkerBase import WorkerBase
 
-from Database import Database
-from Ptp import Ptp
-from PtpImdbInfo import PtpImdbInfo, PtpZeroImdbInfo
-from PtpUploaderException import *
-from Settings import Settings
+from ..Database import Database
+from ..Ptp import Ptp
+from ..PtpImdbInfo import PtpImdbInfo, PtpZeroImdbInfo
+from ..PtpUploaderException import *
+from ..Settings import Settings
 
 import datetime
 import os

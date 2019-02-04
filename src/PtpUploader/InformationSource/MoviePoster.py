@@ -1,5 +1,5 @@
-from MyGlobals import MyGlobals
-from PtpUploaderException import PtpUploaderException
+from ..MyGlobals import MyGlobals
+from ..PtpUploaderException import PtpUploaderException
 
 import re
 

@@ -1,15 +1,10 @@
-﻿from InformationSource.Imdb import Imdb
-from Job.JobRunningState import JobRunningState
-from Source.SourceBase import SourceBase
+﻿from ..Job.JobRunningState import JobRunningState
+from .SourceBase import SourceBase
 
-from Helper import DecodeHtmlEntities, GetSizeFromText, RemoveDisallowedCharactersFromPath, ValidateTorrentFile
-from MyGlobals import MyGlobals
-from NfoParser import NfoParser
-from PtpUploaderException import *
-from ReleaseExtractor import ReleaseExtractor;
-from ReleaseInfo import ReleaseInfo;
+from ..Helper import DecodeHtmlEntities, GetSizeFromText, ValidateTorrentFile
+from ..MyGlobals import MyGlobals
+from ..PtpUploaderException import PtpUploaderException
 
-import os
 import re
 
 class Karagarga(SourceBase):

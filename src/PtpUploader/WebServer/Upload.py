@@ -1,14 +1,14 @@
-from WebServer import app
-from WebServer.JobCommon import JobCommon
-from WebServer.UploadFile import UploadFile
+from . import app
+from .JobCommon import JobCommon
+from .UploadFile import UploadFile
 
-from Authentication import requires_auth
-from Helper import GetSuggestedReleaseNameAndSizeFromTorrentFile, SizeToText
-from MyGlobals import MyGlobals
-from Database import Database
-from PtpUploaderMessage import *
-from ReleaseInfo import ReleaseInfo
-from Settings import Settings
+from .Authentication import requires_auth
+from ..Helper import GetSuggestedReleaseNameAndSizeFromTorrentFile, SizeToText
+from ..MyGlobals import MyGlobals
+from ..Database import Database
+from ..PtpUploaderMessage import *
+from ..ReleaseInfo import ReleaseInfo
+from ..Settings import Settings
 
 from flask import jsonify, render_template, request
 from werkzeug import secure_filename

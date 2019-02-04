@@ -1,6 +1,6 @@
-﻿from Helper import GetPathSize
-from PtpUploaderException import PtpUploaderException
-from Settings import Settings
+﻿from ..Helper import GetPathSize
+from ..PtpUploaderException import PtpUploaderException
+from ..Settings import Settings
 
 from pyrobase import bencode
 from pyrocore.util import metafile

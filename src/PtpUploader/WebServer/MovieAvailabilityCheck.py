@@ -1,9 +1,9 @@
-from WebServer import app
+from . import app
 
-from Authentication import requires_auth
-from MyGlobals import MyGlobals
-from Ptp import Ptp
-from ReleaseInfo import ReleaseInfo
+from .Authentication import requires_auth
+from ..MyGlobals import MyGlobals
+from ..Ptp import Ptp
+from ..ReleaseInfo import ReleaseInfo
 
 from flask import render_template, request
 

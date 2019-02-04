@@ -1,9 +1,9 @@
-﻿from ImageHost.Imges import Imges
-from ImageHost.Picload import Picload
-from ImageHost.PtpImg import PtpImg
+﻿from .Imges import Imges
+from .Picload import Picload
+from .PtpImg import PtpImg
 
-from PtpUploaderException import PtpUploaderException
-from Settings import Settings
+from ..PtpUploaderException import PtpUploaderException
+from ..Settings import Settings
 
 class ImageUploader:
 	@staticmethod

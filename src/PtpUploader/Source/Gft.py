@@ -1,15 +1,11 @@
-from Job.JobRunningState import JobRunningState
-from Source.SourceBase import SourceBase
+from ..Job.JobRunningState import JobRunningState
+from .SourceBase import SourceBase
 
-from Helper import DecodeHtmlEntities, GetSizeFromText
-from MyGlobals import MyGlobals
-from NfoParser import NfoParser
-from PtpUploaderException import PtpUploaderException
-from ReleaseExtractor import ReleaseExtractor
-from ReleaseInfo import ReleaseInfo
-from ReleaseNameParser import ReleaseNameParser
-
-import requests
+from ..Helper import DecodeHtmlEntities, GetSizeFromText
+from ..MyGlobals import MyGlobals
+from ..NfoParser import NfoParser
+from ..PtpUploaderException import PtpUploaderException
+from ..ReleaseNameParser import ReleaseNameParser
 
 import re
 import time

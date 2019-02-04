@@ -1,5 +1,5 @@
-from PtpUploaderException import PtpUploaderException
-from Settings import Settings
+from ..PtpUploaderException import PtpUploaderException
+from ..Settings import Settings
 
 import os
 import subprocess

@@ -1,7 +1,7 @@
-from Job.JobRunningState import JobRunningState
+from .Job.JobRunningState import JobRunningState
 
-from MyGlobals import MyGlobals
-from Settings import Settings
+from .MyGlobals import MyGlobals
+from .Settings import Settings
 
 from sqlalchemy import create_engine, exc, or_
 from sqlalchemy.orm import scoped_session, sessionmaker
@@ -73,7 +73,7 @@ def InitDb():
 	# import all modules here that might define models so that
 	# they will be registered properly on the metadata. Otherwise
 	# you will have to import them first before calling InitDb()
-	from ReleaseInfo import ReleaseInfo
+	from .ReleaseInfo import ReleaseInfo
 	Database.Base.metadata.create_all( bind = Database.DbEngine )
 
 	# Make sure that jobs running states are valid. There can't be any running jobs.

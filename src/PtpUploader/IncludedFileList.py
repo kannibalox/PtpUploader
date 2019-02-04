@@ -1,9 +1,7 @@
-﻿from Tool.Unrar import Unrar
+﻿from .Tool.Unrar import Unrar
 
-from Helper import GetFileListFromTorrent
-from Settings import Settings
-
-import simplejson as json
+from .Helper import GetFileListFromTorrent
+from .Settings import Settings
 
 import os
 

@@ -1,11 +1,7 @@
-from PtpUploaderException import PtpUploaderException
-from Settings import Settings
-
-import poster
-import simplejson as json
+from ..PtpUploaderException import PtpUploaderException
+from ..Settings import Settings
 
 import os
-import re
 import urllib
 import urllib2
 import uuid

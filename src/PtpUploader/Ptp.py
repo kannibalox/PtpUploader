@@ -4,7 +4,6 @@ from PtpUploaderException import *
 from Settings import Settings
 
 import requests
-import simplejson as json
 
 import mimetypes
 import os

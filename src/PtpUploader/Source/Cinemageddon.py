@@ -1,10 +1,10 @@
-﻿from InformationSource.Imdb import Imdb
-from Job.JobRunningState import JobRunningState
-from Source.SourceBase import SourceBase
+﻿from ..InformationSource.Imdb import Imdb
+from ..Job.JobRunningState import JobRunningState
+from .SourceBase import SourceBase
 
-from Helper import DecodeHtmlEntities, GetSizeFromText, RemoveDisallowedCharactersFromPath, ValidateTorrentFile
-from MyGlobals import MyGlobals
-from PtpUploaderException import PtpUploaderException
+from ..Helper import DecodeHtmlEntities, GetSizeFromText, RemoveDisallowedCharactersFromPath, ValidateTorrentFile
+from ..MyGlobals import MyGlobals
+from ..PtpUploaderException import PtpUploaderException
 
 import os
 import re

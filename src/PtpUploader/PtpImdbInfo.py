@@ -2,8 +2,6 @@
 from Ptp import Ptp
 from PtpUploaderException import *
 
-import simplejson as json
-
 import re
 
 class PtpImdbInfo:

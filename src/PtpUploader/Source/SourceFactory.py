@@ -1,19 +1,19 @@
-from Source.AlphaRatio import AlphaRatio
-from Source.Cinemageddon import Cinemageddon
-from Source.Cinematik import Cinematik
-from Source.DigitalHive import DigitalHive
-from Source.File import File
-from Source.FunFile import FunFile
-from Source.Gft import Gft
-from Source.HDBits import HDBits
-from Source.HDTorrents import HDTorrents
-from Source.Karagarga import Karagarga
-from Source.Torrent import Torrent
-from Source.TorrentBytes import TorrentBytes
-from Source.TorrentLeech import TorrentLeech
+from .AlphaRatio import AlphaRatio
+from .Cinemageddon import Cinemageddon
+from .Cinematik import Cinematik
+from .DigitalHive import DigitalHive
+from .File import File
+from .FunFile import FunFile
+from .Gft import Gft
+from .HDBits import HDBits
+from .HDTorrents import HDTorrents
+from .Karagarga import Karagarga
+from .Torrent import Torrent
+from .TorrentBytes import TorrentBytes
+from .TorrentLeech import TorrentLeech
 
-from MyGlobals import MyGlobals
-from Settings import Settings
+from ..MyGlobals import MyGlobals
+from ..Settings import Settings
 
 class SourceFactory:
 	def __init__(self):

@@ -1,11 +1,11 @@
-from Job.CheckAnnouncement import CheckAnnouncement
-from Job.JobRunningState import JobRunningState
-from Job.Upload import Upload
+from .CheckAnnouncement import CheckAnnouncement
+from .JobRunningState import JobRunningState
+from .Upload import Upload
 
-from AnnouncementWatcher import *
-from Database import Database
-from Logger import Logger
-from MyGlobals import MyGlobals
+from ..AnnouncementWatcher import *
+from ..Database import Database
+from ..Logger import Logger
+from ..MyGlobals import MyGlobals
 
 import datetime
 import Queue

@@ -1,19 +1,19 @@
-from Job.FinishedJobPhase import FinishedJobPhase
-from Job.JobRunningState import JobRunningState
-from Job.WorkerBase import WorkerBase
-from Tool.MakeTorrent import MakeTorrent
+from .FinishedJobPhase import FinishedJobPhase
+from .JobRunningState import JobRunningState
+from .WorkerBase import WorkerBase
+from ..Tool.MakeTorrent import MakeTorrent
 
-from Database import Database
-from Helper import ParseQueryString, TimeDifferenceToText
-from IdxReader import IdxReader
-from ImageHost.ImageUploader import ImageUploader
-from MyGlobals import MyGlobals
-from Ptp import Ptp
-from PtpSubtitle import *
-from PtpUploaderException import *
-from ReleaseDescriptionFormatter import ReleaseDescriptionFormatter
-from ReleaseExtractor import ReleaseExtractor
-from Settings import Settings
+from ..Database import Database
+from ..Helper import ParseQueryString, TimeDifferenceToText
+from ..IdxReader import IdxReader
+from ..ImageHost.ImageUploader import ImageUploader
+from ..MyGlobals import MyGlobals
+from ..Ptp import Ptp
+from ..PtpSubtitle import *
+from ..PtpUploaderException import *
+from ..ReleaseDescriptionFormatter import ReleaseDescriptionFormatter
+from ..ReleaseExtractor import ReleaseExtractor
+from ..Settings import Settings
 
 import datetime
 import os
