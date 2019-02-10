@@ -174,7 +174,8 @@ MyEnv/bin/pip install pyopenssl
 ```
 
 To create a self-signed SSL certificate run the following commands (when asked for input just press Enter):
-````
+
+```
 openssl genrsa -des3 -passout pass:1234 -out server.pass.key 2048
 openssl rsa -passin pass:1234 -in server.pass.key -out server.key
 rm server.pass.key
@@ -191,6 +192,7 @@ Starting PtpUploader in the background
 ======================================
 
 Enter into your PTP directory (e.g.: cd `~/PTP`) then use the following command:
+
 ```
 screen -S PtpUploader MyEnv/bin/PtpUploader
 ```
@@ -204,13 +206,3 @@ Updating PtpUploader
 2. Enter into your PTP directory (e.g.: `cd ~/PTP`) then use the following command
 2. `MyEnv/bin/pip install -U https://github.com/kannibalox/PtpUploader/archive/develop.tar.gz`
 3. Start PtpUploader
-
-Updating the Python modules installed earlier (optional but recommended monthly)
-================================================================================
-
-```
-cd PTP
-MyEnv/bin/pip freeze --local | grep -v '^\-e' | cut -d = -f 1 | xargs MyEnv/bin/pip install -U
-```
-
-You can also add this to crontab so it does it automatically.
