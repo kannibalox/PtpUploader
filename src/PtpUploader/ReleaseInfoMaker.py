@@ -1,4 +1,4 @@
-from Tool.MakeTorrent import MakeTorrent
+from .Tool import Mktor
 
 from IncludedFileList import IncludedFileList
 from MyGlobals import MyGlobals
@@ -102,7 +102,7 @@ class ReleaseInfoMaker:
 
 		# Create the torrent
 		if createTorrent:
-			MakeTorrent.Make( logger, self.Path, torrentPath )
+			Mktor.Make( logger, self.Path, torrentPath )
 			MyGlobals.GetTorrentClient().AddTorrentSkipHashCheck( logger, torrentPath, self.TorrentDataPath )
 
 def Main():

@@ -363,7 +363,7 @@ class ReleaseInfo(Database.Base):
 		self.ReleaseDownloadPath = path
 	
 	# Eg.: "working directory/release/Dark.City.1998.Directors.Cut.720p.BluRay.x264-SiNNERS/upload/Dark.City.1998.Directors.Cut.720p.BluRay.x264-SiNNERS/"
-	# It must contain the final release name because of mktorrent.
+	# It must contain the final release name because of mktor.
 	def GetReleaseUploadPath(self):
 		if len( self.ReleaseUploadPath ) > 0:
 			return self.ReleaseUploadPath

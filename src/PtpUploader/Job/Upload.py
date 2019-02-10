@@ -1,7 +1,7 @@
 from .FinishedJobPhase import FinishedJobPhase
 from .JobRunningState import JobRunningState
 from .WorkerBase import WorkerBase
-from ..Tool.MakeTorrent import MakeTorrent
+from ..Tool import Mktor
 
 from ..Database import Database
 from ..Helper import ParseQueryString, TimeDifferenceToText
@@ -280,7 +280,7 @@ class Upload(WorkerBase):
 		else: # Create the torrent including only the single video file.
 			uploadTorrentCreatePath = self.MainMediaInfo.Path
 
-		MakeTorrent.Make( self.ReleaseInfo.Logger, uploadTorrentCreatePath, uploadTorrentFilePath )
+		Mktor.Make( self.ReleaseInfo.Logger, uploadTorrentCreatePath, uploadTorrentFilePath )
 
 		# Local variables are used temporarily to make sure that values only get stored in the database if MakeTorrent.Make succeeded.
 		self.ReleaseInfo.UploadTorrentFilePath = uploadTorrentFilePath

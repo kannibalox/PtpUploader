@@ -150,7 +150,6 @@ class Settings(object):
 		Settings.MediaInfoPath = Settings.__GetPath( "Settings", "MediaInfoPath" )
 		Settings.MplayerPath = Settings.__GetPath( "Settings", "MplayerPath" )
 		Settings.MpvPath = Settings.__GetPath( "Settings", "MpvPath" )
-		Settings.MktorrentPath = Settings.__GetPath( "Settings", "MktorrentPath" )
 		Settings.UnrarPath = Settings.__GetPath( "Settings", "UnrarPath" )
 		Settings.ImageMagickConvertPath = Settings.__GetPath( "Settings", "ImageMagickConvertPath" ) 
 
@@ -230,9 +229,6 @@ class Settings(object):
 		MyGlobals.Logger.info( "Checking paths" )
 
 		if not Settings.__VerifyProgramPath( "MediaInfo", [ Settings.MediaInfoPath, "--version" ] ):
-			return False
-
-		if not Settings.__VerifyProgramPath( "mktorrent", [ Settings.MktorrentPath ] ):
 			return False
 
 		if Settings.IsMpvEnabled():
