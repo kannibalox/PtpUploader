@@ -4,6 +4,7 @@ from PtpUploaderException import PtpUploaderException
 
 import datetime
 import re
+import json
 
 def GetSourceScore( source ):
 	scores = {
