@@ -1,8 +1,7 @@
-from Tool.PyrocoreBencode import bencode
+from .PyrocoreBencode import bencode
 
-from MyGlobals import MyGlobals
-from PtpUploaderException import PtpUploaderException
-from Settings import Settings
+from ..MyGlobals import MyGlobals
+from ..PtpUploaderException import PtpUploaderException
 
 from pyrobase import bencode
 from pyrocore.util import load_config, metafile
@@ -10,7 +9,6 @@ from pyrocore import config
 
 import os
 import shutil
-import subprocess
 import time
 import xmlrpclib
 
