@@ -13,7 +13,6 @@ python virtualenv-12.1.1/virtualenv.py -v --distribute MyEnv
 
 MyEnv/bin/pip install requests[security] || true
 MyEnv/bin/pip install watchdog
-MyEnv/bin/pip install https://github.com/alberanid/imdbpy/archive/imdbpy-legacy.tar.gz
 MyEnv/bin/pip install https://github.com/kannibalox/PtpUploader/archive/develop.tar.gz
 MyEnv/bin/pyroadmin --create-config
 
@@ -60,7 +59,6 @@ Depends on the following Python packages:
 
 Required programs:
 	- MediaInfo: http://mediainfo.sourceforge.net/
-	- mktorrent: http://mktorrent.sourceforge.net/
 	- unrar: http://www.rarlab.com/rar_add.htm
 
 One of them is required:

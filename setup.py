@@ -7,7 +7,6 @@ setup(
     author="kannibalox",
     url="https://github.com/kannibalox/PTPAPI",
     install_requires=[
-        "poster",
         "pyrocore",
         "sqlalchemy",
         "flask",
