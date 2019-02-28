@@ -1,6 +1,7 @@
 ﻿from ..Job.JobRunningState import JobRunningState
 from .SourceBase import SourceBase
 
+from .. import PtpSubtitle
 from ..Helper import DecodeHtmlEntities, GetSizeFromText, ValidateTorrentFile
 from ..MyGlobals import MyGlobals
 from ..PtpUploaderException import PtpUploaderException
@@ -188,7 +189,7 @@ class Karagarga(SourceBase):
 		subtitleTexts = subtitlesText.split( "," )
 		for language in subtitleTexts:
 			language = language.strip()
-			id = MyGlobals.PtpSubtitle.GetId( language )
+			id = PtpSubtitle.GetId( language )
 			if id is None:
 				continue
 

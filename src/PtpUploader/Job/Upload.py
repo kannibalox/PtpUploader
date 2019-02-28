@@ -9,7 +9,7 @@ from ..IdxReader import IdxReader
 from ..ImageHost.ImageUploader import ImageUploader
 from ..MyGlobals import MyGlobals
 from ..Ptp import Ptp
-from ..PtpSubtitle import *
+from .. import PtpSubtitle
 from ..PtpUploaderException import *
 from ..ReleaseDescriptionFormatter import ReleaseDescriptionFormatter
 from ..ReleaseExtractor import ReleaseExtractor
@@ -207,7 +207,7 @@ class Upload(WorkerBase):
 
 	# Returns with true if failed to detect the language.
 	def __DetectSubtitlesAddOne(self, subtitleIds, languageName):
-		id = MyGlobals.PtpSubtitle.GetId( languageName )
+		id = PtpSubtitle.GetId( languageName )
 		if id is None:
 			# TODO: show warning on the WebUI
 			self.ReleaseInfo.Logger.warning( "Unknown subtitle language: '%s'." % languageName )

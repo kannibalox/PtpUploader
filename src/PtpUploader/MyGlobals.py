@@ -1,5 +1,3 @@
-from PtpSubtitle import PtpSubtitle
-
 import cookielib
 import datetime
 import logging
@@ -13,7 +11,6 @@ class MyGlobalsClass:
 		self.Logger = None
 		self.PtpUploader = None
 		self.SourceFactory = None
-		self.PtpSubtitle = None
 		self.TorrentClient = None
 
 		self.session = requests.session()
@@ -30,7 +27,6 @@ class MyGlobalsClass:
 	def InitializeGlobals(self, workingPath):
 		self.InitializeLogger( workingPath )
 		self.CookieJar = cookielib.CookieJar()
-		self.PtpSubtitle = PtpSubtitle()
 
 	# workingPath from Settings.WorkingPath.
 	def InitializeLogger(self, workingPath):
