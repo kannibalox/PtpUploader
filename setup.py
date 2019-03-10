@@ -15,7 +15,7 @@ setup(
     ],
     packages=find_packages('src'),
     package_dir={'':'src'},
-    package_data={'': ['*.html']},
+    package_data={'': ['templates/*.html']},
     license='MIT',
     entry_points={
         'console_scripts': [
