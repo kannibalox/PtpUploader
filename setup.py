@@ -23,8 +23,13 @@ setup(
     ],
     packages=find_packages('src'),
     package_dir={'':'src'},
-    package_data={'': ['templates/*.html'] +
-                  package_files('src/PtpUploader/WebServer/static/')},
+    package_data={'': ['templates/*.html',
+                       'static/*',
+                       'static/*/*',
+                       'static/*/*/*',
+                       'static/*/*/*/*'
+    ]
+    },
     license='MIT',
     entry_points={
         'console_scripts': [
