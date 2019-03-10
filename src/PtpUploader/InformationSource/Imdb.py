@@ -36,11 +36,11 @@ class Imdb:
             plot_soup = bs4(requests("https://www.imdb.com/title/tt{}/plotsummary".format(imdbId)).text)
             imdbInfo.Plot = plot_soup.find(id="plot-summaries-content").find('li').text
         return imdbInfo
-        
+
     @staticmethod
     def GetInfo(logger, imdbId):
         logger.info( "Getting IMDb info for IMDb id '%s'." % imdbId );
-        
+
         # We don't care if this fails. It gives only extra information.
         try:
             imdbInfo = Imdb.__GetInfoInternal( imdbId )
