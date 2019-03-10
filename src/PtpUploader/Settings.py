@@ -159,7 +159,7 @@ class Settings(object):
 		Settings.IgnoreReleaseTag = Settings.MakeListOfListsFromString( Settings.__GetDefault( configParser, "Settings", "IgnoreReleaseTag", "" ) )
 		Settings.IgnoreReleaseTagAfterYear = Settings.MakeListOfListsFromString( Settings.__GetDefault( configParser, "Settings", "IgnoreReleaseTagAfterYear", "" ) )
 		Settings.IgnoreReleaserGroup = Settings.MakeListFromExtensionString( Settings.__GetDefault( configParser, "Settings", "IgnoreReleaserGroup", "" ) )
-		Settings.SceneReleaserGroup = Settings.__LoadSceneGroups( os.path.join( settingsDirectory, "SceneGroups.txt" ) )
+		Settings.SceneReleaserGroup = Settings.__LoadSceneGroups( os.path.join( os.path.expanduser("~/.config/ptpuploader"), "scene_groups.txt") )
 
 		Settings.WebServerAddress = Settings.__GetDefault( configParser, "Settings", "WebServerAddress", "" )
 		Settings.WebServerAddress = Settings.WebServerAddress.replace( "http://", "" ) 
