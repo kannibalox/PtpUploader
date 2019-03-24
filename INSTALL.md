@@ -4,92 +4,77 @@
 Run these commands from Linux's shell. (Most likely you have to use PuTTY.)
 
 ```
-mkdir PTP
-cd PTP
-git clone https://github.com/TnS-hun/PtpUploader.git Program
-wget https://pypi.python.org/packages/source/v/virtualenv/virtualenv-12.1.1.tar.gz
-tar xvfz virtualenv-12.1.1.tar.gz
-python virtualenv-12.1.1/virtualenv.py -v --distribute MyEnv
+VENV_VERSION=16.4.3
+mkdir -p ~/.local/ptpuploader/virtualenv-${VENV_VERSION} ~/.config/ptpuploader/
+cd ~/.local/ptpuploader/
+curl --location --output virtualenv-${VENV_VERSION}.tar.gz "https://github.com/pypa/virtualenv/tarball/${VENV_VERSION}"
+tar xvzf virtualenv-${VENV_VERSION}.tar.gz -C virtualenv-${VENV_VERSION} --strip-components 1
+python virtualenv-${VENV_VERSION}/virtualenv.py ~/.local/ptpuploader/
+~/.local/ptpuploader/bin/pip install https://github.com/kannibalox/PtpUploader/archive/develop.tar.gz
+~/.local/ptpuploader/bin/pip install "requests[security]" || true
+[[ ! -e ~/.config/ptpuploader/settings.ini ]] && curl -sSL https://github.com/kannibalox/PtpUploader/raw/develop/src/PtpUploader/Settings.example.ini > ~/.config/ptpuploader/settings.ini
+[[ ! -e ~/.config/ptpuploader/scene_groups.txt ]] && curl -sSL https://github.com/kannibalox/PtpUploader/raw/develop/src/PtpUploader/SceneGroups.txt > ~/.config/ptpuploader/scene_groups.txt
+```
 
-MyEnv/bin/pip install requests[security] || true
-MyEnv/bin/pip install watchdog
-MyEnv/bin/pip install https://github.com/kannibalox/PtpUploader/archive/develop.tar.gz
-MyEnv/bin/pyroadmin --create-config
-
-mkdir WorkingDirectory
-cp Program/src/PtpUploader/Settings.example.ini Program/src/PtpUploader/Settings.ini
+If you're using rTorrent also run this:
+```
+~/.local/ptpuploader/bin/pyroadmin --create-config
+```
+If you're using Transmission also run this:
+```
+~/.local/ptpuploader/bin/pip install install transmissionrpc
 ```
 
 If you want to bypass CloudFlare's browser verification also run this:
 ```
-MyEnv/bin/pip install cfscrape
-MyEnv/bin/pip install PyExecJS
+~/.local/ptpuploader/bin/pip install cfscrape
+~/.local/ptpuploader/bin/pip install PyExecJS
+~/.local/ptpuploader/bin/pip install pyv8
+```
+If the last command fails, you can install the binary manually
+```
 wget https://github.com/emmetio/pyv8-binaries/raw/master/pyv8-linux64.zip
 unzip pyv8-linux64.zip
-mv _PyV8.so Program/src/PtpUploader/
-mv PyV8.py Program/src/PtpUploader/
+mv _PyV8.so ~/.local/ptpuploader/lib/
+mv PyV8.py ~/.local/ptpuploader/lib/
 rm pyv8-linux64.zip
 ```
 
-If you're using Transmission also run this:
-```
-MyEnv/bin/pip install transmissionrpc
-```
+Edit and fill out the details in `~/.config/ptpuploader/settings.ini`.
 
-Edit and fill out the details in Program/src/PtpUploader/Settings.ini.
-
-See the "Starting PtpUploader in the background" section for how to start it.
+See the "Starting PtpUploader" section for how to start it.
 
 Installation details
 ====================
 
-PtpUploader needs Python. Only version 2.6 and 2.7 are supported.
+PtpUploader needs Python. Only version 2.7 is supported (earlier versions may work, but no support is provided for them).
 
 Depends on the following Python packages:
-	- Flask: http://flask.pocoo.org/
-	- poster: http://atlee.ca/software/poster/
-	- PyroScope: http://code.google.com/p/pyroscope/
-	- PyV8: https://code.google.com/p/pyv8/
-		- Optional dependency, used by cfscrape to bypass CloudFlare.
-	- Requests: http://docs.python-requests.org/en/latest/
-	- SQLAlchemy: http://www.sqlalchemy.org/
-	- transmissionrpc
-		- This is only needed for Transmission.
-	- watchdog: https://github.com/gorakhargosh/watchdog
+- PyV8: https://code.google.com/p/pyv8/
+  - Optional dependency, used by cfscrape to bypass CloudFlare.
+- transmissionrpc
+  - Optional: This is only needed for Transmission.
 
 Required programs:
-	- MediaInfo: http://mediainfo.sourceforge.net/
-	- unrar: http://www.rarlab.com/rar_add.htm
+- MediaInfo: http://mediainfo.sourceforge.net/
+- unrar: http://www.rarlab.com/rar_add.htm
 
-One of them is required:
-	- mpv: https://mpv.io/ -- this is the recommended program for taking screenshots
-	- ffmpeg: http://www.ffmpeg.org/
-	- MPlayer: http://www.mplayerhq.hu/
+One of these is required for taking screenshots:
+- mpv: https://mpv.io/
+  - This is the recommended program
+- ffmpeg: http://www.ffmpeg.org/
+- MPlayer: http://www.mplayerhq.hu/
 
 Optional programs:
-	- ImageMagick: http://www.imagemagick.org/
-		- Highly recommended for losslessly compressing the PNGs
-	- FlexGet: http://flexget.com/
-	- autodl-irssi: http://sourceforge.net/projects/autodl-irssi/
+- ImageMagick: http://www.imagemagick.org/
+  - Highly recommended for losslessly compressing the PNGs
+- FlexGet: http://flexget.com/
+- autodl-irssi: http://sourceforge.net/projects/autodl-irssi/
 
 One of the following torrent clients is required:
-	- rTorrent: http://libtorrent.rakshasa.no/
-		- This is the recommended client. It supports fast resume.
-	- Transmission: https://www.transmissionbt.com/
-
-Extracting PtpUploader
-======================
-
-Recommended directory structure:
-	- PTP
-		- Program
-		- WorkingDirectory
-
-The easiest way is to get the source straight from GitHub:
-```
-cd ~/PTP
-git clone https://github.com/TnS-hun/PtpUploader.git Program
-```
+- rTorrent: http://libtorrent.rakshasa.no/
+  - This is the recommended client. It supports fast resume.
+- Transmission: https://www.transmissionbt.com/
 
 Installing FFmpeg (optional)
 ============================
@@ -134,6 +119,7 @@ mkdir -p ~/.autodl
 ```
 
 Copy autodl-irssi-master/autodl.example.cfg to ~/.autodl/autodl.cfg
+
 Edit ~/.autodl/autodl.cfg and fill out the details (everything that starts with YOUR_).
 
 Configuring FlexGet (optional)
@@ -144,8 +130,8 @@ Make sure you change the path of the working directory in the config file.
 FlexGet needs to run periodically to update the RSS feeds.
 See FlexGet's documentation for details: http://flexget.com/wiki/InstallWizard/Linux/NoRoot/Virtualenv/Scheduling
 
-Making sure UTF-8 character encoding is set (optional)
-======================================================
+Making sure UTF-8 character encoding is set
+===========================================
 
 If you want to upload releases with accented characters you have to configure your
 environment because in some Linux distributions character encoding is not set by default.
@@ -161,7 +147,7 @@ Entering this command in your terminal should print out an Euro sign (€):
 echo -e '\xe2\x82\xac'
 ```
 
-Using https (optional)
+Setting up HTTPS (optional)
 ======================
 
 This is useful if you want to use the Torrent Sender Greasemonkey script from https sites.
@@ -186,8 +172,22 @@ Set WebServerSslCertificatePath to the path of server.crt and WebServerSslPrivat
 
 When first accessing PtpUploader with the https address your browser will show a warning. Just add the exception.
 
-Starting PtpUploader in the background
-======================================
+Starting PtpUploader
+====================
+
+To run PtpUploader in the foreground:
+```
+source ~/.local/ptpuploader/bin/activate
+PtpUploader
+```
+To run PtpUploader in the background in `tmux` (recommended):
+```
+tmux -2u new PtpUploader "~/.local/ptpuploader/bin/PtpUploader; exec bash"
+```
+To run PtpUploader in the background in `screen`:
+```
+screen -S PtpUploader ~/.local/ptpuploader/bin/PtpUploader
+```
 
 Enter into your PTP directory (e.g.: cd `~/PTP`) then use the following command:
 
@@ -201,6 +201,22 @@ Updating PtpUploader
 ====================
 
 1. Stop PtpUploader
-2. Enter into your PTP directory (e.g.: `cd ~/PTP`) then use the following command
-2. `MyEnv/bin/pip install -U https://github.com/kannibalox/PtpUploader/archive/develop.tar.gz`
+2. Run `~/.local/ptpuploader/bin/pip install -U https://github.com/kannibalox/PtpUploader/archive/develop.tar.gz`
 3. Start PtpUploader
+
+Command line only usage
+=======================
+
+PtpUploader can create release description (with media info and screenshots) for manual uploading from command line.
+```
+source ~/.local/ptpuploader/bin/activate
+ReleaseInfoMaker --help
+```
+
+Syntax:
+* `ReleaseInfoMaker <target directory or filename>` creates the release description and starts seeding the torrent.
+* `ReleaseInfoMaker --notorrent <target directory or filename>` creates the release description.
+* `ReleaseInfoMaker --noscreens <target directory or filename>` creates the release description, without screenshots.
+
+Use the resulting torrent that starts with PTP for uploading to the tracker.
+
