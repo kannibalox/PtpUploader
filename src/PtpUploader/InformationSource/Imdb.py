@@ -1,3 +1,8 @@
+import re
+
+from bs4 import BeautifulSoup as bs4
+import requests
+
 class ImdbInfo:
     def __init__(self):
         self.Title = ""
@@ -21,10 +26,10 @@ class Imdb:
         if imdbInfo.IsSeries:
             title_str = soup.find(class_='title_wrapper').find('h1').text
             match = re.search(r'(.*) \((\d+)\)', title_str)
-            imdbInfo.Title = match.group(1)
+            imdbInfo.Title = match.group(1).strip()
             imdbInfo.Year = match.group(2)
         else:
-            imdbInfo.Title = soup.find(class_='title_wrapper').find('h1').find(text=True)
+            imdbInfo.Title = soup.find(class_='title_wrapper').find('h1').find(text=True).strip()
             imdbInfo.Year = soup.find(class_='title_wrapper').find('h1').find('span').text.strip('()')
         imdbInfo.ImdbRating = soup.find(itemprop="ratingValue").text
         imdbInfo.ImdbVoteCount = soup.find(itemprop="ratingCount").text.replace(',', '')

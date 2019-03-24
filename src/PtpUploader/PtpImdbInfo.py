@@ -3,6 +3,7 @@ from Ptp import Ptp
 from PtpUploaderException import *
 
 import re
+import json
 
 class PtpImdbInfo:
 	def __init__(self, imdbId):
