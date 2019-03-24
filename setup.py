@@ -19,7 +19,8 @@ setup(
         "sqlalchemy",
         "flask",
         "requests",
-        "watchdog"
+        "watchdog",
+        "beautifulsoup4"
     ],
     packages=find_packages('src'),
     package_dir={'':'src'},
