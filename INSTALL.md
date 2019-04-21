@@ -22,7 +22,7 @@ If you're using rTorrent also run this:
 ```
 If you're using Transmission also run this:
 ```
-~/.local/ptpuploader/bin/pip install install transmissionrpc
+~/.local/ptpuploader/bin/pip install transmissionrpc
 ```
 
 If you want to bypass CloudFlare's browser verification also run this:
