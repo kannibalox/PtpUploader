@@ -87,8 +87,6 @@ class Ptp:
 	def NormalizeImdbIdForPtp(imdbId):
 		if len( imdbId ) < 7:
 			return imdbId.rjust( 7, '0' )
-		elif len( imdbId ) > 7:
-			raise PtpUploaderException( "IMDb ID '%s' is longer than seven characters." % imdbId )
 		else:
 			return imdbId
 	
