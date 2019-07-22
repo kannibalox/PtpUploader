@@ -121,7 +121,7 @@ def Main():
 	Settings.LoadSettings()
 	MyGlobals.InitializeGlobals( Settings.WorkingPath )
 
-	releaseInfoMaker = ReleaseInfoMaker( args.path)
+	releaseInfoMaker = ReleaseInfoMaker( args.path[0] )
 	releaseInfoMaker.MakeReleaseInfo( createTorrent = (not args.notorrent), createScreens = (not args.noscreens) )
 
 if __name__ == '__main__':
