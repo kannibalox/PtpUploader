@@ -20,7 +20,8 @@ setup(
         "flask",
         "requests",
         "watchdog",
-        "beautifulsoup4"
+        "beautifulsoup4",
+        "poster"
     ],
     packages=find_packages('src'),
     package_dir={'':'src'},
