@@ -22,7 +22,7 @@ class Ptp:
 			raise PtpUploaderInvalidLoginException( "Couldn't log in to PTP. Your password is not specified." )
 
 		# Get the pass key from the announce URL.
-		passKey = re.match( r"https?://please\.passthepopcorn\.me:\d+/(.+)/announce", Settings.PtpAnnounceUrl )
+		passKey = re.match( r"https?://please\.passthepopcorn\.me:?\d*/(.+)/announce", Settings.PtpAnnounceUrl )
 		if passKey is None:
 			raise PtpUploaderInvalidLoginException( "Couldn't log in to PTP. Pass key not found in the announce URL." )
 		passKey = passKey.group( 1 )
