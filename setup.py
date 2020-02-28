@@ -21,7 +21,7 @@ setup(
         "requests",
         "watchdog",
         "beautifulsoup4",
-        "poster"
+        "poster3"
     ],
     packages=find_packages('src'),
     package_dir={'':'src'},
