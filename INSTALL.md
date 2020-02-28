@@ -4,16 +4,21 @@
 Run these commands from Linux's shell. (Most likely you have to use PuTTY.)
 
 ```
-VENV_VERSION=16.4.3
-mkdir -p ~/.local/ptpuploader/virtualenv-${VENV_VERSION} ~/.config/ptpuploader/
-cd ~/.local/ptpuploader/
-curl --location --output virtualenv-${VENV_VERSION}.tar.gz "https://github.com/pypa/virtualenv/tarball/${VENV_VERSION}"
-tar xvzf virtualenv-${VENV_VERSION}.tar.gz -C virtualenv-${VENV_VERSION} --strip-components 1
-python virtualenv-${VENV_VERSION}/virtualenv.py ~/.local/ptpuploader/
-~/.local/ptpuploader/bin/pip install https://github.com/kannibalox/PtpUploader/archive/develop.tar.gz
-~/.local/ptpuploader/bin/pip install "requests[security]" || true
-[[ ! -e ~/.config/ptpuploader/settings.ini ]] && curl -sSL https://github.com/kannibalox/PtpUploader/raw/develop/src/PtpUploader/Settings.example.ini > ~/.config/ptpuploader/settings.ini
-[[ ! -e ~/.config/ptpuploader/scene_groups.txt ]] && curl -sSL https://github.com/kannibalox/PtpUploader/raw/develop/src/PtpUploader/SceneGroups.txt > ~/.config/ptpuploader/scene_groups.txt
+SET VENV_VERSION=16.4.3
+mkdir .\.local\ptpuploader\virtualenv-%VENV_VERSION% .\.config\ptpuploader\
+cd ./.local/ptpuploader/
+curl --location --output virtualenv-%VENV_VERSION%.tar.gz https://github.com/pypa/virtualenv/tarball/%VENV_VERSION%
+tar xvzf virtualenv-%VENV_VERSION%.tar.gz -C virtualenv-%VENV_VERSION% --strip-components 1
+python virtualenv-%VENV_VERSION%/virtualenv.py ./
+.\Scripts\pip install git+https://github.com/kannibalox/pyrocore.git@py3
+.\Scripts\pip install git+https://github.com/kannibalox/pyrobase.git@py3 pyrocore
+.\Scripts\pip install https://github.com/bobbintb/PtpUploader/archive/develop.tar.gz
+.\Scripts\pip install "requests[security]" || true
+cd ..
+cd ..
+cd .\ptpuploader
+curl -sSL https://github.com/bobbintb/PtpUploader/raw/develop/src/PtpUploader/Settings.example.ini > settings.ini
+curl -sSL https://github.com/bobbintb/PtpUploader/raw/develop/src/PtpUploader/SceneGroups.txt > scene_groups.txt
 ```
 
 If you're using rTorrent also run this:
