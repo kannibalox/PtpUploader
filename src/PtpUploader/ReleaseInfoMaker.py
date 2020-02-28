@@ -1,13 +1,13 @@
 from .Tool import Mktor
 
-from IncludedFileList import IncludedFileList
-from MyGlobals import MyGlobals
-from NfoParser import NfoParser
-from PtpUploaderException import *
-from ReleaseDescriptionFormatter import ReleaseDescriptionFormatter
-from ReleaseExtractor import ReleaseExtractor
-from ReleaseInfo import ReleaseInfo
-from Settings import Settings
+from .IncludedFileList import IncludedFileList
+from .MyGlobals import MyGlobals
+from .NfoParser import NfoParser
+from .PtpUploaderException import *
+from .ReleaseDescriptionFormatter import ReleaseDescriptionFormatter
+from .ReleaseExtractor import ReleaseExtractor
+from .ReleaseInfo import ReleaseInfo
+from .Settings import Settings
 
 import codecs
 import os
@@ -32,7 +32,7 @@ class ReleaseInfoMaker:
 			includedFileList = IncludedFileList()
 			self.VideoFiles, self.AdditionalFiles = ReleaseExtractor.ValidateDirectory( MyGlobals.Logger, self.Path, includedFileList, throwExceptionForUnsupportedFiles = False )
 			if len( self.VideoFiles ) <= 0:
-				print "Path '%s' doesn't contain any videos!" % self.Path
+				print("Path '%s' doesn't contain any videos!" % self.Path)
 				return False
 
 			# We use the parent directory of the path as the working directory.
@@ -48,7 +48,7 @@ class ReleaseInfoMaker:
 			self.ReleaseName, extension = os.path.splitext( self.ReleaseName )
 			self.TorrentDataPath = self.WorkingDirectory
 		else:
-			print "Path '%s' doesn't exists!" % self.Path
+			print("Path '%s' doesn't exists!" % self.Path)
 			return False
 
 		return True
@@ -88,13 +88,13 @@ class ReleaseInfoMaker:
 
 		releaseDescriptionFilePath = os.path.join( self.WorkingDirectory, "PTP " + self.ReleaseName + ".release description.txt" )
 		if os.path.exists( releaseDescriptionFilePath ):
-			print "Can't create release description because '%s' already exists!" % releaseDescriptionFilePath
+			print("Can't create release description because '%s' already exists!" % releaseDescriptionFilePath)
 			return
 
 		torrentName = "PTP " + self.ReleaseName + ".torrent";
 		torrentPath = os.path.join( self.WorkingDirectory, torrentName );
 		if createTorrent and os.path.exists( torrentPath ):
-			print "Can't create torrent because '%s' already exists!" % torrentPath
+			print("Can't create torrent because '%s' already exists!" % torrentPath)
 			return
 
 		# Save the release description.

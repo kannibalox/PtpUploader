@@ -47,7 +47,7 @@ class SourceFactory:
 		return self.Sources.get( sourceName ) 
 
 	def GetSourceAndIdByUrl(self, url):
-		for key, source in self.Sources.items():
+		for key, source in list(self.Sources.items()):
 			id = source.GetIdFromUrl( url )
 			if len( id ) > 0:
 				return source, id

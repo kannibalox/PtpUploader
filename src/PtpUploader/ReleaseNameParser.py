@@ -1,6 +1,6 @@
-from PtpUploaderException import PtpUploaderException
-from Settings import Settings
-from TagList import TagList
+from .PtpUploaderException import PtpUploaderException
+from .Settings import Settings
+from .TagList import TagList
 
 import re
 

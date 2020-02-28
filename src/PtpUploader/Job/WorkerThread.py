@@ -100,17 +100,17 @@ class WorkerThread(threading.Thread):
 				self.WaitEvent.clear()
 		except ( KeyboardInterrupt, SystemExit ):
 			raise
-		except PtpUploaderInvalidLoginException, e:
+		except PtpUploaderInvalidLoginException as e:
 			WorkerThread.__GetLoggerFromException( e ).exception( "Caught invalid login exception in the worker thread loop. Aborting." )
 			raise
-		except PtpUploaderException, e:
-			WorkerThread.__GetLoggerFromException( e ).warning( "%s (PtpUploaderException)" % unicode( e ) )
-		except sqlalchemy.exc.SQLAlchemyError, e:
+		except PtpUploaderException as e:
+			WorkerThread.__GetLoggerFromException( e ).warning( "%s (PtpUploaderException)" % str( e ) )
+		except sqlalchemy.exc.SQLAlchemyError as e:
 			# "InvalidRequestError: This Session's transaction has been rolled back due to a previous exception during flush. To begin a new transaction with this Session, first issue Session.rollback()."
 			# If this happens, we can't do anything, all database operation would fail after this and would fill the log file.
 			WorkerThread.__GetLoggerFromException( e ).exception( "Caught SQLAlchemy exception. Aborting." )
 			raise
-		except Exception, e:
+		except Exception as e:
 			WorkerThread.__GetLoggerFromException( e ).exception( "Caught exception in the worker thread loop. Trying to continue." )
 
 	def run(self):

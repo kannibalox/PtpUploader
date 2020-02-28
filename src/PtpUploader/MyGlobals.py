@@ -1,6 +1,6 @@
-from PtpSubtitle import PtpSubtitle
+from .PtpSubtitle import PtpSubtitle
 
-import cookielib
+import http.cookiejar
 import datetime
 import logging
 import os
@@ -29,7 +29,7 @@ class MyGlobalsClass:
 
 	def InitializeGlobals(self, workingPath):
 		self.InitializeLogger( workingPath )
-		self.CookieJar = cookielib.CookieJar()
+		self.CookieJar = http.cookiejar.CookieJar()
 		self.PtpSubtitle = PtpSubtitle()
 
 	# workingPath from Settings.WorkingPath.
@@ -62,14 +62,14 @@ class MyGlobalsClass:
 	# Inline imports are used here to avoid unnecessary dependencies.
 	def GetTorrentClient( self ):
 		if self.TorrentClient is None:
-			from Settings import Settings
+			from .Settings import Settings
 
 			if Settings.TorrentClientName.lower() == "transmission":
-				from Tool.Transmission import Transmission
+				from .Tool.Transmission import Transmission
 
 				self.TorrentClient = Transmission( Settings.TorrentClientAddress, Settings.TorrentClientPort )
 			else:
-				from Tool.Rtorrent import Rtorrent
+				from .Tool.Rtorrent import Rtorrent
 
 				self.TorrentClient = Rtorrent()
 

@@ -1,8 +1,8 @@
-﻿from MyGlobals import MyGlobals
-from TagList import TagList
+﻿from .MyGlobals import MyGlobals
+from .TagList import TagList
 
 import codecs
-import ConfigParser
+import configparser
 import fnmatch
 import os
 import os.path
@@ -106,14 +106,14 @@ class Settings(object):
 	def __GetDefault(configParser, section, option, default, raw = False):
 		try:
 			return configParser.get( section, option, raw = raw )
-		except ConfigParser.NoOptionError:
+		except configparser.NoOptionError:
 			return default
 
 	@staticmethod
 	def GetDefault(section, option, default, raw = False):
 		try:
 			return Settings.configParser.get( section, option, raw = raw )
-		except ( ConfigParser.NoOptionError, ConfigParser.NoSectionError ):
+		except ( configparser.NoOptionError, configparser.NoSectionError ):
 			return default
 
 	@staticmethod
@@ -123,14 +123,14 @@ class Settings(object):
 
 	@staticmethod
 	def LoadSettings():
-		Settings.configParser = configParser = ConfigParser.ConfigParser()
+		Settings.configParser = configParser = configparser.ConfigParser()
 
 		# Load Settings.ini from the same directory where PtpUploader is.
 		settingsDirectory, moduleFilename = os.path.split( __file__ ) # __file__ contains the full path of the current running module
 		settingsPath = os.path.join( settingsDirectory, "Settings.ini" )
                 if not os.path.isfile(settingsPath):
                         settingsPath = os.path.expanduser("~/.config/ptpuploader/settings.ini")
-		print "Loading settings from '%s'." % settingsPath # MyGlobals.Logger is not initalized yet. 
+		print("Loading settings from '%s'." % settingsPath) # MyGlobals.Logger is not initalized yet. 
 		fp = codecs.open( settingsPath, "r", "utf-8-sig" )
 		configParser.readfp( fp )
 		fp.close()
@@ -169,7 +169,7 @@ class Settings(object):
 		Settings.WebServerPassword = Settings.__GetDefault( configParser, "Settings", "WebServerPassword", "" )
 		Settings.WebServerSslCertificatePath = Settings.__GetPath( "Settings", "WebServerSslCertificatePath" )
 		Settings.WebServerSslPrivateKeyPath = Settings.__GetPath( "Settings", "WebServerSslPrivateKeyPath" )
-		Settings.WebServerFileTreeInitRoot = Settings.__GetPath( "Settings", "WebServerFileTreeInitRoot", u"~" )
+		Settings.WebServerFileTreeInitRoot = Settings.__GetPath( "Settings", "WebServerFileTreeInitRoot", "~" )
 
 		Settings.GreasemonkeyTorrentSenderPassword = Settings.__GetDefault( configParser, "Settings", "GreasemonkeyTorrentSenderPassword", "" )
 		Settings.OpenJobPageLinksInNewTab = Settings.__GetDefault( configParser, "Settings", "OpenJobPageLinksInNewTab", "0" )
@@ -217,7 +217,7 @@ class Settings(object):
 			proc = subprocess.Popen( arguments, stdout = subprocess.PIPE, stderr = subprocess.PIPE )
 			stdout, stderr = proc.communicate()
 			errorCode = proc.wait()
-		except OSError, e:
+		except OSError as e:
 			MyGlobals.Logger.error( "%s isn't set properly in the settings!" % programName )
 			MyGlobals.Logger.error( "Execution of %s at '%s' caused an exception. Error message: '%s'." % ( programName, arguments[ 0 ], str( e ) ) )
 			return False

@@ -66,7 +66,7 @@ def ajaxExternalCreateJob():
 		releaseInfo.SetPersonalRip()
 
 	if Settings.SkipDuplicateChecking:
-		releaseInfo.DuplicateCheckCanIgnore = sys.maxint
+		releaseInfo.DuplicateCheckCanIgnore = sys.maxsize
 
 	imdbId = ""
 	if "ImdbUrl" in request.values:

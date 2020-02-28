@@ -79,7 +79,7 @@ class IncludedFileList:
 			absolutePath = os.path.join( path, entry )
 			relativePath = entry
 			if len( baseRelativePath ) > 0:
-				relativePath = baseRelativePath + u"/" + entry
+				relativePath = baseRelativePath + "/" + entry
 			
 			if os.path.isdir( absolutePath ):
 				self.__FromDirectoryInternal( absolutePath, relativePath )
@@ -88,7 +88,7 @@ class IncludedFileList:
 						
 	def FromDirectory(self, path):
 		self.Files = []
-		self.__FromDirectoryInternal( path, u"" )
+		self.__FromDirectoryInternal( path, "" )
 
 	def ApplyCustomizationFromJson(self, jsonString):
 		if len( jsonString ) <= 0:
@@ -96,7 +96,7 @@ class IncludedFileList:
 
 		# Key contains the path, value contains the include state (as bool).		
 		dictionary = json.loads( jsonString )
-		for path, include in dictionary.items():
+		for path, include in list(dictionary.items()):
 			file = self.__GetFile( path )
 			if file is None:
 				file = IncludedFileItem( path )

@@ -120,7 +120,7 @@ def upload():
 		job[ "PersonalRip" ] = 1
 
 	if Settings.SkipDuplicateChecking:
-		job[ "SkipDuplicateCheckingButton" ] = sys.maxint
+		job[ "SkipDuplicateCheckingButton" ] = sys.maxsize
 
 	job[ "ReleaseNotes" ] = Settings.ReleaseNotes
 

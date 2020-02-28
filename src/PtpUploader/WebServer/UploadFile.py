@@ -7,7 +7,7 @@ from ..Settings import Settings
 from flask import jsonify, request
 
 import os
-import urllib
+import urllib.request, urllib.parse, urllib.error
 
 # Needed for jQuery File Tree.
 @app.route( "/ajaxgetdirectorylist/", methods = [ "POST" ] )
@@ -17,7 +17,7 @@ def ajaxGetDirectoryList():
 	try:
 		response = [ '<ul class="jqueryFileTree" style="display: none;">' ]
 
-		path = urllib.unquote( request.values[ "dir" ] )
+		path = urllib.parse.unquote( request.values[ "dir" ] )
 		if os.path.isfile( path ):
 			# If it is file then start browsing from its parent directory.
 			path = os.path.dirname( path )
@@ -46,7 +46,7 @@ def ajaxGetDirectoryList():
 			currentPath, fileName = file
 			extension = os.path.splitext( fileName )[ 1 ][ 1: ] # get .ext and remove dot
 			response.append( '<li class="file ext_%s"><a href="#" rel="%s">%s</a></li>' % ( extension, currentPath, fileName ) )
-	except Exception, e:
+	except Exception as e:
 		response.append( 'Could not load directory: %s' % str( e ) )
 	response.append( '</ul>' )
 	return ''.join( response )

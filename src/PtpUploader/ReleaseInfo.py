@@ -1,10 +1,10 @@
-from Job.FinishedJobPhase import FinishedJobPhase
-from Job.JobRunningState import JobRunningState
-from Job.JobStartMode import JobStartMode
+from .Job.FinishedJobPhase import FinishedJobPhase
+from .Job.JobRunningState import JobRunningState
+from .Job.JobStartMode import JobStartMode
 
-from Database import Database
-from PtpUploaderException import PtpUploaderException
-from Settings import Settings
+from .Database import Database
+from .PtpUploaderException import PtpUploaderException
+from .Settings import Settings
 
 from sqlalchemy import Boolean, Column, DateTime, Integer, orm, String
 
@@ -104,7 +104,7 @@ class ReleaseInfo(Database.Base):
 		self.Title = "" # Eg.: El Secreto de Sus Ojos AKA The Secret in Their Eyes
 		self.Year = ""
 		self.Tags = ""
-		self.MovieDescription = u""
+		self.MovieDescription = ""
 		self.CoverArtUrl = ""
 		self.YouTubeId = "" # Eg.: FbdOnGNBMAo for http://www.youtube.com/watch?v=FbdOnGNBMAo
 		self.MetacriticUrl = "" # TODO: no longer used. Only here because of SQLite.
@@ -132,7 +132,7 @@ class ReleaseInfo(Database.Base):
 		self.PtpId = ""
 		self.PtpTorrentId = ""
 		self.InternationalTitle = "" # International title of the movie. Eg.: The Secret in Their Eyes. Needed for renaming releases coming from Cinemageddon.
-		self.Nfo = u"" # TODO: it is pointless to store this is in the database
+		self.Nfo = "" # TODO: it is pointless to store this is in the database
 		self.SourceTorrentFilePath = ""
 		self.SourceTorrentInfoHash = ""
 		self.UploadTorrentCreatePath = "" # This is the final path where the torrent was created from. It's either a directory or a file (for single file uploads).

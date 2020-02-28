@@ -1,12 +1,12 @@
-from Tool.PyrocoreBencode import bencode
+from .Tool.PyrocoreBencode import bencode
 
-from MyGlobals import MyGlobals
-from PtpUploaderException import *
+from .MyGlobals import MyGlobals
+from .PtpUploaderException import *
 
 import requests
 
 from datetime import datetime
-import HTMLParser # For HTML entity reference decoding...
+import html.parser # For HTML entity reference decoding...
 import os
 import re
 import time
@@ -96,7 +96,7 @@ def TimeDifferenceToText( timeDifference, levels = 2, agoText = " ago", noDiffer
 
 # Nice...
 try:
-	from urlparse import parse_qs
+	from urllib.parse import parse_qs
 except ImportError:
 	from cgi import parse_qs
 	
@@ -111,7 +111,7 @@ def MakeRetryingHttpGetRequestWithRequests( url, maximumTries = 3, delayBetweenR
 			result = MyGlobals.session.get( url, headers=headers )
 			result.raise_for_status()
 			return result
-		except requests.exceptions.ConnectionError, e:
+		except requests.exceptions.ConnectionError as e:
 			if maximumTries > 1:
 				maximumTries -= 1
 				time.sleep( delayBetweenRetriesInSec )
@@ -126,7 +126,7 @@ def MakeRetryingHttpPostRequestWithRequests( url, postData, maximumTries = 3, de
 			result = MyGlobals.session.post( url, data=postData, headers=headers )
 			result.raise_for_status()
 			return result
-		except requests.exceptions.ConnectionError, e:
+		except requests.exceptions.ConnectionError as e:
 			if maximumTries > 1:
 				maximumTries -= 1
 				time.sleep( delayBetweenRetriesInSec )
@@ -203,5 +203,5 @@ def GetSuggestedReleaseNameAndSizeFromTorrentFile( torrentPath ):
 def DecodeHtmlEntities( html ):
 	# We are using an internal function of HTMLParser. 
 	# See this: http://fredericiana.com/2010/10/08/decoding-html-entities-to-text-in-python/
-	htmlParser = HTMLParser.HTMLParser()
+	htmlParser = html.parser.HTMLParser()
 	return htmlParser.unescape( html )

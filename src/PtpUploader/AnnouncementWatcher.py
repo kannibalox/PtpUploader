@@ -1,12 +1,12 @@
-from Job.JobRunningState import JobRunningState
+from .Job.JobRunningState import JobRunningState
 
-from Database import Database
-from MyGlobals import MyGlobals
-from Logger import Logger
-from NfoParser import NfoParser
-from PtpUploaderException import PtpUploaderException
-from ReleaseInfo import ReleaseInfo
-from Settings import Settings
+from .Database import Database
+from .MyGlobals import MyGlobals
+from .Logger import Logger
+from .NfoParser import NfoParser
+from .PtpUploaderException import PtpUploaderException
+from .ReleaseInfo import ReleaseInfo
+from .Settings import Settings
 
 import datetime
 import hashlib
@@ -200,7 +200,7 @@ class AnnouncementWatcher:
 			# We can't do anything with undecodable filenames because we can't even join the paths (to move the file to the invalid directory) without getting an UnicodeDecodeError...
 			# "Undecodable filenames will still be returned as string objects."
 			# http://stackoverflow.com/questions/3409381/how-to-handle-undecodable-filenames-in-python
-			if not isinstance( entry, unicode ):
+			if not isinstance( entry, str ):
 				continue
 			
 			filePath = os.path.join( announcementsPath, entry )

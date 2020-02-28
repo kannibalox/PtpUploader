@@ -1,7 +1,7 @@
-from MyGlobals import MyGlobals
-from PtpUploaderException import PtpUploaderException
-from Settings import Settings
-from Tool.Unrar import Unrar
+from .MyGlobals import MyGlobals
+from .PtpUploaderException import PtpUploaderException
+from .Settings import Settings
+from .Tool.Unrar import Unrar
 
 import fnmatch
 import os
@@ -49,7 +49,7 @@ class ReleaseExtractorInternal:
 	
 	def __MakeRelativeSourcePath(self, name):
 		if len( self.RelativeSourcePath ) > 0:
-			return self.RelativeSourcePath + u"/" + name
+			return self.RelativeSourcePath + "/" + name
 		else:
 			return name
 		
@@ -88,7 +88,7 @@ class ReleaseExtractor:
 			absolutePath = os.path.join( path, entry )
 			relativePath = entry
 			if len( baseRelativePath ) > 0:
-				relativePath = baseRelativePath + u"/" + entry
+				relativePath = baseRelativePath + "/" + entry
 			
 			if os.path.isdir( absolutePath ):
 				ReleaseExtractor.__ValidateDirectoryInternal( logger, absolutePath, relativePath, includedFileList, throwExceptionForUnsupportedFiles, videos, additionalFiles )
@@ -109,7 +109,7 @@ class ReleaseExtractor:
 
 		videos = []
 		additionalFiles = []
-		ReleaseExtractor.__ValidateDirectoryInternal( logger, path, u"", includedFileList, throwExceptionForUnsupportedFiles, videos, additionalFiles )
+		ReleaseExtractor.__ValidateDirectoryInternal( logger, path, "", includedFileList, throwExceptionForUnsupportedFiles, videos, additionalFiles )
 		return videos, additionalFiles
 
 	# Extracts RAR files and creates hard links from supported files from the source to the destination directory.
@@ -118,7 +118,7 @@ class ReleaseExtractor:
 	def Extract( logger, sourcePath, destinationPath, includedFileList, topLevelDirectoriesToIgnore = [] ):
 		logger.info( "Extracting directory '%s' to '%s'." % ( sourcePath, destinationPath ) )
 
-		releaseExtractor = ReleaseExtractorInternal( sourcePath, u"", destinationPath, includedFileList, topLevelDirectoriesToIgnore, handleSceneFolders = True )
+		releaseExtractor = ReleaseExtractorInternal( sourcePath, "", destinationPath, includedFileList, topLevelDirectoriesToIgnore, handleSceneFolders = True )
 		releaseExtractor.Extract()
 
 		# Extract and delete RARs at the destination directory. Subtitles in scene releases usually are compressed twice. Yup, it is stupid.

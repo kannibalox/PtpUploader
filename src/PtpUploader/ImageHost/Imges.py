@@ -2,8 +2,8 @@ from ..PtpUploaderException import PtpUploaderException
 from ..Settings import Settings
 
 import os
-import urllib
-import urllib2
+import urllib.request, urllib.parse, urllib.error
+import urllib.request, urllib.error, urllib.parse
 import uuid
 import poster
 try:
@@ -29,7 +29,7 @@ class Imges:
                 imagePath = os.path.join( Settings.GetTemporaryPath(), str( uuid.uuid1() ) + extension )
 
                 # Download image.
-                response = urllib2.urlopen( imageUrl )
+                response = urllib.request.urlopen( imageUrl )
                 response = response.read()
                 f = open( imagePath, "wb" )
                 f.write( response )
@@ -45,17 +45,17 @@ class Imges:
                 response = None
 
                 if imagePath is None: # Rehost image from url.
-                        encodedData = urllib.urlencode( { "source": imageUrl } )
+                        encodedData = urllib.parse.urlencode( { "source": imageUrl } )
                         headers = { "Content-Type": "application/x-www-form-urlencoded", "Content-Length": str( len( encodedData ) ) }
                         headers.update( Imges.RequiredHttpHeader )
-                        request = urllib2.Request( "https://imges.link/ptpapi/1/upload/?key=UUuotnQ9TqmFYwvWPZRJe8GpVRyeK2otfmCXn9a7ZUcGfEYrBU&format=json&", encodedData, headers )
-                        result = urllib2.urlopen( request )
+                        request = urllib.request.Request( "https://imges.link/ptpapi/1/upload/?key=UUuotnQ9TqmFYwvWPZRJe8GpVRyeK2otfmCXn9a7ZUcGfEYrBU&format=json&", encodedData, headers )
+                        result = urllib.request.urlopen( request )
                         response = result.read()
                 else: # Upload image from file.
                         opener = poster.streaminghttp.register_openers()
                         datagen, headers = poster.encode.multipart_encode( [ poster.encode.MultipartParam.from_file( "source", imagePath ) ] )
                         headers.update( Imges.RequiredHttpHeader )
-                        request = urllib2.Request( "https://imges.link/ptpapi/1/upload/?key=UUuotnQ9TqmFYwvWPZRJe8GpVRyeK2otfmCXn9a7ZUcGfEYrBU&format=json&", datagen, headers )
+                        request = urllib.request.Request( "https://imges.link/ptpapi/1/upload/?key=UUuotnQ9TqmFYwvWPZRJe8GpVRyeK2otfmCXn9a7ZUcGfEYrBU&format=json&", datagen, headers )
                         result = opener.open( request )
                         response = result.read()
 

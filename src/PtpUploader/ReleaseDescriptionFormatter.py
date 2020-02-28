@@ -1,9 +1,9 @@
-from Tool.MediaInfo import MediaInfo
-from Tool.ScreenshotMaker import ScreenshotMaker
+from .Tool.MediaInfo import MediaInfo
+from .Tool.ScreenshotMaker import ScreenshotMaker
 
-from PtpUploaderException import *
-from ScreenshotList import ScreenshotList
-from Settings import Settings
+from .PtpUploaderException import *
+from .ScreenshotList import ScreenshotList
+from .Settings import Settings
 
 import os
 
@@ -18,12 +18,12 @@ class ReleaseDescriptionVideoEntry:
 		return len( self.Screenshots ) > 0
 
 	def ToReleaseDescription(self):
-		releaseDescription = u""
+		releaseDescription = ""
 		releaseDescription += self.MediaInfo.FormattedMediaInfo
 
 		if self.HaveScreenshots():
 			for screenshot in self.Screenshots:
-				releaseDescription += u"\n\n[img=%s]" % screenshot
+				releaseDescription += "\n\n[img=%s]" % screenshot
 
 		return releaseDescription
 
@@ -132,10 +132,10 @@ class ReleaseDescriptionFormatter:
 
 	def Format(self, includeReleaseName):
 		self.ReleaseInfo.Logger.info( "Making release description" )
-		releaseDescription = u""
+		releaseDescription = ""
 
 		if includeReleaseName:
-			releaseDescription = u"[size=4][b]%s[/b][/size]\n\n" % self.ReleaseInfo.ReleaseName
+			releaseDescription = "[size=4][b]%s[/b][/size]\n\n" % self.ReleaseInfo.ReleaseName
 
 		for i in range( len( self.VideoEntries ) ):
 			entry = self.VideoEntries[ i ]
@@ -146,7 +146,7 @@ class ReleaseDescriptionFormatter:
 			releaseDescription += entry.ToReleaseDescription()
 
 		if len( self.ReleaseInfo.ReleaseNotes ) > 0:
-			releaseDescription += u"\n\n%s" % self.ReleaseInfo.ReleaseNotes
+			releaseDescription += "\n\n%s" % self.ReleaseInfo.ReleaseNotes
 
 		return releaseDescription
 	

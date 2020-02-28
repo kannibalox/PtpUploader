@@ -1,6 +1,6 @@
-from MyGlobals import MyGlobals
-from PtpUploaderMessage import *
-from Settings import Settings
+from .MyGlobals import MyGlobals
+from .PtpUploaderMessage import *
+from .Settings import Settings
 
 from watchdog.events import FileSystemEventHandler
 from watchdog.observers import Observer

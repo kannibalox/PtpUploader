@@ -1,7 +1,7 @@
-﻿from MyGlobals import MyGlobals
-from PtpMovieSearchResult import PtpMovieSearchResult
-from PtpUploaderException import *
-from Settings import Settings
+﻿from .MyGlobals import MyGlobals
+from .PtpMovieSearchResult import PtpMovieSearchResult
+from .PtpUploaderException import *
+from .Settings import Settings
 
 import requests
 

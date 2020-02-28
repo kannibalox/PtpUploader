@@ -10,7 +10,7 @@ from pyrocore import config
 import os
 import shutil
 import time
-import xmlrpclib
+import xmlrpc.client
 
 class Rtorrent:
 	def __init__(self):
@@ -25,7 +25,7 @@ class Rtorrent:
 		logger.info( "Initiating the download of torrent '%s' with rTorrent to '%s'." % ( torrentPath, downloadPath ) );
 		
 		file = open( torrentPath, "rb" );
-		contents = xmlrpclib.Binary( file.read() );
+		contents = xmlrpc.client.Binary( file.read() );
 		file.close();
 
 		torrentData = bencode.bread( torrentPath ); 

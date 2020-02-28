@@ -1,6 +1,6 @@
-﻿from MyGlobals import MyGlobals
-from Ptp import Ptp
-from PtpUploaderException import *
+﻿from .MyGlobals import MyGlobals
+from .Ptp import Ptp
+from .PtpUploaderException import *
 
 import re
 import json
@@ -66,7 +66,7 @@ class PtpImdbInfo:
 			raise PtpUploaderException( "Bad PTP movie info JSON response: art key doesn't exists.\nFull response:\n%s" % self.JsonResponse )
 
 		# It may be false... Eg.: "art": false
-		if isinstance( coverArtUrl, basestring ):
+		if isinstance( coverArtUrl, str ):
 			# Maximize height in 768 pixels.
 			# Example links:
 			# http://ia.media-imdb.com/images/M/MV5BMTM2MjE0NTcwNl5BMl5BanBnXkFtZTcwOTM0MDQ1NA@@._V1._SY317_CR1,0,214,317_.jpg

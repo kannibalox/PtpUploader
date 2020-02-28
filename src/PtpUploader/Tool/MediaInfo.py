@@ -33,8 +33,8 @@ class MediaInfo:
 		try:
 			self.MediaInfoProcess = subprocess.Popen( self.MediaInfoArgs, stdout = subprocess.PIPE )
 			self.MediaInfoStdOut, stderr = self.MediaInfoProcess.communicate()
-		except Exception, e:
-			self.ThreadExceptionMessage = traceback.format_exception_only( sys.exc_type, sys.exc_value )
+		except Exception as e:
+			self.ThreadExceptionMessage = traceback.format_exception_only( sys.exc_info()[0], sys.exc_info()[1] )
 
 	# Returns with the output of MediaInfo.
 	def __ReadMediaInfo(self, logger):

@@ -1,14 +1,14 @@
-from MyGlobals import MyGlobals
-from Ptp import Ptp
-from Settings import Settings
+from .MyGlobals import MyGlobals
+from .Ptp import Ptp
+from .Settings import Settings
 
-import ConfigParser
+import configparser
 
 import os
 import sys
 
 def LoadNotifierSettings():
-	configParser = ConfigParser.ConfigParser()
+	configParser = configparser.ConfigParser()
 	configParser.optionxform = str # Make option names case sensitive.
 
 	# Load Notifier.ini from the same directory where PtpUploader is.

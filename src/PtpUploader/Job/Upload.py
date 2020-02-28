@@ -47,7 +47,7 @@ class Upload(WorkerBase):
 		self.VideoFiles = []
 		self.AdditionalFiles = []
 		self.MainMediaInfo = None
-		self.ReleaseDescription = u""
+		self.ReleaseDescription = ""
 
 	def __StopAutomaticJobBeforeExtracting(self):
 		if self.ReleaseInfo.IsUserCreatedJob() or self.ReleaseInfo.AnnouncementSource.StopAutomaticJob!= "beforeextracting":
@@ -383,5 +383,5 @@ class Upload(WorkerBase):
 			subprocess.Popen( command, shell = True )
 		except ( KeyboardInterrupt, SystemExit ):
 			raise
-		except Exception, e:
+		except Exception as e:
 			logger.exception( "Got exception while trying to run command '%s' after successful upload." % command )

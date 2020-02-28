@@ -1,16 +1,16 @@
-from Job.WorkerThread import WorkerThread
+from .Job.WorkerThread import WorkerThread
 
-from MyGlobals import MyGlobals
-from PtpUploaderMessage import *
+from .MyGlobals import MyGlobals
+from .PtpUploaderMessage import *
 
-import Queue
+import queue
 import threading
 
 class PtpUploader:
 	def __init__(self):
 		self.WaitEvent = threading.Event()
 		self.StopRequested = False
-		self.MessageQueue = Queue.Queue() # Contains class instances from PtpUploaderMessage.
+		self.MessageQueue = queue.Queue() # Contains class instances from PtpUploaderMessage.
 		self.WorkerThread = WorkerThread()
 
 	def AddMessage(self, message):

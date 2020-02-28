@@ -8,7 +8,7 @@ from ..Logger import Logger
 from ..MyGlobals import MyGlobals
 
 import datetime
-import Queue
+import queue
 import threading
 
 class JobManagerItem:
@@ -115,7 +115,7 @@ class JobManager:
 
 	def __GetFinishedDownloadToProcess(self):
 		if len( self.PendingDownloads ) > 0:
-			print "Pending downloads: %s" % len( self.PendingDownloads )
+			print("Pending downloads: %s" % len( self.PendingDownloads ))
 		
 		# TODO: can we use a multicast RPC call get all the statuses in one call?
 		for downloadIndex in range( len( self.PendingDownloads ) ):
@@ -138,14 +138,14 @@ class JobManager:
 
 	def __StopJobInternal(self, releaseInfoId):
 		# Iterate the list backwards because we may delete from it.
-		for downloadIndex in reversed( xrange( len( self.PendingDownloads ) ) ):
+		for downloadIndex in reversed( range( len( self.PendingDownloads ) ) ):
 			item = self.PendingDownloads[ downloadIndex ]
 			if item.ReleaseInfoId == releaseInfoId or releaseInfoId == -1:
 				self.__SetJobStopped( item.ReleaseInfoId )
 				self.PendingDownloads.pop( downloadIndex )
 		
 		# Iterate the list backwards because we may delete from it.
-		for announcementIndex in reversed( xrange( len( self.PendingAnnouncements ) ) ):
+		for announcementIndex in reversed( range( len( self.PendingAnnouncements ) ) ):
 			item = self.PendingAnnouncements[ announcementIndex ]
 			if item.ReleaseInfoId == releaseInfoId or releaseInfoId == -1:
 				self.__SetJobStopped( item.ReleaseInfoId )

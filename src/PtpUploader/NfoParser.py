@@ -1,5 +1,5 @@
-﻿from Helper import GetFileListFromTorrent
-from PtpUploaderException import PtpUploaderException
+﻿from .Helper import GetFileListFromTorrent
+from .PtpUploaderException import PtpUploaderException
 
 import fnmatch 
 import os
@@ -50,7 +50,7 @@ class NfoParser:
 					nfoFound = True
 
 		if nfoPath is None:
-			return u""
+			return ""
 		else:
 			return NfoParser.ReadNfoFileToUnicode( nfoPath )
 

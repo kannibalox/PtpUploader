@@ -45,7 +45,7 @@ class CheckAnnouncement(WorkerBase):
 		self.TorrentClient = torrentClient
 
 	def __CheckAnnouncementSource(self):
-		self.ReleaseInfo.Logger.info( u"Working on announcement from '%s' with id '%s' and name '%s'." % ( self.ReleaseInfo.AnnouncementSourceName, self.ReleaseInfo.AnnouncementId, self.ReleaseInfo.ReleaseName ) )
+		self.ReleaseInfo.Logger.info( "Working on announcement from '%s' with id '%s' and name '%s'." % ( self.ReleaseInfo.AnnouncementSourceName, self.ReleaseInfo.AnnouncementId, self.ReleaseInfo.ReleaseName ) )
 
 		self.ReleaseInfo.JobStartTimeUtc = datetime.datetime.utcnow()
 		self.ReleaseInfo.JobRunningState = JobRunningState.InProgress
@@ -138,7 +138,7 @@ class CheckAnnouncement(WorkerBase):
 
 		# Title
 		if len( self.ReleaseInfo.Title ) > 0:
-			self.ReleaseInfo.Logger.info( u"Title '%s' is already set, not getting from PTP's movie info." % self.ReleaseInfo.Title )
+			self.ReleaseInfo.Logger.info( "Title '%s' is already set, not getting from PTP's movie info." % self.ReleaseInfo.Title )
 		else:
 			self.ReleaseInfo.Title = ptpImdbInfo.GetTitle()
 			if len( self.ReleaseInfo.Title ) <= 0: 
@@ -254,14 +254,14 @@ class CheckAnnouncement(WorkerBase):
 
 	def __CreateReleaseDirectory(self):
 		if self.ReleaseInfo.IsJobPhaseFinished( FinishedJobPhase.Download_CreateReleaseDirectory ):
-			self.ReleaseInfo.Logger.info( u"Release root path creation phase has been reached previously, not creating it again." )
+			self.ReleaseInfo.Logger.info( "Release root path creation phase has been reached previously, not creating it again." )
 			return
 
 		releaseRootPath = self.ReleaseInfo.GetReleaseRootPath()
-		self.ReleaseInfo.Logger.info( u"Creating release root directory at '%s'." % releaseRootPath )
+		self.ReleaseInfo.Logger.info( "Creating release root directory at '%s'." % releaseRootPath )
 
 		if os.path.exists( releaseRootPath ):
-			raise PtpUploaderException( u"Release root directory '%s' already exists." % releaseRootPath )	
+			raise PtpUploaderException( "Release root directory '%s' already exists." % releaseRootPath )	
 
 		os.makedirs( releaseRootPath )
 
@@ -270,7 +270,7 @@ class CheckAnnouncement(WorkerBase):
 
 	def __DownloadTorrentFile(self):
 		if self.ReleaseInfo.IsSourceTorrentFilePathSet():
-			self.ReleaseInfo.Logger.info( u"Source torrent file path is set, not downloading the file again." )
+			self.ReleaseInfo.Logger.info( "Source torrent file path is set, not downloading the file again." )
 			return
 
 		torrentName = self.ReleaseInfo.AnnouncementSource.Name + " " + self.ReleaseInfo.ReleaseName + ".torrent"
@@ -297,7 +297,7 @@ class CheckAnnouncement(WorkerBase):
 
 	def __DownloadTorrent(self):
 		if len( self.ReleaseInfo.SourceTorrentInfoHash ) > 0:
-			self.ReleaseInfo.Logger.info( u"Source torrent info hash is set, not starting torent again." )
+			self.ReleaseInfo.Logger.info( "Source torrent info hash is set, not starting torent again." )
 		else:
 			self.TorrentClient.CleanTorrentFile( self.ReleaseInfo.Logger, self.ReleaseInfo.SourceTorrentFilePath )
 			self.ReleaseInfo.SourceTorrentInfoHash = self.TorrentClient.AddTorrent( self.ReleaseInfo.Logger, self.ReleaseInfo.SourceTorrentFilePath, self.ReleaseInfo.GetReleaseDownloadPath() )

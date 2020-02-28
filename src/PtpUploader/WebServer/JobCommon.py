@@ -16,7 +16,7 @@ from werkzeug import secure_filename
 
 from datetime import datetime
 import os
-import urlparse
+import urllib.parse
 
 class JobCommon:
 	# Needed because urlparse return with empty netloc if protocol is not set.
@@ -29,7 +29,7 @@ class JobCommon:
 	
 	@staticmethod
 	def __GetYouTubeId(text):
-		url = urlparse.urlparse( JobCommon.__AddHttpToUrl( text ) )
+		url = urllib.parse.urlparse( JobCommon.__AddHttpToUrl( text ) )
 		if url.netloc == "youtube.com" or url.netloc == "www.youtube.com":
 			params = ParseQueryString( url.query )
 			youTubeIdList = params.get( "v" )
@@ -48,7 +48,7 @@ class JobCommon:
 		else:
 			# Using urlparse because of torrent permalinks:
 			# https://passthepopcorn.me/torrents.php?id=9730&torrentid=72322
-			url = urlparse.urlparse( JobCommon.__AddHttpToUrl( text ) )
+			url = urllib.parse.urlparse( JobCommon.__AddHttpToUrl( text ) )
 			if url.netloc == "passthepopcorn.me" or url.netloc == "www.passthepopcorn.me" or url.netloc == "tls.passthepopcorn.me":
 				params = ParseQueryString( url.query )
 				ptpIdList = params.get( "id" )
@@ -280,7 +280,7 @@ def MakeIncludedFilesTreeJson(includedFileList):
 				entry[ "IncludePath" ] = file.IncludedFileItem.Name
 				parentList.append( entry )
 
-	root = TreeDirectory( u"" )
+	root = TreeDirectory( "" )
 
 	for entry in includedFileList.Files:
 		root.AddFile( entry )

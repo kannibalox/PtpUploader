@@ -22,13 +22,13 @@ class WorkerBase:
 	def Work(self):
 		try:
 			self.__WorkInternal()
-		except Exception, e:
+		except Exception as e:
 			if hasattr( e, "JobRunningState" ):
 				self.ReleaseInfo.JobRunningState = e.JobRunningState
 			else:
 				self.ReleaseInfo.JobRunningState = JobRunningState.Failed
 
-			self.ReleaseInfo.ErrorMessage = unicode( e )
+			self.ReleaseInfo.ErrorMessage = str( e )
 			Database.DbSession.commit()
 			
 			e.Logger = self.ReleaseInfo.Logger

@@ -1,6 +1,6 @@
-from Helper import GetSizeFromText, SizeToText, TimeDifferenceToText
-from NfoParser import NfoParser
-from PtpUploaderException import PtpUploaderException
+from .Helper import GetSizeFromText, SizeToText, TimeDifferenceToText
+from .NfoParser import NfoParser
+from .PtpUploaderException import PtpUploaderException
 
 import datetime
 import re
@@ -385,7 +385,7 @@ def UnitTest():
 		return PtpMovieSearchResultItem( 0, "", codec, container, source, resolution, remasterTitle, GetSizeFromText( sizeText ), "" )
 
 	def IsReleaseExists( searchResult, expectedResult, searchResultItem ):
-		from ReleaseInfo import ReleaseInfo
+		from .ReleaseInfo import ReleaseInfo
 		releaseInfo = ReleaseInfo()
 		releaseInfo.Codec = searchResultItem.Codec
 		releaseInfo.Container = searchResultItem.Container
@@ -396,10 +396,10 @@ def UnitTest():
 		result = searchResult.IsReleaseExists( releaseInfo )
 		if result is None:
 			if expectedResult:
-				print "Unexpected result"
+				print("Unexpected result")
 		else:
 			if not expectedResult:
-				print "Unexpected result"
+				print("Unexpected result")
 
 	# Difference between encode and remux.
 	if True:
