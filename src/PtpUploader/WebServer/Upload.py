@@ -11,7 +11,7 @@ from ..ReleaseInfo import ReleaseInfo
 from ..Settings import Settings
 
 from flask import jsonify, render_template, request
-from werkzeug import secure_filename
+from werkzeug.utils import secure_filename
 
 import os
 import sys
