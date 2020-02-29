@@ -16,7 +16,7 @@ python virtualenv-%VENV_VERSION%/virtualenv.py ./
 .\Scripts\pip install "requests[security]" || true
 cd ..
 cd ..
-cd .\ptpuploader
+cd .\.config\ptpuploader
 curl -sSL https://github.com/bobbintb/PtpUploader/raw/develop/src/PtpUploader/Settings.example.ini > settings.ini
 curl -sSL https://github.com/bobbintb/PtpUploader/raw/develop/src/PtpUploader/SceneGroups.txt > scene_groups.txt
 ```
