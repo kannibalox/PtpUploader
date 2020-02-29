@@ -1,7 +1,7 @@
 ﻿Quick installation
 ==================
 
-Run these commands from Linux's shell. (Most likely you have to use PuTTY.)
+Run these commands from the Windows command prompt or, better yet, save them to a \*.bat file and run it in the directory you want to install it. 
 
 ```
 SET VENV_VERSION=16.4.3
