@@ -5,7 +5,7 @@ import os
 import urllib.request, urllib.parse, urllib.error
 import urllib.request, urllib.error, urllib.parse
 import uuid
-import poster
+import poster3
 try:
         import json
 except ImportError:
