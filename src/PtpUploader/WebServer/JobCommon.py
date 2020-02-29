@@ -12,7 +12,7 @@ from ..ReleaseInfo import ReleaseInfo
 from ..Settings import Settings
 
 from flask import jsonify, request
-from werkzeug import secure_filename
+from werkzeug.utils import secure_filename
 
 from datetime import datetime
 import os
