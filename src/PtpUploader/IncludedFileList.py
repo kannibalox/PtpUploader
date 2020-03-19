@@ -4,6 +4,7 @@ from .Helper import GetFileListFromTorrent
 from .Settings import Settings
 
 import os
+import json
 
 class IncludedFileItemState:
 	Ignore  = 0
