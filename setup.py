@@ -17,6 +17,7 @@ setup(
     install_requires=[
         "pyrocore",
         "sqlalchemy",
+        "werkzeug==0.16.1",
         "flask",
         "requests",
         "watchdog",
