@@ -23,6 +23,7 @@ class Imdb:
             imdbInfo.IsSeries = True
         else:
             imdbInfo.IsSeries = False
+
         if imdbInfo.IsSeries:
             title_str = soup.find(class_='title_wrapper').find('h1').text
             match = re.search(r'(.*) \((\d+)\)', title_str)
@@ -31,9 +32,19 @@ class Imdb:
         else:
             imdbInfo.Title = soup.find(class_='title_wrapper').find('h1').find(text=True).strip()
             imdbInfo.Year = soup.find(class_='title_wrapper').find('h1').find('span').text.strip('()')
-        imdbInfo.ImdbRating = soup.find(itemprop="ratingValue").text
-        imdbInfo.ImdbVoteCount = soup.find(itemprop="ratingCount").text.replace(',', '')
-        imdbInfo.PosterUrl = re.sub( r"\._V1_.*\.jpg", "._V1_SY768_.jpg", soup.find(class_="poster").find('img')['src'])
+
+        rating = soup.find(itemprop="ratingValue")
+        if rating is not None:
+            imdbInfo.ImdbRating = soup.find(itemprop="ratingValue").text
+            imdbInfo.ImdbVoteCount = soup.find(itemprop="ratingCount").text.replace(',', '')
+        else:
+            imdbInfo.ImdbRating = "0.0"
+            imdbInfo.ImdbVoteCount = "0"
+
+        poster = soup.find(class_="poster")
+        if poster is not None:
+            imdbInfo.PosterUrl = re.sub( r"\._V1_.*\.jpg", "._V1_SY768_.jpg", poster.find('img')['src'])
+
         imdbInfo.Plot = ''
         if soup.find(id="titleStoryLine") is not None:
             imdbInfo.Plot = soup.find(id="titleStoryLine").find('div').text.strip()
