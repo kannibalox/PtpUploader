@@ -111,7 +111,7 @@ def MakeRetryingHttpGetRequestWithRequests( url, maximumTries = 3, delayBetweenR
 			result = MyGlobals.session.get( url, headers=headers )
 			result.raise_for_status()
 			return result
-		except requests.exceptions.ConnectionError, e:
+		except requests.exceptions.ConnectionError as e:
 			if maximumTries > 1:
 				maximumTries -= 1
 				time.sleep( delayBetweenRetriesInSec )
@@ -126,7 +126,7 @@ def MakeRetryingHttpPostRequestWithRequests( url, postData, maximumTries = 3, de
 			result = MyGlobals.session.post( url, data=postData, headers=headers )
 			result.raise_for_status()
 			return result
-		except requests.exceptions.ConnectionError, e:
+		except requests.exceptions.ConnectionError as e:
 			if maximumTries > 1:
 				maximumTries -= 1
 				time.sleep( delayBetweenRetriesInSec )

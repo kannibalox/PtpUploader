@@ -4,7 +4,7 @@ from .SourceBase import SourceBase
 from ..Helper import DecodeHtmlEntities, GetSizeFromText
 from ..MyGlobals import MyGlobals
 from ..NfoParser import NfoParser
-from ..PtpUploaderException import PtpUploaderException
+from ..PtpUploaderException import PtpUploaderException, PtpUploaderInvalidLoginException
 from ..ReleaseNameParser import ReleaseNameParser
 
 import re

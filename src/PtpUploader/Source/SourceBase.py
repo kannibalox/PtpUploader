@@ -13,6 +13,8 @@ import shutil
 class SourceBase:
 	def __init__(self):
 		self.MaximumParallelDownloads = 1
+		self.Name = None
+		self.NameInSettings = None
 
 	def LoadSettings(self, settings):
 		self.Username = settings.GetDefault( self.NameInSettings, "Username", "" )

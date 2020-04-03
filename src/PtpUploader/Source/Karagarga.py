@@ -3,7 +3,7 @@ from .SourceBase import SourceBase
 
 from ..Helper import DecodeHtmlEntities, GetSizeFromText, ValidateTorrentFile
 from ..MyGlobals import MyGlobals
-from ..PtpUploaderException import PtpUploaderException
+from ..PtpUploaderException import PtpUploaderException, PtpUploaderInvalidLoginException
 
 import re
 

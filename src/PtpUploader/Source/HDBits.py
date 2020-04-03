@@ -10,6 +10,8 @@ from ..ReleaseNameParser import ReleaseNameParser
 import re
 import json
 
+import requests
+
 class HDBits( SourceBase ):
 	def __init__( self ):
 		SourceBase.__init__( self )

@@ -206,7 +206,7 @@ class Cinemageddon(SourceBase):
     def GetCustomUploadPath(self, logger, releaseInfo):
         # TODO: if the user forced a release name, then let it upload by that name.
         if releaseInfo.IsZeroImdbId():
-            raise PtpUploaderException( "Uploading to CG with zero IMDb ID is not yet supported." % text )
+            raise PtpUploaderException( "Uploading to CG with zero IMDb ID is not yet supported.")
 
         # If the movie already exists on PTP then the IMDb info is not populated in ReleaseInfo.
         if len( releaseInfo.InternationalTitle ) <= 0 or len( releaseInfo.Year ) <= 0:

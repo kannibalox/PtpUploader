@@ -128,9 +128,9 @@ class Settings(object):
 		# Load Settings.ini from the same directory where PtpUploader is.
 		settingsDirectory, moduleFilename = os.path.split( __file__ ) # __file__ contains the full path of the current running module
 		settingsPath = os.path.join( settingsDirectory, "Settings.ini" )
-                if not os.path.isfile(settingsPath):
-                        settingsPath = os.path.expanduser("~/.config/ptpuploader/settings.ini")
-		print "Loading settings from '%s'." % settingsPath # MyGlobals.Logger is not initalized yet. 
+		if not os.path.isfile(settingsPath):
+			settingsPath = os.path.expanduser("~/.config/ptpuploader/settings.ini")
+		print("Loading settings from '%s'." % settingsPath) # MyGlobals.Logger is not initalized yet.
 		fp = codecs.open( settingsPath, "r", "utf-8-sig" )
 		configParser.readfp( fp )
 		fp.close()
@@ -217,7 +217,7 @@ class Settings(object):
 			proc = subprocess.Popen( arguments, stdout = subprocess.PIPE, stderr = subprocess.PIPE )
 			stdout, stderr = proc.communicate()
 			errorCode = proc.wait()
-		except OSError, e:
+		except OSError as e:
 			MyGlobals.Logger.error( "%s isn't set properly in the settings!" % programName )
 			MyGlobals.Logger.error( "Execution of %s at '%s' caused an exception. Error message: '%s'." % ( programName, arguments[ 0 ], str( e ) ) )
 			return False
