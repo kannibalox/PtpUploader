@@ -11,6 +11,8 @@ class PtpSubtitleId:
 	Danish     = 10
 	Dutch      = 9
 	English    = 3
+	EnglishForced = 50
+	EnglishIntertitles = 51
 	Estonian   = 38
 	Finnish    = 15
 	French     = 5
@@ -57,6 +59,8 @@ class PtpSubtitle:
 		self.__Add( PtpSubtitleId.Danish,     "Danish",     "dan", "da" )
 		self.__Add( PtpSubtitleId.Dutch,      "Dutch",      "dut", "nl" )
 		self.__Add( PtpSubtitleId.English,    "English",    "eng", "en", "English (CC)", "English - SDH" )
+		self.__Add( PtpSubtitleId.EnglishForced, "English - Forced", "English (Forced)" )
+		self.__Add( PtpSubtitleId.EnglishIntertitles, "English Intertitles", "English (Intertitles)", "English - Intertitles" )
 		self.__Add( PtpSubtitleId.Estonian,   "Estonian",   "est", "et" )
 		self.__Add( PtpSubtitleId.Finnish,    "Finnish",    "fin", "fi" )
 		self.__Add( PtpSubtitleId.French,     "French",     "fre", "fr" )
