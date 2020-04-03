@@ -23,7 +23,7 @@ class Cinemageddon(SourceBase):
         MyGlobals.Logger.info( "Logging in to Cinemageddon." )
 
         postData = { "username": self.Username, "password": self.Password }
-        result = MyGlobals.session.post( "http://cinemageddon.net/takelogin.php", data = postData )
+        result = MyGlobals.session.post( "https://cinemageddon.net/takelogin.php", data = postData )
         result.raise_for_status()
         self.__CheckIfLoggedInFromResponse( result.text )
 
@@ -101,7 +101,7 @@ class Cinemageddon(SourceBase):
             raise PtpUploaderException( JobRunningState.Ignored_NotSupported, "Wrongly categorized DVDR." )
 
     def __DownloadNfo( self, logger, releaseInfo ):
-        url = "http://cinemageddon.net/details.php?id=%s&filelist=1" % releaseInfo.AnnouncementId
+        url = "https://cinemageddon.net/details.php?id=%s&filelist=1" % releaseInfo.AnnouncementId
         logger.info( "Collecting info from torrent page '%s'." % url )
 
         result = MyGlobals.session.get( url )
@@ -184,7 +184,7 @@ class Cinemageddon(SourceBase):
         self.__ParsePage( logger, releaseInfo, html, parseForExternalCreateJob = True )
 
     def DownloadTorrent(self, logger, releaseInfo, path):
-        url = "http://cinemageddon.net/download.php?id=%s" % releaseInfo.AnnouncementId
+        url = "https://cinemageddon.net/download.php?id=%s" % releaseInfo.AnnouncementId
         logger.info( "Downloading torrent file from '%s' to '%s'." % ( url, path ) )
 
         result = MyGlobals.session.get( url )
@@ -243,4 +243,4 @@ class Cinemageddon(SourceBase):
             return result.group( 1 )
 
     def GetUrlFromId(self, id):
-        return "http://cinemageddon.net/details.php?id=" + id
+        return "https://cinemageddon.net/details.php?id=" + id
