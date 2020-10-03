@@ -1,5 +1,4 @@
-﻿from .Imges import Imges
-from .Picload import Picload
+﻿from .Picload import Picload
 from .PtpImg import PtpImg
 
 from ..PtpUploaderException import PtpUploaderException
@@ -18,8 +17,6 @@ class ImageUploader:
 		
 		if Settings.ImageHost == "ptpimg.me":
 			return PtpImg.Upload( logger, imagePath, imageUrl )
-		elif Settings.ImageHost == "imges.link":
-			return Imges.Upload( logger, imagePath, imageUrl )
 		elif Settings.ImageHost == "picload.org":
 			return Picload.Upload( logger, imagePath, imageUrl )
 

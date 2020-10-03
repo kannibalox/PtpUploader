@@ -22,7 +22,6 @@ setup(
         "requests",
         "watchdog",
         "beautifulsoup4",
-        "poster"
     ],
     packages=find_packages('src'),
     package_dir={'':'src'},
