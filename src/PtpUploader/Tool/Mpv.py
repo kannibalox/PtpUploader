@@ -20,12 +20,12 @@ class Mpv:
 			"--no-config",
 			"--no-audio",
 			"--no-sub",
-			"--start", str( int( timeInSeconds ) ),
-			"--frames", "1",
-			"--screenshot-format", "png",
-			"--screenshot-png-compression", "9", # doesn't seem to be working
-			"--vf", "scale=0:0", # 0: scaled d_width/d_height
-			"--o", outputPngPath,
+			"--start=" + str( int( timeInSeconds ) ),
+			"--frames=1",
+			"--screenshot-format=png",
+			"--screenshot-png-compression=9", # doesn't seem to be working
+			"--vf=scale=0:0", # 0: scaled d_width/d_height
+			"--o=" + outputPngPath,
 			self.InputVideoPath ]
 
 		errorCode = subprocess.call( args )
