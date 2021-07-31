@@ -1,4 +1,4 @@
-﻿from ..Job.FinishedJobPhase import FinishedJobPhase
+from ..Job.FinishedJobPhase import FinishedJobPhase
 
 from ..IncludedFileList import IncludedFileList
 from ..NfoParser import NfoParser
@@ -10,185 +10,236 @@ import os
 import re
 import shutil
 
+
 class SourceBase:
-	def __init__(self):
-		self.MaximumParallelDownloads = 1
-		self.Name = None
-		self.NameInSettings = None
+    def __init__(self):
+        self.MaximumParallelDownloads = 1
+        self.Name = None
+        self.NameInSettings = None
 
-	def LoadSettings(self, settings):
-		self.Username = settings.GetDefault( self.NameInSettings, "Username", "" )
-		self.Password = settings.GetDefault( self.NameInSettings, "Password", "" )
-		self.AutomaticJobFilter = settings.GetDefault( self.NameInSettings, "AutomaticJobFilter", "" )
+    def LoadSettings(self, settings):
+        self.Username = settings.GetDefault(self.NameInSettings, "Username", "")
+        self.Password = settings.GetDefault(self.NameInSettings, "Password", "")
+        self.AutomaticJobFilter = settings.GetDefault(
+            self.NameInSettings, "AutomaticJobFilter", ""
+        )
 
-		# Do not allow bogus settings.
-		maximumParallelDownloads = int( settings.GetDefault( self.NameInSettings, "MaximumParallelDownloads", "1" ) )
-		if maximumParallelDownloads > 0:
-			self.MaximumParallelDownloads = maximumParallelDownloads
+        # Do not allow bogus settings.
+        maximumParallelDownloads = int(
+            settings.GetDefault(self.NameInSettings, "MaximumParallelDownloads", "1")
+        )
+        if maximumParallelDownloads > 0:
+            self.MaximumParallelDownloads = maximumParallelDownloads
 
-		self.AutomaticJobStartDelay = int( settings.GetDefault( self.NameInSettings, "AutomaticJobStartDelay", "0" ) )
-		self.AutomaticJobCooperationMemberCount = int( settings.GetDefault( self.NameInSettings, "AutomaticJobCooperationMemberCount", "0" ) )
-		self.AutomaticJobCooperationMemberId = int( settings.GetDefault( self.NameInSettings, "AutomaticJobCooperationMemberId", "0" ) )
-		self.AutomaticJobCooperationDelay = int( settings.GetDefault( self.NameInSettings, "AutomaticJobCooperationDelay", "0" ) )
+        self.AutomaticJobStartDelay = int(
+            settings.GetDefault(self.NameInSettings, "AutomaticJobStartDelay", "0")
+        )
+        self.AutomaticJobCooperationMemberCount = int(
+            settings.GetDefault(
+                self.NameInSettings, "AutomaticJobCooperationMemberCount", "0"
+            )
+        )
+        self.AutomaticJobCooperationMemberId = int(
+            settings.GetDefault(
+                self.NameInSettings, "AutomaticJobCooperationMemberId", "0"
+            )
+        )
+        self.AutomaticJobCooperationDelay = int(
+            settings.GetDefault(
+                self.NameInSettings, "AutomaticJobCooperationDelay", "0"
+            )
+        )
 
-		self.StopAutomaticJob = settings.GetDefault( self.NameInSettings, "StopAutomaticJob", "" ).lower()
-		self.StopAutomaticJobIfThereAreMultipleVideos = settings.GetDefault( self.NameInSettings, "StopAutomaticJobIfThereAreMultipleVideos", "" ).lower()
+        self.StopAutomaticJob = settings.GetDefault(
+            self.NameInSettings, "StopAutomaticJob", ""
+        ).lower()
+        self.StopAutomaticJobIfThereAreMultipleVideos = settings.GetDefault(
+            self.NameInSettings, "StopAutomaticJobIfThereAreMultipleVideos", ""
+        ).lower()
 
-	def IsEnabled(self):
-		return True
+    def IsEnabled(self):
+        return True
 
-	def Login(self):
-		pass
+    def Login(self):
+        pass
 
-	def PrepareDownload(self, logger, releaseInfo):
-		pass
+    def PrepareDownload(self, logger, releaseInfo):
+        pass
 
-	def ParsePageForExternalCreateJob( self, logger, releaseInfo, html ):
-		pass
+    def ParsePageForExternalCreateJob(self, logger, releaseInfo, html):
+        pass
 
-	def CheckSynopsis( self, logger, releaseInfo ):
-		# If it exists on PTP then we don't need a synopsis.
-		if ( not releaseInfo.IsSynopsisSet() ) and ( not releaseInfo.HasPtpId() ):
-			raise PtpUploaderException( "Synopsis is not set." )
+    def CheckSynopsis(self, logger, releaseInfo):
+        # If it exists on PTP then we don't need a synopsis.
+        if (not releaseInfo.IsSynopsisSet()) and (not releaseInfo.HasPtpId()):
+            raise PtpUploaderException("Synopsis is not set.")
 
-	def CheckCoverArt(self, logger, releaseInfo):
-		# If it exists on PTP then we don't need a cover.
-		if ( not releaseInfo.IsCoverArtUrlSet() ) and ( not releaseInfo.HasPtpId() ):
-			raise PtpUploaderException( "Cover art is not set." )
+    def CheckCoverArt(self, logger, releaseInfo):
+        # If it exists on PTP then we don't need a cover.
+        if (not releaseInfo.IsCoverArtUrlSet()) and (not releaseInfo.HasPtpId()):
+            raise PtpUploaderException("Cover art is not set.")
 
-	def DownloadTorrent(self, logger, releaseInfo, path):
-		pass
+    def DownloadTorrent(self, logger, releaseInfo, path):
+        pass
 
-	# fileList must be an instance of IncludedFileList.
-	def CheckFileList(self, releaseInfo, fileList):
-		releaseInfo.Logger.info( "Checking the contents of the release." )
+    # fileList must be an instance of IncludedFileList.
+    def CheckFileList(self, releaseInfo, fileList):
+        releaseInfo.Logger.info("Checking the contents of the release.")
 
-		if releaseInfo.IsDvdImage():
-			return
+        if releaseInfo.IsDvdImage():
+            return
 
-		# Check if the release contains multiple non-ignored videos.
-		numberOfVideoFiles = 0
-		for file in fileList.Files:
-			if file.IsIncluded() and Settings.HasValidVideoExtensionToUpload( file.Name ):
-				numberOfVideoFiles += 1
+        # Check if the release contains multiple non-ignored videos.
+        numberOfVideoFiles = 0
+        for file in fileList.Files:
+            if file.IsIncluded() and Settings.HasValidVideoExtensionToUpload(file.Name):
+                numberOfVideoFiles += 1
 
-		if numberOfVideoFiles > 1:
-			raise PtpUploaderException( "Release contains multiple video files." )
+        if numberOfVideoFiles > 1:
+            raise PtpUploaderException("Release contains multiple video files.")
 
-	# fileList must be an instance of IncludedFileList.
-	def DetectSceneReleaseFromFileList( self, releaseInfo, fileList ):
-		rarRe = re.compile( r".+\.(?:rar|r\d+)$", re.IGNORECASE )
-		rarCount = 0
+    # fileList must be an instance of IncludedFileList.
+    def DetectSceneReleaseFromFileList(self, releaseInfo, fileList):
+        rarRe = re.compile(r".+\.(?:rar|r\d+)$", re.IGNORECASE)
+        rarCount = 0
 
-		for file in fileList.Files:
-			if rarRe.match( file.Name ) is None:
-				continue
+        for file in fileList.Files:
+            if rarRe.match(file.Name) is None:
+                continue
 
-			# If there are multiple RAR files then it's likely a scene release.
-			rarCount += 1
-			if rarCount > 1:
-				releaseInfo.SetSceneRelease()
-				break
+            # If there are multiple RAR files then it's likely a scene release.
+            rarCount += 1
+            if rarCount > 1:
+                releaseInfo.SetSceneRelease()
+                break
 
-	def IsDownloadFinished( self, logger, releaseInfo, torrentClient ):
-		return torrentClient.IsTorrentFinished( logger, releaseInfo.SourceTorrentInfoHash )
+    def IsDownloadFinished(self, logger, releaseInfo, torrentClient):
+        return torrentClient.IsTorrentFinished(
+            logger, releaseInfo.SourceTorrentInfoHash
+        )
 
-	def GetCustomUploadPath(self, logger, releaseInfo):
-		return ""
+    def GetCustomUploadPath(self, logger, releaseInfo):
+        return ""
 
-	def CreateUploadDirectory(self, releaseInfo):
-		uploadDirectory = releaseInfo.GetReleaseUploadPath()
-		releaseInfo.Logger.info( "Creating upload directory at '%s'." % uploadDirectory )
-		
-		if os.path.exists( uploadDirectory ):
-			raise PtpUploaderException( "Upload directory '%s' already exists." % uploadDirectory )	
+    def CreateUploadDirectory(self, releaseInfo):
+        uploadDirectory = releaseInfo.GetReleaseUploadPath()
+        releaseInfo.Logger.info("Creating upload directory at '%s'." % uploadDirectory)
 
-		os.makedirs( uploadDirectory )
+        if os.path.exists(uploadDirectory):
+            raise PtpUploaderException(
+                "Upload directory '%s' already exists." % uploadDirectory
+            )
 
-	def ExtractRelease(self, logger, releaseInfo, includedFileList):
-		ReleaseExtractor.Extract( logger, releaseInfo.GetReleaseDownloadPath(), releaseInfo.GetReleaseUploadPath(), includedFileList )
+        os.makedirs(uploadDirectory)
 
-	def ReadNfo(self, releaseInfo):
-		releaseInfo.Nfo = NfoParser.FindAndReadNfoFileToUnicode( releaseInfo.GetReleaseDownloadPath() )
+    def ExtractRelease(self, logger, releaseInfo, includedFileList):
+        ReleaseExtractor.Extract(
+            logger,
+            releaseInfo.GetReleaseDownloadPath(),
+            releaseInfo.GetReleaseUploadPath(),
+            includedFileList,
+        )
 
-	# Must returns with a tuple consisting of the list of video files and the list of additional files.
-	def ValidateExtractedRelease(self, releaseInfo, includedFileList):
-		videoFiles, additionalFiles = ReleaseExtractor.ValidateDirectory( releaseInfo.Logger, releaseInfo.GetReleaseUploadPath(), includedFileList )
-		if len( videoFiles ) < 1:
-			raise PtpUploaderException( "Upload path '%s' doesn't contain any video files." % releaseInfo.GetReleaseUploadPath() )
+    def ReadNfo(self, releaseInfo):
+        releaseInfo.Nfo = NfoParser.FindAndReadNfoFileToUnicode(
+            releaseInfo.GetReleaseDownloadPath()
+        )
 
-		return videoFiles, additionalFiles
+    # Must returns with a tuple consisting of the list of video files and the list of additional files.
+    def ValidateExtractedRelease(self, releaseInfo, includedFileList):
+        videoFiles, additionalFiles = ReleaseExtractor.ValidateDirectory(
+            releaseInfo.Logger, releaseInfo.GetReleaseUploadPath(), includedFileList
+        )
+        if len(videoFiles) < 1:
+            raise PtpUploaderException(
+                "Upload path '%s' doesn't contain any video files."
+                % releaseInfo.GetReleaseUploadPath()
+            )
 
-	def GetIncludedFileList(self, releaseInfo):
-		includedFileList = IncludedFileList()
-		
-		if os.path.isfile( releaseInfo.SourceTorrentFilePath ):
-			includedFileList.FromTorrent( releaseInfo.SourceTorrentFilePath )
+        return videoFiles, additionalFiles
 
-		return includedFileList
+    def GetIncludedFileList(self, releaseInfo):
+        includedFileList = IncludedFileList()
 
-	@staticmethod
-	def __DeleteDirectoryIfEmpyOrContainsOnlyEmptyDirectories(path):
-		if not os.path.isdir( path ):
-			return
+        if os.path.isfile(releaseInfo.SourceTorrentFilePath):
+            includedFileList.FromTorrent(releaseInfo.SourceTorrentFilePath)
 
-		for ( dirPath, dirNames, fileNames ) in os.walk( path ):
-			for file in fileNames:
-				return
+        return includedFileList
 
-		shutil.rmtree( path )
+    @staticmethod
+    def __DeleteDirectoryIfEmpyOrContainsOnlyEmptyDirectories(path):
+        if not os.path.isdir(path):
+            return
 
-	def Delete( self, releaseInfo, torrentClient, deleteSourceData, deleteUploadData ):
-		# Only delete if the release directory has been created by this job.
-		# (This is needed because of the releases with the same name. This way deleting the second one won't delete the release directory of the first.)
-		if not releaseInfo.IsJobPhaseFinished( FinishedJobPhase.Download_CreateReleaseDirectory ):
-			return
+        for (dirPath, dirNames, fileNames) in os.walk(path):
+            for file in fileNames:
+                return
 
-		if deleteSourceData:
-			# Delete the source torrent file.
-			if releaseInfo.IsSourceTorrentFilePathSet() and os.path.isfile( releaseInfo.SourceTorrentFilePath ):
-				os.remove( releaseInfo.SourceTorrentFilePath )
+        shutil.rmtree(path)
 
-			# Delete the source torrent from the torrent client.
-			if len( releaseInfo.SourceTorrentInfoHash ) > 0:
-				torrentClient.DeleteTorrent( releaseInfo.Logger, releaseInfo.SourceTorrentInfoHash )
+    def Delete(self, releaseInfo, torrentClient, deleteSourceData, deleteUploadData):
+        # Only delete if the release directory has been created by this job.
+        # (This is needed because of the releases with the same name. This way deleting the second one won't delete the release directory of the first.)
+        if not releaseInfo.IsJobPhaseFinished(
+            FinishedJobPhase.Download_CreateReleaseDirectory
+        ):
+            return
 
-			# Delete the data of the source torrent.
-			if os.path.isdir( releaseInfo.GetReleaseDownloadPath() ):
-				shutil.rmtree( releaseInfo.GetReleaseDownloadPath() )
+        if deleteSourceData:
+            # Delete the source torrent file.
+            if releaseInfo.IsSourceTorrentFilePathSet() and os.path.isfile(
+                releaseInfo.SourceTorrentFilePath
+            ):
+                os.remove(releaseInfo.SourceTorrentFilePath)
 
-		if deleteUploadData:
-			# Delete the uploaded torrent file.
-			if releaseInfo.IsUploadTorrentFilePathSet() and os.path.isfile( releaseInfo.UploadTorrentFilePath ):
-				os.remove( releaseInfo.UploadTorrentFilePath )
+            # Delete the source torrent from the torrent client.
+            if len(releaseInfo.SourceTorrentInfoHash) > 0:
+                torrentClient.DeleteTorrent(
+                    releaseInfo.Logger, releaseInfo.SourceTorrentInfoHash
+                )
 
-			# Delete the uploaded torrent from the torrent client.
-			if len( releaseInfo.UploadTorrentInfoHash ) > 0:
-				torrentClient.DeleteTorrent( releaseInfo.Logger, releaseInfo.UploadTorrentInfoHash )
+            # Delete the data of the source torrent.
+            if os.path.isdir(releaseInfo.GetReleaseDownloadPath()):
+                shutil.rmtree(releaseInfo.GetReleaseDownloadPath())
 
-			# Delete the data of the uploaded torrent.
-			if os.path.isdir( releaseInfo.GetReleaseUploadPath() ):
-				shutil.rmtree( releaseInfo.GetReleaseUploadPath() )
+        if deleteUploadData:
+            # Delete the uploaded torrent file.
+            if releaseInfo.IsUploadTorrentFilePathSet() and os.path.isfile(
+                releaseInfo.UploadTorrentFilePath
+            ):
+                os.remove(releaseInfo.UploadTorrentFilePath)
 
-		if deleteSourceData and deleteUploadData:
-			SourceBase.__DeleteDirectoryIfEmpyOrContainsOnlyEmptyDirectories( releaseInfo.GetReleaseRootPath() )
+            # Delete the uploaded torrent from the torrent client.
+            if len(releaseInfo.UploadTorrentInfoHash) > 0:
+                torrentClient.DeleteTorrent(
+                    releaseInfo.Logger, releaseInfo.UploadTorrentInfoHash
+                )
 
-		os.remove( releaseInfo.GetLogFilePath() )
+            # Delete the data of the uploaded torrent.
+            if os.path.isdir(releaseInfo.GetReleaseUploadPath()):
+                shutil.rmtree(releaseInfo.GetReleaseUploadPath())
 
-	def GetTemporaryFolderForImagesAndTorrent(self, releaseInfo):
-		return releaseInfo.GetReleaseRootPath() 
+        if deleteSourceData and deleteUploadData:
+            SourceBase.__DeleteDirectoryIfEmpyOrContainsOnlyEmptyDirectories(
+                releaseInfo.GetReleaseRootPath()
+            )
 
-	def IsSingleFileTorrentNeedsDirectory(self, releaseInfo):
-		return True
-	
-	def IncludeReleaseNameInReleaseDescription(self):
-		return True
+        os.remove(releaseInfo.GetLogFilePath())
 
-	def GetIdFromUrl(self, url):
-		return ""
+    def GetTemporaryFolderForImagesAndTorrent(self, releaseInfo):
+        return releaseInfo.GetReleaseRootPath()
 
-	def GetUrlFromId(self, id):
-		return ""
+    def IsSingleFileTorrentNeedsDirectory(self, releaseInfo):
+        return True
 
-	def GetIdFromAutodlIrssiUrl( self, url ):
-		return ""
+    def IncludeReleaseNameInReleaseDescription(self):
+        return True
+
+    def GetIdFromUrl(self, url):
+        return ""
+
+    def GetUrlFromId(self, id):
+        return ""
+
+    def GetIdFromAutodlIrssiUrl(self, url):
+        return ""

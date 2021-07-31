@@ -8,114 +8,128 @@ import sqlalchemy.exc
 
 import threading
 
+
 class WorkerThread(threading.Thread):
-	def __init__(self):
-		threading.Thread.__init__( self, name = "WorkerThread" )
-		self.Lock = threading.RLock()
-		self.WaitEvent = threading.Event()
-		self.StopRequested = False
-		self.JobPhase = None
-		self.JobManager = None
-		self.AnnouncementDirectoryWatcher = AnnouncementDirectoryWatcher()
+    def __init__(self):
+        threading.Thread.__init__(self, name="WorkerThread")
+        self.Lock = threading.RLock()
+        self.WaitEvent = threading.Event()
+        self.StopRequested = False
+        self.JobPhase = None
+        self.JobManager = None
+        self.AnnouncementDirectoryWatcher = AnnouncementDirectoryWatcher()
 
-	def StartWorkerThread(self):
-		MyGlobals.Logger.info( "Starting worker thread." )
+    def StartWorkerThread(self):
+        MyGlobals.Logger.info("Starting worker thread.")
 
-		self.start()
+        self.start()
 
-	def StopWorkerThread(self):
-		self.AnnouncementDirectoryWatcher.StopWatching()
+    def StopWorkerThread(self):
+        self.AnnouncementDirectoryWatcher.StopWatching()
 
-		MyGlobals.Logger.info( "Stopping worker thread." )
-		self.StopRequested = True
-		self.RequestStopJob( -1 ) # This sets the WaitEvent, there is no need set it again.
-		self.join()
-		
-	def RequestStartJob(self, releaseInfoId):
-		self.JobManager.StartJob( releaseInfoId )
-		self.WaitEvent.set()
+        MyGlobals.Logger.info("Stopping worker thread.")
+        self.StopRequested = True
+        self.RequestStopJob(
+            -1
+        )  # This sets the WaitEvent, there is no need set it again.
+        self.join()
 
-	def RequestStopJob(self, releaseInfoId):
-		self.Lock.acquire()		
+    def RequestStartJob(self, releaseInfoId):
+        self.JobManager.StartJob(releaseInfoId)
+        self.WaitEvent.set()
 
-		try:
-			self.JobManager.StopJob( releaseInfoId )
-			if ( self.JobPhase is not None ) and ( self.JobPhase.JobManagerItem.ReleaseInfoId == releaseInfoId or releaseInfoId == -1 ):
-				self.JobPhase.JobManagerItem.StopRequested = True
-		finally:
-			self.Lock.release()
+    def RequestStopJob(self, releaseInfoId):
+        self.Lock.acquire()
 
-		self.WaitEvent.set()
+        try:
+            self.JobManager.StopJob(releaseInfoId)
+            if (self.JobPhase is not None) and (
+                self.JobPhase.JobManagerItem.ReleaseInfoId == releaseInfoId
+                or releaseInfoId == -1
+            ):
+                self.JobPhase.JobManagerItem.StopRequested = True
+        finally:
+            self.Lock.release()
 
-	def RequestHandlingOfNewAnnouncementFile( self, announcementFilePath ):
-		self.JobManager.AddNewAnnouncementFile( announcementFilePath )
-		self.WaitEvent.set()
+        self.WaitEvent.set()
 
-	def __ProcessJobPhase(self):
-		jobPhase = None
+    def RequestHandlingOfNewAnnouncementFile(self, announcementFilePath):
+        self.JobManager.AddNewAnnouncementFile(announcementFilePath)
+        self.WaitEvent.set()
 
-		self.Lock.acquire()		
+    def __ProcessJobPhase(self):
+        jobPhase = None
 
-		try:
-			# If GetJobPhaseToProcess is not in lock block then this could happen:
-			# 1. jobPhase = self.JobManager.GetJobPhaseToProcess()
-			# 2. RequestStopJob acquires to lock
-			# 3. RequestStopJob sees that the job is no longer in the pending list and not yet in self.JobPhase
-			# 4. RequestStopJob releases the lock
-			# 5. self.JobPhase = jobPhase
-			# 6. Job avoided cancellation.
-			
-			jobPhase = self.JobManager.GetJobPhaseToProcess()
-			self.JobPhase = jobPhase
-			if jobPhase is None:
-				return False
-		finally:
-			self.Lock.release()
+        self.Lock.acquire()
 
-		# We can't lock on this because stopping a running job wouldn't be possible that way.
-		jobPhase = jobPhase.Work()
+        try:
+            # If GetJobPhaseToProcess is not in lock block then this could happen:
+            # 1. jobPhase = self.JobManager.GetJobPhaseToProcess()
+            # 2. RequestStopJob acquires to lock
+            # 3. RequestStopJob sees that the job is no longer in the pending list and not yet in self.JobPhase
+            # 4. RequestStopJob releases the lock
+            # 5. self.JobPhase = jobPhase
+            # 6. Job avoided cancellation.
 
-		self.Lock.acquire()		
+            jobPhase = self.JobManager.GetJobPhaseToProcess()
+            self.JobPhase = jobPhase
+            if jobPhase is None:
+                return False
+        finally:
+            self.Lock.release()
 
-		try:
-			self.JobPhase = None
-		finally:
-			self.Lock.release()
+        # We can't lock on this because stopping a running job wouldn't be possible that way.
+        jobPhase = jobPhase.Work()
 
-		return True
+        self.Lock.acquire()
 
-	@staticmethod
-	def __GetLoggerFromException(exception):
-		if hasattr( exception, "Logger" ):
-			return exception.Logger
-		else:
-			return MyGlobals.Logger
+        try:
+            self.JobPhase = None
+        finally:
+            self.Lock.release()
 
-	def __RunInternal(self):
-		try:
-			if not self.__ProcessJobPhase():
-				# Sleep five seconds (or less if there is an event), if there was no work to do.
-				# Sleeping is needed to not to flood the torrent client with continous requests.
-				self.WaitEvent.wait( 5 )
-				self.WaitEvent.clear()
-		except ( KeyboardInterrupt, SystemExit ):
-			raise
-		except PtpUploaderInvalidLoginException, e:
-			WorkerThread.__GetLoggerFromException( e ).exception( "Caught invalid login exception in the worker thread loop. Aborting." )
-			raise
-		except PtpUploaderException, e:
-			WorkerThread.__GetLoggerFromException( e ).warning( "%s (PtpUploaderException)" % unicode( e ) )
-		except sqlalchemy.exc.SQLAlchemyError, e:
-			# "InvalidRequestError: This Session's transaction has been rolled back due to a previous exception during flush. To begin a new transaction with this Session, first issue Session.rollback()."
-			# If this happens, we can't do anything, all database operation would fail after this and would fill the log file.
-			WorkerThread.__GetLoggerFromException( e ).exception( "Caught SQLAlchemy exception. Aborting." )
-			raise
-		except Exception, e:
-			WorkerThread.__GetLoggerFromException( e ).exception( "Caught exception in the worker thread loop. Trying to continue." )
+        return True
 
-	def run(self):
-		# Create JobManager from this thread.
-		self.JobManager = JobManager()
+    @staticmethod
+    def __GetLoggerFromException(exception):
+        if hasattr(exception, "Logger"):
+            return exception.Logger
+        else:
+            return MyGlobals.Logger
 
-		while not self.StopRequested:
-			self.__RunInternal()
+    def __RunInternal(self):
+        try:
+            if not self.__ProcessJobPhase():
+                # Sleep five seconds (or less if there is an event), if there was no work to do.
+                # Sleeping is needed to not to flood the torrent client with continous requests.
+                self.WaitEvent.wait(5)
+                self.WaitEvent.clear()
+        except (KeyboardInterrupt, SystemExit):
+            raise
+        except PtpUploaderInvalidLoginException as e:
+            WorkerThread.__GetLoggerFromException(e).exception(
+                "Caught invalid login exception in the worker thread loop. Aborting."
+            )
+            raise
+        except PtpUploaderException as e:
+            WorkerThread.__GetLoggerFromException(e).warning(
+                "%s (PtpUploaderException)" % str(e)
+            )
+        except sqlalchemy.exc.SQLAlchemyError as e:
+            # "InvalidRequestError: This Session's transaction has been rolled back due to a previous exception during flush. To begin a new transaction with this Session, first issue Session.rollback()."
+            # If this happens, we can't do anything, all database operation would fail after this and would fill the log file.
+            WorkerThread.__GetLoggerFromException(e).exception(
+                "Caught SQLAlchemy exception. Aborting."
+            )
+            raise
+        except Exception as e:
+            WorkerThread.__GetLoggerFromException(e).exception(
+                "Caught exception in the worker thread loop. Trying to continue."
+            )
+
+    def run(self):
+        # Create JobManager from this thread.
+        self.JobManager = JobManager()
+
+        while not self.StopRequested:
+            self.__RunInternal()

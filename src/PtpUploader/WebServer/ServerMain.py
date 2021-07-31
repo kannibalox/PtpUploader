@@ -1,4 +1,4 @@
-'''
+"""
 
 TODO:
 
@@ -12,7 +12,7 @@ File selector:
 jQuery File Upload
 https://github.com/blueimp/jQuery-File-Upload/
 
-'''
+"""
 
 from . import app
 
@@ -26,36 +26,41 @@ from flask import render_template, request, redirect, url_for
 
 import os
 
-@app.route( '/' )
+
+@app.route("/")
 @requires_auth
 def index():
-	return redirect( url_for( "jobs" ) )
+    return redirect(url_for("jobs"))
 
-@app.route( '/job/<int:jobId>/log/' )
+
+@app.route("/job/<int:jobId>/log/")
 @requires_auth
 def log(jobId):
-	releaseInfo = Database.DbSession.query( ReleaseInfo ).filter( ReleaseInfo.Id == jobId ).first()
-	
-	logFilePath = releaseInfo.GetLogFilePath()
-	log = ""
-	
-	if os.path.isfile( logFilePath ):
-		file = open( logFilePath )
-		log = file.read()
-		file.close()
-	else:
-		log = "Log file '%s' doesn't exists!" % logFilePath
+    releaseInfo = (
+        Database.DbSession.query(ReleaseInfo).filter(ReleaseInfo.Id == jobId).first()
+    )
 
-	log = log.replace( "\n", r"<br>" )
+    logFilePath = releaseInfo.GetLogFilePath()
+    log = ""
 
-	return log
+    if os.path.isfile(logFilePath):
+        file = open(logFilePath)
+        log = file.read()
+        file.close()
+    else:
+        log = "Log file '%s' doesn't exists!" % logFilePath
 
-@app.route( "/quit" )
+    log = log.replace("\n", r"<br>")
+
+    return log
+
+
+@app.route("/quit")
 @requires_auth
 def quit():
-	MyGlobals.PtpUploader.AddMessage( PtpUploaderMessageQuit() )
+    MyGlobals.PtpUploader.AddMessage(PtpUploaderMessageQuit())
 
-	func = request.environ.get( 'werkzeug.server.shutdown' )
-	func()
+    func = request.environ.get("werkzeug.server.shutdown")
+    func()
 
-	return "Quitting."
+    return "Quitting."

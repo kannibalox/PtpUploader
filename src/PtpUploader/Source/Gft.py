@@ -10,188 +10,225 @@ from ..ReleaseNameParser import ReleaseNameParser
 import re
 import time
 
+
 class Gft(SourceBase):
-	def __init__(self):
-		SourceBase.__init__( self )
+    def __init__(self):
+        SourceBase.__init__(self)
 
-		self.Name = "gft"
-		self.NameInSettings = "GFT"
+        self.Name = "gft"
+        self.NameInSettings = "GFT"
 
-	def IsEnabled(self):
-		return len( self.Username ) > 0 and len( self.Password ) > 0
+    def IsEnabled(self):
+        return len(self.Username) > 0 and len(self.Password) > 0
 
-	def Login(self):
-		MyGlobals.Logger.info( "Logging in to GFT." )
-		
-		# GFT stores a cookie when login.php is loaded that is needed for takelogin.php. 
-		MyGlobals.session.get( "https://www.thegft.org/login.php" )
+    def Login(self):
+        MyGlobals.Logger.info("Logging in to GFT.")
 
-		postData = { "username": self.Username, "password": self.Password }
-		result = MyGlobals.session.post( "https://www.thegft.org/takelogin.php", data=postData )
-		result.raise_for_status()
-		self.__CheckIfLoggedInFromResponse( result.text )
+        # GFT stores a cookie when login.php is loaded that is needed for takelogin.php.
+        MyGlobals.session.get("https://www.thegft.org/login.php")
 
-	def __CheckIfLoggedInFromResponse(self, response):
-		if response.find( """action='takelogin.php'""" ) != -1 or response.find( """<a href='login.php'>Back to Login</a>""" ) != -1:
-			raise PtpUploaderException( "Looks like you are not logged in to GFT. Probably due to the bad user name or password in settings." )
+        postData = {"username": self.Username, "password": self.Password}
+        result = MyGlobals.session.post(
+            "https://www.thegft.org/takelogin.php", data=postData
+        )
+        result.raise_for_status()
+        self.__CheckIfLoggedInFromResponse(result.text)
 
-	def __GetTorrentPageAsString( self, logger, releaseInfo ):
-		url = "https://www.thegft.org/details.php?id=%s" % releaseInfo.AnnouncementId
-		logger.info( "Downloading description from page '%s'." % url )
+    def __CheckIfLoggedInFromResponse(self, response):
+        if (
+            response.find("""action='takelogin.php'""") != -1
+            or response.find("""<a href='login.php'>Back to Login</a>""") != -1
+        ):
+            raise PtpUploaderException(
+                "Looks like you are not logged in to GFT. Probably due to the bad user name or password in settings."
+            )
 
-		result = MyGlobals.session.get( url )
-		result.raise_for_status()
-		response = result.text
-		self.__CheckIfLoggedInFromResponse( response )
+    def __GetTorrentPageAsString(self, logger, releaseInfo):
+        url = "https://www.thegft.org/details.php?id=%s" % releaseInfo.AnnouncementId
+        logger.info("Downloading description from page '%s'." % url)
 
-		# Make sure we only get information from the description and not from the comments.
-		descriptionEndIndex = response.find( """<p><a name="startcomments"></a></p>""" )
-		if descriptionEndIndex == -1:
-			raise PtpUploaderException( JobRunningState.Ignored_MissingInfo, "Description can't found. Probably the layout of the site has changed." )
-		
-		description = response[ :descriptionEndIndex ]
-		return description
+        result = MyGlobals.session.get(url)
+        result.raise_for_status()
+        response = result.text
+        self.__CheckIfLoggedInFromResponse(response)
 
-	def __TryGettingImdbIdFromNfoPage( self, logger, releaseInfo ):
-		url = "https://www.thegft.org/viewnfo.php?id=%s" % releaseInfo.AnnouncementId
-		logger.info( "Downloading NFO from page '%s'." % url )
+        # Make sure we only get information from the description and not from the comments.
+        descriptionEndIndex = response.find("""<p><a name="startcomments"></a></p>""")
+        if descriptionEndIndex == -1:
+            raise PtpUploaderException(
+                JobRunningState.Ignored_MissingInfo,
+                "Description can't found. Probably the layout of the site has changed.",
+            )
 
-		result = MyGlobals.session.get( url )
-		result.raise_for_status()
-		response = result.text
-		response = response.encode( "ascii", "ignore" )
-		self.__CheckIfLoggedInFromResponse( response )
+        description = response[:descriptionEndIndex]
+        return description
 
-		releaseInfo.ImdbId = NfoParser.GetImdbId( response )
+    def __TryGettingImdbIdFromNfoPage(self, logger, releaseInfo):
+        url = "https://www.thegft.org/viewnfo.php?id=%s" % releaseInfo.AnnouncementId
+        logger.info("Downloading NFO from page '%s'." % url)
 
-	def __ReadTorrentPageInternal( self, logger, releaseInfo, description ):
-		# Get release name.
-		matches = re.search( r"<title>GFT \d+ :: Details for torrent &quot;(.+)&quot;</title>", description )
-		if matches is None:
-			raise PtpUploaderException( JobRunningState.Ignored_MissingInfo, "Release name can't be found on torrent page." )
+        result = MyGlobals.session.get(url)
+        result.raise_for_status()
+        response = result.text
+        response = response.encode("ascii", "ignore")
+        self.__CheckIfLoggedInFromResponse(response)
 
-		releaseName = DecodeHtmlEntities( matches.group( 1 ) )
+        releaseInfo.ImdbId = NfoParser.GetImdbId(response)
 
-		# Get IMDb id.
-		if ( not releaseInfo.HasImdbId() ) and ( not releaseInfo.HasPtpId() ):
-			releaseInfo.ImdbId = NfoParser.GetImdbId( description )
-			if ( not releaseInfo.HasImdbId() ):
-				self.__TryGettingImdbIdFromNfoPage( logger, releaseInfo )
+    def __ReadTorrentPageInternal(self, logger, releaseInfo, description):
+        # Get release name.
+        matches = re.search(
+            r"<title>GFT \d+ :: Details for torrent &quot;(.+)&quot;</title>",
+            description,
+        )
+        if matches is None:
+            raise PtpUploaderException(
+                JobRunningState.Ignored_MissingInfo,
+                "Release name can't be found on torrent page.",
+            )
 
-		# Check if pretime presents.
-		# TODO: this is unreliable as the uploaders on GFT set this
-		#if description.find( """<td><img src='/pic/scene.jpg' alt='Scene' /></td>""" ) != -1:
-		#	releaseInfo.SetSceneRelease()
-		
-		# Get size.
-		# Two possible formats:
-		# <tr><td class="heading" valign="top" align="right">Size</td><td valign="top" align="left">4.47 GB (4,799,041,437bytes )</td></tr>
-		# <tr><td class='heading' valign='top' align='right'>Size</td><td valign='top' align='left'>4.47 GB (4,799,041,437bytes )</td></tr>
-		matches = re.search( r"""<tr><td class=.heading. valign=.top. align=.right.>Size</td><td valign=.top. align=.left.>.+ \((.+bytes) ?\)</td></tr>""", description )
-		if matches is None:
-			logger.warning( "Size not found on torrent page." )
-		else:
-			size = matches.group( 1 )
-			releaseInfo.Size = GetSizeFromText( size )
+        releaseName = DecodeHtmlEntities(matches.group(1))
 
-		return releaseName
+        # Get IMDb id.
+        if (not releaseInfo.HasImdbId()) and (not releaseInfo.HasPtpId()):
+            releaseInfo.ImdbId = NfoParser.GetImdbId(description)
+            if not releaseInfo.HasImdbId():
+                self.__TryGettingImdbIdFromNfoPage(logger, releaseInfo)
 
-	# Sets IMDb if presents in the torrent description.
-	# Sets scene release if pretime presents on the page.
-	# Returns with the release name.
-	def __ReadTorrentPage( self, logger, releaseInfo ):
-		description = self.__GetTorrentPageAsString( logger, releaseInfo )
-		releaseName = self.__ReadTorrentPageInternal( logger, releaseInfo, description )
+        # Check if pretime presents.
+        # TODO: this is unreliable as the uploaders on GFT set this
+        # if description.find( """<td><img src='/pic/scene.jpg' alt='Scene' /></td>""" ) != -1:
+        # 	releaseInfo.SetSceneRelease()
 
-		# For some reason there are announced, but non visible releases on GFT that never start seeding.
-		# We give them some time to become visible then we ignore them.
-		maximumTries = 3
-		while True:
-			# Two possible formats:
-			# <td class="heading" valign="top" align="right">Visible</td><td valign="top" align="left"><b>no</b> (dead)</td>
-			# <td class="heading" align="right" valign="top">Visible</td><td align="left" valign="top"><b>no</b> (dead)</td>
-			if description.find( """<td class="heading" v?align=".+?" v?align=".+?">Visible</td><td v?align=".+?" v?align=".+?"><b>no</b> (dead)</td>""" ) == -1:
-				break
+        # Get size.
+        # Two possible formats:
+        # <tr><td class="heading" valign="top" align="right">Size</td><td valign="top" align="left">4.47 GB (4,799,041,437bytes )</td></tr>
+        # <tr><td class='heading' valign='top' align='right'>Size</td><td valign='top' align='left'>4.47 GB (4,799,041,437bytes )</td></tr>
+        matches = re.search(
+            r"""<tr><td class=.heading. valign=.top. align=.right.>Size</td><td valign=.top. align=.left.>.+ \((.+bytes) ?\)</td></tr>""",
+            description,
+        )
+        if matches is None:
+            logger.warning("Size not found on torrent page.")
+        else:
+            size = matches.group(1)
+            releaseInfo.Size = GetSizeFromText(size)
 
-			if maximumTries > 1:
-				maximumTries -= 1
-				time.sleep( 10 ) # Ten seconds.
-			else:
-				raise PtpUploaderException( JobRunningState.Ignored, "Set to not visible on torrent page." )
+        return releaseName
 
-		return releaseName
+    # Sets IMDb if presents in the torrent description.
+    # Sets scene release if pretime presents on the page.
+    # Returns with the release name.
+    def __ReadTorrentPage(self, logger, releaseInfo):
+        description = self.__GetTorrentPageAsString(logger, releaseInfo)
+        releaseName = self.__ReadTorrentPageInternal(logger, releaseInfo, description)
 
-	def __HandleUserCreatedJob(self, logger, releaseInfo):
-		releaseName = self.__ReadTorrentPage( logger, releaseInfo )
-		if not releaseInfo.IsReleaseNameSet():
-			releaseInfo.ReleaseName = releaseName
+        # For some reason there are announced, but non visible releases on GFT that never start seeding.
+        # We give them some time to become visible then we ignore them.
+        maximumTries = 3
+        while True:
+            # Two possible formats:
+            # <td class="heading" valign="top" align="right">Visible</td><td valign="top" align="left"><b>no</b> (dead)</td>
+            # <td class="heading" align="right" valign="top">Visible</td><td align="left" valign="top"><b>no</b> (dead)</td>
+            if (
+                description.find(
+                    """<td class="heading" v?align=".+?" v?align=".+?">Visible</td><td v?align=".+?" v?align=".+?"><b>no</b> (dead)</td>"""
+                )
+                == -1
+            ):
+                break
 
-		releaseNameParser = ReleaseNameParser( releaseInfo.ReleaseName )
-		releaseNameParser.GetSourceAndFormat( releaseInfo )
-		if releaseNameParser.Scene:
-			releaseInfo.SetSceneRelease()
+            if maximumTries > 1:
+                maximumTries -= 1
+                time.sleep(10)  # Ten seconds.
+            else:
+                raise PtpUploaderException(
+                    JobRunningState.Ignored, "Set to not visible on torrent page."
+                )
 
-	def __HandleAutoCreatedJob(self, logger, releaseInfo):
-		# In case of automatic announcement we have to check the release name if it is valid.
-		# We know the release name from the announcement, so we can filter it without downloading anything (yet) from the source.
-		releaseNameParser = ReleaseNameParser( releaseInfo.ReleaseName )
-		isAllowedMessage = releaseNameParser.IsAllowed()
-		if isAllowedMessage is not None:
-			raise PtpUploaderException( JobRunningState.Ignored, isAllowedMessage )
+        return releaseName
 
-		releaseNameParser.GetSourceAndFormat( releaseInfo )
+    def __HandleUserCreatedJob(self, logger, releaseInfo):
+        releaseName = self.__ReadTorrentPage(logger, releaseInfo)
+        if not releaseInfo.IsReleaseNameSet():
+            releaseInfo.ReleaseName = releaseName
 
-		releaseName = self.__ReadTorrentPage( logger, releaseInfo )
-		if releaseName != releaseInfo.ReleaseName:
-			raise PtpUploaderException( "Announcement release name '%s' and release name '%s' on GFT are different." % ( releaseInfo.ReleaseName, releaseName ) )
+        releaseNameParser = ReleaseNameParser(releaseInfo.ReleaseName)
+        releaseNameParser.GetSourceAndFormat(releaseInfo)
+        if releaseNameParser.Scene:
+            releaseInfo.SetSceneRelease()
 
-		if releaseNameParser.Scene:
-			releaseInfo.SetSceneRelease()
+    def __HandleAutoCreatedJob(self, logger, releaseInfo):
+        # In case of automatic announcement we have to check the release name if it is valid.
+        # We know the release name from the announcement, so we can filter it without downloading anything (yet) from the source.
+        releaseNameParser = ReleaseNameParser(releaseInfo.ReleaseName)
+        isAllowedMessage = releaseNameParser.IsAllowed()
+        if isAllowedMessage is not None:
+            raise PtpUploaderException(JobRunningState.Ignored, isAllowedMessage)
 
-		if ( not releaseInfo.IsSceneRelease() ) and self.AutomaticJobFilter == "SceneOnly":
-			raise PtpUploaderException( JobRunningState.Ignored, "Non-scene release." )
+        releaseNameParser.GetSourceAndFormat(releaseInfo)
 
-	def PrepareDownload(self, logger, releaseInfo):
-		if releaseInfo.IsUserCreatedJob():
-			self.__HandleUserCreatedJob( logger, releaseInfo )
-		else:
-			self.__HandleAutoCreatedJob( logger, releaseInfo )
-	
-	def DownloadTorrent(self, logger, releaseInfo, path):
-		url = "https://www.thegft.org/download.php?torrent=%s" % releaseInfo.AnnouncementId
-		logger.info( "Downloading torrent file from '%s' to '%s'." % ( url, path ) )
+        releaseName = self.__ReadTorrentPage(logger, releaseInfo)
+        if releaseName != releaseInfo.ReleaseName:
+            raise PtpUploaderException(
+                "Announcement release name '%s' and release name '%s' on GFT are different."
+                % (releaseInfo.ReleaseName, releaseName)
+            )
 
-		result = MyGlobals.session.get( url )
-		result.raise_for_status()
-		response = result.content
-		self.__CheckIfLoggedInFromResponse( response )
-		
-		file = open( path, "wb" )
-		file.write( response )
-		file.close()
-		
-		# Calling Helper.ValidateTorrentFile is not needed because NfoParser.IsTorrentContainsMultipleNfos will throw an exception if it is not a valid torrent file.
+        if releaseNameParser.Scene:
+            releaseInfo.SetSceneRelease()
 
-		# If a torrent contains multiple NFO files then it is likely that the site also showed the wrong NFO and we have checked the existence of another movie on PTP.
-		# So we abort here. These errors happen rarely anyway.
-		# (We could also try read the NFO with the same name as the release or with the same name as the first RAR and reschedule for checking with the correct IMDb id.)
-		if NfoParser.IsTorrentContainsMultipleNfos( path ):
-			raise PtpUploaderException( "Torrent '%s' contains multiple NFO files." % path )  
+        if (
+            not releaseInfo.IsSceneRelease()
+        ) and self.AutomaticJobFilter == "SceneOnly":
+            raise PtpUploaderException(JobRunningState.Ignored, "Non-scene release.")
 
-	def GetIdFromUrl(self, url):
-		result = re.match( r".*thegft\.org/details\.php\?id=(\d+).*", url )
-		if result is None:
-			return ""
-		else:
-			return result.group( 1 )
+    def PrepareDownload(self, logger, releaseInfo):
+        if releaseInfo.IsUserCreatedJob():
+            self.__HandleUserCreatedJob(logger, releaseInfo)
+        else:
+            self.__HandleAutoCreatedJob(logger, releaseInfo)
 
-	def GetUrlFromId(self, id):
-		return "https://www.thegft.org/details.php?id=" + id
+    def DownloadTorrent(self, logger, releaseInfo, path):
+        url = (
+            "https://www.thegft.org/download.php?torrent=%s"
+            % releaseInfo.AnnouncementId
+        )
+        logger.info("Downloading torrent file from '%s' to '%s'." % (url, path))
 
-	def GetIdFromAutodlIrssiUrl( self, url ):
-		# https://www.thegft.org/download.php?torrent=897257&passkey=AAAAA
-		result = re.match( r".*thegft\.org/download\.php\?torrent=(\d+).*", url )
-		if result is None:
-			return ""
-		else:
-			return result.group( 1 )
+        result = MyGlobals.session.get(url)
+        result.raise_for_status()
+        response = result.content
+        self.__CheckIfLoggedInFromResponse(response)
+
+        file = open(path, "wb")
+        file.write(response)
+        file.close()
+
+        # Calling Helper.ValidateTorrentFile is not needed because NfoParser.IsTorrentContainsMultipleNfos will throw an exception if it is not a valid torrent file.
+
+        # If a torrent contains multiple NFO files then it is likely that the site also showed the wrong NFO and we have checked the existence of another movie on PTP.
+        # So we abort here. These errors happen rarely anyway.
+        # (We could also try read the NFO with the same name as the release or with the same name as the first RAR and reschedule for checking with the correct IMDb id.)
+        if NfoParser.IsTorrentContainsMultipleNfos(path):
+            raise PtpUploaderException(
+                "Torrent '%s' contains multiple NFO files." % path
+            )
+
+    def GetIdFromUrl(self, url):
+        result = re.match(r".*thegft\.org/details\.php\?id=(\d+).*", url)
+        if result is None:
+            return ""
+        else:
+            return result.group(1)
+
+    def GetUrlFromId(self, id):
+        return "https://www.thegft.org/details.php?id=" + id
+
+    def GetIdFromAutodlIrssiUrl(self, url):
+        # https://www.thegft.org/download.php?torrent=897257&passkey=AAAAA
+        result = re.match(r".*thegft\.org/download\.php\?torrent=(\d+).*", url)
+        if result is None:
+            return ""
+        else:
+            return result.group(1)

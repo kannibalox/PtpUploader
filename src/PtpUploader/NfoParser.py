@@ -1,73 +1,74 @@
-﻿from Helper import GetFileListFromTorrent
-from PtpUploaderException import PtpUploaderException
+from .Helper import GetFileListFromTorrent
+from .PtpUploaderException import PtpUploaderException
 
-import fnmatch 
+import fnmatch
 import os
 import re
 
+
 class NfoParser:
-	# Return with the IMDb id.
-	# Eg.: 0111161 for http://www.imdb.com/title/tt0111161/
-	@staticmethod
-	def GetImdbId(nfoText):
-		matches = re.search( "imdb.com/title/tt(\d+)", nfoText )
-		if not matches:
-			matches = re.search( "imdb.com/Title\?(\d+)", nfoText )
-		
-		if matches:
-			return matches.group( 1 )
-		else:
-			return ""
+    # Return with the IMDb id.
+    # Eg.: 0111161 for http://www.imdb.com/title/tt0111161/
+    @staticmethod
+    def GetImdbId(nfoText):
+        matches = re.search("imdb.com/title/tt(\d+)", nfoText)
+        if not matches:
+            matches = re.search("imdb.com/Title\?(\d+)", nfoText)
 
-	# Reads an NFO file and converts it to Unicode.
-	@staticmethod
-	def ReadNfoFileToUnicode(path):
-		# Read as binary.
-		nfoFile = open( path, "rb" )
-		nfo = nfoFile.read()
-		nfoFile.close()
+        if matches:
+            return matches.group(1)
+        else:
+            return ""
 
-		# NFOs use codepage 437.
-		# http://en.wikipedia.org/wiki/.nfo
-		nfo = nfo.decode( "cp437", "ignore" )
-		return nfo
+    # Reads an NFO file and converts it to Unicode.
+    @staticmethod
+    def ReadNfoFileToUnicode(path):
+        # Read as binary.
+        nfoFile = open(path, "rb")
+        nfo = nfoFile.read()
+        nfoFile.close()
 
-	# If there are multiple NFOs, it returns with empty string.
-	@staticmethod
-	def FindAndReadNfoFileToUnicode( directoryPath ):
-		nfoPath = None
-		nfoFound = False
+        # NFOs use codepage 437.
+        # http://en.wikipedia.org/wiki/.nfo
+        nfo = nfo.decode("cp437", "ignore")
+        return nfo
 
-		entries = os.listdir( directoryPath )
-		for entry in entries:
-			entryPath = os.path.join( directoryPath, entry );
-			entryLower = entry.lower()
-			if os.path.isfile( entryPath ) and fnmatch.fnmatch( entryLower, "*.nfo" ):
-				if nfoFound:
-					nfoPath = None
-				else:
-					nfoPath = entryPath
-					nfoFound = True
+    # If there are multiple NFOs, it returns with empty string.
+    @staticmethod
+    def FindAndReadNfoFileToUnicode(directoryPath):
+        nfoPath = None
+        nfoFound = False
 
-		if nfoPath is None:
-			return u""
-		else:
-			return NfoParser.ReadNfoFileToUnicode( nfoPath )
+        entries = os.listdir(directoryPath)
+        for entry in entries:
+            entryPath = os.path.join(directoryPath, entry)
+            entryLower = entry.lower()
+            if os.path.isfile(entryPath) and fnmatch.fnmatch(entryLower, "*.nfo"):
+                if nfoFound:
+                    nfoPath = None
+                else:
+                    nfoPath = entryPath
+                    nfoFound = True
 
-	@staticmethod
-	def IsTorrentContainsMultipleNfos(torrentPath):
-		files = GetFileListFromTorrent( torrentPath )
-		nfoCount = 0
-		for file in files:
-			file = file.lower();
+        if nfoPath is None:
+            return ""
+        else:
+            return NfoParser.ReadNfoFileToUnicode(nfoPath)
 
-			# Only check in the root folder.
-			if file.find( "/" ) != -1 or file.find( "\\" ) != -1:
-				continue
+    @staticmethod
+    def IsTorrentContainsMultipleNfos(torrentPath):
+        files = GetFileListFromTorrent(torrentPath)
+        nfoCount = 0
+        for file in files:
+            file = file.lower()
 
-			if file.endswith( ".nfo" ):
-				nfoCount += 1
-				if nfoCount > 1:
-					return True
+            # Only check in the root folder.
+            if file.find("/") != -1 or file.find("\\") != -1:
+                continue
 
-		return False
+            if file.endswith(".nfo"):
+                nfoCount += 1
+                if nfoCount > 1:
+                    return True
+
+        return False

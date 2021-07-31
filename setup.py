@@ -15,9 +15,10 @@ setup(
     author="kannibalox",
     url="https://github.com/kannibalox/PTPAPI",
     install_requires=[
-        "pyrocore",
+        "pyrobase @ git+https://github.com/kannibalox/pyrobase@py3",
+        "pyrocore @ git+https://github.com/kannibalox/pyrocore@py3",
         "sqlalchemy",
-        "werkzeug==0.16.1",
+        "werkzeug",
         "flask",
         "requests",
         "watchdog",

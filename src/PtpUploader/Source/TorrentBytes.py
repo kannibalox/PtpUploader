@@ -1,7 +1,12 @@
 from ..Job.JobRunningState import JobRunningState
 from .SourceBase import SourceBase
 
-from ..Helper import DecodeHtmlEntities, GetSizeFromText, MakeRetryingHttpGetRequestWithRequests, MakeRetryingHttpPostRequestWithRequests
+from ..Helper import (
+    DecodeHtmlEntities,
+    GetSizeFromText,
+    MakeRetryingHttpGetRequestWithRequests,
+    MakeRetryingHttpPostRequestWithRequests,
+)
 from ..MyGlobals import MyGlobals
 from ..NfoParser import NfoParser
 from ..PtpUploaderException import PtpUploaderException
@@ -9,140 +14,173 @@ from ..ReleaseNameParser import ReleaseNameParser
 
 import re
 
-class TorrentBytes( SourceBase ):
-	def __init__( self ):
-		SourceBase.__init__( self )
 
-		self.Name = "tb"
-		self.NameInSettings = "TorrentBytes"
+class TorrentBytes(SourceBase):
+    def __init__(self):
+        SourceBase.__init__(self)
 
-	def LoadSettings( self, settings ):
-		SourceBase.LoadSettings( self, settings )
+        self.Name = "tb"
+        self.NameInSettings = "TorrentBytes"
 
-	def IsEnabled( self ):
-		return len( self.Username ) > 0 and len( self.Password ) > 0
+    def LoadSettings(self, settings):
+        SourceBase.LoadSettings(self, settings)
 
-	def Login( self ):
-		MyGlobals.Logger.info( "Logging in to TorrentBytes." )
+    def IsEnabled(self):
+        return len(self.Username) > 0 and len(self.Password) > 0
 
-		postData = { "username": self.Username, "password": self.Password, "login": "Log in!" }
-		result = MakeRetryingHttpPostRequestWithRequests( "https://www.torrentbytes.net/takelogin.php", postData )
-		self.__CheckIfLoggedInFromResponse( result.text )
+    def Login(self):
+        MyGlobals.Logger.info("Logging in to TorrentBytes.")
 
-	def __CheckIfLoggedInFromResponse( self, response ):
-		if response.find( '<form method="post" action="takelogin.php">' ) >= 0:
-			raise PtpUploaderException( "Looks like you are not logged in to TorrentBytes. Probably due to the bad user name or password in settings." )
+        postData = {
+            "username": self.Username,
+            "password": self.Password,
+            "login": "Log in!",
+        }
+        result = MakeRetryingHttpPostRequestWithRequests(
+            "https://www.torrentbytes.net/takelogin.php", postData
+        )
+        self.__CheckIfLoggedInFromResponse(result.text)
 
-	# Sets IMDb if presents in the torrent description.
-	# Returns with the release name.
-	def __ReadTorrentPage( self, logger, releaseInfo ):
-		url = "https://www.torrentbytes.net/details.php?id=" + releaseInfo.AnnouncementId
-		logger.info( "Downloading NFO from page '%s'." % url )
+    def __CheckIfLoggedInFromResponse(self, response):
+        if response.find('<form method="post" action="takelogin.php">') >= 0:
+            raise PtpUploaderException(
+                "Looks like you are not logged in to TorrentBytes. Probably due to the bad user name or password in settings."
+            )
 
-		result = MakeRetryingHttpGetRequestWithRequests( url )
-		response = result.text
-		self.__CheckIfLoggedInFromResponse( response )
+    # Sets IMDb if presents in the torrent description.
+    # Returns with the release name.
+    def __ReadTorrentPage(self, logger, releaseInfo):
+        url = (
+            "https://www.torrentbytes.net/details.php?id=" + releaseInfo.AnnouncementId
+        )
+        logger.info("Downloading NFO from page '%s'." % url)
 
-		# Make sure we only get information from the description and not from the comments.
-		descriptionEndIndex = response.find( """<p><a name="startcomments"></a></p>""" )
-		if descriptionEndIndex < 0:
-			raise PtpUploaderException( JobRunningState.Ignored_MissingInfo, "Description can't found. Probably the layout of the site has changed." )
+        result = MakeRetryingHttpGetRequestWithRequests(url)
+        response = result.text
+        self.__CheckIfLoggedInFromResponse(response)
 
-		description = response[ :descriptionEndIndex ]
+        # Make sure we only get information from the description and not from the comments.
+        descriptionEndIndex = response.find("""<p><a name="startcomments"></a></p>""")
+        if descriptionEndIndex < 0:
+            raise PtpUploaderException(
+                JobRunningState.Ignored_MissingInfo,
+                "Description can't found. Probably the layout of the site has changed.",
+            )
 
-		# Get release name.
-		matches = re.search( r"""<title>Torrentbytes :: Details for torrent "(.+)"</title>""", description )
-		if matches is None:
-			raise PtpUploaderException( JobRunningState.Ignored_MissingInfo, "Release name can't be found on torrent page." )
+        description = response[:descriptionEndIndex]
 
-		releaseName = DecodeHtmlEntities( matches.group( 1 ) )
+        # Get release name.
+        matches = re.search(
+            r"""<title>Torrentbytes :: Details for torrent "(.+)"</title>""",
+            description,
+        )
+        if matches is None:
+            raise PtpUploaderException(
+                JobRunningState.Ignored_MissingInfo,
+                "Release name can't be found on torrent page.",
+            )
 
-		# Get IMDb id.
-		if ( not releaseInfo.HasImdbId() ) and ( not releaseInfo.HasPtpId() ):
-			releaseInfo.ImdbId = NfoParser.GetImdbId( description )
+        releaseName = DecodeHtmlEntities(matches.group(1))
 
-		# Get size.
-		# <tr><td class="heading" valign="top" align="right">Size</td><td valign="top" align=left>3.30 GB (3,543,492,217 bytes)</td></tr>
-		matches = re.search( r""">Size</td><td valign="top" align=left>.+ \((.+ bytes)\)</td>""", description )
-		if matches is None:
-			logger.warning( "Size not found on torrent page." )
-		else:
-			size = matches.group( 1 )
-			releaseInfo.Size = GetSizeFromText( size )
+        # Get IMDb id.
+        if (not releaseInfo.HasImdbId()) and (not releaseInfo.HasPtpId()):
+            releaseInfo.ImdbId = NfoParser.GetImdbId(description)
 
-		return releaseName
+        # Get size.
+        # <tr><td class="heading" valign="top" align="right">Size</td><td valign="top" align=left>3.30 GB (3,543,492,217 bytes)</td></tr>
+        matches = re.search(
+            r""">Size</td><td valign="top" align=left>.+ \((.+ bytes)\)</td>""",
+            description,
+        )
+        if matches is None:
+            logger.warning("Size not found on torrent page.")
+        else:
+            size = matches.group(1)
+            releaseInfo.Size = GetSizeFromText(size)
 
-	def __HandleUserCreatedJob( self, logger, releaseInfo ):
-		releaseName = self.__ReadTorrentPage( logger, releaseInfo )
-		if not releaseInfo.IsReleaseNameSet():
-			releaseInfo.ReleaseName = releaseName
+        return releaseName
 
-		releaseNameParser = ReleaseNameParser( releaseInfo.ReleaseName )
-		releaseNameParser.GetSourceAndFormat( releaseInfo )
-		if releaseNameParser.Scene:
-			releaseInfo.SetSceneRelease()
+    def __HandleUserCreatedJob(self, logger, releaseInfo):
+        releaseName = self.__ReadTorrentPage(logger, releaseInfo)
+        if not releaseInfo.IsReleaseNameSet():
+            releaseInfo.ReleaseName = releaseName
 
-	def __HandleAutoCreatedJob( self, logger, releaseInfo ):
-		# In case of automatic announcement we have to check the release name if it is valid.
-		# We know the release name from the announcement, so we can filter it without downloading anything (yet) from the source.
-		releaseNameParser = ReleaseNameParser( releaseInfo.ReleaseName )
-		isAllowedMessage = releaseNameParser.IsAllowed()
-		if isAllowedMessage is not None:
-			raise PtpUploaderException( JobRunningState.Ignored, isAllowedMessage )
+        releaseNameParser = ReleaseNameParser(releaseInfo.ReleaseName)
+        releaseNameParser.GetSourceAndFormat(releaseInfo)
+        if releaseNameParser.Scene:
+            releaseInfo.SetSceneRelease()
 
-		releaseNameParser.GetSourceAndFormat( releaseInfo )
+    def __HandleAutoCreatedJob(self, logger, releaseInfo):
+        # In case of automatic announcement we have to check the release name if it is valid.
+        # We know the release name from the announcement, so we can filter it without downloading anything (yet) from the source.
+        releaseNameParser = ReleaseNameParser(releaseInfo.ReleaseName)
+        isAllowedMessage = releaseNameParser.IsAllowed()
+        if isAllowedMessage is not None:
+            raise PtpUploaderException(JobRunningState.Ignored, isAllowedMessage)
 
-		releaseName = self.__ReadTorrentPage( logger, releaseInfo )
-		if releaseName != releaseInfo.ReleaseName:
-			raise PtpUploaderException( "Announcement release name '%s' and release name '%s' on TorrentBytes are different." % ( releaseInfo.ReleaseName, releaseName ) )
+        releaseNameParser.GetSourceAndFormat(releaseInfo)
 
-		if releaseNameParser.Scene:
-			releaseInfo.SetSceneRelease()
+        releaseName = self.__ReadTorrentPage(logger, releaseInfo)
+        if releaseName != releaseInfo.ReleaseName:
+            raise PtpUploaderException(
+                "Announcement release name '%s' and release name '%s' on TorrentBytes are different."
+                % (releaseInfo.ReleaseName, releaseName)
+            )
 
-		if ( not releaseInfo.IsSceneRelease() ) and self.AutomaticJobFilter == "SceneOnly":
-			raise PtpUploaderException( JobRunningState.Ignored, "Non-scene release." )
+        if releaseNameParser.Scene:
+            releaseInfo.SetSceneRelease()
 
-	def PrepareDownload( self, logger, releaseInfo ):
-		if releaseInfo.IsUserCreatedJob():
-			self.__HandleUserCreatedJob( logger, releaseInfo )
-		else:
-			self.__HandleAutoCreatedJob( logger, releaseInfo )
+        if (
+            not releaseInfo.IsSceneRelease()
+        ) and self.AutomaticJobFilter == "SceneOnly":
+            raise PtpUploaderException(JobRunningState.Ignored, "Non-scene release.")
 
-	def DownloadTorrent( self, logger, releaseInfo, path ):
-		# We don't log the download URL because it is sensitive information.
-		logger.info( "Downloading torrent file from TorrentBytes to '%s'." % path )
+    def PrepareDownload(self, logger, releaseInfo):
+        if releaseInfo.IsUserCreatedJob():
+            self.__HandleUserCreatedJob(logger, releaseInfo)
+        else:
+            self.__HandleAutoCreatedJob(logger, releaseInfo)
 
-		url = "https://www.torrentbytes.net/download.php?id=%s&SSL=1" % releaseInfo.AnnouncementId
-		result = MakeRetryingHttpGetRequestWithRequests( url )
-		response = result.content
-		self.__CheckIfLoggedInFromResponse( response )
+    def DownloadTorrent(self, logger, releaseInfo, path):
+        # We don't log the download URL because it is sensitive information.
+        logger.info("Downloading torrent file from TorrentBytes to '%s'." % path)
 
-		f = open( path, "wb" )
-		f.write( response )
-		f.close()
+        url = (
+            "https://www.torrentbytes.net/download.php?id=%s&SSL=1"
+            % releaseInfo.AnnouncementId
+        )
+        result = MakeRetryingHttpGetRequestWithRequests(url)
+        response = result.content
+        self.__CheckIfLoggedInFromResponse(response)
 
-		# Calling Helper.ValidateTorrentFile is not needed because NfoParser.IsTorrentContainsMultipleNfos will throw an exception if it is not a valid torrent file.
+        f = open(path, "wb")
+        f.write(response)
+        f.close()
 
-		# If a torrent contains multiple NFO files then it is likely that the site also showed the wrong NFO and we have checked the existence of another movie on PTP.
-		# So we abort here. These errors happen rarely anyway.
-		# (We could also try read the NFO with the same name as the release or with the same name as the first RAR and reschedule for checking with the correct IMDb id.)
-		if NfoParser.IsTorrentContainsMultipleNfos( path ):
-			raise PtpUploaderException( "Torrent '%s' contains multiple NFO files." % path )
+        # Calling Helper.ValidateTorrentFile is not needed because NfoParser.IsTorrentContainsMultipleNfos will throw an exception if it is not a valid torrent file.
 
-	def GetIdFromUrl( self, url ):
-		result = re.match( r".*torrentbytes\.net/details.php\?id=(\d+).*", url )
-		if result is None:
-			return ""
-		else:
-			return result.group( 1 )
+        # If a torrent contains multiple NFO files then it is likely that the site also showed the wrong NFO and we have checked the existence of another movie on PTP.
+        # So we abort here. These errors happen rarely anyway.
+        # (We could also try read the NFO with the same name as the release or with the same name as the first RAR and reschedule for checking with the correct IMDb id.)
+        if NfoParser.IsTorrentContainsMultipleNfos(path):
+            raise PtpUploaderException(
+                "Torrent '%s' contains multiple NFO files." % path
+            )
 
-	def GetUrlFromId( self, id ):
-		return "https://www.torrentbytes.net/details.php?id=" + id
+    def GetIdFromUrl(self, url):
+        result = re.match(r".*torrentbytes\.net/details.php\?id=(\d+).*", url)
+        if result is None:
+            return ""
+        else:
+            return result.group(1)
 
-	def GetIdFromAutodlIrssiUrl( self, url ):
-		# http://torrentbytes.net/download.php/897257/
-		result = re.match( r".*torrentbytes\.net/download.php\?id=(\d+).*", url )
-		if result is None:
-			return ""
-		else:
-			return result.group( 1 )
+    def GetUrlFromId(self, id):
+        return "https://www.torrentbytes.net/details.php?id=" + id
+
+    def GetIdFromAutodlIrssiUrl(self, url):
+        # http://torrentbytes.net/download.php/897257/
+        result = re.match(r".*torrentbytes\.net/download.php\?id=(\d+).*", url)
+        if result is None:
+            return ""
+        else:
+            return result.group(1)
