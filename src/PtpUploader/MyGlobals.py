@@ -64,7 +64,7 @@ class MyGlobalsClass:
         console.setFormatter(formatter)
         self.Logger.addHandler(console)
 
-        self.Logger.setLevel(logging.INFO)
+        self.Logger.setLevel(logging.DEBUG)
 
     # Inline imports are used here to avoid unnecessary dependencies.
     def GetTorrentClient(self):

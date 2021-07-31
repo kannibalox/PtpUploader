@@ -158,9 +158,8 @@ class Settings(object):
         Settings.IgnoreFile = Settings.MakeListFromExtensionString(
             Settings.__GetDefault(configParser, "Settings", "IgnoreFile", "")
         )
-        Settings.PtpAnnounceUrl = configParser.get("Settings", "PtpAnnounceUrl")
-        Settings.PtpUserName = configParser.get("Settings", "PtpUserName")
-        Settings.PtpPassword = configParser.get("Settings", "PtpPassword")
+        Settings.PtpApiUser = configParser.get("Settings", "PtpApiUser")
+        Settings.PtpApiKey = configParser.get("Settings", "PtpApiKey")
 
         Settings.ImageHost = Settings.__GetDefault(
             configParser, "Settings", "ImageHost", "ptpimg.me"
