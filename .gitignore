@@ -5,3 +5,4 @@ src/PtpUploader/Settings.ini
 _build
 *.egg-info/
 *.egg
+*.venv*
