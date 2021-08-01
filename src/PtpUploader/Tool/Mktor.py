@@ -8,7 +8,7 @@ import os
 
 def Make(logger, path, torrentPath):
     def Callback(meta):
-        metafile.assign_fields(meta, ["info.source=PTP"])
+        meta["info"]["source"] = "PTP"
 
     logger.info("Making torrent from '%s' to '%s'." % (path, torrentPath))
     torrent = metafile.Metafile(torrentPath, datapath=path)
