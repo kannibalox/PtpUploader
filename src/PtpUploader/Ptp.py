@@ -4,7 +4,6 @@ from .PtpUploaderException import *
 from .Settings import Settings
 
 import requests
-import ptpapi
 
 import mimetypes
 import os
@@ -17,12 +16,63 @@ import json
 class Ptp:
     @staticmethod
     def __LoginInternal():
-        MyGlobals.Logger.info("Logging in to PTP.")
-        api = ptpapi.login(api_user=Settings.PtpApiUser, api_key=Settings.PtpApiKey)
-        MyGlobals.Logger.info("Getting upload info.")
-        #api.upload_info()
+        if len(Settings.PtpUserName) <= 0:
+            raise PtpUploaderInvalidLoginException(
+                "Couldn't log in to PTP. Your user name is not specified."
+            )
 
-        MyGlobals.Logger.info("Logged in to PTP.")
+        if len(Settings.PtpPassword) <= 0:
+            raise PtpUploaderInvalidLoginException(
+                "Couldn't log in to PTP. Your password is not specified."
+            )
+
+        # Get the pass key from the announce URL.
+        passKey = re.match(
+            r"https?://please\.passthepopcorn\.me:?\d*/(.+)/announce",
+            Settings.PtpAnnounceUrl,
+        )
+        if passKey is None:
+            raise PtpUploaderInvalidLoginException(
+                "Couldn't log in to PTP. Pass key not found in the announce URL."
+            )
+        passKey = passKey.group(1)
+
+        MyGlobals.Logger.info("Logging in to PTP.")
+
+        postData = {
+            "username": Settings.PtpUserName,
+            "password": Settings.PtpPassword,
+            "passkey": passKey,
+            "keeplogged": "1",
+        }
+
+        MyGlobals.session.get("https://passthepopcorn.me/ajax.php?action=login")
+        response = MyGlobals.session.post(
+            "https://passthepopcorn.me/ajax.php?action=login", data=postData
+        )
+        response = response.text
+
+        jsonLoad = None
+        try:
+            jsonLoad = json.loads(response)
+        except (Exception, ValueError):
+            raise PtpUploaderInvalidLoginException(
+                "Got exception while loading JSON login response from PTP. Response: '%s'."
+                % response
+            )
+
+        if jsonLoad is None:
+            raise PtpUploaderInvalidLoginException(
+                "Got bad JSON response from PTP while trying to log in. Response: '%s'."
+                % response
+            )
+
+        if jsonLoad["Result"] != "Ok":
+            raise PtpUploaderInvalidLoginException(
+                "Failed to login to PTP. Probably due to the bad user name, password or pass key."
+            )
+
+        Ptp.AntiCsrfToken = jsonLoad["AntiCsrfToken"]
 
     @staticmethod
     def Login():
@@ -73,7 +123,7 @@ class Ptp:
     def GetMoviePageOnPtp(logger, ptpId):
         logger.info("Getting movie page for PTP id '%s'." % ptpId)
 
-        result = ptpapi.session.session.get(
+        result = MyGlobals.session.get(
             "https://passthepopcorn.me/torrents.php?id=%s&json=1" % ptpId
         )
         response = result.text
@@ -90,7 +140,7 @@ class Ptp:
     def GetMoviePageOnPtpByImdbId(logger, imdbId):
         logger.info("Trying to find movie with IMDb id '%s' on PTP." % imdbId)
 
-        result = ptpapi.session.session.get(
+        result = MyGlobals.session.get(
             "https://passthepopcorn.me/torrents.php?imdb=%s&json=1"
             % Ptp.NormalizeImdbIdForPtp(imdbId)
         )
@@ -141,6 +191,7 @@ class Ptp:
             "other_source": releaseInfo.Source,
             "release_desc": releaseDescription,
             "nfo_text": releaseInfo.Nfo,
+            "AntiCsrfToken": Ptp.AntiCsrfToken,
         }
 
         # personal rip only needed if it is specified
@@ -221,7 +272,7 @@ class Ptp:
                 "application/x-bittorent",
             )
         }
-        result = ptpapi.session.session.post(url, data=paramList, files=files)
+        result = MyGlobals.session.post(url, data=paramList, files=files)
         response = result.text
         Ptp.CheckIfLoggedInFromResponse(result, response)
 
@@ -286,6 +337,7 @@ class Ptp:
             "body": message,
             "auth": auth,
             "action": "takecompose",
+            "AntiCsrfToken": Ptp.AntiCsrfToken,
         }
 
         result = MyGlobals.session.post("https://passthepopcorn.me/inbox.php", postData)

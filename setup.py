@@ -17,7 +17,6 @@ setup(
     install_requires=[
         "pyrobase @ git+https://github.com/kannibalox/pyrobase@py3",
         "pyrocore @ git+https://github.com/kannibalox/pyrocore@py3",
-        "PTPAPI @ git+https://github.com/kannibalox/PTPAPI",
         "sqlalchemy",
         "werkzeug",
         "flask",
