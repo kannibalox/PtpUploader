@@ -89,7 +89,7 @@ class Cinematik(SourceBase):
         releaseInfo.ReleaseName = RemoveDisallowedCharactersFromPath(releaseName)
 
         # Get IMDb id.
-        if (not releaseInfo.HasImdbId()) and (not releaseInfo.HasPtpId()):
+        if (not releaseInfo.HasImdbId()) and (not releaseInfo.PtpId):
             matches = re.search(r"imdb\.com/title/tt(\d+)", description)
             if matches is None:
                 raise PtpUploaderException(

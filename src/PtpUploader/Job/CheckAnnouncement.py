@@ -93,7 +93,7 @@ class CheckAnnouncement(WorkerBase):
 
     def __ValidateReleaseInfo(self):
         # Make sure we have IMDb or PTP id.
-        if (not self.ReleaseInfo.HasImdbId()) and (not self.ReleaseInfo.HasPtpId()):
+        if (not self.ReleaseInfo.ImdbId) and (not self.ReleaseInfo.PtpId):
             raise PtpUploaderException(
                 JobRunningState.Ignored_MissingInfo, "IMDb or PTP id must be specified."
             )
@@ -156,13 +156,13 @@ class CheckAnnouncement(WorkerBase):
 
         movieOnPtpResult = None
 
-        if self.ReleaseInfo.HasPtpId():
+        if self.ReleaseInfo.PtpId:
             movieOnPtpResult = Ptp.GetMoviePageOnPtp(
                 self.ReleaseInfo.Logger, self.ReleaseInfo.GetPtpId()
             )
 
             # If IMDb ID is not set, then store it, because it is needed for renaming releases coming from Cinemageddon and Cinematik.
-            if (not self.ReleaseInfo.HasImdbId()) and len(movieOnPtpResult.ImdbId) > 0:
+            if (not self.ReleaseInfo.ImdbId) and len(movieOnPtpResult.ImdbId) > 0:
                 self.ReleaseInfo.ImdbId = movieOnPtpResult.ImdbId
         else:
             # Try to get a PTP ID.
@@ -183,7 +183,7 @@ class CheckAnnouncement(WorkerBase):
 
     def __FillOutDetailsForNewMovieByPtpApi(self):
         # If already has a page on PTP then we don't have to do anything here.
-        if self.ReleaseInfo.HasPtpId():
+        if self.ReleaseInfo.PtpId:
             return
 
         ptpImdbInfo = None
@@ -262,7 +262,7 @@ class CheckAnnouncement(WorkerBase):
 
     # Uses IMDb and The Internet Movie Poster DataBase.
     def __FillOutDetailsForNewMovieByExternalSources(self):
-        if self.ReleaseInfo.HasPtpId() or self.ReleaseInfo.IsZeroImdbId():
+        if self.ReleaseInfo.PtpId or self.ReleaseInfo.IsZeroImdbId():
             return
 
         imdbInfo = Imdb.GetInfo(self.ReleaseInfo.Logger, self.ReleaseInfo.GetImdbId())

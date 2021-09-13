@@ -252,7 +252,7 @@ class Ptp:
         paramList = Ptp.__UploadMovieGetParamsCommon(releaseInfo, releaseDescription)
 
         # We always use HTTPS for uploading because if "Force HTTPS" is enabled in the profile then the HTTP upload is not working.
-        if releaseInfo.HasPtpId():
+        if releaseInfo.PtpId:
             logger.info(
                 "Uploading torrent '%s' to PTP as a new format for 'https://passthepopcorn.me/torrents.php?id=%s'."
                 % (torrentPath, releaseInfo.PtpId)
@@ -305,7 +305,7 @@ class Ptp:
         ptpId = match.group(1)
         releaseInfo.PtpTorrentId = match.group(2)
 
-        if not releaseInfo.HasPtpId():
+        if not releaseInfo.PtpId:
             releaseInfo.PtpId = ptpId
 
     @staticmethod

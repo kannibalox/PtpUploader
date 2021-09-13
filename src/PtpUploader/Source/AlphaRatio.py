@@ -83,7 +83,7 @@ class AlphaRatio(SourceBase):
         releaseName = DecodeHtmlEntities(matches.group(1))
 
         # Get IMDb id.
-        if (not releaseInfo.HasImdbId()) and (not releaseInfo.HasPtpId()):
+        if (not releaseInfo.ImdbId) and (not releaseInfo.PtpId):
             releaseInfo.ImdbId = NfoParser.GetImdbId(description)
 
         # Get size.

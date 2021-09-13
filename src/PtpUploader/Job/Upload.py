@@ -1,23 +1,23 @@
-from .FinishedJobPhase import FinishedJobPhase
-from .JobRunningState import JobRunningState
-from .WorkerBase import WorkerBase
-from ..Tool import Mktor
-
-from ..Database import Database
-from ..Helper import ParseQueryString, TimeDifferenceToText
-from ..IdxReader import IdxReader
-from ..ImageHost.ImageUploader import ImageUploader
-from ..MyGlobals import MyGlobals
-from ..Ptp import Ptp
-from ..PtpSubtitle import *
-from ..PtpUploaderException import *
-from ..ReleaseDescriptionFormatter import ReleaseDescriptionFormatter
-from ..ReleaseExtractor import ReleaseExtractor
-from ..Settings import Settings
-
 import datetime
 import os
 import subprocess
+
+from PtpUploader.Job.FinishedJobPhase import FinishedJobPhase
+from PtpUploader.Job.JobRunningState import JobRunningState
+from PtpUploader.Job.WorkerBase import WorkerBase
+from PtpUploader.Tool import Mktor
+
+from PtpUploader.Database import Database
+from PtpUploader.Helper import ParseQueryString, TimeDifferenceToText
+from PtpUploader.IdxReader import IdxReader
+from PtpUploader.ImageHost.ImageUploader import ImageUploader
+from PtpUploader.MyGlobals import MyGlobals
+from PtpUploader.Ptp import Ptp
+from PtpUploader.PtpSubtitle import *
+from PtpUploader.PtpUploaderException import *
+from PtpUploader.ReleaseDescriptionFormatter import ReleaseDescriptionFormatter
+from PtpUploader.ReleaseExtractor import ReleaseExtractor
+from PtpUploader.Settings import Settings
 
 
 class Upload(WorkerBase):
@@ -410,13 +410,13 @@ class Upload(WorkerBase):
 
         movieOnPtpResult = None
 
-        if self.ReleaseInfo.HasPtpId():
+        if self.ReleaseInfo.PtpId:
             movieOnPtpResult = Ptp.GetMoviePageOnPtp(
-                self.ReleaseInfo.Logger, self.ReleaseInfo.GetPtpId()
+                self.ReleaseInfo.Logger, self.ReleaseInfo.PtpId
             )
         else:
             movieOnPtpResult = Ptp.GetMoviePageOnPtpByImdbId(
-                self.ReleaseInfo.Logger, self.ReleaseInfo.GetImdbId()
+                self.ReleaseInfo.Logger, self.ReleaseInfo.ImdbId
             )
             self.ReleaseInfo.PtpId = movieOnPtpResult.PtpId
 
@@ -443,7 +443,7 @@ class Upload(WorkerBase):
 
     def __RehostPoster(self):
         # If this movie has no page yet on PTP then we will need the cover, so we rehost the image to an image hoster.
-        if self.ReleaseInfo.HasPtpId() or (not self.ReleaseInfo.IsCoverArtUrlSet()):
+        if self.ReleaseInfo.PtpId or (not self.ReleaseInfo.CoverArtUrl):
             return
 
         # Rehost the image only if not already on an image hoster.

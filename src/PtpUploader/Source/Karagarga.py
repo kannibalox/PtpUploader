@@ -331,7 +331,7 @@ class Karagarga(SourceBase):
             )
 
         # Get IMDb id.
-        if (not releaseInfo.HasImdbId()) and (not releaseInfo.HasPtpId()):
+        if (not releaseInfo.ImdbId) and (not releaseInfo.PtpId):
             matches = re.search(r"imdb\.com/title/tt(\d+)", description)
             if matches is None:
                 raise PtpUploaderException(

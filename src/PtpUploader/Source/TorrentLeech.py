@@ -90,7 +90,7 @@ class TorrentLeech(SourceBase):
 
     # On TorrentLeech the torrent page doesn't contain the NFO, and the NFO page doesn't contain the release name so we have to read them separately.
     def __ReadImdbIdFromNfoPage(self, logger, releaseInfo):
-        if releaseInfo.HasImdbId() or releaseInfo.HasPtpId():
+        if releaseInfo.HasImdbId() or releaseInfo.PtpId:
             return
 
         url = (

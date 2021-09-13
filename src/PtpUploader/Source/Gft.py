@@ -90,9 +90,9 @@ class Gft(SourceBase):
         releaseName = DecodeHtmlEntities(matches.group(1))
 
         # Get IMDb id.
-        if (not releaseInfo.HasImdbId()) and (not releaseInfo.HasPtpId()):
+        if (not releaseInfo.ImdbId) and (not releaseInfo.PtpId):
             releaseInfo.ImdbId = NfoParser.GetImdbId(description)
-            if not releaseInfo.HasImdbId():
+            if not releaseInfo.ImdbId:
                 self.__TryGettingImdbIdFromNfoPage(logger, releaseInfo)
 
         # Check if pretime presents.

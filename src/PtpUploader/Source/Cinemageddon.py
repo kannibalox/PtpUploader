@@ -1,19 +1,18 @@
-from ..InformationSource.Imdb import Imdb
-from ..Job.JobRunningState import JobRunningState
-from .SourceBase import SourceBase
+import os
+import re
 
-from ..Helper import (
+from PtpUploader.InformationSource.Imdb import Imdb
+from PtpUploader.Job.JobRunningState import JobRunningState
+from PtpUploader.Source.SourceBase import SourceBase
+
+from PtpUploader.Helper import (
     DecodeHtmlEntities,
     GetSizeFromText,
     RemoveDisallowedCharactersFromPath,
     ValidateTorrentFile,
 )
-from ..MyGlobals import MyGlobals
-from ..PtpUploaderException import PtpUploaderException
-
-import os
-import re
-
+from PtpUploader.MyGlobals import MyGlobals
+from PtpUploader.PtpUploaderException import PtpUploaderException
 
 class Cinemageddon(SourceBase):
     def __init__(self):
@@ -96,7 +95,7 @@ class Cinemageddon(SourceBase):
                     releaseInfo.ResolutionType = resolutionType
 
         # Get IMDb id.
-        if (not releaseInfo.HasImdbId()) and (not releaseInfo.HasPtpId()):
+        if (not releaseInfo.ImdbId) and (not releaseInfo.PtpId):
             matches = (
                 re.search(r'<span id="torrent_imdb">(.*?)</span>', description)
                 .group(1)

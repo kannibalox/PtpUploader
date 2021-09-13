@@ -1,8 +1,8 @@
 # The __init__.py files are required to make Python treat the directories as containing packages
 # http://docs.python.org/tutorial/modules.html
 
-from ..Database import Database
-from .MyFlask import MyFlask
+from PtpUploader.Database import Database
+from PtpUploader.WebServer.MyFlask import MyFlask
 
 from flask import request, url_for
 

@@ -1,13 +1,13 @@
-from .Tool import Mktor
+from PtpUploader.Tool import Mktor
 
-from .IncludedFileList import IncludedFileList
-from .MyGlobals import MyGlobals
-from .NfoParser import NfoParser
-from .PtpUploaderException import *
-from .ReleaseDescriptionFormatter import ReleaseDescriptionFormatter
-from .ReleaseExtractor import ReleaseExtractor
-from .ReleaseInfo import ReleaseInfo
-from .Settings import Settings
+from PtpUploader.IncludedFileList import IncludedFileList
+from PtpUploader.MyGlobals import MyGlobals
+from PtpUploader.NfoParser import NfoParser
+from PtpUploader.PtpUploaderException import *
+from PtpUploader.ReleaseDescriptionFormatter import ReleaseDescriptionFormatter
+from PtpUploader.ReleaseExtractor import ReleaseExtractor
+from PtpUploader.ReleaseInfo import ReleaseInfo
+from PtpUploader.Settings import Settings
 
 import codecs
 import os

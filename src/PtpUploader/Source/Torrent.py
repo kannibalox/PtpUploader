@@ -15,7 +15,7 @@ class Torrent(SourceBase):
         # TODO: support for uploads from torrent without specifying IMDb id and reading it from NFO. (We only get IMDb id when the download is finished.)
 
         # TODO: support for new movies without IMDB id
-        if (not releaseInfo.HasImdbId()) and (not releaseInfo.HasPtpId()):
+        if (not releaseInfo.ImdbId) and (not releaseInfo.PtpId):
             raise PtpUploaderException("Doesn't contain IMDb ID.")
 
         releaseNameParser = ReleaseNameParser(releaseInfo.ReleaseName)

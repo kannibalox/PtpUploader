@@ -1,22 +1,23 @@
-from ..Job.JobStartMode import JobStartMode
-from . import app
-from .Authentication import requires_auth
+from datetime import datetime
+import os
+import urllib.parse
 
-from ..Database import Database
-from ..Helper import ParseQueryString, TimeDifferenceToText
-from ..IncludedFileList import IncludedFileList
-from ..MyGlobals import MyGlobals
-from ..NfoParser import NfoParser
-from ..Ptp import Ptp
-from ..ReleaseInfo import ReleaseInfo
-from ..Settings import Settings
+from PtpUploader.Job.JobStartMode import JobStartMode
+from PtpUploader.WebServer import app
+from PtpUploader.WebServer.Authentication import requires_auth
+
+from PtpUploader.Database import Database
+from PtpUploader.Helper import ParseQueryString, TimeDifferenceToText
+from PtpUploader.IncludedFileList import IncludedFileList
+from PtpUploader.MyGlobals import MyGlobals
+from PtpUploader.NfoParser import NfoParser
+from PtpUploader.Ptp import Ptp
+from PtpUploader.ReleaseInfo import ReleaseInfo
+from PtpUploader.Settings import Settings
 
 from flask import jsonify, request
 from werkzeug.utils import secure_filename
 
-from datetime import datetime
-import os
-import urllib.parse
 
 
 class JobCommon:
@@ -25,8 +26,7 @@ class JobCommon:
     def __AddHttpToUrl(url):
         if url.startswith("http://") or url.startswith("https://"):
             return url
-        else:
-            return "http://" + url
+        return "http://" + url
 
     @staticmethod
     def __GetYouTubeId(text):
@@ -138,11 +138,11 @@ class JobCommon:
 
     @staticmethod
     def __GetPtpOrImdbLink(releaseInfo):
-        if releaseInfo.HasPtpId():
+        if releaseInfo.PtpId:
             return (
                 "https://passthepopcorn.me/torrents.php?id=%s" % releaseInfo.GetPtpId()
             )
-        elif releaseInfo.HasImdbId():
+        elif releaseInfo.ImdbId:
             if releaseInfo.IsZeroImdbId():
                 return "0"
             else:
@@ -212,23 +212,23 @@ class JobCommon:
         if releaseInfo.IsOverrideScreenshotsSet():
             job["OverrideScreenshots"] = 1
 
-        if releaseInfo.HasPtpId():
+        if releaseInfo.PtpId:
             if releaseInfo.HasPtpTorrentId():
                 job[
                     "PtpUrl"
                 ] = "https://passthepopcorn.me/torrents.php?id=%s&torrentid=%s" % (
-                    releaseInfo.GetPtpId(),
-                    releaseInfo.GetPtpTorrentId(),
+                    releaseInfo.PtpId,
+                    releaseInfo.PtpTorrentId,
                 )
             else:
                 job["PtpUrl"] = (
                     "https://passthepopcorn.me/torrents.php?id=%s"
-                    % releaseInfo.GetPtpId()
+                    % releaseInfo.PtpId
                 )
-        elif releaseInfo.HasImdbId() and (not releaseInfo.IsZeroImdbId()):
+        elif releaseInfo.ImdbId and releaseInfo.ImdbId != 0:
             job["PtpUrl"] = (
                 "https://passthepopcorn.me/torrents.php?imdb=%s"
-                % releaseInfo.GetImdbId()
+                % releaseInfo.ImdbId
             )
 
 
@@ -360,17 +360,17 @@ def ajaxGetLatestTorrent():
     torrentId = 0
     uploadedAgo = ""
 
-    if not releaseInfo.IsZeroImdbId():
+    if releaseInfo.ImdbId != "0":
         Ptp.Login()
 
         movieOnPtpResult = None
-        if releaseInfo.HasPtpId():
+        if releaseInfo.PtpId:
             movieOnPtpResult = Ptp.GetMoviePageOnPtp(
-                releaseInfo.Logger, releaseInfo.GetPtpId()
+                releaseInfo.Logger, releaseInfo.PtpId
             )
         else:
             movieOnPtpResult = Ptp.GetMoviePageOnPtpByImdbId(
-                releaseInfo.Logger, releaseInfo.GetImdbId()
+                releaseInfo.Logger, releaseInfo.ImdbId
             )
 
         if movieOnPtpResult:

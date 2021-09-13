@@ -69,7 +69,7 @@ class HDBits(SourceBase):
             )
 
         # Get IMDb id.
-        if (not releaseInfo.HasImdbId()) and (not releaseInfo.HasPtpId()):
+        if (not releaseInfo.HasImdbId()) and (not releaseInfo.PtpId):
             releaseInfo.ImdbId = str(response.json()["data"][0]["imdb"]["id"])
 
         # Get size.

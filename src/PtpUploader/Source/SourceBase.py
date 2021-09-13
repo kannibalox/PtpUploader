@@ -1,14 +1,14 @@
-from ..Job.FinishedJobPhase import FinishedJobPhase
-
-from ..IncludedFileList import IncludedFileList
-from ..NfoParser import NfoParser
-from ..PtpUploaderException import PtpUploaderException
-from ..ReleaseExtractor import ReleaseExtractor
-from ..Settings import Settings
-
 import os
 import re
 import shutil
+
+from PtpUploader.Job.FinishedJobPhase import FinishedJobPhase
+from PtpUploader.ReleaseInfo import ReleaseInfo
+from PtpUploader.IncludedFileList import IncludedFileList
+from PtpUploader.NfoParser import NfoParser
+from PtpUploader.PtpUploaderException import PtpUploaderException
+from PtpUploader.ReleaseExtractor import ReleaseExtractor
+from PtpUploader.Settings import Settings
 
 
 class SourceBase:
@@ -71,12 +71,12 @@ class SourceBase:
 
     def CheckSynopsis(self, logger, releaseInfo):
         # If it exists on PTP then we don't need a synopsis.
-        if (not releaseInfo.IsSynopsisSet()) and (not releaseInfo.HasPtpId()):
+        if (not releaseInfo.Synopsis) and (not releaseInfo.PtpId):
             raise PtpUploaderException("Synopsis is not set.")
 
     def CheckCoverArt(self, logger, releaseInfo):
         # If it exists on PTP then we don't need a cover.
-        if (not releaseInfo.IsCoverArtUrlSet()) and (not releaseInfo.HasPtpId()):
+        if (not releaseInfo.CoverArtUrl) and (not releaseInfo.PtpId):
             raise PtpUploaderException("Cover art is not set.")
 
     def DownloadTorrent(self, logger, releaseInfo, path):

@@ -1,15 +1,17 @@
-from .Tool.PyrocoreBencode import bencode
-
-from .MyGlobals import MyGlobals
-from .PtpUploaderException import *
-
-import requests
-
 from datetime import datetime
 import html.parser  # For HTML entity reference decoding...
 import os
 import re
 import time
+
+import requests
+
+from PtpUploader.Tool.PyrocoreBencode import bencode
+
+from PtpUploader.MyGlobals import MyGlobals
+from PtpUploader.PtpUploaderException import *
+
+
 
 # Supported formats: "100 GB", "100 MB", "100 bytes". (Space is optional.)
 # Returns with an integer.

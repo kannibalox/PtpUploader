@@ -1,19 +1,19 @@
-from ..Job.JobRunningState import JobRunningState
-from ..Job.JobStartMode import JobStartMode
-from . import app
-from .Authentication import requires_auth
-from .Pagination import Pagination
+from PtpUploader.Job.JobRunningState import JobRunningState
+from PtpUploader.Job.JobStartMode import JobStartMode
+from PtpUploader.WebServer import app
+from PtpUploader.WebServer.Authentication import requires_auth
+from PtpUploader.WebServer.Pagination import Pagination
 
-from ..Database import Database
-from ..Helper import SizeToText, TimeDifferenceToText
-from ..MyGlobals import MyGlobals
-from ..PtpUploaderMessage import *
-from ..ReleaseInfo import ReleaseInfo
-from ..Settings import Settings
+from PtpUploader.Database import Database
+from PtpUploader.Helper import SizeToText, TimeDifferenceToText
+from PtpUploader.MyGlobals import MyGlobals
+from PtpUploader.PtpUploaderMessage import *
+from PtpUploader.ReleaseInfo import ReleaseInfo
+from PtpUploader.Settings import Settings
 
 from flask import render_template, request, url_for
 from sqlalchemy import asc, desc
-from sqlalchemy.sql import and_, or_
+from sqlalchemy.sql import or_
 
 import datetime
 
@@ -67,7 +67,7 @@ def ReleaseInfoToJobsPageData(releaseInfo, entry):
     if len(releaseInfo.ErrorMessage) > 0:
         entry["ErrorMessage"] = releaseInfo.ErrorMessage
 
-    if releaseInfo.HasPtpId():
+    if releaseInfo.PtpId:
         if releaseInfo.HasPtpTorrentId():
             entry[
                 "PtpUrl"
@@ -77,11 +77,11 @@ def ReleaseInfoToJobsPageData(releaseInfo, entry):
             )
         else:
             entry["PtpUrl"] = (
-                "https://passthepopcorn.me/torrents.php?id=%s" % releaseInfo.GetPtpId()
+                "https://passthepopcorn.me/torrents.php?id=%s" % releaseInfo.PtpId
             )
-    elif releaseInfo.HasImdbId() and (not releaseInfo.IsZeroImdbId()):
+    elif releaseInfo.ImdbId and (not releaseInfo.IsZeroImdbId()):
         entry["PtpUrl"] = (
-            "https://passthepopcorn.me/torrents.php?imdb=%s" % releaseInfo.GetImdbId()
+            "https://passthepopcorn.me/torrents.php?imdb=%s" % releaseInfo.ImdbId
         )
 
     entry["LogPageUrl"] = url_for("log", jobId=releaseInfo.Id)
