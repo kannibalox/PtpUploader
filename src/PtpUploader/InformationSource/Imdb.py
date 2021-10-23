@@ -1,5 +1,6 @@
 from imdb import IMDb
 
+
 class ImdbInfo:
     def __init__(self):
         self.Title: str = ""

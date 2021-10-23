@@ -5,7 +5,6 @@ from datetime import datetime
 from flask import jsonify, request
 from werkzeug.utils import secure_filename
 
-from PtpUploader.Database import Database
 from PtpUploader.Helper import ParseQueryString, TimeDifferenceToText
 from PtpUploader.IncludedFileList import IncludedFileList
 from PtpUploader.Job.JobStartMode import JobStartMode
@@ -322,7 +321,7 @@ def ajaxGetIncludedFileList():
 
     if jobId:
         jobId = int(jobId)
-        releaseInfo = ReleaseInfo.objects.get(Id == jobId)
+        releaseInfo = ReleaseInfo.objects.get(Id = jobId)
         announcementSource = MyGlobals.SourceFactory.GetSource(
             releaseInfo.AnnouncementSourceName
         )

@@ -1,6 +1,6 @@
+import html
 import os
 import re
-import html
 
 from PtpUploader.Helper import (GetSizeFromText,
                                 RemoveDisallowedCharactersFromPath,

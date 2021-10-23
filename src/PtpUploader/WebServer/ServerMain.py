@@ -16,9 +16,8 @@ https://github.com/blueimp/jQuery-File-Upload/
 
 import os
 
-from flask import redirect, render_template, request, url_for
+from flask import redirect, request, url_for
 
-from PtpUploader.Database import Database
 from PtpUploader.MyGlobals import MyGlobals
 from PtpUploader.PtpUploaderMessage import *
 from PtpUploader.ReleaseInfo import ReleaseInfo
@@ -38,18 +37,17 @@ def log(jobId):
     releaseInfo = ReleaseInfo.objects.get(Id = jobId)
 
     logFilePath = releaseInfo.GetLogFilePath()
-    log = ""
+    log_msg = ""
 
     if os.path.isfile(logFilePath):
-        file = open(logFilePath)
-        log = file.read()
-        file.close()
+        with open(logFilePath, 'rb'):
+            log_msg = fh.read()
     else:
-        log = "Log file '%s' doesn't exists!" % logFilePath
+        log_msg = "Log file '%s' doesn't exists!" % logFilePath
 
-    log = log.replace("\n", r"<br>")
+    log_msg = log_msg.replace("\n", r"<br>")
 
-    return log
+    return log_msg
 
 
 @app.route("/quit")
