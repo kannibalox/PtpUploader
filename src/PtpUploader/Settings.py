@@ -8,7 +8,6 @@ import subprocess
 from pathlib import Path
 
 from PtpUploader.MyGlobals import MyGlobals
-from PtpUploader.TagList import TagList
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -104,26 +103,19 @@ class Settings(object):
     @staticmethod
     def MakeListFromExtensionString(extensions):
         # Make sure everything is in lower case in the settings.
-        extensions = extensions.lower()
+        extensions = extensions.lower().strip()
 
-        # If extensions is empty then we need an empty list. Splitting an empty string with a specified separator returns [''].
-        extensions = extensions.strip()
-        if len(extensions) > 0:
-            list = extensions.split(",")
-            for i in range(len(list)):
-                list[i] = list[i].strip()
-
-            return list
-        else:
-            return []
+        if extensions:
+            return [i.strip() for i in extensions.split(",")]
+        return []
 
     # This makes a list of TagList.
     # Eg.: "A B, C, D E" will become [ [ "A", "B" ], [ "C" ], [ "D", "E" ] ]
     @staticmethod
-    def MakeListOfListsFromString(extensions):
+    def MakeListOfListsFromString(extensions: str):
         list = Settings.MakeListFromExtensionString(extensions)
         for i in range(len(list)):
-            list[i] = TagList(list[i].split(" "))
+            list[i] = list[i].split(" ")
 
         return list
 
