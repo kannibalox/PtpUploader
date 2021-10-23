@@ -1,16 +1,14 @@
-from .PyrocoreBencode import bencode
-
-from ..MyGlobals import MyGlobals
-from ..PtpUploaderException import PtpUploaderException
-
-from pyrobase import bencode
-from pyrocore.util import load_config, metafile
-from pyrocore import config
-
 import os
 import shutil
 import time
 import xmlrpc.client
+
+import bencode
+from pyrosimple import config
+from pyrosimple.util import load_config, metafile
+
+from PtpUploader.MyGlobals import MyGlobals
+from PtpUploader.PtpUploaderException import PtpUploaderException
 
 
 class Rtorrent:
@@ -28,11 +26,12 @@ class Rtorrent:
             % (torrentPath, downloadPath)
         )
 
-        file = open(torrentPath, "rb")
-        contents = xmlrpc.client.Binary(file.read())
-        file.close()
+        with open(torrentPath, "rb") as fh:
+            data = fh.read()
+            contents = xmlrpc.client.Binary(data)
+            torrentData = bencode.decode(data)
+            
 
-        torrentData = bencode.bread(torrentPath)
         metafile.check_meta(torrentData)
         infoHash = metafile.info_hash(torrentData)
 
@@ -77,9 +76,11 @@ class Rtorrent:
 
         shutil.copyfile(torrentPath, destinationTorrentPath)
 
-        metainfo = bencode.bread(destinationTorrentPath)
-        metafile.add_fast_resume(metainfo, downloadPath.encode("utf-8"))
-        bencode.bwrite(destinationTorrentPath, metainfo)
+        with open(destinationTorrentPath, 'rb') as fh:
+            metainfo = bencode.decode(fh.read())
+        metafile.add_fast_resume(metainfo, downloadPath)
+        with open(destinationTorrentPath, 'wb') as fh:
+            fh.write(bencode.encode(metainfo))
 
         infoHash = ""
         try:
@@ -124,6 +125,8 @@ class Rtorrent:
     def CleanTorrentFile(self, logger, torrentPath):
         logger.info("Cleaning torrent file '%s'." % torrentPath)
 
-        metainfo = bencode.bread(torrentPath)
+        with open(torrentPath, 'rb') as fh:
+            metainfo = bencode.decode(fh.read())
         metafile.clean_meta(metainfo, including_info=False, logger=logger.info)
-        bencode.bwrite(torrentPath, metainfo)
+        with open(torrentPath, 'wb') as fh:
+            fh.write(bencode.encode(metainfo))

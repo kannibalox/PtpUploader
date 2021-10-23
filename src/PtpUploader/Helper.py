@@ -6,7 +6,7 @@ import time
 
 import requests
 
-from PtpUploader.Tool.PyrocoreBencode import bencode
+import bencode
 
 from PtpUploader.MyGlobals import MyGlobals
 from PtpUploader.PtpUploaderException import *
@@ -41,9 +41,9 @@ def GetSizeFromText(text):
 
 def SizeToText(size):
     if size < 1024 * 1024 * 1024:
-        return "%.2f MB" % (float(size) / (1024 * 1024))
+        return "%.2f MiB" % (float(size) / (1024 * 1024))
     else:
-        return "%.2f GB" % (float(size) / (1024 * 1024 * 1024))
+        return "%.2f GiB" % (float(size) / (1024 * 1024 * 1024))
 
 
 # timeDifference must be datetime.timedelta.
@@ -174,7 +174,8 @@ def GetPathSize(path):
 
 # Always uses / as path separator.
 def GetFileListFromTorrent(torrentPath):
-    data = bencode.bread(torrentPath)
+    with open(torrentPath, 'rb') as fh:
+        data = bencode.decode(torrentPath)
     name = data["info"].get("name", None)
     files = data["info"].get("files", None)
 
@@ -208,13 +209,15 @@ def RemoveDisallowedCharactersFromPath(text):
 
 def ValidateTorrentFile(torrentPath):
     try:
-        torrentData = bencode.bread(torrentPath)
+        with open(torrentPath, 'rb') as fh:
+            bencode.decode(fh.read())
     except Exception:
         raise PtpUploaderException("File '%s' is not a valid torrent." % torrentPath)
 
 
 def GetSuggestedReleaseNameAndSizeFromTorrentFile(torrentPath):
-    data = bencode.bread(torrentPath)
+    with open(torrentPath, 'rb') as fh:
+        data = bencode.decode(torrentPath)
     name = data["info"].get("name", None)
     files = data["info"].get("files", None)
     if files is None:
