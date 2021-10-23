@@ -1,6 +1,7 @@
 import os
 import re
 import time
+from datetime import timedelta
 from urllib.parse import parse_qs
 
 import bencode
@@ -13,7 +14,7 @@ from PtpUploader.PtpUploaderException import PtpUploaderException
 # Supported formats: "100 GB", "100 MB", "100 bytes". (Space is optional.)
 # Returns with an integer.
 # Returns with 0 if size can't be found.
-def GetSizeFromText(text):
+def GetSizeFromText(text: str):
     text = text.replace(" ", "")
     text = text.replace(",", "")  # For sizes like this: 1,471,981,530bytes
     text = text.replace("GiB", "GB")
@@ -45,31 +46,25 @@ def SizeToText(size):
 
 # timeDifference must be datetime.timedelta.
 def TimeDifferenceToText(
-    timeDifference, levels=2, agoText=" ago", noDifferenceText="Just now"
+    td: timedelta, levels=2, agoText=" ago", noDifferenceText="Just now"
 ):
-    timeDifference = (
-        (timeDifference.microseconds / 1000000)
-        + timeDifference.seconds
-        + (timeDifference.days * 24 * 3600)
-    )
-    if timeDifference < 0:
-        timeDifference = 0
+    timeDifference: int = td.seconds
 
-    years = timeDifference / 31556926  # 31556926 seconds = 1 year
+    years = timeDifference // 31556926  # 31556926 seconds = 1 year
     timeDifference %= 31556926
 
     months = (
-        timeDifference / 2629744
+        timeDifference // 2629744
     )  # 2629744 seconds = ~1 month (The mean month length of the Gregorian calendar is 30.436875 days.)
     timeDifference %= 2629744
 
-    days = timeDifference / 86400  # 86400 seconds = 1 day
+    days = timeDifference // 86400  # 86400 seconds = 1 day
     timeDifference %= 86400
 
-    hours = timeDifference / 3600
+    hours = timeDifference // 3600
     timeDifference %= 3600
 
-    minutes = timeDifference / 60
+    minutes = timeDifference // 60
     timeDifference %= 60
 
     seconds = timeDifference
@@ -167,7 +162,7 @@ def GetPathSize(path):
 # Always uses / as path separator.
 def GetFileListFromTorrent(torrentPath):
     with open(torrentPath, 'rb') as fh:
-        data = bencode.decode(torrentPath)
+        data = bencode.decode(fh.read())
     name = data["info"].get("name", None)
     files = data["info"].get("files", None)
 
@@ -228,5 +223,4 @@ def GetSuggestedReleaseNameAndSizeFromTorrentFile(torrentPath):
 def DecodeHtmlEntities(html):
     # We are using an internal function of HTMLParser.
     # See this: http://fredericiana.com/2010/10/08/decoding-html-entities-to-text-in-python/
-    htmlParser = html.parser.HTMLParser()
-    return htmlParser.unescape(html)
+    return html.unescape(html)
