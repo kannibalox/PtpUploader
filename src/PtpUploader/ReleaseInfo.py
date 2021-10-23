@@ -35,7 +35,7 @@ class ReleaseInfoFlags:
 
 class ReleaseInfo(models.Model):
     class Meta:
-        app_label = "db"
+        app_label = "web"
         __tablename__ = "release"
 
     Id = models.AutoField(primary_key=True)

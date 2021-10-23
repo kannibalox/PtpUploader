@@ -41,7 +41,7 @@ LOGGING = {
 # Application definition
 
 INSTALLED_APPS = [
-    'PtpUploader.db'
+    'PtpUploader.web'
 ]
 
 # Database

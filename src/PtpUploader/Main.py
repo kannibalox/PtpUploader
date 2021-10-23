@@ -2,7 +2,7 @@ import os
 
 import django
 
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'PtpUploader.Settings')
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "PtpUploader.Settings")
 django.setup()
 
 from PtpUploader.Database import InitDb
@@ -15,7 +15,6 @@ from PtpUploader.WebServer.MyWebServer import MyWebServer
 
 def Initialize():
     Settings.LoadSettings()
-
 
     MyGlobals.InitializeGlobals(Settings.WorkingPath)
 

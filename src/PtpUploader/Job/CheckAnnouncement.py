@@ -1,7 +1,6 @@
 import datetime
 import os
 
-from PtpUploader.Database import Database
 from PtpUploader.InformationSource.Imdb import Imdb
 from PtpUploader.InformationSource.MoviePoster import MoviePoster
 from PtpUploader.Job.FinishedJobPhase import FinishedJobPhase

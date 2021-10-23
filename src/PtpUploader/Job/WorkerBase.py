@@ -1,4 +1,3 @@
-from PtpUploader.Database import Database
 from PtpUploader.Job.JobRunningState import JobRunningState
 from PtpUploader.PtpUploaderException import *
 
