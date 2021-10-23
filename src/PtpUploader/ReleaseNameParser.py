@@ -60,7 +60,7 @@ class ReleaseNameParser:
         return False
 
     def GetSourceAndFormat(self, releaseInfo):
-        if releaseInfo.IsCodecSet():
+        if releaseInfo.Codec:
             releaseInfo.Logger.info(
                 "Codec '%s' is already set, not getting from release name."
                 % releaseInfo.Codec

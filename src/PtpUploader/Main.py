@@ -1,3 +1,8 @@
+import os
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'PtpUploader.Settings')
+import django
+django.setup()
+
 from .Source.SourceFactory import SourceFactory
 from .WebServer.MyWebServer import MyWebServer
 
@@ -29,7 +34,7 @@ def Run():
         MyGlobals.Logger.exception("Got exception while creating SourceFactory()")
         raise
 
-    MyGlobals.PtpUploader = PtpUploader()
+    MyGlobals.PtpUploader = PtpUploaderRunner()
 
     # Do not start the web server if the username or the password is not set.
     webServerThread = None

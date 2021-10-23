@@ -1,8 +1,8 @@
-from . import app
-from .Authentication import requires_auth
+from PtpUploader.WebServer import app
+from PtpUploader.WebServer.Authentication import requires_auth
 
-from ..NfoParser import NfoParser
-from ..Settings import Settings
+from PtpUploader.NfoParser import NfoParser
+from PtpUploader.Settings import Settings
 
 from flask import jsonify, request
 
@@ -109,6 +109,6 @@ def UploadFile(releaseInfo, request):
         return False
 
     releaseInfo.AnnouncementSourceName = "file"
-    releaseInfo.SetReleaseDownloadPath(path)
+    releaseInfo.ReleaseDownloadPath = path
 
     return True

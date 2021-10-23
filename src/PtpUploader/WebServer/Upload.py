@@ -3,12 +3,12 @@ from .JobCommon import JobCommon
 from .UploadFile import UploadFile
 
 from .Authentication import requires_auth
-from ..Helper import GetSuggestedReleaseNameAndSizeFromTorrentFile, SizeToText
-from ..MyGlobals import MyGlobals
-from ..Database import Database
-from ..PtpUploaderMessage import *
-from ..ReleaseInfo import ReleaseInfo
-from ..Settings import Settings
+from PtpUploader.Helper import GetSuggestedReleaseNameAndSizeFromTorrentFile, SizeToText
+from PtpUploader.MyGlobals import MyGlobals
+from PtpUploader.Database import Database
+from PtpUploader.PtpUploaderMessage import *
+from PtpUploader.ReleaseInfo import ReleaseInfo
+from PtpUploader.Settings import Settings
 
 from flask import jsonify, render_template, request
 from werkzeug.utils import secure_filename
@@ -92,8 +92,9 @@ def UploadTorrentSiteLink(releaseInfo, request):
 @requires_auth
 def upload():
     if request.method == "POST":
-        releaseInfo = ReleaseInfo()
+        releaseInfo = ReleaseInfo.objects.create()
         releaseInfo.LastModificationTime = Database.MakeTimeStamp()
+        releaseInfo.save()
 
         # Announcement
 
@@ -115,10 +116,11 @@ def upload():
 
         # TODO: todo multiline torrent site link field
 
-        Database.DbSession.add(releaseInfo)
-        Database.DbSession.commit()
 
+        releaseInfo.save()
+        print(releaseInfo.Id)
         MyGlobals.PtpUploader.AddMessage(PtpUploaderMessageStartJob(releaseInfo.Id))
+        releaseInfo.save()
 
     # job parameter is needed because it uses the same template as edit job
     job = {}

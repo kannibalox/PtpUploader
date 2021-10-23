@@ -15,7 +15,7 @@ class WorkerBase:
         for phase in self.Phases:
             if self.JobManagerItem.StopRequested:
                 self.ReleaseInfo.JobRunningState = JobRunningState.Paused
-                Database.DbSession.commit()
+                self.ReleaseInfo.save()
                 return
 
             phase()
@@ -30,7 +30,7 @@ class WorkerBase:
                 self.ReleaseInfo.JobRunningState = JobRunningState.Failed
 
             self.ReleaseInfo.ErrorMessage = str(e)
-            Database.DbSession.commit()
+            self.ReleaseInfo.save()
 
             e.Logger = self.ReleaseInfo.Logger
             raise

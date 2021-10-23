@@ -36,9 +36,7 @@ def index():
 @app.route("/job/<int:jobId>/log/")
 @requires_auth
 def log(jobId):
-    releaseInfo = (
-        Database.DbSession.query(ReleaseInfo).filter(ReleaseInfo.Id == jobId).first()
-    )
+    releaseInfo = ReleaseInfo.objects.get(Id = jobId)
 
     logFilePath = releaseInfo.GetLogFilePath()
     log = ""

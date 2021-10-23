@@ -12,8 +12,7 @@ from PtpUploader.ReleaseInfo import ReleaseInfo
 from PtpUploader.Settings import Settings
 
 from flask import render_template, request, url_for
-from sqlalchemy import asc, desc
-from sqlalchemy.sql import or_
+from django.utils import timezone
 
 import datetime
 
@@ -87,8 +86,8 @@ def ReleaseInfoToJobsPageData(releaseInfo, entry):
     entry["LogPageUrl"] = url_for("log", jobId=releaseInfo.Id)
     entry["Size"] = SizeToText(releaseInfo.Size)
     entry["Date"] = TimeDifferenceToText(
-        datetime.datetime.utcnow()
-        - Database.TimeStampToUtcDateTime(releaseInfo.LastModificationTime),
+        timezone.now()
+        - releaseInfo.LastModificationTime,
         2,
     )
 
@@ -118,63 +117,63 @@ def jobs(page):
         page = 1
 
     offset = (page - 1) * jobsPerPage
-    query = Database.DbSession.query(ReleaseInfo)
+    # query = Database.DbSession.query(ReleaseInfo)
 
-    # Search text
-    searchText = request.args.get("searchstr", "")
-    if len(searchText) > 0:
-        # We replace the periods and the hyphen because of the relase names.
-        searchWords = searchText.replace(".", " ").replace("-", " ").split(" ")
-        for searchWord in searchWords:
-            searchWord = searchWord.strip()
-            if len(searchWord) > 0:
-                # "_", "%" and "\" have be escaped because the contains function uses SQL LIKE
-                searchWord.replace("\\", "\\\\")
-                searchWord.replace("%", "\\%")
-                searchWord.replace("_", "\\_")
-                query = query.filter(ReleaseInfo.ReleaseName.contains(searchWord))
+    # # Search text
+    # searchText = request.args.get("searchstr", "")
+    # if len(searchText) > 0:
+    #     # We replace the periods and the hyphen because of the relase names.
+    #     searchWords = searchText.replace(".", " ").replace("-", " ").split(" ")
+    #     for searchWord in searchWords:
+    #         searchWord = searchWord.strip()
+    #         if len(searchWord) > 0:
+    #             # "_", "%" and "\" have be escaped because the contains function uses SQL LIKE
+    #             searchWord.replace("\\", "\\\\")
+    #             searchWord.replace("%", "\\%")
+    #             searchWord.replace("_", "\\_")
+    #             query = query.filter(ReleaseInfo.ReleaseName.contains(searchWord))
 
-    # Search states
-    states = request.args.getlist("state[]")
-    if states and len(states) > 0:
-        stateQuery = or_()
-        for state in states:
-            stateQuery.append(or_(ReleaseInfo.JobRunningState == state))
+    # # Search states
+    # states = request.args.getlist("state[]")
+    # if states and len(states) > 0:
+    #     stateQuery = or_()
+    #     for state in states:
+    #         stateQuery.append(or_(ReleaseInfo.JobRunningState == state))
 
-        query = query.filter(stateQuery)
+    #     query = query.filter(stateQuery)
 
-    totalJobs = query.count()
+    # totalJobs = query.count()
 
-    # Ordering
+    # # Ordering
 
-    orderWay = request.args.get("orderway")
-    orderWayFunction = asc
-    if orderWay != "asc":
-        orderWayFunction = desc
-        orderWay = ""
+    # orderWay = request.args.get("orderway")
+    # orderWayFunction = asc
+    # if orderWay != "asc":
+    #     orderWayFunction = desc
+    #     orderWay = ""
 
-    orderBy = request.args.get("orderby")
-    if orderBy == "size":
-        query = query.order_by(orderWayFunction(ReleaseInfo.Size))
-    else:
-        query = query.order_by(orderWayFunction(ReleaseInfo.LastModificationTime))
-        orderBy = ""
+    # orderBy = request.args.get("orderby")
+    # if orderBy == "size":
+    #     query = query.order_by(orderWayFunction(ReleaseInfo.Size))
+    # else:
+    #     query = query.order_by(orderWayFunction(ReleaseInfo.LastModificationTime))
+    #     orderBy = ""
 
-    query = query.limit(jobsPerPage).offset(offset)
+    # query = query.limit(jobsPerPage).offset(offset)
 
-    pagination = Pagination(page, jobsPerPage, totalJobs)
+    pagination = Pagination(page, jobsPerPage, ReleaseInfo.objects.all().count())
 
     entries = []
-    for releaseInfo in query:
+    for releaseInfo in list(ReleaseInfo.objects.all().order_by('LastModificationTime')[offset:jobsPerPage]):
         entry = {}
         ReleaseInfoToJobsPageData(releaseInfo, entry)
         entries.append(entry)
 
     settings = {
-        "SearchText": searchText,
-        "OrderBy": orderBy,
-        "OrderWay": orderWay,
-        "States": states,
+        "SearchText": '',
+        "OrderBy": '',
+        "OrderWay": '',
+        "States": [],
     }
     if Settings.OpenJobPageLinksInNewTab == "0":
         settings["OpenJobPageLinksInNewTab"] = ""

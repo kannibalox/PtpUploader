@@ -1,15 +1,15 @@
-from .CheckAnnouncement import CheckAnnouncement
-from .JobRunningState import JobRunningState
-from .Upload import Upload
-
-from ..AnnouncementWatcher import *
-from ..Database import Database
-from ..Logger import Logger
-from ..MyGlobals import MyGlobals
-
 import datetime
 import queue
 import threading
+
+from PtpUploader.Job.CheckAnnouncement import CheckAnnouncement
+from PtpUploader.Job.JobRunningState import JobRunningState
+from PtpUploader.Job.Upload import Upload
+
+from PtpUploader.AnnouncementWatcher import *
+from PtpUploader.Database import Database
+from PtpUploader.Logger import Logger
+from PtpUploader.MyGlobals import MyGlobals
 
 
 class JobManagerItem:
@@ -62,11 +62,7 @@ class JobManager:
         return self.__IsSourceAvailable(releaseInfo.AnnouncementSource)
 
     def __LoadReleaseInfoFromDatabase(self, releaseInfoId):
-        releaseInfo = (
-            Database.DbSession.query(ReleaseInfo)
-            .filter(ReleaseInfo.Id == releaseInfoId)
-            .first()
-        )
+        releaseInfo = ReleaseInfo.objects.get(Id=releaseInfoId)
         releaseInfo.Logger = Logger(releaseInfo.GetLogFilePath())
         releaseInfo.AnnouncementSource = MyGlobals.SourceFactory.GetSource(
             releaseInfo.AnnouncementSourceName
@@ -125,7 +121,7 @@ class JobManager:
             self.PendingAnnouncementsFiles.append(announcementFilePath)
         finally:
             self.Lock.release()
-
+            
     def __GetFinishedDownloadToProcess(self):
         if len(self.PendingDownloads) > 0:
             print(("Pending downloads: %s" % len(self.PendingDownloads)))
@@ -170,7 +166,7 @@ class JobManager:
         # We have to get a new instance of ReleaseInfo because this function could come from another thread.
         releaseInfo = self.__LoadReleaseInfoFromDatabase(releaseInfoId)
         releaseInfo.JobRunningState = JobRunningState.Paused
-        Database.DbSession.commit()
+        releaseInfo.save()
 
     # Can be called from any thread.
     def StopJob(self, releaseInfoId):

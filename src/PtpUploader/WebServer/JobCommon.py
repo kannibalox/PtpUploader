@@ -324,7 +324,7 @@ def ajaxGetIncludedFileList():
 
     if jobId:
         jobId = int(jobId)
-        releaseInfo = (
+        releaseInfo = ReleaseInfo.objects.get(Id == jobId)(
             Database.DbSession.query(ReleaseInfo)
             .filter(ReleaseInfo.Id == jobId)
             .first()

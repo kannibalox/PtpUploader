@@ -16,11 +16,7 @@ from flask import render_template, redirect, request, url_for
 @requires_auth
 def EditJob(jobId):
     if request.method == "POST":
-        releaseInfo = (
-            Database.DbSession.query(ReleaseInfo)
-            .filter(ReleaseInfo.Id == jobId)
-            .first()
-        )
+        releaseInfo = ReleaseInfo.objects.get(Id = jobId)
 
         # TODO: This is very far from perfect. There is no guarantee that the job didn't start meanwhile.
         # Probably only the WorkerThread should change the running state.
@@ -36,14 +32,12 @@ def EditJob(jobId):
 
         JobCommon.FillReleaseInfoFromRequestData(releaseInfo, request)
         releaseInfo.JobRunningState = JobRunningState.WaitingForStart
-        Database.DbSession.commit()
+        releaseInfo.save()
         MyGlobals.PtpUploader.AddMessage(PtpUploaderMessageStartJob(releaseInfo.Id))
 
         return redirect(url_for("jobs"))
 
-    releaseInfo = (
-        Database.DbSession.query(ReleaseInfo).filter(ReleaseInfo.Id == jobId).first()
-    )
+    releaseInfo = ReleaseInfo.objects.get(Id = jobId)
     job = {}
     JobCommon.FillDictionaryFromReleaseInfo(job, releaseInfo)
 

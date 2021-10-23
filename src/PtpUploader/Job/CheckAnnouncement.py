@@ -62,7 +62,7 @@ class CheckAnnouncement(WorkerBase):
         self.ReleaseInfo.JobStartTimeUtc = datetime.datetime.utcnow()
         self.ReleaseInfo.JobRunningState = JobRunningState.InProgress
         self.ReleaseInfo.ErrorMessage = ""
-        Database.DbSession.commit()
+        self.ReleaseInfo.save()
 
         if self.ReleaseInfo.AnnouncementSource is None:
             raise PtpUploaderException(
@@ -384,7 +384,7 @@ class CheckAnnouncement(WorkerBase):
         self.ReleaseInfo.SetJobPhaseFinished(
             FinishedJobPhase.Download_CreateReleaseDirectory
         )
-        Database.DbSession.commit()
+        self.ReleaseInfo.save()
 
     def __DownloadTorrentFile(self):
         if self.ReleaseInfo.IsSourceTorrentFilePathSet():
@@ -408,7 +408,7 @@ class CheckAnnouncement(WorkerBase):
 
         # Local variable is used temporarily to make sure that SourceTorrentFilePath is only gets stored in the database if DownloadTorrent succeeded.
         self.ReleaseInfo.SourceTorrentFilePath = sourceTorrentFilePath
-        Database.DbSession.commit()
+        self.ReleaseInfo.save()
 
     def __StopAutomaticJobIfThereAreMultipleVideosBeforeDownloading(self):
         if (
@@ -450,7 +450,7 @@ class CheckAnnouncement(WorkerBase):
                 self.ReleaseInfo.SourceTorrentFilePath,
                 self.ReleaseInfo.GetReleaseDownloadPath(),
             )
-            Database.DbSession.commit()
+            self.ReleaseInfo.save()
 
     def __AddToPendingDownloads(self):
         self.JobManager.AddToPendingDownloads(self.ReleaseInfo)

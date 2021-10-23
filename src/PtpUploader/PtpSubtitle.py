@@ -1,4 +1,4 @@
-from .PtpUploaderException import *
+from PtpUploader.PtpUploaderException import PtpUploaderException
 
 
 class PtpSubtitleId:
