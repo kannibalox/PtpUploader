@@ -1,7 +1,8 @@
 import os
 import re
+import html
 
-from PtpUploader.Helper import (DecodeHtmlEntities, GetSizeFromText,
+from PtpUploader.Helper import (GetSizeFromText,
                                 RemoveDisallowedCharactersFromPath,
                                 ValidateTorrentFile)
 from PtpUploader.InformationSource.Imdb import Imdb
@@ -29,29 +30,29 @@ class Cinemageddon(SourceBase):
             "https://cinemageddon.net/takelogin.php", data=postData
         )
         result.raise_for_status()
-        self.__CheckIfLoggedInFromResponse(result.text)
+        self.__CheckIfLoggedInFromResponse(result.content)
 
-    def __CheckIfLoggedInFromResponse(self, response):
-        if response.find('action="takelogin.php"') != -1:
+    def __CheckIfLoggedInFromResponse(self, response: bytes):
+        if response.find(b'action="takelogin.php"') != -1:
             raise PtpUploaderException(
                 "Looks like you are not logged in to Cinemageddon. Probably due to the bad user name or password in settings."
             )
 
-    def __ParsePage(self, logger, releaseInfo, html, parseForExternalCreateJob=False):
+    def __ParsePage(self, logger, releaseInfo, raw_html, parseForExternalCreateJob=False):
         # Make sure we only get information from the description and not from the comments.
-        descriptionEndIndex = html.find('<p><a name="startcomments"></a></p>')
+        descriptionEndIndex = raw_html.find(b'<p><a name="startcomments"></a></p>')
         if descriptionEndIndex == -1:
             raise PtpUploaderException(
                 JobRunningState.Ignored_MissingInfo,
                 "Description can't found on torrent page. Probably the layout of the site has changed.",
             )
 
-        description = html[:descriptionEndIndex]
+        description: bytes = raw_html[:descriptionEndIndex]
 
         # We will use the torrent's name as release name.
         if not parseForExternalCreateJob:
             matches = re.search(
-                r'href="download.php\?id=(\d+)&name=.+">(.+)\.torrent</a>', description
+                rb'href="download.php\?id=(\d+)&name=.+">(.+)\.torrent</a>', description
             )
             if matches is None:
                 raise PtpUploaderException(
@@ -59,16 +60,16 @@ class Cinemageddon(SourceBase):
                     "Can't get release name from torrent page.",
                 )
 
-            releaseInfo.ReleaseName = DecodeHtmlEntities(matches.group(2))
+            releaseInfo.ReleaseName = html.unescape(matches.group(2).decode())
 
         # Get source and format type
         sourceType = ""
         formatType = ""
-        if (not releaseInfo.IsSourceSet()) or (not releaseInfo.IsCodecSet()):
+        if not releaseInfo.Source or not releaseInfo.Codec:
             matches = None
             if parseForExternalCreateJob:
                 matches = re.search(
-                    r'torrent details for "(.+) \[(\d+)/(.+)/(.+)\]"', description
+                    rb'torrent details for "(.+) \[(\d+)/(.+)/(.+)\]"', description
                 )
             else:
                 matches = re.search(
@@ -94,7 +95,7 @@ class Cinemageddon(SourceBase):
         # Get IMDb id.
         if (not releaseInfo.ImdbId) and (not releaseInfo.PtpId):
             matches = (
-                re.search(r'<span id="torrent_imdb">(.*?)</span>', description)
+                re.search(rb'<span id="torrent_imdb">(.*?)</span>', description)
                 .group(1)
                 .replace("t", "")
                 .split(" ")
@@ -110,34 +111,34 @@ class Cinemageddon(SourceBase):
                     "Multiple IMDb IDs found on page.",
                 )
 
-            releaseInfo.ImdbId = matches[0]
+            releaseInfo.ImdbId: bytes = matches[0]
 
         # Get size.
         # Two possible formats:
         # <tr><td class="rowhead" valign="top" align="right">Size</td><td valign="top" align="left">1.46 GB (1,570,628,119 bytes)</td></tr>
         # <tr><td class="rowhead" valign="top" align="right">Size</td><td valign="top" align=left>1.46 GB (1,570,628,119 bytes)</td></tr>
         matches = re.search(
-            r"""<tr><td class="rowhead" valign="top" align="right">Size</td><td valign="top" align="?left"?>.+ \((.+ bytes)\)</td></tr>""",
+            rb"""<tr><td class="rowhead" valign="top" align="right">Size</td><td valign="top" align="?left"?>.+ \((.+ bytes)\)</td></tr>""",
             description,
         )
         if matches is None:
             logger.warning("Size not found on torrent page.")
         else:
-            size = matches.group(1)
-            releaseInfo.Size = GetSizeFromText(size)
+            size: bytes = matches.group(1)
+            releaseInfo.Size = GetSizeFromText(size.decode())
 
         # Ignore XXX releases.
-        if description.find('>Type</td><td valign="top" align=left>XXX<') != -1:
+        if description.find(b'>Type</td><td valign="top" align=left>XXX<') != -1:
             raise PtpUploaderException(
                 JobRunningState.Ignored_Forbidden, "Marked as XXX."
             )
 
-        self.__MapSourceAndFormatToPtp(releaseInfo, sourceType, formatType, html)
+        self.__MapSourceAndFormatToPtp(releaseInfo, sourceType, formatType, raw_html)
 
         # Make sure that this is not a wrongly categorized DVDR.
         if (not releaseInfo.IsDvdImage()) and (
-            re.search(r"\.vob</td>", description, re.IGNORECASE)
-            or re.search(r"\.iso</td>", description, re.IGNORECASE)
+            re.search(rb"\.vob</td>", description, re.IGNORECASE)
+            or re.search(rb"\.iso</td>", description, re.IGNORECASE)
         ):
             raise PtpUploaderException(
                 JobRunningState.Ignored_NotSupported, "Wrongly categorized DVDR."
@@ -152,7 +153,7 @@ class Cinemageddon(SourceBase):
 
         result = MyGlobals.session.get(url)
         result.raise_for_status()
-        response = result.text
+        response = result.content
         self.__CheckIfLoggedInFromResponse(response)
 
         self.__ParsePage(logger, releaseInfo, response)
@@ -161,7 +162,7 @@ class Cinemageddon(SourceBase):
         sourceType = sourceType.lower()
         formatType = formatType.lower()
 
-        if releaseInfo.IsSourceSet():
+        if releaseInfo.Source:
             releaseInfo.Logger.info(
                 "Source '%s' is already set, not getting from the torrent page."
                 % releaseInfo.Source
@@ -180,7 +181,7 @@ class Cinemageddon(SourceBase):
                 "Unsupported source type '%s'." % sourceType,
             )
 
-        if releaseInfo.IsCodecSet():
+        if releaseInfo.Codec:
             releaseInfo.Logger.info(
                 "Codec '%s' is already set, not getting from the torrent page."
                 % releaseInfo.Codec
@@ -205,7 +206,7 @@ class Cinemageddon(SourceBase):
         # Adding BDrip support would be problematic because there is no easy way to decide if it is HD or SD.
         # Maybe we could use the resolution and file size. But what about the oversized and upscaled releases?
 
-        if releaseInfo.IsResolutionTypeSet():
+        if releaseInfo.ResolutionType:
             releaseInfo.Logger.info(
                 "Resolution type '%s' is already set, not getting from the torrent page."
                 % releaseInfo.ResolutionType
@@ -253,7 +254,7 @@ class Cinemageddon(SourceBase):
         self.__CheckIfLoggedInFromResponse(response)
 
         # The number of maximum simultaneous downloads is limited on Cinemageddon.
-        if response.find("<h2>Max Torrents Reached</h2>") != -1:
+        if response.find(b"<h2>Max Torrents Reached</h2>") != -1:
             raise PtpUploaderException("Maximum torrents reached on CG.")
 
         with open(path, "wb") as fh:
@@ -265,14 +266,14 @@ class Cinemageddon(SourceBase):
     # The new name will be formatted like this: Movie Name Year
     def GetCustomUploadPath(self, logger, releaseInfo):
         # TODO: if the user forced a release name, then let it upload by that name.
-        if releaseInfo.IsZeroImdbId():
+        if releaseInfo.ImdbId == "0":
             raise PtpUploaderException(
                 "Uploading to CG with zero IMDb ID is not yet supported."
             )
 
         # If the movie already exists on PTP then the IMDb info is not populated in ReleaseInfo.
         if len(releaseInfo.InternationalTitle) <= 0 or len(releaseInfo.Year) <= 0:
-            imdbInfo = Imdb.GetInfo(logger, releaseInfo.GetImdbId())
+            imdbInfo = Imdb.GetInfo(logger, releaseInfo.ImdbId)
             if len(releaseInfo.InternationalTitle) <= 0:
                 releaseInfo.InternationalTitle = imdbInfo.Title
             if len(releaseInfo.Year) <= 0:

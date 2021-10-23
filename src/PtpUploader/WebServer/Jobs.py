@@ -76,7 +76,7 @@ def ReleaseInfoToJobsPageData(releaseInfo, entry):
             entry["PtpUrl"] = (
                 "https://passthepopcorn.me/torrents.php?id=%s" % releaseInfo.PtpId
             )
-    elif releaseInfo.ImdbId and (not releaseInfo.IsZeroImdbId()):
+    elif releaseInfo.ImdbId and releaseInfo.ImdbId != "0":
         entry["PtpUrl"] = (
             "https://passthepopcorn.me/torrents.php?imdb=%s" % releaseInfo.ImdbId
         )
