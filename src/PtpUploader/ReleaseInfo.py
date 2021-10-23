@@ -1,14 +1,15 @@
-import datetime
-import os
-
-from django.db import models
-
 from PtpUploader.Job.FinishedJobPhase import FinishedJobPhase
 from PtpUploader.Job.JobRunningState import JobRunningState
 from PtpUploader.Job.JobStartMode import JobStartMode
 
+from PtpUploader.Database import Database
 from PtpUploader.PtpUploaderException import PtpUploaderException
 from PtpUploader.Settings import Settings
+
+from sqlalchemy import Boolean, Column, DateTime, Integer, orm, String
+
+import datetime
+import os
 
 
 class ReleaseInfoFlags:
@@ -34,88 +35,140 @@ class ReleaseInfoFlags:
     PersonalRip = 1 << 7
 
 
-
-    
-class ReleaseInfo(models.Model):
+class ReleaseInfo(Database.Base):
     __tablename__ = "release"
 
-    Id = models.IntegerField(primary_key=True)
+    Id = Column(Integer, primary_key=True)
 
     # Announcement
-    AnnouncementSourceName = models.TextField(blank=True, default='')
-    AnnouncementId = models.TextField(blank=True, default='')
-    ReleaseName = models.TextField(blank=True, default='')
+    AnnouncementSourceName = Column(String)
+    AnnouncementId = Column(String)
+    ReleaseName = Column(String)
 
     # For PTP
-    Type = models.TextField(blank=True, default='Feature Film')
-    ImdbId = models.TextField(blank=True, default='')
-    Directors = models.TextField(blank=True, default='')
-    Title = models.TextField(blank=True, default='')
-    Year = models.TextField(blank=True, default='')
-    Tags = models.TextField(blank=True, default='')
-    MovieDescription = models.TextField(blank=True, default='')
-    CoverArtUrl = models.TextField(blank=True, default='')
-    YouTubeId = models.TextField(blank=True, default='')
-    MetacriticUrl = models.TextField(blank=True, default='')
-    RottenTomatoesUrl = models.TextField(blank=True, default='')
-    Codec = models.TextField(blank=True, default='')
-    CodecOther = models.TextField(blank=True, default='')
-    Container = models.TextField(blank=True, default='')
-    ContainerOther = models.TextField(blank=True, default='')
-    ResolutionType = models.TextField(blank=True, default='')
-    Resolution = models.TextField(blank=True, default='')
-    Source = models.TextField(blank=True, default='')
-    SourceOther = models.TextField(blank=True, default='')
-    RemasterTitle = models.TextField(blank=True, default='')
-    RemasterYear = models.TextField(blank=True, default='')
+    Type = Column(String)
+    ImdbId = Column(String)
+    Directors = Column(String)
+    Title = Column(String)
+    Year = Column(String)
+    Tags = Column(String)
+    MovieDescription = Column(String)
+    CoverArtUrl = Column(String)
+    YouTubeId = Column(String)
+    MetacriticUrl = Column(String)
+    RottenTomatoesUrl = Column(String)
+    Codec = Column(String)
+    CodecOther = Column(String)
+    Container = Column(String)
+    ContainerOther = Column(String)
+    ResolutionType = Column(String)
+    Resolution = Column(String)
+    Source = Column(String)
+    SourceOther = Column(String)
+    RemasterTitle = Column(String)
+    RemasterYear = Column(String)
 
     # Other
-    JobStartMode = models.IntegerField()
-    JobRunningState = models.IntegerField()
-    FinishedJobPhase = models.IntegerField()
-    Flags = models.IntegerField()
-    ErrorMessage = models.TextField(blank=True, default='')
-    PtpId = models.TextField(blank=True, default='')
-    PtpTorrentId = models.TextField(blank=True, default='')
-    InternationalTitle = models.TextField(blank=True, default='')
-    Nfo = models.TextField(blank=True, default='')
-    SourceTorrentFilePath = models.TextField(blank=True, default='')
-    SourceTorrentInfoHash = models.TextField(blank=True, default='')
-    UploadTorrentCreatePath = models.TextField(blank=True, default='')
-    UploadTorrentFilePath = models.TextField(blank=True, default='')
-    UploadTorrentInfoHash = models.TextField(blank=True, default='')
-    ReleaseDownloadPath = models.TextField(blank=True, default='')
-    ReleaseUploadPath = models.TextField(blank=True, default='')
-    ReleaseNotes = models.TextField(blank=True, default='')
-    Screenshots = models.TextField(blank=True, default='')
-    LastModificationTime = models.DateTimeField(auto_now=True)
-    Size = models.IntegerField()
-    Subtitles = models.TextField(blank=True, default='')
-    IncludedFiles = models.TextField(blank=True, default='')
-    DuplicateCheckCanIgnore = models.IntegerField()
-    ScheduleTimeUtc = models.DateTimeField()
+    JobStartMode = Column(Integer)
+    JobRunningState = Column(Integer)
+    FinishedJobPhase = Column(Integer)
+    Flags = Column(Integer)
+    ErrorMessage = Column(String)
+    PtpId = Column(String)
+    PtpTorrentId = Column(String)
+    InternationalTitle = Column(String)
+    Nfo = Column(String)
+    SourceTorrentFilePath = Column(String)
+    SourceTorrentInfoHash = Column(String)
+    UploadTorrentCreatePath = Column(String)
+    UploadTorrentFilePath = Column(String)
+    UploadTorrentInfoHash = Column(String)
+    ReleaseDownloadPath = Column(String)
+    ReleaseUploadPath = Column(String)
+    ReleaseNotes = Column(String)
+    Screenshots = Column(String)
+    LastModificationTime = Column(
+        Integer, default=Database.MakeTimeStamp, onupdate=Database.MakeTimeStamp
+    )
+    Size = Column(Integer)
+    Subtitles = Column(String)
+    IncludedFiles = Column(String)
+    DuplicateCheckCanIgnore = Column(Integer)
+    ScheduleTimeUtc = Column(DateTime)
 
     def __init__(self):
+        self.AnnouncementSourceName = ""  # A name of a class from the Source namespace.
+        self.AnnouncementId = ""
+        self.ReleaseName = ""
+
         # <<< These are the required fields needed for an upload to PTP.
         self.Type = "Feature Film"  # Feature Film, Short Film, Miniseries, Stand-up Comedy, Concert
         self.ImdbId = (
             ""  # Just the number. Eg.: 0111161 for http://www.imdb.com/title/tt0111161/
         )
+        self.Directors = ""  # Stored as a comma separated list. PTP needs this as a list, use GetDirectors.
+        self.Title = ""  # Eg.: El Secreto de Sus Ojos AKA The Secret in Their Eyes
+        self.Year = ""
+        self.Tags = ""
+        self.MovieDescription = ""
+        self.CoverArtUrl = ""
         self.YouTubeId = (
             ""  # Eg.: FbdOnGNBMAo for http://www.youtube.com/watch?v=FbdOnGNBMAo
         )
+        self.MetacriticUrl = ""  # TODO: no longer used. Only here because of SQLite.
+        self.RottenTomatoesUrl = (
+            ""  # TODO: no longer used. Only here because of SQLite.
+        )
+        self.Codec = ""  # Other, DivX, XviD, H.264, x264, DVD5, DVD9, BD25, BD50
+        self.CodecOther = ""  # TODO: no longer used. Only here because of SQLite.
+        self.Container = ""  # Other, MPG, AVI, MP4, MKV, VOB IFO, ISO, m2ts
+        self.ContainerOther = ""  # TODO: no longer used. Only here because of SQLite.
+        self.ResolutionType = ""  # Other, PAL, NTSC, 480p, 576p, 720p, 1080i, 1080p, 4K
+        self.Resolution = ""  # Exact resolution when ResolutionType is Other.
+        self.Source = ""  # Other, CAM, TS, VHS, TV, DVD-Screener, TC, HDTV, WEB, R5, DVD, HD-DVD, Blu-ray
+        self.SourceOther = ""  # TODO: no longer used. Only here because of SQLite.
+        self.RemasterTitle = ""  # Eg.: Hardcoded English
+        self.RemasterYear = ""
+        # Release description text is also needed for PTP but we use the other members to fill that.
+        # Scene is needed too. Use IsSceneRelease.
+        # Special ("Not main movie") is needed too. Use SpecialRelease.
+        # >>> Till this.
 
         self.JobStartMode = JobStartMode.Automatic
         self.JobRunningState = JobRunningState.WaitingForStart
         self.FinishedJobPhase = 0  # Flag. Takes values from FinishedJobPhase.
         self.Flags = 0  # Takes values from ReleaseInfoFlags.
+        self.ErrorMessage = ""
+        self.PtpId = ""
+        self.PtpTorrentId = ""
+        self.InternationalTitle = ""  # International title of the movie. Eg.: The Secret in Their Eyes. Needed for renaming releases coming from Cinemageddon.
+        self.Nfo = ""  # TODO: it is pointless to store this is in the database
+        self.SourceTorrentFilePath = ""
+        self.SourceTorrentInfoHash = ""
+        self.UploadTorrentCreatePath = ""  # This is the final path where the torrent was created from. It's either a directory or a file (for single file uploads).
+        self.UploadTorrentFilePath = ""
+        self.UploadTorrentInfoHash = ""
+        self.ReleaseDownloadPath = (
+            ""  # Empty if using the default path. See GetReleaseDownloadPath.
+        )
+        self.ReleaseUploadPath = (
+            ""  # Empty if using the default path. See GetReleaseUploadPath.
+        )
+        self.ReleaseNotes = ""
+        self.Screenshots = ""  # JSON encode of a ScreenshotList class
         self.LastModificationTime = 0
         self.Size = 0
+        self.Subtitles = ""  # Comma separated list of PTP language IDs. Eg.: "1, 2"
+        self.IncludedFiles = (
+            ""  # Contains only the customized files. Stored as JSON string.
+        )
         self.DuplicateCheckCanIgnore = 0  # The highest torrent ID from the group. (Only filled out when the user presses says he wants to skip the duplicate checking.)
         self.ScheduleTimeUtc = datetime.datetime.utcnow()
 
         self.MyConstructor()
 
+    # "The SQLAlchemy ORM does not call __init__ when recreating objects from database rows."
+    @orm.reconstructor
     def MyConstructor(self):
         self.AnnouncementSource = None  # A class from the Source namespace.
         self.Logger = None
@@ -125,6 +178,30 @@ class ReleaseInfo(models.Model):
         self.ImdbVoteCount = ""  # Not saved in the database.
         self.JobStartTimeUtc = datetime.datetime.utcnow()
 
+    def GetImdbId(self):
+        return self.ImdbId
+
+    def GetPtpId(self):
+        return self.PtpId
+
+    def GetPtpTorrentId(self):
+        return self.PtpTorrentId
+
+    def HasImdbId(self):
+        return len(self.ImdbId) > 0
+
+    def IsZeroImdbId(self):
+        return self.ImdbId == "0"
+
+    def SetZeroImdbId(self):
+        self.ImdbId = "0"
+
+    def HasPtpId(self):
+        return len(self.PtpId) > 0
+
+    def HasPtpTorrentId(self):
+        return len(self.PtpTorrentId) > 0
+
     def IsUserCreatedJob(self):
         return (
             self.JobStartMode == JobStartMode.Manual
@@ -133,6 +210,33 @@ class ReleaseInfo(models.Model):
 
     def IsForceUpload(self):
         return self.JobStartMode == JobStartMode.ManualForced
+
+    def IsSynopsisSet(self):
+        return len(self.MovieDescription) > 0
+
+    def IsCoverArtUrlSet(self):
+        return len(self.CoverArtUrl) > 0
+
+    def IsReleaseNameSet(self):
+        return len(self.ReleaseName) > 0
+
+    def IsCodecSet(self):
+        return len(self.Codec) > 0
+
+    def IsContainerSet(self):
+        return len(self.Container) > 0
+
+    def IsSourceSet(self):
+        return len(self.Source) > 0
+
+    def IsResolutionTypeSet(self):
+        return len(self.ResolutionType) > 0
+
+    def IsSourceTorrentFilePathSet(self):
+        return len(self.SourceTorrentFilePath) > 0
+
+    def IsUploadTorrentFilePathSet(self):
+        return len(self.UploadTorrentFilePath) > 0
 
     def GetDirectors(self):
         if len(self.Directors) > 0:
@@ -158,7 +262,7 @@ class ReleaseInfo(models.Model):
     def SetSubtitles(self, list):
         for id in list:
             if id.find(",") != -1:
-                raise PtpUploaderException("Language id '%s' contains a comma." % id)
+                raise PtpUploaderException("Language id '%s' contains a comma." % name)
 
         self.Subtitles = ", ".join(list)
 
@@ -188,7 +292,7 @@ class ReleaseInfo(models.Model):
         return self.ResolutionType == "4K"
 
     def IsRemux(self):
-        return "Remux" in str(self.RemasterTitle)
+        return self.RemasterTitle.find("Remux") != -1
 
     def IsDvdImage(self):
         return self.Codec == "DVD5" or self.Codec == "DVD9"
@@ -290,17 +394,22 @@ class ReleaseInfo(models.Model):
 
     # Eg.: "working directory/release/Dark.City.1998.Directors.Cut.720p.BluRay.x264-SiNNERS/download/"
     def GetReleaseDownloadPath(self):
-        if self.ReleaseDownloadPath:
+        if len(self.ReleaseDownloadPath) > 0:
             return self.ReleaseDownloadPath
-        return os.path.join(self.GetReleaseRootPath(), "download")
+        else:
+            return os.path.join(self.GetReleaseRootPath(), "download")
+
+    def SetReleaseDownloadPath(self, path):
+        self.ReleaseDownloadPath = path
 
     # Eg.: "working directory/release/Dark.City.1998.Directors.Cut.720p.BluRay.x264-SiNNERS/upload/Dark.City.1998.Directors.Cut.720p.BluRay.x264-SiNNERS/"
     # It must contain the final release name because of mktor.
     def GetReleaseUploadPath(self):
-        if self.ReleaseUploadPath:
+        if len(self.ReleaseUploadPath) > 0:
             return self.ReleaseUploadPath
-        path = os.path.join(self.GetReleaseRootPath(), "upload")
-        return os.path.join(path, self.ReleaseName)
+        else:
+            path = os.path.join(self.GetReleaseRootPath(), "upload")
+            return os.path.join(path, self.ReleaseName)
 
     def SetReleaseUploadPath(self, path):
         self.ReleaseUploadPath = path
