@@ -1,16 +1,15 @@
-from ..Job.JobRunningState import JobRunningState
-from .SourceBase import SourceBase
-
-from ..Helper import RemoveDisallowedCharactersFromPath
-from ..MyGlobals import MyGlobals
-from ..NfoParser import NfoParser
-from ..PtpUploaderException import PtpUploaderException
-from ..ReleaseNameParser import ReleaseNameParser
-
-import re
 import json
+import re
 
 import requests
+
+from PtpUploader.Helper import RemoveDisallowedCharactersFromPath
+from PtpUploader.Job.JobRunningState import JobRunningState
+from PtpUploader.MyGlobals import MyGlobals
+from PtpUploader.NfoParser import NfoParser
+from PtpUploader.PtpUploaderException import PtpUploaderException
+from PtpUploader.ReleaseNameParser import ReleaseNameParser
+from PtpUploader.Source.SourceBase import SourceBase
 
 
 class HDBits(SourceBase):

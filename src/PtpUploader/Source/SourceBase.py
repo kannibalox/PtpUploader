@@ -2,12 +2,12 @@ import os
 import re
 import shutil
 
-from PtpUploader.Job.FinishedJobPhase import FinishedJobPhase
-from PtpUploader.ReleaseInfo import ReleaseInfo
 from PtpUploader.IncludedFileList import IncludedFileList
+from PtpUploader.Job.FinishedJobPhase import FinishedJobPhase
 from PtpUploader.NfoParser import NfoParser
 from PtpUploader.PtpUploaderException import PtpUploaderException
 from PtpUploader.ReleaseExtractor import ReleaseExtractor
+from PtpUploader.ReleaseInfo import ReleaseInfo
 from PtpUploader.Settings import Settings
 
 

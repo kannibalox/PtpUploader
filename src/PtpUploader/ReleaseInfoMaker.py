@@ -1,4 +1,6 @@
-from PtpUploader.Tool import Mktor
+import codecs
+import os
+import sys
 
 from PtpUploader.IncludedFileList import IncludedFileList
 from PtpUploader.MyGlobals import MyGlobals
@@ -8,10 +10,7 @@ from PtpUploader.ReleaseDescriptionFormatter import ReleaseDescriptionFormatter
 from PtpUploader.ReleaseExtractor import ReleaseExtractor
 from PtpUploader.ReleaseInfo import ReleaseInfo
 from PtpUploader.Settings import Settings
-
-import codecs
-import os
-import sys
+from PtpUploader.Tool import Mktor
 
 
 class ReleaseInfoMaker:

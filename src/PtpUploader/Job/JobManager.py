@@ -2,12 +2,11 @@ import datetime
 import queue
 import threading
 
+from PtpUploader.AnnouncementWatcher import *
+from PtpUploader.Database import Database
 from PtpUploader.Job.CheckAnnouncement import CheckAnnouncement
 from PtpUploader.Job.JobRunningState import JobRunningState
 from PtpUploader.Job.Upload import Upload
-
-from PtpUploader.AnnouncementWatcher import *
-from PtpUploader.Database import Database
 from PtpUploader.Logger import Logger
 from PtpUploader.MyGlobals import MyGlobals
 

@@ -1,9 +1,9 @@
-from .MyGlobals import MyGlobals
-from .Ptp import Ptp
-from .PtpUploaderException import *
-
-import re
 import json
+import re
+
+from PtpUploader.MyGlobals import MyGlobals
+from PtpUploader.Ptp import Ptp
+from PtpUploader.PtpUploaderException import *
 
 
 class PtpImdbInfo:

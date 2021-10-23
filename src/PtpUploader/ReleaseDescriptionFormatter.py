@@ -1,11 +1,10 @@
-from .Tool.MediaInfo import MediaInfo
-from .Tool.ScreenshotMaker import ScreenshotMaker
-
-from .PtpUploaderException import *
-from .ScreenshotList import ScreenshotList
-from .Settings import Settings
-
 import os
+
+from PtpUploader.PtpUploaderException import *
+from PtpUploader.ScreenshotList import ScreenshotList
+from PtpUploader.Settings import Settings
+from PtpUploader.Tool.MediaInfo import MediaInfo
+from PtpUploader.Tool.ScreenshotMaker import ScreenshotMaker
 
 
 class ReleaseDescriptionVideoEntry:

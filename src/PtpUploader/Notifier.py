@@ -1,11 +1,10 @@
-from .MyGlobals import MyGlobals
-from .Ptp import Ptp
-from .Settings import Settings
-
 import configparser
-
 import os
 import sys
+
+from PtpUploader.MyGlobals import MyGlobals
+from PtpUploader.Ptp import Ptp
+from PtpUploader.Settings import Settings
 
 
 def LoadNotifierSettings():

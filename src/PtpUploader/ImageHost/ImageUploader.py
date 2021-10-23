@@ -1,8 +1,7 @@
-from .Picload import Picload
-from .PtpImg import PtpImg
-
-from ..PtpUploaderException import PtpUploaderException
-from ..Settings import Settings
+from PtpUploader.ImageHost.Picload import Picload
+from PtpUploader.ImageHost.PtpImg import PtpImg
+from PtpUploader.PtpUploaderException import PtpUploaderException
+from PtpUploader.Settings import Settings
 
 
 class ImageUploader:

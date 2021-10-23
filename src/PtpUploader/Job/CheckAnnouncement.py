@@ -1,17 +1,16 @@
-from ..InformationSource.Imdb import Imdb
-from ..InformationSource.MoviePoster import MoviePoster
-from .FinishedJobPhase import FinishedJobPhase
-from .JobRunningState import JobRunningState
-from .WorkerBase import WorkerBase
-
-from ..Database import Database
-from ..Ptp import Ptp
-from ..PtpImdbInfo import PtpImdbInfo, PtpZeroImdbInfo
-from ..PtpUploaderException import *
-from ..Settings import Settings
-
 import datetime
 import os
+
+from PtpUploader.Database import Database
+from PtpUploader.InformationSource.Imdb import Imdb
+from PtpUploader.InformationSource.MoviePoster import MoviePoster
+from PtpUploader.Job.FinishedJobPhase import FinishedJobPhase
+from PtpUploader.Job.JobRunningState import JobRunningState
+from PtpUploader.Job.WorkerBase import WorkerBase
+from PtpUploader.Ptp import Ptp
+from PtpUploader.PtpImdbInfo import PtpImdbInfo, PtpZeroImdbInfo
+from PtpUploader.PtpUploaderException import *
+from PtpUploader.Settings import Settings
 
 
 class CheckAnnouncement(WorkerBase):

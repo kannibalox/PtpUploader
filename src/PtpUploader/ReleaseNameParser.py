@@ -1,8 +1,8 @@
-from .PtpUploaderException import PtpUploaderException
-from .Settings import Settings
-from .TagList import TagList
-
 import re
+
+from PtpUploader.PtpUploaderException import PtpUploaderException
+from PtpUploader.Settings import Settings
+from PtpUploader.TagList import TagList
 
 
 class ReleaseNameParser:

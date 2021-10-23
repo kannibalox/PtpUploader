@@ -1,19 +1,18 @@
-from .AlphaRatio import AlphaRatio
-from .Cinemageddon import Cinemageddon
-from .Cinematik import Cinematik
-from .DigitalHive import DigitalHive
-from .File import File
-from .FunFile import FunFile
-from .Gft import Gft
-from .HDBits import HDBits
-from .HDTorrents import HDTorrents
-from .Karagarga import Karagarga
-from .Torrent import Torrent
-from .TorrentBytes import TorrentBytes
-from .TorrentLeech import TorrentLeech
-
-from ..MyGlobals import MyGlobals
-from ..Settings import Settings
+from PtpUploader.MyGlobals import MyGlobals
+from PtpUploader.Settings import Settings
+from PtpUploader.Source.AlphaRatio import AlphaRatio
+from PtpUploader.Source.Cinemageddon import Cinemageddon
+from PtpUploader.Source.Cinematik import Cinematik
+from PtpUploader.Source.DigitalHive import DigitalHive
+from PtpUploader.Source.File import File
+from PtpUploader.Source.FunFile import FunFile
+from PtpUploader.Source.Gft import Gft
+from PtpUploader.Source.HDBits import HDBits
+from PtpUploader.Source.HDTorrents import HDTorrents
+from PtpUploader.Source.Karagarga import Karagarga
+from PtpUploader.Source.Torrent import Torrent
+from PtpUploader.Source.TorrentBytes import TorrentBytes
+from PtpUploader.Source.TorrentLeech import TorrentLeech
 
 
 class SourceFactory:

@@ -1,7 +1,6 @@
-from .SourceBase import SourceBase
-
-from ..PtpUploaderException import PtpUploaderException
-from ..ReleaseNameParser import ReleaseNameParser
+from PtpUploader.PtpUploaderException import PtpUploaderException
+from PtpUploader.ReleaseNameParser import ReleaseNameParser
+from PtpUploader.Source.SourceBase import SourceBase
 
 
 class Torrent(SourceBase):

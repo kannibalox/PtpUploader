@@ -1,8 +1,8 @@
-from ..PtpUploaderException import PtpUploaderException
-from ..Settings import Settings
-
 import os
 import subprocess
+
+from PtpUploader.PtpUploaderException import PtpUploaderException
+from PtpUploader.Settings import Settings
 
 
 class Mpv:

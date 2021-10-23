@@ -1,23 +1,21 @@
-from datetime import datetime
 import os
 import urllib.parse
+from datetime import datetime
 
-from PtpUploader.Job.JobStartMode import JobStartMode
-from PtpUploader.WebServer import app
-from PtpUploader.WebServer.Authentication import requires_auth
+from flask import jsonify, request
+from werkzeug.utils import secure_filename
 
 from PtpUploader.Database import Database
 from PtpUploader.Helper import ParseQueryString, TimeDifferenceToText
 from PtpUploader.IncludedFileList import IncludedFileList
+from PtpUploader.Job.JobStartMode import JobStartMode
 from PtpUploader.MyGlobals import MyGlobals
 from PtpUploader.NfoParser import NfoParser
 from PtpUploader.Ptp import Ptp
 from PtpUploader.ReleaseInfo import ReleaseInfo
 from PtpUploader.Settings import Settings
-
-from flask import jsonify, request
-from werkzeug.utils import secure_filename
-
+from PtpUploader.WebServer import app
+from PtpUploader.WebServer.Authentication import requires_auth
 
 
 class JobCommon:

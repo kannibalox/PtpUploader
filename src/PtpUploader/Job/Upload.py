@@ -2,15 +2,13 @@ import datetime
 import os
 import subprocess
 
-from PtpUploader.Job.FinishedJobPhase import FinishedJobPhase
-from PtpUploader.Job.JobRunningState import JobRunningState
-from PtpUploader.Job.WorkerBase import WorkerBase
-from PtpUploader.Tool import Mktor
-
 from PtpUploader.Database import Database
 from PtpUploader.Helper import ParseQueryString, TimeDifferenceToText
 from PtpUploader.IdxReader import IdxReader
 from PtpUploader.ImageHost.ImageUploader import ImageUploader
+from PtpUploader.Job.FinishedJobPhase import FinishedJobPhase
+from PtpUploader.Job.JobRunningState import JobRunningState
+from PtpUploader.Job.WorkerBase import WorkerBase
 from PtpUploader.MyGlobals import MyGlobals
 from PtpUploader.Ptp import Ptp
 from PtpUploader.PtpSubtitle import *
@@ -18,6 +16,7 @@ from PtpUploader.PtpUploaderException import *
 from PtpUploader.ReleaseDescriptionFormatter import ReleaseDescriptionFormatter
 from PtpUploader.ReleaseExtractor import ReleaseExtractor
 from PtpUploader.Settings import Settings
+from PtpUploader.Tool import Mktor
 
 
 class Upload(WorkerBase):

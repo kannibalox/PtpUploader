@@ -1,5 +1,6 @@
 import json
 
+
 # For sake of simple JSON serialization an item is a simple list.
 # Item[ 0 ] = name
 # Item[ 1 ] = list of screenshots

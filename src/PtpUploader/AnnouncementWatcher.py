@@ -1,18 +1,17 @@
-from .Job.JobRunningState import JobRunningState
-
-from .Database import Database
-from .MyGlobals import MyGlobals
-from .Logger import Logger
-from .NfoParser import NfoParser
-from .PtpUploaderException import PtpUploaderException
-from .ReleaseInfo import ReleaseInfo
-from .Settings import Settings
-
 import datetime
 import hashlib
 import os
 import re
 import time
+
+from PtpUploader.Database import Database
+from PtpUploader.Job.JobRunningState import JobRunningState
+from PtpUploader.Logger import Logger
+from PtpUploader.MyGlobals import MyGlobals
+from PtpUploader.NfoParser import NfoParser
+from PtpUploader.PtpUploaderException import PtpUploaderException
+from PtpUploader.ReleaseInfo import ReleaseInfo
+from PtpUploader.Settings import Settings
 
 
 class AnnouncementWatcher:

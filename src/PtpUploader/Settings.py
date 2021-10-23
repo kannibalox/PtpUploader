@@ -1,6 +1,3 @@
-from .MyGlobals import MyGlobals
-from .TagList import TagList
-
 import codecs
 import configparser
 import fnmatch
@@ -8,8 +5,10 @@ import os
 import os.path
 import re
 import subprocess
-
 from pathlib import Path
+
+from PtpUploader.MyGlobals import MyGlobals
+from PtpUploader.TagList import TagList
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent

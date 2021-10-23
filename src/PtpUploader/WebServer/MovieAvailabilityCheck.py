@@ -1,13 +1,12 @@
-from . import app
-
-from .Authentication import requires_auth
-from ..MyGlobals import MyGlobals
-from ..Ptp import Ptp
-from ..ReleaseInfo import ReleaseInfo
+import re
 
 from flask import render_template, request
 
-import re
+from PtpUploader.MyGlobals import MyGlobals
+from PtpUploader.Ptp import Ptp
+from PtpUploader.ReleaseInfo import ReleaseInfo
+from PtpUploader.WebServer import app
+from PtpUploader.WebServer.Authentication import requires_auth
 
 
 def GetPtpIdIfExists(imdbId, releaseInfo, anyFormat):

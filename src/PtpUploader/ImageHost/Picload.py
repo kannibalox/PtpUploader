@@ -1,10 +1,10 @@
-from ..MyGlobals import MyGlobals
-from ..PtpUploaderException import PtpUploaderException
-from ..Settings import Settings
-
 import os
 import re
 import uuid
+
+from PtpUploader.MyGlobals import MyGlobals
+from PtpUploader.PtpUploaderException import PtpUploaderException
+from PtpUploader.Settings import Settings
 
 
 class Picload:

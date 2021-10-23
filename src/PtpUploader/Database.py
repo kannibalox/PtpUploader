@@ -3,16 +3,14 @@ import platform
 import time
 
 from django.db.models import Q
-
-from .Job.JobRunningState import JobRunningState
-
-from .MyGlobals import MyGlobals
-from .Settings import Settings
-from PtpUploader.ReleaseInfo import ReleaseInfo
-
 from sqlalchemy import create_engine, exc, or_
-from sqlalchemy.orm import scoped_session, sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import scoped_session, sessionmaker
+
+from PtpUploader.Job.JobRunningState import JobRunningState
+from PtpUploader.MyGlobals import MyGlobals
+from PtpUploader.ReleaseInfo import ReleaseInfo
+from PtpUploader.Settings import Settings
 
 
 class Database:

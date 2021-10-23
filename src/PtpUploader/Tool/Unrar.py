@@ -1,10 +1,11 @@
-from ..PtpUploaderException import PtpUploaderException
-from ..Settings import Settings
-
 import fnmatch
 import os
 import subprocess
 import uuid
+
+from PtpUploader.PtpUploaderException import PtpUploaderException
+from PtpUploader.Settings import Settings
+
 
 # Supported:
 # - .rar

@@ -1,21 +1,21 @@
-from . import app
-from .JobCommon import JobCommon
-from .UploadFile import UploadFile
-
-from .Authentication import requires_auth
-from PtpUploader.Helper import GetSuggestedReleaseNameAndSizeFromTorrentFile, SizeToText
-from PtpUploader.MyGlobals import MyGlobals
-from PtpUploader.Database import Database
-from PtpUploader.PtpUploaderMessage import *
-from PtpUploader.ReleaseInfo import ReleaseInfo
-from PtpUploader.Settings import Settings
+import os
+import sys
+import uuid
 
 from flask import jsonify, render_template, request
 from werkzeug.utils import secure_filename
 
-import os
-import sys
-import uuid
+from PtpUploader.Database import Database
+from PtpUploader.Helper import (GetSuggestedReleaseNameAndSizeFromTorrentFile,
+                                SizeToText)
+from PtpUploader.MyGlobals import MyGlobals
+from PtpUploader.PtpUploaderMessage import *
+from PtpUploader.ReleaseInfo import ReleaseInfo
+from PtpUploader.Settings import Settings
+from PtpUploader.WebServer import app
+from PtpUploader.WebServer.Authentication import requires_auth
+from PtpUploader.WebServer.JobCommon import JobCommon
+from PtpUploader.WebServer.UploadFile import UploadFile
 
 
 def IsFileAllowed(filename):

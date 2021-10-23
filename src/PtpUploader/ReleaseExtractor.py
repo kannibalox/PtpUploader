@@ -1,10 +1,10 @@
-from .MyGlobals import MyGlobals
-from .PtpUploaderException import PtpUploaderException
-from .Settings import Settings
-from .Tool.Unrar import Unrar
-
 import fnmatch
 import os
+
+from PtpUploader.MyGlobals import MyGlobals
+from PtpUploader.PtpUploaderException import PtpUploaderException
+from PtpUploader.Settings import Settings
+from PtpUploader.Tool.Unrar import Unrar
 
 
 class ReleaseExtractorInternal:

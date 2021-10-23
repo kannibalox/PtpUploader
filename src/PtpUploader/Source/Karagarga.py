@@ -1,14 +1,12 @@
-from ..Job.JobRunningState import JobRunningState
-from .SourceBase import SourceBase
-
-from ..Helper import DecodeHtmlEntities, GetSizeFromText, ValidateTorrentFile
-from ..MyGlobals import MyGlobals
-from ..PtpUploaderException import (
-    PtpUploaderException,
-    PtpUploaderInvalidLoginException,
-)
-
 import re
+
+from PtpUploader.Helper import (DecodeHtmlEntities, GetSizeFromText,
+                                ValidateTorrentFile)
+from PtpUploader.Job.JobRunningState import JobRunningState
+from PtpUploader.MyGlobals import MyGlobals
+from PtpUploader.PtpUploaderException import (PtpUploaderException,
+                                              PtpUploaderInvalidLoginException)
+from PtpUploader.Source.SourceBase import SourceBase
 
 
 class Karagarga(SourceBase):

@@ -1,13 +1,15 @@
-from PtpUploader.WebServer import app
-from PtpUploader.WebServer.Authentication import requires_auth
-
-from PtpUploader.NfoParser import NfoParser
-from PtpUploader.Settings import Settings
+import os
+import urllib.error
+import urllib.parse
+import urllib.request
 
 from flask import jsonify, request
 
-import os
-import urllib.request, urllib.parse, urllib.error
+from PtpUploader.NfoParser import NfoParser
+from PtpUploader.Settings import Settings
+from PtpUploader.WebServer import app
+from PtpUploader.WebServer.Authentication import requires_auth
+
 
 # Needed for jQuery File Tree.
 @app.route("/ajaxgetdirectorylist/", methods=["POST"])

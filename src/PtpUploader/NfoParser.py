@@ -1,9 +1,9 @@
-from .Helper import GetFileListFromTorrent
-from .PtpUploaderException import PtpUploaderException
-
 import fnmatch
 import os
 import re
+
+from PtpUploader.Helper import GetFileListFromTorrent
+from PtpUploader.PtpUploaderException import PtpUploaderException
 
 
 class NfoParser:

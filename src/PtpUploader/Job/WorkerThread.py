@@ -1,10 +1,10 @@
-from .JobManager import JobManager
-
-from ..AnnouncementDirectoryWatcher import AnnouncementDirectoryWatcher
-from ..MyGlobals import MyGlobals
-from ..PtpUploaderException import *
-
 import threading
+
+from PtpUploader.AnnouncementDirectoryWatcher import \
+    AnnouncementDirectoryWatcher
+from PtpUploader.Job.JobManager import JobManager
+from PtpUploader.MyGlobals import MyGlobals
+from PtpUploader.PtpUploaderException import *
 
 
 class WorkerThread(threading.Thread):

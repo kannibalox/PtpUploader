@@ -1,4 +1,4 @@
-from .Job.JobRunningState import JobRunningState
+from PtpUploader.Job.JobRunningState import JobRunningState
 
 # Inner exceptions will be only supported in Python 3000...
 

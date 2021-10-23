@@ -1,13 +1,13 @@
-from ..ImageHost.ImageUploader import ImageUploader
-from .ImageMagick import ImageMagick
-from .Ffmpeg import Ffmpeg
-from .Mplayer import Mplayer
-from .Mpv import Mpv
-
-from ..Settings import Settings
-
-import os
 import functools
+import os
+
+from PtpUploader.ImageHost.ImageUploader import ImageUploader
+from PtpUploader.Settings import Settings
+from PtpUploader.Tool.Ffmpeg import Ffmpeg
+from PtpUploader.Tool.ImageMagick import ImageMagick
+from PtpUploader.Tool.Mplayer import Mplayer
+from PtpUploader.Tool.Mpv import Mpv
+
 
 class ScreenshotMaker:
     def __init__(self, logger, inputVideoPath):

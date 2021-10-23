@@ -1,15 +1,16 @@
 import os
+
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'PtpUploader.Settings')
 import django
+
 django.setup()
 
-from .Source.SourceFactory import SourceFactory
-from .WebServer.MyWebServer import MyWebServer
-
-from .MyGlobals import MyGlobals
-from .PtpUploaderRunner import PtpUploaderRunner
-from .Settings import Settings
-from .Database import InitDb
+from PtpUploader.Database import InitDb
+from PtpUploader.MyGlobals import MyGlobals
+from PtpUploader.PtpUploaderRunner import PtpUploaderRunner
+from PtpUploader.Settings import Settings
+from PtpUploader.Source.SourceFactory import SourceFactory
+from PtpUploader.WebServer.MyWebServer import MyWebServer
 
 
 def Initialize():

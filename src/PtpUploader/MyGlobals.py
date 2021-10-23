@@ -1,11 +1,12 @@
-from .PtpSubtitle import PtpSubtitle
-
-import http.cookiejar
 import datetime
+import http.cookiejar
 import logging
 import os
 import sys
+
 import requests
+
+from PtpUploader.PtpSubtitle import PtpSubtitle
 
 
 class MyGlobalsClass:
@@ -69,16 +70,16 @@ class MyGlobalsClass:
     # Inline imports are used here to avoid unnecessary dependencies.
     def GetTorrentClient(self):
         if self.TorrentClient is None:
-            from .Settings import Settings
+            from PtpUploader.Settings import Settings
 
             if Settings.TorrentClientName.lower() == "transmission":
-                from .Tool.Transmission import Transmission
+                from PtpUploader.Tool.Transmission import Transmission
 
                 self.TorrentClient = Transmission(
                     Settings.TorrentClientAddress, Settings.TorrentClientPort
                 )
             else:
-                from .Tool.Rtorrent import Rtorrent
+                from PtpUploader.Tool.Rtorrent import Rtorrent
 
                 self.TorrentClient = Rtorrent()
 

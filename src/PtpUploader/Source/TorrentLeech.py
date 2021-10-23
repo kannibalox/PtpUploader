@@ -1,16 +1,13 @@
-from ..Job.JobRunningState import JobRunningState
-from .SourceBase import SourceBase
-
-from ..Helper import DecodeHtmlEntities, GetSizeFromText
-from ..MyGlobals import MyGlobals
-from ..NfoParser import NfoParser
-from ..PtpUploaderException import (
-    PtpUploaderException,
-    PtpUploaderInvalidLoginException,
-)
-from ..ReleaseNameParser import ReleaseNameParser
-
 import re
+
+from PtpUploader.Helper import DecodeHtmlEntities, GetSizeFromText
+from PtpUploader.Job.JobRunningState import JobRunningState
+from PtpUploader.MyGlobals import MyGlobals
+from PtpUploader.NfoParser import NfoParser
+from PtpUploader.PtpUploaderException import (PtpUploaderException,
+                                              PtpUploaderInvalidLoginException)
+from PtpUploader.ReleaseNameParser import ReleaseNameParser
+from PtpUploader.Source.SourceBase import SourceBase
 
 
 class TorrentLeech(SourceBase):

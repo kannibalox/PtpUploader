@@ -1,7 +1,7 @@
-from ..MyGlobals import MyGlobals
-from ..PtpUploaderException import PtpUploaderException
-
 import re
+
+from PtpUploader.MyGlobals import MyGlobals
+from PtpUploader.PtpUploaderException import PtpUploaderException
 
 
 class MoviePoster:

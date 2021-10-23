@@ -1,16 +1,16 @@
-from .MyGlobals import MyGlobals
-from .PtpMovieSearchResult import PtpMovieSearchResult
-from .PtpUploaderException import *
-from .Settings import Settings
-
-import requests
-
+import json
 import mimetypes
 import os
 import re
 import time
 import traceback
-import json
+
+import requests
+
+from PtpUploader.MyGlobals import MyGlobals
+from PtpUploader.PtpMovieSearchResult import PtpMovieSearchResult
+from PtpUploader.PtpUploaderException import *
+from PtpUploader.Settings import Settings
 
 
 class Ptp:

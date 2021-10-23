@@ -1,17 +1,13 @@
-from ..Job.JobRunningState import JobRunningState
-from .SourceBase import SourceBase
-
-from ..Helper import (
-    DecodeHtmlEntities,
-    GetSizeFromText,
-    MakeRetryingHttpGetRequestWithRequests,
-)
-from ..MyGlobals import MyGlobals
-from ..NfoParser import NfoParser
-from ..PtpUploaderException import PtpUploaderException
-from ..ReleaseNameParser import ReleaseNameParser
-
 import re
+
+from PtpUploader.Helper import (DecodeHtmlEntities, GetSizeFromText,
+                                MakeRetryingHttpGetRequestWithRequests)
+from PtpUploader.Job.JobRunningState import JobRunningState
+from PtpUploader.MyGlobals import MyGlobals
+from PtpUploader.NfoParser import NfoParser
+from PtpUploader.PtpUploaderException import PtpUploaderException
+from PtpUploader.ReleaseNameParser import ReleaseNameParser
+from PtpUploader.Source.SourceBase import SourceBase
 
 
 class FunFile(SourceBase):

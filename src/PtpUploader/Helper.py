@@ -1,16 +1,13 @@
-from datetime import datetime
-import html.parser  # For HTML entity reference decoding...
 import os
 import re
 import time
-
-import requests
+from urllib.parse import parse_qs
 
 import bencode
+import requests
 
 from PtpUploader.MyGlobals import MyGlobals
-from PtpUploader.PtpUploaderException import *
-
+from PtpUploader.PtpUploaderException import PtpUploaderException
 
 
 # Supported formats: "100 GB", "100 MB", "100 bytes". (Space is optional.)
@@ -107,11 +104,6 @@ def TimeDifferenceToText(
         return noDifferenceText
 
 
-# Nice...
-try:
-    from urllib.parse import parse_qs
-except ImportError:
-    from cgi import parse_qs
 
 
 def ParseQueryString(query):

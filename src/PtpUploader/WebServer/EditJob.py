@@ -1,15 +1,14 @@
-from ..Job.JobRunningState import JobRunningState
-from . import app
-from .JobCommon import JobCommon
+from flask import redirect, render_template, request, url_for
 
-from .Authentication import requires_auth
-from ..MyGlobals import MyGlobals
-from ..Database import Database
-from ..PtpUploaderMessage import *
-from ..ReleaseInfo import ReleaseInfo
-from ..Settings import Settings
-
-from flask import render_template, redirect, request, url_for
+from PtpUploader.Database import Database
+from PtpUploader.Job.JobRunningState import JobRunningState
+from PtpUploader.MyGlobals import MyGlobals
+from PtpUploader.PtpUploaderMessage import *
+from PtpUploader.ReleaseInfo import ReleaseInfo
+from PtpUploader.Settings import Settings
+from PtpUploader.WebServer import app
+from PtpUploader.WebServer.Authentication import requires_auth
+from PtpUploader.WebServer.JobCommon import JobCommon
 
 
 @app.route("/job/<int:jobId>/edit/", methods=["GET", "POST"])

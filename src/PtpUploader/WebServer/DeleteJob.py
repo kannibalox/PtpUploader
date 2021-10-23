@@ -1,14 +1,13 @@
-from . import app
-
-from .Authentication import requires_auth
-from ..MyGlobals import MyGlobals
-from ..Database import Database
-from ..Logger import Logger
-from ..ReleaseInfo import ReleaseInfo
-
-from flask import render_template, redirect, request, url_for
-
 import os
+
+from flask import redirect, render_template, request, url_for
+
+from PtpUploader.Database import Database
+from PtpUploader.Logger import Logger
+from PtpUploader.MyGlobals import MyGlobals
+from PtpUploader.ReleaseInfo import ReleaseInfo
+from PtpUploader.WebServer import app
+from PtpUploader.WebServer.Authentication import requires_auth
 
 
 @app.route("/job/<int:jobId>/delete/")

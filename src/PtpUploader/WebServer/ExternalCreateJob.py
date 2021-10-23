@@ -1,21 +1,20 @@
-from ..Job.JobRunningState import JobRunningState
-from ..Job.JobStartMode import JobStartMode
-from . import app
-
-from ..Helper import GetSuggestedReleaseNameAndSizeFromTorrentFile
-from ..MyGlobals import MyGlobals
-from ..Database import Database
-from ..NfoParser import NfoParser
-from ..PtpUploaderMessage import *
-from ..ReleaseInfo import ReleaseInfo
-from ..Settings import Settings
+import os
+import sys
+import uuid
 
 from flask import jsonify, make_response, request
 from werkzeug.utils import secure_filename
 
-import os
-import sys
-import uuid
+from PtpUploader.Database import Database
+from PtpUploader.Helper import GetSuggestedReleaseNameAndSizeFromTorrentFile
+from PtpUploader.Job.JobRunningState import JobRunningState
+from PtpUploader.Job.JobStartMode import JobStartMode
+from PtpUploader.MyGlobals import MyGlobals
+from PtpUploader.NfoParser import NfoParser
+from PtpUploader.PtpUploaderMessage import *
+from PtpUploader.ReleaseInfo import ReleaseInfo
+from PtpUploader.Settings import Settings
+from PtpUploader.WebServer import app
 
 
 def MakeExternalCreateJobErrorResponse(errorMessage):

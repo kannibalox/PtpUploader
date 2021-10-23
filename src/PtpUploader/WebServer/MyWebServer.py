@@ -1,10 +1,9 @@
-from . import app
-
-from ..MyGlobals import MyGlobals
-from ..Settings import Settings
-
 import logging
 import threading
+
+from PtpUploader.MyGlobals import MyGlobals
+from PtpUploader.Settings import Settings
+from PtpUploader.WebServer import app
 
 
 class MyWebServer(threading.Thread):

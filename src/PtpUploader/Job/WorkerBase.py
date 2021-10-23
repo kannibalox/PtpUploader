@@ -1,7 +1,6 @@
-from .JobRunningState import JobRunningState
-
-from ..Database import Database
-from ..PtpUploaderException import *
+from PtpUploader.Database import Database
+from PtpUploader.Job.JobRunningState import JobRunningState
+from PtpUploader.PtpUploaderException import *
 
 
 class WorkerBase:

@@ -1,20 +1,19 @@
-from PtpUploader.Job.JobRunningState import JobRunningState
-from PtpUploader.Job.JobStartMode import JobStartMode
-from PtpUploader.WebServer import app
-from PtpUploader.WebServer.Authentication import requires_auth
-from PtpUploader.WebServer.Pagination import Pagination
+import datetime
+
+from django.utils import timezone
+from flask import render_template, request, url_for
 
 from PtpUploader.Database import Database
 from PtpUploader.Helper import SizeToText, TimeDifferenceToText
+from PtpUploader.Job.JobRunningState import JobRunningState
+from PtpUploader.Job.JobStartMode import JobStartMode
 from PtpUploader.MyGlobals import MyGlobals
 from PtpUploader.PtpUploaderMessage import *
 from PtpUploader.ReleaseInfo import ReleaseInfo
 from PtpUploader.Settings import Settings
-
-from flask import render_template, request, url_for
-from django.utils import timezone
-
-import datetime
+from PtpUploader.WebServer import app
+from PtpUploader.WebServer.Authentication import requires_auth
+from PtpUploader.WebServer.Pagination import Pagination
 
 
 def GetStateIcon(state):

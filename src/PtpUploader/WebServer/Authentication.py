@@ -1,11 +1,11 @@
 # Based on HTTP Basic Auth by Armin Ronacher
 # http://flask.pocoo.org/snippets/8/
 
-from PtpUploader.Settings import Settings
-
-from flask import request, Response
-
 from functools import wraps
+
+from flask import Response, request
+
+from PtpUploader.Settings import Settings
 
 
 def check_auth(username, password):

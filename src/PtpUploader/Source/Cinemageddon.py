@@ -1,18 +1,15 @@
 import os
 import re
 
+from PtpUploader.Helper import (DecodeHtmlEntities, GetSizeFromText,
+                                RemoveDisallowedCharactersFromPath,
+                                ValidateTorrentFile)
 from PtpUploader.InformationSource.Imdb import Imdb
 from PtpUploader.Job.JobRunningState import JobRunningState
-from PtpUploader.Source.SourceBase import SourceBase
-
-from PtpUploader.Helper import (
-    DecodeHtmlEntities,
-    GetSizeFromText,
-    RemoveDisallowedCharactersFromPath,
-    ValidateTorrentFile,
-)
 from PtpUploader.MyGlobals import MyGlobals
 from PtpUploader.PtpUploaderException import PtpUploaderException
+from PtpUploader.Source.SourceBase import SourceBase
+
 
 class Cinemageddon(SourceBase):
     def __init__(self):

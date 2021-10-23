@@ -1,19 +1,15 @@
-from ..InformationSource.Imdb import Imdb
-from ..Job.JobRunningState import JobRunningState
-from .SourceBase import SourceBase
-
-from ..Helper import (
-    DecodeHtmlEntities,
-    GetSizeFromText,
-    GetFileListFromTorrent,
-    RemoveDisallowedCharactersFromPath,
-    ValidateTorrentFile,
-)
-from ..MyGlobals import MyGlobals
-from ..PtpUploaderException import PtpUploaderException
-
 import os
 import re
+
+from PtpUploader.Helper import (DecodeHtmlEntities, GetFileListFromTorrent,
+                                GetSizeFromText,
+                                RemoveDisallowedCharactersFromPath,
+                                ValidateTorrentFile)
+from PtpUploader.InformationSource.Imdb import Imdb
+from PtpUploader.Job.JobRunningState import JobRunningState
+from PtpUploader.MyGlobals import MyGlobals
+from PtpUploader.PtpUploaderException import PtpUploaderException
+from PtpUploader.Source.SourceBase import SourceBase
 
 
 class Cinematik(SourceBase):

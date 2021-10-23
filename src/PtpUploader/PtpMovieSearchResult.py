@@ -1,10 +1,11 @@
-from .Helper import GetSizeFromText, SizeToText, TimeDifferenceToText
-from .NfoParser import NfoParser
-from .PtpUploaderException import PtpUploaderException
-
 import datetime
-import re
 import json
+import re
+
+from PtpUploader.Helper import (GetSizeFromText, SizeToText,
+                                TimeDifferenceToText)
+from PtpUploader.NfoParser import NfoParser
+from PtpUploader.PtpUploaderException import PtpUploaderException
 
 
 def GetSourceScore(source):
@@ -538,7 +539,7 @@ def UnitTest():
         )
 
     def IsReleaseExists(searchResult, expectedResult, searchResultItem):
-        from .ReleaseInfo import ReleaseInfo
+        from PtpUploader.ReleaseInfo import ReleaseInfo
 
         releaseInfo = ReleaseInfo()
         releaseInfo.Codec = searchResultItem.Codec
