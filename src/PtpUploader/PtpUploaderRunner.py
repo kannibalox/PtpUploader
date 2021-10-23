@@ -1,13 +1,12 @@
-from .Job.WorkerThread import WorkerThread
-
-from .MyGlobals import MyGlobals
-from .PtpUploaderMessage import *
-
 import queue
 import threading
 
+from PtpUploader.Job.WorkerThread import WorkerThread
+from PtpUploader.MyGlobals import MyGlobals
+from PtpUploader.PtpUploaderMessage import *
 
-class PtpUploader:
+
+class PtpUploaderRunner:
     def __init__(self):
         self.WaitEvent = threading.Event()
         self.StopRequested = False

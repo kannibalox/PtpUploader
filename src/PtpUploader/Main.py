@@ -2,7 +2,7 @@ from .Source.SourceFactory import SourceFactory
 from .WebServer.MyWebServer import MyWebServer
 
 from .MyGlobals import MyGlobals
-from .PtpUploader import PtpUploader
+from .PtpUploaderRunner import PtpUploaderRunner
 from .Settings import Settings
 from .Database import InitDb
 
