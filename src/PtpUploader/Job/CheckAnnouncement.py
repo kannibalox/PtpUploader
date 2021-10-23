@@ -166,7 +166,7 @@ class CheckAnnouncement(WorkerBase):
         else:
             # Try to get a PTP ID.
             movieOnPtpResult = Ptp.GetMoviePageOnPtpByImdbId(
-                self.ReleaseInfo.Logger, self.ReleaseInfo.GetImdbId()
+                self.ReleaseInfo.Logger, self.ReleaseInfo.ImdbId
             )
             self.ReleaseInfo.PtpId = movieOnPtpResult.PtpId
 
@@ -189,7 +189,7 @@ class CheckAnnouncement(WorkerBase):
         if self.ReleaseInfo.IsZeroImdbId():
             ptpImdbInfo = PtpZeroImdbInfo()
         else:
-            ptpImdbInfo = PtpImdbInfo(self.ReleaseInfo.GetImdbId())
+            ptpImdbInfo = PtpImdbInfo(self.ReleaseInfo.ImdbId)
 
         # Title
         if len(self.ReleaseInfo.Title) > 0:
@@ -264,7 +264,7 @@ class CheckAnnouncement(WorkerBase):
         if self.ReleaseInfo.PtpId or self.ReleaseInfo.IsZeroImdbId():
             return
 
-        imdbInfo = Imdb.GetInfo(self.ReleaseInfo.Logger, self.ReleaseInfo.GetImdbId())
+        imdbInfo = Imdb.GetInfo(self.ReleaseInfo.Logger, self.ReleaseInfo.ImdbId)
 
         # Ignore series (if force upload is not set).
         if imdbInfo.IsSeries:
@@ -293,7 +293,7 @@ class CheckAnnouncement(WorkerBase):
             self.ReleaseInfo.CoverArtUrl = imdbInfo.PosterUrl
             if not self.ReleaseInfo.IsCoverArtUrlSet():
                 self.ReleaseInfo.CoverArtUrl = MoviePoster.Get(
-                    self.ReleaseInfo.Logger, self.ReleaseInfo.GetImdbId()
+                    self.ReleaseInfo.Logger, self.ReleaseInfo.ImdbId
                 )
 
         self.ReleaseInfo.ImdbRating = imdbInfo.ImdbRating

@@ -290,3 +290,63 @@ class ReleaseInfo(models.Model):
 
     def IsTorrentNeedsDuplicateChecking(self, torrentId):
         return torrentId > self.DuplicateCheckCanIgnore
+
+    def IsZeroImdbId(self):
+        return self.ImdbId == "0"
+
+    def GetImdbId(self):
+        return self.ImdbId
+
+    def GetPtpId(self):
+        return self.PtpId
+
+    def GetPtpTorrentId(self):
+        return self.PtpTorrentId
+
+    def HasImdbId(self):
+        return len(self.ImdbId) > 0
+
+    def SetZeroImdbId(self):
+        self.ImdbId = "0"
+
+    def HasPtpId(self):
+        return len(self.PtpId) > 0
+
+    def HasPtpTorrentId(self):
+        return len(self.PtpTorrentId) > 0
+
+    def IsUserCreatedJob(self):
+        return (
+            self.JobStartMode == JobStartMode.Manual
+            or self.JobStartMode == JobStartMode.ManualForced
+        )
+
+    def IsForceUpload(self):
+        return self.JobStartMode == JobStartMode.ManualForced
+
+    def IsSynopsisSet(self):
+        return len(self.MovieDescription) > 0
+
+    def IsCoverArtUrlSet(self):
+        return len(self.CoverArtUrl) > 0
+
+    def IsReleaseNameSet(self):
+        return len(self.ReleaseName) > 0
+
+    def IsCodecSet(self):
+        return len(self.Codec) > 0
+
+    def IsContainerSet(self):
+        return len(self.Container) > 0
+
+    def IsSourceSet(self):
+        return len(self.Source) > 0
+
+    def IsResolutionTypeSet(self):
+        return len(self.ResolutionType) > 0
+
+    def IsSourceTorrentFilePathSet(self):
+        return len(self.SourceTorrentFilePath) > 0
+
+    def IsUploadTorrentFilePathSet(self):
+        return len(self.UploadTorrentFilePath) > 0

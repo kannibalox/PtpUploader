@@ -232,10 +232,10 @@ class Ptp:
         }
 
         # Add the IMDb ID.
-        if releaseInfo.IsZeroImdbId():
+        if releaseInfo.ImdbId == '0':
             params.update({"imdb": "0"})
         else:
-            params.update({"imdb": Ptp.NormalizeImdbIdForPtp(releaseInfo.GetImdbId())})
+            params.update({"imdb": Ptp.NormalizeImdbIdForPtp(releaseInfo.ImdbId)})
         # Add the directors.
         # These needs to be added in order because of the "importance" field follows them.
         directors = releaseInfo.GetDirectors()
