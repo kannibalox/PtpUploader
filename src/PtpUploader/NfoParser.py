@@ -1,9 +1,7 @@
-import fnmatch
 import os
 import re
 
 from PtpUploader.Helper import GetFileListFromTorrent
-from PtpUploader.PtpUploaderException import PtpUploaderException
 
 
 class NfoParser:
@@ -11,49 +9,33 @@ class NfoParser:
     # Eg.: 0111161 for http://www.imdb.com/title/tt0111161/
     @staticmethod
     def GetImdbId(nfoText):
-        matches = re.search("imdb.com/title/tt(\d+)", nfoText)
+        matches = re.search(r"imdb.com/title/tt(\d+)", nfoText)
         if not matches:
-            matches = re.search("imdb.com/Title\?(\d+)", nfoText)
+            matches = re.search(r"imdb.com/Title\?(\d+)", nfoText)
 
         if matches:
             return matches.group(1)
-        else:
-            return ""
+        return ""
 
-    # Reads an NFO file and converts it to Unicode.
-    @staticmethod
-    def ReadNfoFileToUnicode(path):
-        # Read as binary.
-        nfoFile = open(path, "rb")
-        nfo = nfoFile.read()
-        nfoFile.close()
-
-        # NFOs use codepage 437.
-        # http://en.wikipedia.org/wiki/.nfo
-        nfo = nfo.decode("cp437", "ignore")
-        return nfo
-
-    # If there are multiple NFOs, it returns with empty string.
+    # If there are multiple NFOs, it returns with an empty string.
     @staticmethod
     def FindAndReadNfoFileToUnicode(directoryPath):
         nfoPath = None
         nfoFound = False
 
-        entries = os.listdir(directoryPath)
-        for entry in entries:
+        for entry in os.listdir(directoryPath):
             entryPath = os.path.join(directoryPath, entry)
-            entryLower = entry.lower()
-            if os.path.isfile(entryPath) and fnmatch.fnmatch(entryLower, "*.nfo"):
+            if os.path.isfile(entryPath) and entry.lower().endswith('.nfo'):
                 if nfoFound:
                     nfoPath = None
                 else:
                     nfoPath = entryPath
                     nfoFound = True
 
-        if nfoPath is None:
-            return ""
-        else:
-            return NfoParser.ReadNfoFileToUnicode(nfoPath)
+        if nfoPath is not None:
+            with open(nfoPath, "rb") as nfoFile:
+                return nfoFile.read().decode("cp437", "ignore")
+        return ""
 
     @staticmethod
     def IsTorrentContainsMultipleNfos(torrentPath):
