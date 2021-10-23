@@ -322,11 +322,7 @@ def ajaxGetIncludedFileList():
 
     if jobId:
         jobId = int(jobId)
-        releaseInfo = ReleaseInfo.objects.get(Id == jobId)(
-            Database.DbSession.query(ReleaseInfo)
-            .filter(ReleaseInfo.Id == jobId)
-            .first()
-        )
+        releaseInfo = ReleaseInfo.objects.get(Id == jobId)
         announcementSource = MyGlobals.SourceFactory.GetSource(
             releaseInfo.AnnouncementSourceName
         )

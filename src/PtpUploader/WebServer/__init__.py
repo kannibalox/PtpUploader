@@ -3,7 +3,6 @@
 
 from flask import request, url_for
 
-from PtpUploader.Database import Database
 from PtpUploader.WebServer.MyFlask import MyFlask
 
 app = MyFlask(__name__)

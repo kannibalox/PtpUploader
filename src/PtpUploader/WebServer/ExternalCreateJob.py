@@ -3,9 +3,7 @@ import sys
 import uuid
 
 from flask import jsonify, make_response, request
-from werkzeug.utils import secure_filename
 
-from PtpUploader.Database import Database
 from PtpUploader.Helper import GetSuggestedReleaseNameAndSizeFromTorrentFile
 from PtpUploader.Job.JobRunningState import JobRunningState
 from PtpUploader.Job.JobStartMode import JobStartMode
@@ -59,7 +57,6 @@ def ajaxExternalCreateJob():
     )
 
     releaseInfo = ReleaseInfo()
-    releaseInfo.LastModificationTime = Database.MakeTimeStamp()
     releaseInfo.JobRunningState = JobRunningState.Paused
     releaseInfo.JobStartMode = JobStartMode.Manual
     releaseInfo.SourceTorrentFilePath = sourceTorrentFilePath
@@ -89,8 +86,7 @@ def ajaxExternalCreateJob():
             releaseInfo, request.values["SourceUrl"], request.values["PageContent"]
         )
 
-    Database.DbSession.add(releaseInfo)
-    Database.DbSession.commit()
+    releaseInfo.save()
 
     # Just add the job, don't start it.
 

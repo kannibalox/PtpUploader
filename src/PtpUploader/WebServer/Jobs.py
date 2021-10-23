@@ -1,9 +1,8 @@
 import datetime
 
 from django.utils import timezone
-from flask import render_template, request, url_for
+from flask import render_template, url_for
 
-from PtpUploader.Database import Database
 from PtpUploader.Helper import SizeToText, TimeDifferenceToText
 from PtpUploader.Job.JobRunningState import JobRunningState
 from PtpUploader.Job.JobStartMode import JobStartMode
@@ -189,9 +188,7 @@ def jobs(page):
 def StartJob(jobId):
     # TODO: This is very far from perfect. There is no guarantee that the job didn't start meanwhile.
     # Probably only the WorkerThread should change the running state.
-    releaseInfo = (
-        Database.DbSession.query(ReleaseInfo).filter(ReleaseInfo.Id == jobId).first()
-    )
+    releaseInfo = ReleaseInfo.objects.get(Id = jobId)
     if not releaseInfo.CanResumed():
         return "The job is already running!"
 
@@ -205,7 +202,7 @@ def StartJob(jobId):
     # Resume the job normally.
     releaseInfo.SetStopBeforeUploading(False)
 
-    Database.DbSession.commit()
+    releaseInfo.save()
     MyGlobals.PtpUploader.AddMessage(PtpUploaderMessageStartJob(jobId))
     return "OK"
 
@@ -215,9 +212,7 @@ def StartJob(jobId):
 def StopJob(jobId):
     # TODO: This is very far from perfect. There is no guarantee that the job didn't stop meanwhile.
     # Probably only the WorkerThread should change the running state.
-    releaseInfo = (
-        Database.DbSession.query(ReleaseInfo).filter(ReleaseInfo.Id == jobId).first()
-    )
+    releaseInfo = ReleaseInfo.objects.get(Id = jobId)
     if not releaseInfo.CanStopped():
         return "The job is already stopped!"
 

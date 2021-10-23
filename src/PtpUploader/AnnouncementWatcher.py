@@ -4,7 +4,6 @@ import os
 import re
 import time
 
-from PtpUploader.Database import Database
 from PtpUploader.Job.JobRunningState import JobRunningState
 from PtpUploader.Logger import Logger
 from PtpUploader.MyGlobals import MyGlobals
@@ -167,7 +166,6 @@ class AnnouncementWatcher:
             return None
 
         releaseInfo = ReleaseInfo()
-        releaseInfo.LastModificationTime = Database.MakeTimeStamp()
         releaseInfo.ReleaseName = releaseName
         releaseInfo.AnnouncementSource = announcementSource
         releaseInfo.AnnouncementSourceName = announcementSource.Name
@@ -202,8 +200,7 @@ class AnnouncementWatcher:
         releaseInfo.AnnouncementId = announcementId
         AnnouncementWatcher.__SetScheduling(releaseInfo)
 
-        Database.DbSession.add(releaseInfo)
-        Database.DbSession.commit()
+        releaseInfo.save()
 
         # This must be after the commit because GetLogFilePath uses the Id.
         releaseInfo.Logger = Logger(releaseInfo.GetLogFilePath())

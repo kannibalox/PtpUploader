@@ -2,8 +2,7 @@ import datetime
 import os
 import subprocess
 
-from PtpUploader.Database import Database
-from PtpUploader.Helper import ParseQueryString, TimeDifferenceToText
+from PtpUploader.Helper import TimeDifferenceToText
 from PtpUploader.IdxReader import IdxReader
 from PtpUploader.ImageHost.ImageUploader import ImageUploader
 from PtpUploader.Job.FinishedJobPhase import FinishedJobPhase
@@ -14,7 +13,6 @@ from PtpUploader.Ptp import Ptp
 from PtpUploader.PtpSubtitle import *
 from PtpUploader.PtpUploaderException import *
 from PtpUploader.ReleaseDescriptionFormatter import ReleaseDescriptionFormatter
-from PtpUploader.ReleaseExtractor import ReleaseExtractor
 from PtpUploader.Settings import Settings
 from PtpUploader.Tool import Mktor
 
@@ -95,7 +93,7 @@ class Upload(WorkerBase):
         self.ReleaseInfo.AnnouncementSource.CreateUploadDirectory(self.ReleaseInfo)
 
         self.ReleaseInfo.SetJobPhaseFinished(FinishedJobPhase.Upload_CreateUploadPath)
-        Database.DbSession.commit()
+        self.ReleaseInfo.save()
 
     def __MakeIncludedFileList(self):
         self.IncludedFileList = self.ReleaseInfo.AnnouncementSource.GetIncludedFileList(
@@ -127,7 +125,7 @@ class Upload(WorkerBase):
         )
 
         self.ReleaseInfo.SetJobPhaseFinished(FinishedJobPhase.Upload_ExtractRelease)
-        Database.DbSession.commit()
+        self.ReleaseInfo.save()
 
     def __ValidateExtractedRelease(self):
         (
@@ -286,7 +284,7 @@ class Upload(WorkerBase):
         self.MainMediaInfo = releaseDescriptionFormatter.GetMainMediaInfo()
 
         # To not waste the uploaded screenshots we commit them to the database because the following function calls can all throw exceptions.
-        Database.DbSession.commit()
+        self.ReleaseInfo.save()
 
         self.__GetMediaInfoContainer(self.MainMediaInfo)
         self.__GetMediaInfoCodec(self.MainMediaInfo)
@@ -393,7 +391,7 @@ class Upload(WorkerBase):
         # Local variables are used temporarily to make sure that values only get stored in the database if MakeTorrent.Make succeeded.
         self.ReleaseInfo.UploadTorrentFilePath = uploadTorrentFilePath
         self.ReleaseInfo.UploadTorrentCreatePath = uploadTorrentCreatePath
-        Database.DbSession.commit()
+        self.ReleaseInfo.save()
 
     def __CheckIfExistsOnPtp(self):
         # TODO: this is temporary here. We should support it everywhere.
@@ -477,7 +475,7 @@ class Upload(WorkerBase):
                 self.ReleaseInfo.GetReleaseUploadPath(),
             )
         )
-        Database.DbSession.commit()
+        self.ReleaseInfo.save()
 
     def __UploadMovie(self):
         # This is not possible because finished jobs can't be restarted.
@@ -518,7 +516,7 @@ class Upload(WorkerBase):
 
         self.ReleaseInfo.SetJobPhaseFinished(FinishedJobPhase.Upload_UploadMovie)
         self.ReleaseInfo.JobRunningState = JobRunningState.Finished
-        Database.DbSession.commit()
+        self.ReleaseInfo.save()
 
     def __ExecuteCommandOnSuccessfulUpload(self):
         # Execute command on successful upload.

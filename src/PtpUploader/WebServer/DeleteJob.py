@@ -1,8 +1,5 @@
-import os
+from flask import request
 
-from flask import redirect, render_template, request, url_for
-
-from PtpUploader.Database import Database
 from PtpUploader.Logger import Logger
 from PtpUploader.MyGlobals import MyGlobals
 from PtpUploader.ReleaseInfo import ReleaseInfo
@@ -13,9 +10,7 @@ from PtpUploader.WebServer.Authentication import requires_auth
 @app.route("/job/<int:jobId>/delete/")
 @requires_auth
 def DeleteTheJob(jobId):
-    releaseInfo = (
-        Database.DbSession.query(ReleaseInfo).filter(ReleaseInfo.Id == jobId).first()
-    )
+    releaseInfo = ReleaseInfo.objects.get(Id = jobId)
 
     # TODO: This is very far from perfect. There is no guarantee that the job didn't start meanwhile.
     # Probably the WorkerThread should do the deleting.
@@ -43,7 +38,6 @@ def DeleteTheJob(jobId):
         releaseInfo, MyGlobals.GetTorrentClient(), deleteSourceData, deleteUploadData
     )
 
-    Database.DbSession.delete(releaseInfo)
-    Database.DbSession.commit()
+    releaseInfo.delete()
 
     return "OK"

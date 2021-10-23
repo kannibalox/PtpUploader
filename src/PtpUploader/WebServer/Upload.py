@@ -5,7 +5,6 @@ import uuid
 from flask import jsonify, render_template, request
 from werkzeug.utils import secure_filename
 
-from PtpUploader.Database import Database
 from PtpUploader.Helper import (GetSuggestedReleaseNameAndSizeFromTorrentFile,
                                 SizeToText)
 from PtpUploader.MyGlobals import MyGlobals
@@ -19,7 +18,7 @@ from PtpUploader.WebServer.UploadFile import UploadFile
 
 
 def IsFileAllowed(filename):
-    root, extension = os.path.splitext(filename)
+    _, extension = os.path.splitext(filename)
     return extension == ".torrent"
 
 
@@ -93,7 +92,6 @@ def UploadTorrentSiteLink(releaseInfo, request):
 def upload():
     if request.method == "POST":
         releaseInfo = ReleaseInfo.objects.create()
-        releaseInfo.LastModificationTime = Database.MakeTimeStamp()
         releaseInfo.save()
 
         # Announcement
