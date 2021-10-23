@@ -1,5 +1,6 @@
 src/FlexGet/config.yml
 src/PtpUploader/Settings.ini
+src/db.sqlite3
 *.pyc
 *~
 _build
