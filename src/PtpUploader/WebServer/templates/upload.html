@@ -93,7 +93,7 @@
                source: {url: "/ajax/localdir/", cache: false},
                lazyLoad: function(event, data){
                  var node = data.node;
-                 // Load child nodes via Ajax GET /getTreeData?mode=children&parent=1234
+                 // Load child nodes via Ajax GET
                  data.result = {
                    url: "/ajax/localdir",
                    data: {mode: "children", dir: node.key},
@@ -152,14 +152,12 @@
          } );
 
        // Do a quick naive check that a necessary field is filled
-       $( "#post" ).click( function( event )
-         {
-	   if ( ! ( $( "#torrent_site_link" ).val() || $( "#existingfile" ).val() || $( "#upload_field" ).val() ) )
-	   {
-	     alert( "Select something to upload!" );
+       $("#post").click(function(event) {
+	   if (!($("#torrent_site_link").val() || $("#existingfile").val() || $("#upload_field").val())) {
+	     alert("Select something to upload!");
 	     event.preventDefault();
 	   }
-         } );
+         });
 
    });
   </script>
