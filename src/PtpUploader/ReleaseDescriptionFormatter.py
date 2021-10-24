@@ -60,16 +60,8 @@ class ReleaseDescriptionFormatter:
                 )
                 ifos.append(mediaInfo)
 
-        # Sort them by duration.
-        sortedIfos = []
-        for ifo in ifos:
-            item = ifo.DurationInSec, ifo  # Add as a tuple.
-            sortedIfos.append(item)
-
-        sortedIfos.sort(reverse=True)
-
-        # Use the longest.
-        ifo = sortedIfos[0][1]
+        # Use the longest by duration.
+        ifo = sorted(ifos, key=lambda x: x.DurationInSec, reverse=True)[0]
         if ifo.DurationInSec <= 0:
             raise PtpUploaderException(
                 "None of the IFOs have duration. MediaInfo is probably too old."
