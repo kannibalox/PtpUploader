@@ -8,152 +8,152 @@
 <script src="{{ url_for( "static", filename = "script/dynatree/jquery.dynatree.min.js" ) }}"></script>
 
 <style type="text/css">
-	/* We don't want the selected items to be italic in dynatree, so we override the style. */
-	span.dynatree-selected a
-	{
-		color: green;
-		font-style: normal;
-	}
+ /* We don't want the selected items to be italic in dynatree, so we override the style. */
+ span.dynatree-selected a
+ {
+   color: green;
+   font-style: normal;
+ }
 </style>
 
 <script>
-	function FinishSkipDuplicateCheckingAjaxCall( torrentId, uploadedAgo )
-	{
-		$( "html" ).removeClass( 'busy' );
-		$( "#SkipDuplicateCheckingButton" ).val( torrentId );
-		$( "#SkipDuplicateCheckingMessage" ).html( uploadedAgo );
+ function FinishSkipDuplicateCheckingAjaxCall( torrentId, uploadedAgo )
+ {
+   $( "html" ).removeClass( 'busy' );
+   $( "#SkipDuplicateCheckingButton" ).val( torrentId );
+   $( "#SkipDuplicateCheckingMessage" ).html( uploadedAgo );
 
-		if ( torrentId <= 0 )
-		{
-			alert( "Error!" );
-			$( "#SkipDuplicateCheckingButton" ).attr( "checked", false );
-		}
-	}
+   if ( torrentId <= 0 )
+   {
+     alert( "Error!" );
+     $( "#SkipDuplicateCheckingButton" ).attr( "checked", false );
+   }
+ }
 
-	$(function ()
-	{
-		// Select subtitles that are specified in the job.
-		$( "#subtitle" ).val( {{ job.Subtitles|tojson|safe }} );
-		
-		$( "#subtitle" ).select2({
-                  width: '90%' // need to override the changed default
-                });
+ $(function ()
+   {
+     // Select subtitles that are specified in the job.
+     $( "#subtitle" ).val( {{ job.Subtitles|tojson|safe }} );
 
-		// Add tags to the tags textbox when selection changes in the tags combobox.
-		$( "#genre_tags" ).select2({
-                  width: '90%' // need to override the changed default
-                });
+     $( "#subtitle" ).select2({
+       width: '90%' // need to override the changed default
+     });
 
-		$( "#ConvertComparisonCode" ).click( function()
-		{
-			var releaseNotes = $( "#ReleaseNotes" );
+     // Add tags to the tags textbox when selection changes in the tags combobox.
+     $( "#genre_tags" ).select2({
+       width: '90%' // need to override the changed default
+     });
 
-			var text = releaseNotes.val().replace( /<b>/gi, "" );
-			text = text.replace( /<\/b>/gi, "" );
-			text = text.replace( /<font.*?>/gi, "" );
-			text = text.replace( /<\/font>/gi, "" );
-			text = text.replace( /<br>/gi, "\n" );
-			text = text.replace( /&nbsp;/gi, " " );
-			// E.g.: <a href="http://www.imagebam.com/image/50a6ce137826241" target="_blank"><img id="ncode_imageresizer_container_1" src="http://thumbnails43.imagebam.com/13783/50a6ce137826241.jpg" alt="" onload="NcodeImageResizer.createOn(this);" border="0"></a>
-			text = text.replace( /<a.*?href="(.+?)".*?><img.*?src="(.+?)".*?>.*?<\/a>/gi, "[url=$1][img]$2[/img][/url]" );
+     $( "#ConvertComparisonCode" ).click( function()
+       {
+	 var releaseNotes = $( "#ReleaseNotes" );
 
-			releaseNotes.val( text );
-		} );
-		
-		// Included files tree.
-		$( "#IncludedFilesToggle" ).click( function()
-		{
-			// Initialize the tree.
-			$( "#IncludedFilesTree" ).dynatree(
-			{
-				checkbox: true,
-				selectMode: 3, // multi-hier
-			} );
+	 var text = releaseNotes.val().replace( /<b>/gi, "" );
+	 text = text.replace( /<\/b>/gi, "" );
+	 text = text.replace( /<font.*?>/gi, "" );
+	 text = text.replace( /<\/font>/gi, "" );
+	 text = text.replace( /<br>/gi, "\n" );
+	 text = text.replace( /&nbsp;/gi, " " );
+	 // E.g.: <a href="http://www.imagebam.com/image/50a6ce137826241" target="_blank"><img id="ncode_imageresizer_container_1" src="http://thumbnails43.imagebam.com/13783/50a6ce137826241.jpg" alt="" onload="NcodeImageResizer.createOn(this);" border="0"></a>
+	 text = text.replace( /<a.*?href="(.+?)".*?><img.*?src="(.+?)".*?>.*?<\/a>/gi, "[url=$1][img]$2[/img][/url]" );
 
-			var rootNode = $( "#IncludedFilesTree" ).dynatree( "getRoot" );
-			
-			// Initialize the tree only once.
-			// This is needed because for torrent page link source we don't want to download the torrent file multiple times.
-			// It is against the rules on some sites to download the torrent multiple times.
-			if ( !rootNode.hasChildren() )
-			{
-				var url = "{{ url_for( "ajaxGetIncludedFileList" ) }}";
-				var postParameters =
-				{
-					"JobId": $( "#JobId" ).val(),
-					"SourceTorrentFilename": $( "#uploaded_torrentfilename" ).val(),
-					"ReleaseDownloadPath": $( "#existingfile" ).val(),
-					"IncludedFilesCustomizedList": $( "#IncludedFilesCustomizedList" ).val()
-				};
+	 releaseNotes.val( text );
+       } );
 
-				$.post( url, postParameters, function(data)
-				{
-					if ( data.result == "OK" )
+     // Included files tree.
+     $( "#IncludedFilesToggle" ).click( function()
+       {
+	 // Initialize the tree.
+	 $( "#IncludedFilesTree" ).dynatree(
+	   {
+	     checkbox: true,
+	     selectMode: 3, // multi-hier
+	   } );
+
+	 var rootNode = $( "#IncludedFilesTree" ).dynatree( "getRoot" );
+
+	 // Initialize the tree only once.
+	 // This is needed because for torrent page link source we don't want to download the torrent file multiple times.
+	 // It is against the rules on some sites to download the torrent multiple times.
+	 if ( !rootNode.hasChildren() )
+	 {
+	   var url = "{{ url_for( "ajaxGetIncludedFileList" ) }}";
+	   var postParameters =
+	     {
+	       "JobId": $( "#JobId" ).val(),
+	       "SourceTorrentFilename": $( "#uploaded_torrentfilename" ).val(),
+	       "ReleaseDownloadPath": $( "#existingfile" ).val(),
+	       "IncludedFilesCustomizedList": $( "#IncludedFilesCustomizedList" ).val()
+	     };
+
+	   $.post( url, postParameters, function(data)
+	     {
+	       if ( data.result == "OK" )
+	       {
+		 var rootNode = $( "#IncludedFilesTree" ).dynatree( "getRoot" );
+		 rootNode.addChild( data.files );
+	       }
+	       else
+	       {
+		 alert( "Error!" );
+	       }
+	     } );
+	 }
+
+	 $( ".blockOverlay" ).click( function()
+	   {
+	     var customizedFiles = {};
+
+	     function IncludedFilesTreeNodeVisitor(node)
+	     {
+	       var selected = node.isSelected();
+	       if ( !node.data.isFolder && selected != node.data.OriginallySelected )
+		 customizedFiles[ node.data.IncludePath ] = selected;
+	     }
+
+	     rootNode.visit( IncludedFilesTreeNodeVisitor, false ); // false - do not visit root
+	     // Return an empty string if there are no customized files. Calling JSON.stringify for an empty set would result in "{}", we don't want to store that in our database.
+	     $( "#IncludedFilesCustomizedList" ).val( Object.keys( customizedFiles ).length > 0 ? JSON.stringify( customizedFiles ) : "" );
+
+	     $.unblockUI( { fadeOut: 0 } );
+	   } );
+       } );
+
+     // Skip duplicate checking
+     $( "#SkipDuplicateCheckingButton" ).click( function()
+       {
+	 if ( $( this ).is( ":checked" ) )
+	 {
+	   $( "html" ).addClass( 'busy' );
+
+	   $.ajax(
+	     {
+	       type: "GET",
+	       url: "{{ url_for( "ajaxGetLatestTorrent" ) }}",
+	       dataType: "json",
+	       data:
 					{
-						var rootNode = $( "#IncludedFilesTree" ).dynatree( "getRoot" );
-						rootNode.addChild( data.files );
-					}
-					else
-					{
-						alert( "Error!" );
-					}
-				} );
-			}
-
-			$( ".blockOverlay" ).click( function()
-			{
-				var customizedFiles = {};
-
-				function IncludedFilesTreeNodeVisitor(node)
-				{
-					var selected = node.isSelected();
-					if ( !node.data.isFolder && selected != node.data.OriginallySelected )
-						customizedFiles[ node.data.IncludePath ] = selected;
-				}
-				
-				rootNode.visit( IncludedFilesTreeNodeVisitor, false ); // false - do not visit root
-				// Return an empty string if there are no customized files. Calling JSON.stringify for an empty set would result in "{}", we don't want to store that in our database.
-				$( "#IncludedFilesCustomizedList" ).val( Object.keys( customizedFiles ).length > 0 ? JSON.stringify( customizedFiles ) : "" );
-
-				$.unblockUI( { fadeOut: 0 } );
-			} );
-		} );
-
-		// Skip duplicate checking
-		$( "#SkipDuplicateCheckingButton" ).click( function()
-		{
-			if ( $( this ).is( ":checked" ) )
-			{
-				$( "html" ).addClass( 'busy' );
-			
-				$.ajax(
-				{
-					type: "GET",
-					url: "{{ url_for( "ajaxGetLatestTorrent" ) }}",
-					dataType: "json",
-					data:
-					{
-						"PtpOrImdbLink": $( "#imdb" ).val()
+					  "PtpOrImdbLink": $( "#imdb" ).val()
 					},
-					success: function( data )
-					{
-						if ( data.Result == "OK" )
-							FinishSkipDuplicateCheckingAjaxCall( data.TorrentId, data.UploadedAgo );
-						else
-							FinishSkipDuplicateCheckingAjaxCall( 0, "" );
-					},
-					error: function()
-					{
-						FinishSkipDuplicateCheckingAjaxCall( 0, "" );
-					}
-				} );
-			}
-			else
-			{
-				$( "#SkipDuplicateCheckingMessage" ).html( "" );
-			}
-		} );
-	} );
+	       success: function( data )
+	       {
+		 if ( data.Result == "OK" )
+		   FinishSkipDuplicateCheckingAjaxCall( data.TorrentId, data.UploadedAgo );
+		 else
+		   FinishSkipDuplicateCheckingAjaxCall( 0, "" );
+	       },
+	       error: function()
+	       {
+		 FinishSkipDuplicateCheckingAjaxCall( 0, "" );
+	       }
+	     } );
+	 }
+	 else
+	 {
+	   $( "#SkipDuplicateCheckingMessage" ).html( "" );
+	 }
+       } );
+   } );
 </script>
 
 {% endblock %}

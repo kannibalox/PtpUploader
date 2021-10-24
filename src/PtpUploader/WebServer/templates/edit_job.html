@@ -1,85 +1,85 @@
 ﻿{% extends "layout.html" %}
 
 {% block head %}
-	<title>{{ job.ReleaseName }} - PtpUploader</title>
+<title>{{ job.ReleaseName }} - PtpUploader</title>
 {% endblock %}
 
 {% block body %}
 
 {% if job.CanBeEdited %}
 {% else %}
-	<h2 style="color: red; font-weight: bold;">The job is currently running and can't be edited!</h2>
+<h2 style="color: red; font-weight: bold;">The job is currently running and can't be edited!</h2>
 {% endif %}
 
 <form action="" enctype="multipart/form-data" method="post" id="resume_table">
-	<table id="editjob_table" class="border" border="0" cellpadding="3" cellspacing="1">
-		<tbody>
-			<tr>
-				<td class="label">Release name</td>
-				<td>
-					{% if job.IsReleaseNameEditable %}
-						<input id="release_name" name="release_name" size="60" type="text" value="{{ job.ReleaseName }}" title="The specified release name will be the name of the directory in the torrent uploaded to PTP. (Not supported yet on CG.)"/>
-					{% else %}
-						{{ job.ReleaseName }}
-					{% endif %}
-				</td>
-			</tr>
-			<tr>
-				<td class="label">Release source</td>
-				<td>
-					{% if job.SourceIcon %}
-						{% if job.SourceUrl %}
-							<a href="{{ job.SourceUrl }}" {{ settings.OpenJobPageLinksInNewTab|safe }}><img src={{ job.SourceIcon }}></a>
-						{% else %}
-							<img src={{ job.SourceIcon }}/>
-						{% endif %}
-					{% endif %}
-				</td>
-			</tr>
-			{% include "job_common.html" %}
+  <table id="editjob_table" class="border" border="0" cellpadding="3" cellspacing="1">
+    <tbody>
+      <tr>
+	<td class="label">Release name</td>
+	<td>
+	  {% if job.IsReleaseNameEditable %}
+	  <input id="release_name" name="release_name" size="60" type="text" value="{{ job.ReleaseName }}" title="The specified release name will be the name of the directory in the torrent uploaded to PTP. (Not supported yet on CG.)"/>
+	  {% else %}
+	  {{ job.ReleaseName }}
+	  {% endif %}
+	</td>
+      </tr>
+      <tr>
+	<td class="label">Release source</td>
+	<td>
+	  {% if job.SourceIcon %}
+	  {% if job.SourceUrl %}
+	  <a href="{{ job.SourceUrl }}" {{ settings.OpenJobPageLinksInNewTab|safe }}><img src={{ job.SourceIcon }}></a>
+	  {% else %}
+	  <img src={{ job.SourceIcon }}/>
+	  {% endif %}
+	  {% endif %}
+	</td>
+      </tr>
+      {% include "job_common.html" %}
 
-			{% if job.CanBeEdited %}
-				<tr>
-					<td colspan="2" style="text-align: center; border: none;">
-						<br/>
-						<br/>
-						<input id="post" name="post" type="submit" value="Resume">
-						<input id="post" name="post" type="submit" value="Resume but stop before uploading" title="The job will be stopped after everything has completed and the only remaining thing to do is the uploading to PTP.">
-						<br/>
-						<br/>
-						<br/>
-					</td>
-				</tr>
-			{% endif %}
-		</tbody>
-	</table>
+      {% if job.CanBeEdited %}
+      <tr>
+	<td colspan="2" style="text-align: center; border: none;">
+	  <br/>
+	  <br/>
+	  <input id="post" name="post" type="submit" value="Resume">
+	  <input id="post" name="post" type="submit" value="Resume but stop before uploading" title="The job will be stopped after everything has completed and the only remaining thing to do is the uploading to PTP.">
+	  <br/>
+	  <br/>
+	  <br/>
+	</td>
+      </tr>
+      {% endif %}
+    </tbody>
+  </table>
 </form>
 
 {% include "job_common_javascript.html" %}
 
 {# Is not there an easier way than this? #}
 <script type='text/javascript'>
-	function SelectInComboboxOrUseOtherInput( comboboxId, otherInputId, value )
-	{
-		var combobox = document.getElementById( comboboxId );
+ function SelectInComboboxOrUseOtherInput( comboboxId, otherInputId, value )
+ {
+   var combobox = document.getElementById( comboboxId );
 
-		for ( var i = 0; i < combobox.options.length; ++i )
-			if ( combobox.options[ i ].value === value )
-			{
-				combobox.value = value;
-				return;
-			}
+   for ( var i = 0; i < combobox.options.length; ++i )
+     if ( combobox.options[ i ].value === value )
+     {
+       combobox.value = value;
+       return;
+     }
 
-		combobox.value = "Other";
-		document.getElementById( otherInputId ).value = value;
-	}
+   combobox.value = "Other";
+   document.getElementById( otherInputId ).value = value;
+ }
 
-	document.getElementById ( "categories" ).value = "{{ job.type }}";
-	document.getElementById ( "resolution" ).value = "{{ job.resolution }}";
+ document.getElementById ( "categories" ).value = "{{ job.type }}";
+ document.getElementById ( "resolution" ).value = "{{ job.resolution }}";
 
-	SelectInComboboxOrUseOtherInput( "codec", "other_codec", "{{ job.codec }}" );
-	SelectInComboboxOrUseOtherInput( "container", "other_container", "{{ job.container }}" );
-	SelectInComboboxOrUseOtherInput( "source", "other_source", "{{ job.source }}" );
+ SelectInComboboxOrUseOtherInput( "codec", "other_codec", "{{ job.codec }}" );
+ SelectInComboboxOrUseOtherInput( "container", "other_container", "{{ job.container }}" );
+ SelectInComboboxOrUseOtherInput( "source", "other_source", "{{ job.source }}" );
 </script>
 
 {% endblock %}
