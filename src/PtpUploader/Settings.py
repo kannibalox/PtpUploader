@@ -1,9 +1,9 @@
-import shutil
 import configparser
 import fnmatch
 import os
 import os.path
 import re
+import shutil
 from pathlib import Path
 
 from PtpUploader.MyGlobals import MyGlobals
