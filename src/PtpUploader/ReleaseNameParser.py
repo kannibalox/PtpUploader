@@ -52,7 +52,7 @@ class ReleaseNameParser:
                 % releaseInfo.ReleaseName
             )
 
-        if releaseInfo.IsResolutionTypeSet():
+        if releaseInfo.ResolutionType:
             releaseInfo.Logger.info(
                 "Resolution type '%s' is already set, not getting from release name."
                 % releaseInfo.ResolutionType

@@ -355,7 +355,7 @@ class Upload(WorkerBase):
             self.ReleaseInfo.SetSubtitles([str(PtpSubtitleId.NoSubtitle)])
 
     def __MakeTorrent(self):
-        if self.ReleaseInfo.IsUploadTorrentFilePathSet():
+        if self.ReleaseInfo.UploadTorrentFilePath:
             self.ReleaseInfo.Logger.info(
                 "Upload torrent file path is set, not making torrent again."
             )
@@ -493,14 +493,14 @@ class Upload(WorkerBase):
         )
 
         # Delete the source torrent file.
-        if self.ReleaseInfo.IsSourceTorrentFilePathSet() and os.path.isfile(
+        if self.ReleaseInfo.SourceTorrentFilePath and os.path.isfile(
             self.ReleaseInfo.SourceTorrentFilePath
         ):
             os.remove(self.ReleaseInfo.SourceTorrentFilePath)
             self.ReleaseInfo.SourceTorrentFilePath = ""
 
         # Delete the uploaded torrent file.
-        if self.ReleaseInfo.IsUploadTorrentFilePathSet() and os.path.isfile(
+        if self.ReleaseInfo.UploadTorrentFilePath and os.path.isfile(
             self.ReleaseInfo.UploadTorrentFilePath
         ):
             os.remove(self.ReleaseInfo.UploadTorrentFilePath)

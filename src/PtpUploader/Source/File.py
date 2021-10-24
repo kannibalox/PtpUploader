@@ -130,7 +130,7 @@ class File(SourceBase):
 
         if deleteUploadData:
             # Delete the uploaded torrent file.
-            if releaseInfo.IsUploadTorrentFilePathSet() and os.path.isfile(
+            if releaseInfo.UploadTorrentFilePath and os.path.isfile(
                 releaseInfo.UploadTorrentFilePath
             ):
                 os.remove(releaseInfo.UploadTorrentFilePath)

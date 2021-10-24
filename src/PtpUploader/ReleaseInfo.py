@@ -34,6 +34,7 @@ class ReleaseInfoFlags:
 
 
 class ReleaseInfo(models.Model):
+    # pylint: disable=too-many-public-methods, too-many-instance-attributes
     class Meta:
         app_label = "web"
         __tablename__ = "release"
@@ -169,7 +170,7 @@ class ReleaseInfo(models.Model):
         return self.ResolutionType == "4K"
 
     def IsRemux(self):
-        return "Remux" in str(self.RemasterTitle)
+        return "Remux" in self.RemasterTitle
 
     def IsDvdImage(self):
         return self.Codec == "DVD5" or self.Codec == "DVD9"
@@ -225,11 +226,14 @@ class ReleaseInfo(models.Model):
             self.Flags &= ~ReleaseInfoFlags.StopBeforeUploading
 
     def CanEdited(self):
-        return (
-            self.JobRunningState != JobRunningState.WaitingForStart
-            and self.JobRunningState != JobRunningState.Scheduled
-            and self.JobRunningState != JobRunningState.InProgress
-            and self.JobRunningState != JobRunningState.Finished
+        return not (
+            self.JobRunningState
+            in [
+                JobRunningState.WaitingForStart,
+                JobRunningState.Scheduled,
+                JobRunningState.InProgress,
+                JobRunningState.Finished,
+            ]
         )
 
     def IsReleaseNameEditable(self):
@@ -324,12 +328,3 @@ class ReleaseInfo(models.Model):
 
     def IsSourceSet(self):
         return len(self.Source) > 0
-
-    def IsResolutionTypeSet(self):
-        return len(self.ResolutionType) > 0
-
-    def IsSourceTorrentFilePathSet(self):
-        return len(self.SourceTorrentFilePath) > 0
-
-    def IsUploadTorrentFilePathSet(self):
-        return len(self.UploadTorrentFilePath) > 0

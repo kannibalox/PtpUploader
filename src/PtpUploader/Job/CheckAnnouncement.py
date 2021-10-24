@@ -385,7 +385,7 @@ class CheckAnnouncement(WorkerBase):
         self.ReleaseInfo.save()
 
     def __DownloadTorrentFile(self):
-        if self.ReleaseInfo.IsSourceTorrentFilePathSet():
+        if self.ReleaseInfo.SourceTorrentFilePath:
             self.ReleaseInfo.Logger.info(
                 "Source torrent file path is set, not downloading the file again."
             )
