@@ -40,7 +40,7 @@ def log(jobId):
     log_msg = ""
 
     if os.path.isfile(logFilePath):
-        with open(logFilePath, 'rb'):
+        with open(logFilePath, 'r') as fh:
             log_msg = fh.read()
     else:
         log_msg = "Log file '%s' doesn't exists!" % logFilePath
