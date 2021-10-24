@@ -22,7 +22,7 @@ load-plugins=
     pylint.extensions.code_style,
 
 # Use multiple processes to speed up Pylint.
-jobs=1
+jobs=4
 
 # Allow loading of arbitrary C extensions. Extensions are imported into the
 # active Python interpreter and may run arbitrary code.
@@ -44,6 +44,7 @@ confidence=
 # either give multiple identifier separated by comma (,) or put this option
 # multiple time. See also the "--disable" option for examples.
 enable=
+    E, R,
     use-symbolic-message-instead,
     useless-supression,
     fixme,
