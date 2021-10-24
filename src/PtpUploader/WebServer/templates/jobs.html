@@ -1,4 +1,4 @@
-﻿{% extends "layout.html" %}
+{% extends "layout.html" %}
 
 {% block head %}
   <title>PtpUploader - Jobs</title>
@@ -157,10 +157,9 @@
   </div>
 
   <script type=text/javascript src="{{ url_for( "static", filename = "script/jquery-3.6.0.min.js" ) }}"></script>
-  <link href="{{ url_for( "static", filename = "script/jquery.contextMenu/jquery.contextMenu.css" ) }}" rel="stylesheet" type="text/css" />
-  <script type=text/javascript src="{{ url_for( "static", filename = "script/jquery.contextMenu/jquery.contextMenu.js" ) }}"></script>
-  <script type=text/javascript src="{{ url_for( "static", filename = "script/jquery.contextMenu/jquery.ui.position.js" ) }}"></script>
-
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-contextmenu/2.7.1/jquery.contextMenu.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-contextmenu/2.7.1/jquery.contextMenu.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-contextmenu/2.7.1/jquery.ui.position.js"></script>
   <script type="text/javascript">
    var $SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
 
@@ -214,28 +213,25 @@
        } );
    }
 
-   $( function ()
-     {
-       $.contextMenu(
-         {
-	   selector: '.delete_job_context_menu',
-	   trigger: 'left',
-	   callback: function( key, options )
-	   {
-	     var deleteLink = options.$trigger;
-	     var jobId = deleteLink.attr( 'PtpUploaderJobId' );
-	     if ( jobId.length > 0 )
-	     {
-	       executeDeleteJobCommand( deleteLink, jobId, key );
-	     }
-	   },
-	   items: {
-	     "DeleteJob": { name: "Delete job" },
-	     "DeleteJobAndSourceData": { name: "Delete job & source data" },
-	     "DeleteJobAndUploadData": { name: "Delete job & upload data" },
-	     "DeleteJobAndAllData": { name: "Delete job & all data" },
-	   }
-         } );
+
+   $(document).ready( function () {
+     $.contextMenu( {
+       selector: '.delete_job_context_menu',
+       trigger: 'left',
+       callback: function( key, options ) {
+	 var deleteLink = options.$trigger;
+	 var jobId = deleteLink.attr( 'PtpUploaderJobId' );
+	 if ( jobId.length > 0 ) {
+	   executeDeleteJobCommand( deleteLink, jobId, key );
+	 }
+       },
+       items: {
+	 "DeleteJob": { name: "Delete job" },
+	 "DeleteJobAndSourceData": { name: "Delete job & source data" },
+	 "DeleteJobAndUploadData": { name: "Delete job & upload data" },
+	 "DeleteJobAndAllData": { name: "Delete job & all data" },
+       }
      } );
+   } );
   </script>
 {% endblock %}
