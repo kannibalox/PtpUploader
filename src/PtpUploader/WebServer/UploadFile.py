@@ -15,7 +15,6 @@ from PtpUploader.WebServer.Authentication import requires_auth
 @app.route("/ajaxgetdirectorylist/", methods=["POST"])
 @requires_auth
 def ajaxGetDirectoryList():
-    r = ['<ul class="jqueryFileTree" style="display: none;">']
     try:
         response = ['<ul class="jqueryFileTree" style="display: none;">']
 
@@ -68,8 +67,8 @@ def ajaxGetInfoForFileUpload():
     if not path:
         return jsonify(result="ERROR", message="Missing request parameter: path.")
 
-    releaseName = ""
-    imdbId = ""
+    releaseName: str = ""
+    imdbId: str = ""
 
     if os.path.isdir(path):
         # Make sure that path doesn't ends with a trailing slash or else os.path.split would return with wrong values.

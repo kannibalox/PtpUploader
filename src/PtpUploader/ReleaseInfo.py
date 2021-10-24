@@ -94,13 +94,11 @@ class ReleaseInfo(models.Model):
     Subtitles = models.TextField(blank=True, default="")
     IncludedFiles = models.TextField(blank=True, default="")
     DuplicateCheckCanIgnore = models.IntegerField(default=0)
-    ScheduleTimeUtc = models.DateTimeField()
+    ScheduleTimeUtc = models.DateTimeField(default=datetime.datetime.now())
 
     def __init__(self, *args, **kwargs):
         # <<< These are the required fields needed for an upload to PTP.
         super().__init__(*args, **kwargs)
-
-        self.ScheduleTimeUtc = datetime.datetime.utcnow()
 
         self.AnnouncementSource = None  # A class from the Source namespace.
         self.Logger = None
@@ -122,11 +120,10 @@ class ReleaseInfo(models.Model):
     def GetDirectors(self):
         if len(self.Directors) > 0:
             return self.Directors.split(", ")
-        else:
-            return []
+        return []
 
-    def SetDirectors(self, list):
-        for name in list:
+    def SetDirectors(self, names):
+        for name in names:
             if name.find(",") != -1:
                 raise PtpUploaderException(
                     "Director name '%s' contains a comma." % name
@@ -137,8 +134,7 @@ class ReleaseInfo(models.Model):
     def GetSubtitles(self):
         if len(self.Subtitles) > 0:
             return self.Subtitles.split(", ")
-        else:
-            return []
+        return []
 
     def SetSubtitles(self, list):
         for id in list:
@@ -316,15 +312,6 @@ class ReleaseInfo(models.Model):
 
     def HasPtpTorrentId(self):
         return len(self.PtpTorrentId) > 0
-
-    def IsUserCreatedJob(self):
-        return (
-            self.JobStartMode == JobStartMode.Manual
-            or self.JobStartMode == JobStartMode.ManualForced
-        )
-
-    def IsForceUpload(self):
-        return self.JobStartMode == JobStartMode.ManualForced
 
     def IsSynopsisSet(self):
         return len(self.MovieDescription) > 0

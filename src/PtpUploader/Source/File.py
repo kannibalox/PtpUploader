@@ -36,7 +36,7 @@ class File(SourceBase):
         if releaseNameParser.Scene:
             releaseInfo.SetSceneRelease()
 
-    def CheckFileList(self):
+    def CheckFileList(self, *_):
         pass
 
     def IsDownloadFinished(self, logger, releaseInfo, torrentClient):
@@ -46,12 +46,9 @@ class File(SourceBase):
         path = releaseInfo.GetReleaseDownloadPath()
         if releaseInfo.SourceIsAFile:
             # In case of single files the parent directory of the file will be the upload directory.
-            path, fileName = os.path.split(path)
+            return os.path.split(path)[0]
         else:
-            path = os.path.join(path, File.UploadDirectoryName)
-            path = os.path.join(path, releaseInfo.ReleaseName)
-
-        return path
+            return os.path.join(path, File.UploadDirectoryName, releaseInfo.ReleaseName)
 
     def CreateUploadDirectory(self, releaseInfo):
         if not releaseInfo.SourceIsAFile:
@@ -73,10 +70,10 @@ class File(SourceBase):
         if releaseInfo.SourceIsAFile:
             # Try to read the NFO with the same name as the video file but with nfo extension.
             basePath, fileName = os.path.split(releaseInfo.GetReleaseDownloadPath())
-            fileName, extension = os.path.splitext(fileName)
+            fileName, _ = os.path.splitext(fileName)
             nfoPath = os.path.join(basePath, fileName) + ".nfo"
             if os.path.isfile(nfoPath):
-                releaseInfo.Nfo = NfoParser.ReadNfoFileToUnicode(nfoPath)
+                releaseInfo.Nfo = NfoParser.ReadNfo(nfoPath)
         else:
             SourceBase.ReadNfo(self, releaseInfo)
 
@@ -126,7 +123,7 @@ class File(SourceBase):
 
         # Delete source folder without the PTP directory.
         if deleteSourceData:
-            if sourceIsAFile == False:
+            if not sourceIsAFile:
                 File.__DeleteDirectoryWithoutTheUploadDirectory(
                     releaseInfo.GetReleaseDownloadPath()
                 )
@@ -146,13 +143,13 @@ class File(SourceBase):
 
             # Delete the data of the uploaded torrent.
             # If it is a single file then upload path is its parent directory, so it would be unfortunate to delete. (See GetCustomUploadPath.)
-            if sourceIsAFile == False and os.path.isdir(
+            if not sourceIsAFile and os.path.isdir(
                 releaseInfo.GetReleaseUploadPath()
             ):
                 shutil.rmtree(releaseInfo.GetReleaseUploadPath())
 
         if deleteSourceData and deleteUploadData:
-            if sourceIsAFile == True:
+            if sourceIsAFile:
                 os.remove(releaseInfo.GetReleaseDownloadPath())
 
     def GetTemporaryFolderForImagesAndTorrent(self, releaseInfo):
