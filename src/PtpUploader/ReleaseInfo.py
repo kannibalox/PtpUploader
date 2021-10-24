@@ -167,10 +167,10 @@ class ReleaseInfo(models.Model):
         return (not self.IsHighDefinition()) and (not self.IsUltraHighDefinition())
 
     def IsUltraHighDefinition(self):
-        return self.ResolutionType == "4K"
+        return self.ResolutionType == "4K" or self.ResolutionType == "2160p"
 
     def IsRemux(self):
-        return "Remux" in self.RemasterTitle
+        return "Remux" in str(self.RemasterTitle)
 
     def IsDvdImage(self):
         return self.Codec == "DVD5" or self.Codec == "DVD9"
@@ -226,15 +226,12 @@ class ReleaseInfo(models.Model):
             self.Flags &= ~ReleaseInfoFlags.StopBeforeUploading
 
     def CanEdited(self):
-        return not (
-            self.JobRunningState
-            in [
+        return self.JobRunningState not in [
                 JobRunningState.WaitingForStart,
                 JobRunningState.Scheduled,
                 JobRunningState.InProgress,
                 JobRunningState.Finished,
             ]
-        )
 
     def IsReleaseNameEditable(self):
         return self.CanEdited() and not self.IsJobPhaseFinished(
