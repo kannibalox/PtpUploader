@@ -2,6 +2,7 @@ import datetime
 import os
 
 from django.db import models
+from django.utils import timezone
 
 from PtpUploader.Job.FinishedJobPhase import FinishedJobPhase
 from PtpUploader.Job.JobRunningState import JobRunningState
@@ -95,7 +96,7 @@ class ReleaseInfo(models.Model):
     Subtitles = models.TextField(blank=True, default="")
     IncludedFiles = models.TextField(blank=True, default="")
     DuplicateCheckCanIgnore = models.IntegerField(default=0)
-    ScheduleTimeUtc = models.DateTimeField(default=datetime.datetime.now())
+    ScheduleTimeUtc = models.DateTimeField(default=timezone.now)
 
     def __init__(self, *args, **kwargs):
         # <<< These are the required fields needed for an upload to PTP.

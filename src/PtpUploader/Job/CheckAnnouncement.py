@@ -156,7 +156,7 @@ class CheckAnnouncement(WorkerBase):
 
         if self.ReleaseInfo.PtpId:
             movieOnPtpResult = Ptp.GetMoviePageOnPtp(
-                self.ReleaseInfo.Logger, self.ReleaseInfo.GetPtpId()
+                self.ReleaseInfo.Logger, self.ReleaseInfo.PtpId
             )
 
             # If IMDb ID is not set, then store it, because it is needed for renaming releases coming from Cinemageddon and Cinematik.
