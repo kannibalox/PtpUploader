@@ -229,7 +229,7 @@
 <tr>
 	<td class="label">Subtitle</td>
 	<td>
-		<select name="subtitle" id="subtitle" multiple="multiple">
+		<select name="subtitle[]" id="subtitle" multiple="multiple">
 			<option value="44">No Subtitles</option> <!-- This one makes no sense... -->
 			<option value="22">Arabic</option>
 			<option value="49">Brazilian Portuguese</option>
@@ -272,6 +272,7 @@
 			<option value="34">Ukrainian</option>
 			<option value="25">Vietnamese</option>
 		</select>
+                <br/>
 		<input id="TrumpableForNoEnglishSubtitles" name="TrumpableForNoEnglishSubtitles" type="checkbox"
 			{% if job.TrumpableForNoEnglishSubtitles %}
 				checked
@@ -284,7 +285,7 @@
 <tr>
 	<td class="label">Tags</td>
 	<td>
-		<select id="genre_tags" name="genre_tags">
+		<select id="genre_tags[]" name="genre_tags" multiple="multiple">
 			<option>---</option>
 			<option value="action">action</option>
 			<option value="adventure">adventure</option>
@@ -327,8 +328,6 @@
 			<option value="war">war</option>
 			<option value="western">western</option>
 		</select>
-
-		<input id="tags" name="tags" size="40" value="{{ job.tags }}" type="text">
 	</td>
 </tr>
 

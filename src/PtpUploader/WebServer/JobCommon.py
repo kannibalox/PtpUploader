@@ -66,7 +66,10 @@ class JobCommon:
         releaseInfo.Directors = request.values["artists[]"]
         releaseInfo.Title = request.values["title"].strip()
         releaseInfo.Year = request.values["year"]
-        releaseInfo.Tags = request.values["tags"]
+        if "genre_tags[]" in request.values:
+            releaseInfo.Tags = ', '.join()
+        else:
+            releaseInfo.Tags = ''
         releaseInfo.MovieDescription = request.values["album_desc"]
         releaseInfo.CoverArtUrl = request.values["image"].strip()
         releaseInfo.YouTubeId = JobCommon.__GetYouTubeId(request.values["trailer"])
@@ -137,7 +140,7 @@ class JobCommon:
     def __GetPtpOrImdbLink(releaseInfo):
         if releaseInfo.PtpId:
             return (
-                "https://passthepopcorn.me/torrents.php?id=%s" % releaseInfo.GetPtpId()
+                "https://passthepopcorn.me/torrents.php?id=%s" % releaseInfo.PtpId
             )
         elif releaseInfo.ImdbId:
             if releaseInfo.IsZeroImdbId():
@@ -162,7 +165,7 @@ class JobCommon:
         job["artists[]"] = releaseInfo.Directors
         job["title"] = releaseInfo.Title
         job["year"] = releaseInfo.Year
-        job["tags"] = releaseInfo.Tags
+        job["genre_tags"] = releaseInfo.Tags.split(', ')
         job["album_desc"] = releaseInfo.MovieDescription
         job["image"] = releaseInfo.CoverArtUrl
         job["trailer"] = JobCommon.__GetYouTubeLink(releaseInfo)

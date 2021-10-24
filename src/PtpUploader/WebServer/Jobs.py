@@ -69,7 +69,7 @@ def ReleaseInfoToJobsPageData(releaseInfo, entry):
             entry[
                 "PtpUrl"
             ] = "https://passthepopcorn.me/torrents.php?id=%s&torrentid=%s" % (
-                releaseInfo.GetPtpId(),
+                releaseInfo.PtpId,
                 releaseInfo.GetPtpTorrentId(),
             )
         else:

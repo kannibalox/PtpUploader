@@ -1,9 +1,8 @@
 {% block job_common_javascript %}
 
-<script src="{{ url_for( "static", filename = "script/jquery-1.7.1.min.js" ) }}"></script>
-<script src="{{ url_for( "static", filename = "script/jquery.blockUI.js" ) }}"></script>
-<script src="{{ url_for( "static", filename = "script/jquery.multiSelect/jquery.multiSelect.js" ) }}"></script>
-<link href="{{ url_for( "static", filename = "script/jquery.multiSelect/jquery.multiSelect.css" ) }}" rel="stylesheet" type="text/css" />
+<script src="{{ url_for( "static", filename = "script/jquery-3.6.0.min.js" ) }}"></script>
+<script src="{{ url_for( "static", filename = "script/select2.min.js" ) }}"></script>
+<link href="{{ url_for( "static", filename = "script/select2.min.css" ) }}" rel="stylesheet" type="text/css" />
 <link href="{{ url_for( "static", filename = "script/dynatree/skin/ui.dynatree.css" ) }}" rel="stylesheet" type="text/css" />
 <script src="{{ url_for( "static", filename = "script/dynatree/jquery-ui.custom.min.js" ) }}"></script>
 <script src="{{ url_for( "static", filename = "script/dynatree/jquery.dynatree.min.js" ) }}"></script>
@@ -36,36 +35,14 @@
 		// Select subtitles that are specified in the job.
 		$( "#subtitle" ).val( {{ job.Subtitles|tojson|safe }} );
 		
-		$( "#subtitle" ).multiSelect(
-		{
-			selectAll: false,
-			noneSelected: "Unspecified",
-			oneOrMoreSelected: "% subtitle(s)",
-			listHeight: 350
-		} );
+		$( "#subtitle" ).select2({
+                  width: '90%' // need to override the changed default
+                });
 
 		// Add tags to the tags textbox when selection changes in the tags combobox.
-		$( "#genre_tags" ).change( function()
-		{
-			var tagsField = $( "#tags" );
-			var selectedTag = $( this ).val();
-
-			if ( selectedTag != "---" )
-			{
-				var currentTags = tagsField.val();
-				if ( currentTags.length > 0 )
-				{
-					// Do not add the tag twice.
-					var tagList = currentTags.split( ", " );
-					if ( tagList.indexOf( selectedTag ) == -1 )
-						tagsField.val( currentTags + ", " + selectedTag );
-				}
-				else
-				{
-					tagsField.val( selectedTag );
-				}
-			}
-		} );
+		$( "#genre_tags" ).select2({
+                  width: '90%' // need to override the changed default
+                });
 
 		$( "#ConvertComparisonCode" ).click( function()
 		{
@@ -122,22 +99,6 @@
 					}
 				} );
 			}
-
-			// We don't need wait cursor on the dialog.
-			delete $.blockUI.defaults.css.cursor;
-			
-			$.blockUI(
-			{
-				message: $( "#IncludedFilesDialog" ),
-				fadeIn: 0,
-				css:
-				{
-					width: $( "#IncludedFilesDialog" ).width() + "px",
-					left: ( $( window ).width() - $( "#IncludedFilesDialog" ).width() ) / 2 + 'px',
-					top: ( $( window ).height() - $( "#IncludedFilesDialog" ).height() ) / 2 + 'px',
-					textAlign: "left"
-				}
-			} );
 
 			$( ".blockOverlay" ).click( function()
 			{
