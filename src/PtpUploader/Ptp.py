@@ -3,8 +3,6 @@ import re
 import time
 import traceback
 
-import requests
-
 from PtpUploader.MyGlobals import MyGlobals
 from PtpUploader.PtpMovieSearchResult import PtpMovieSearchResult
 from PtpUploader.PtpUploaderException import *
@@ -116,10 +114,7 @@ class Ptp:
     # E.g.: it can't find movie with IMDb ID 59675, only with 0059675. (IMDb redirects to the latter.)
     @staticmethod
     def NormalizeImdbIdForPtp(imdbId):
-        if len(imdbId) < 7:
-            return imdbId.rjust(7, "0")
-        else:
-            return imdbId
+        return imdbId.rjust(7, "0")
 
     # ptpId must be a valid id
     # returns with PtpMovieSearchResult
@@ -242,9 +237,8 @@ class Ptp:
             params.update({"imdb": Ptp.NormalizeImdbIdForPtp(releaseInfo.ImdbId)})
         # Add the directors.
         # These needs to be added in order because of the "importance" field follows them.
-        directors = releaseInfo.GetDirectors()
-        for i in range(len(directors)):
-            params.update({"artist[]": directors[i]})
+        for d in releaseInfo.GetDirectors():
+            params.update({"artist[]": d})
             params.update({"importance[]": "1"})
 
         return params
@@ -269,14 +263,15 @@ class Ptp:
             paramList.update(Ptp.__UploadMovieGetParamsForNewMovie(releaseInfo))
 
         # Add the torrent file, passing a fake string for the filename, since it's not necessary anyway
-        files = {
-            "file_input": (
-                "placeholder.torrent",
-                open(torrentPath, "rb"),
-                "application/x-bittorent",
-            )
-        }
-        result = MyGlobals.session.post(url, data=paramList, files=files)
+        with open(torrentPath, "rb") as torrentHandle:
+            files = {
+                "file_input": (
+                    "placeholder.torrent",
+                    torrentHandle,
+                    "application/x-bittorent",
+                )
+            }
+            result = MyGlobals.session.post(url, data=paramList, files=files)
         response = result.text
         Ptp.CheckIfLoggedInFromResponse(result, response)
 
