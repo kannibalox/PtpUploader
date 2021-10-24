@@ -42,7 +42,7 @@ class Cinemageddon(SourceBase):
             )
 
     def __ParsePage(
-        self, logger, releaseInfo, raw_html, parseForExternalCreateJob=False
+        self, logger, releaseInfo, raw_html: bytes, parseForExternalCreateJob=False
     ):
         # Make sure we only get information from the description and not from the comments.
         descriptionEndIndex = raw_html.find(b'<p><a name="startcomments"></a></p>')
@@ -78,7 +78,7 @@ class Cinemageddon(SourceBase):
                 )
             else:
                 matches = re.search(
-                    r"torrent details for &quot;(.+) \[(\d+)/(.+)/(.+)\]&quot;",
+                    rb"torrent details for &quot;(.+) \[(\d+)/(.+)/(.+)\]&quot;",
                     description,
                 )
 
@@ -88,8 +88,8 @@ class Cinemageddon(SourceBase):
                     "Can't get release source and format type from torrent page.",
                 )
 
-            sourceType = matches.group(3)
-            formatType = matches.group(4)
+            sourceType = matches.group(3).decode()
+            formatType = matches.group(4).decode()
 
             if "/" in sourceType and not releaseInfo.ResolutionType:
                 sourceType, _, resolutionType = sourceType.partition("/")
@@ -100,7 +100,7 @@ class Cinemageddon(SourceBase):
         # Get IMDb id.
         if (not releaseInfo.ImdbId) and (not releaseInfo.PtpId):
             matches = (
-                re.search(rb'<span id="torrent_imdb">(.*?)</span>', description)
+                re.search(r'<span id="torrent_imdb">(.*?)</span>', description.decode())
                 .group(1)
                 .replace("t", "")
                 .split(" ")
@@ -116,7 +116,7 @@ class Cinemageddon(SourceBase):
                     "Multiple IMDb IDs found on page.",
                 )
 
-            releaseInfo.ImdbId: bytes = matches[0]
+            releaseInfo.ImdbId = matches[0]
 
         # Get size.
         # Two possible formats:
