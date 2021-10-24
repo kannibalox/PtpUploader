@@ -60,7 +60,7 @@ class ReleaseNameParser:
         elif "screen_size" in self.guess and len(self.guess["screen_size"]) == 1:
             allowed_res = ["576p", "720p", "480p", "1080p", "1080i", "2160p"]
             for a in allowed_res:
-                if self.guess["screen_size"].lower() == a.lower():
+                if self.guess["screen_size"][0].lower() == a.lower():
                     releaseInfo.ResolutionType = a
                     break
             if (
@@ -70,6 +70,7 @@ class ReleaseNameParser:
                 for o in self.guess['other']:
                     if o in ['NTSC', 'PAL']:
                         releaseInfo.ResolutionType = self.guess["other"]
+                        break
         else:
             releaseInfo.ResolutionType = "Other"
 
