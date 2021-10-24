@@ -1,215 +1,169 @@
 {% extends "layout.html" %}
 
 {% block head %}
-<title>Upload - PtpUploader</title>
+  <title>Upload - PtpUploader</title>
 {% endblock %}
 
 {% block body %}
 
-<form action="" enctype="multipart/form-data" method="post" id="upload_table">
-  <table id="editjob_table" class="border" border="0" cellpadding="3" cellspacing="1">
-    <tbody>
-      <tr>
-	<td class="label">Upload a torrent file</td>
-	<td>
-	  <input type="file" id="upload_field" accept="application/x-bittorrent" title="You have to specify an IMDB or PTP link too."/>
-	  <input id="uploaded_torrentfilename" name="uploaded_torrentfilename" type="hidden">
-	  <img src="{{ url_for( "static", filename = "throbber.gif" ) }}" style="display: none;" id="uploadtorrentfile_throbber">
-	  <span id="uploaded_torrentcontentsizetext"></span>
-	  <input id="uploaded_torrentcontentsize" name="uploaded_torrentcontentsize" type="hidden">
-	</td>
-      </tr>
+  <form action="" enctype="multipart/form-data" method="post" id="upload_table">
+    <table id="editjob_table" class="border" border="0" cellpadding="3" cellspacing="1">
+      <tbody>
+        <tr>
+	  <td class="label">Upload a torrent file</td>
+	  <td>
+	    <input type="file" id="upload_field" accept="application/x-bittorrent" title="You have to specify an IMDB or PTP link too."/>
+	    <input id="uploaded_torrentfilename" name="uploaded_torrentfilename" type="hidden">
+	    <img src="{{ url_for( "static", filename = "throbber.gif" ) }}" style="display: none;" id="uploadtorrentfile_throbber">
+	    <span id="uploaded_torrentcontentsizetext"></span>
+	    <input id="uploaded_torrentcontentsize" name="uploaded_torrentcontentsize" type="hidden">
+	  </td>
+        </tr>
 
-      <tr>
-	<td class="label">Or specify a torrent page link</td>
-	<td>
-	  <input id="torrent_site_link" name="torrent_site_link" size="60" type="text">
-	</td>
-      </tr>
+        <tr>
+	  <td class="label">Or specify a torrent page link</td>
+	  <td>
+	    <input id="torrent_site_link" name="torrent_site_link" size="60" type="text">
+	  </td>
+        </tr>
 
-      <tr>
-	<td class="label">Or select an existing file or folder</td>
+        <tr>
+	  <td class="label">Or select an existing file or folder</td>
 
-	<td>
-	  <input id="existingfile" name="existingfile_input" size="60" title="Path of the directory or the file to upload.">
-	  <input type="button" id="DirectorySelectorToggle" value="Browse..." title="Directory selector.">
-	  <img src="{{ url_for( "static", filename = "throbber.gif" ) }}" style="display: none;" id="uploadfile_throbber">
-	  <div id="directoryselectordialog">
-	    <input type="button" id="DirectorySelectorGoToParent" value=".." title="Go to parent directory.">
-	    <div id="directoryselector"></div>
-	  </div>
-	</td>
-      </tr>
+	  <td>
+	    <input id="existingfile" name="existingfile_input" size="60" title="Path of the directory or the file to upload.">
+	    <input type="button" id="DirectorySelectorToggle" value="Browse..." title="Directory selector.">
+	    <img src="{{ url_for( "static", filename = "throbber.gif" ) }}" style="display: none;" id="uploadfile_throbber">
+	    <div id="directoryselectordialog">
+	      <input type="button" id="DirectorySelectorGoToParent" value=".." title="Go to parent directory.">
+	      <div id="directoryselector"></div>
+	    </div>
+	  </td>
+        </tr>
 
-      <tr>
-	<td class="label">Release name</td>
-	<td>
-	  <input id="release_name" name="release_name" size="60" type="text" title="The specified release name will be the name of the directory in the torrent uploaded to PTP. (Not supported yet on CG.)">
-	</td>
-      </tr>
+        <tr>
+	  <td class="label">Release name</td>
+	  <td>
+	    <input id="release_name" name="release_name" size="60" type="text" title="The specified release name will be the name of the directory in the torrent uploaded to PTP. (Not supported yet on CG.)">
+	  </td>
+        </tr>
 
-      {% include "job_common.html" %}
+        {% include "job_common.html" %}
 
-      <tr>
-	<td colspan="2" style="text-align: center; border: none;">
-	  <br/>
-	  <br/>
-	  <input id="post" name="post" type="submit" value="Upload">
-	  <input id="post" name="post" type="submit" value="Upload but stop before uploading" title="The job will be stopped after everything has completed and the only remaining thing to do is the uploading to PTP.">
-	  <br/>
-	  <br/>
-	  <br/>
-	</td>
-      </tr>
+        <tr>
+	  <td colspan="2" style="text-align: center; border: none;">
+	    <br/>
+	    <br/>
+	    <input id="post" name="post" type="submit" value="Upload">
+	    <input id="post" name="post" type="submit" value="Upload but stop before uploading" title="The job will be stopped after everything has completed and the only remaining thing to do is the uploading to PTP.">
+	    <br/>
+	    <br/>
+	    <br/>
+	  </td>
+        </tr>
 
-    </tbody>
-  </table>
-</form>
+      </tbody>
+    </table>
+  </form>
 
-{% include "job_common_javascript.html" %}
+  {% include "job_common_javascript.html" %}
 
-<script src="{{ url_for( "static", filename = "script/jquery.fileupload.js" ) }}"></script>
-<script src="{{ url_for( "static", filename = "script/jqueryFileTree/jqueryFileTree.js" ) }}"></script>
-<link href="{{ url_for( "static", filename = "script/jqueryFileTree/jqueryFileTree.css" ) }}" rel="stylesheet" type="text/css" />
+  <script src="{{ url_for( "static", filename = "script/jquery.fileupload.js" ) }}"></script>
 
-<script>
- function ShowDirectorySelector()
- {
-   $( "#directoryselector" ).fileTree(
+  <script>
+   $(document).ready( function ()
      {
-       root: $( "#existingfile" ).val(),
-       script: "{{ url_for( "ajaxGetDirectoryList" ) }}",
-       expandSpeed: -1,
-       collapseSpeed: -1,
-       multiFolder: true
-     },
-     function(file)
-     {
-       $( "#existingfile" ).val( file );
-     } );
- }
+       // Torrent file uploading.
+       $('#DirectorySelectorToggle').click(function() {
+         $.confirm({
+           // theme: "material",
+           title: "Select Files",
+           // title: "Fancytree & jquery-confirm",
+           content: "<div id='tree'></div>",
+           escape: true,
+           useBootstrap: false,
+           // boxWidth: 480,
+           onContentReady: function(){
+             $("#tree").fancytree({
+               checkbox: true,
+               clickFolderMode: 3, // 1:activate, 2:expand, 3:activate and expand, 4:activate (dblclick expands)
+               checkbox: true, // Show check boxes
+               debugLevel: 4, // 0:quiet, 1:errors, 2:warnings, 3:infos, 4:debug
+               keyboard: false, // Support keyboard navigation
+               selectMode: 3, // 1:single, 2:multi, 3:multi-hier
+               tabindex: "", // Whole tree behaves as one single control
+               source: {url: "/ajax/localdir/", cache: false},
+               lazyLoad: function(event, data){
+                 var node = data.node;
+                 // Load child nodes via Ajax GET /getTreeData?mode=children&parent=1234
+                 data.result = {
+                   url: "/ajax/localdir",
+                   data: {mode: "children", dir: node.key},
+                   cache: false
+                 };
+               },
+               icon: function(event, data) {
+                 if (data.node.icon) { return '{{ url_for( "static", filename="/") }}/'+data.node.icon+'.png'; }
+               },
+               loadChildren: function(event, data) {
+                 // Apply parent's state to new child nodes:
+                 data.node.fixSelection3AfterClick();
+               },
+             });
+           },
+           onAction: function(btnName){
+             var tree = $.ui.fancytree.getTree("#tree"),
+                 selNodes = tree.getSelectedNodes();
+             if( btnName === "ok" ) {
+               alert("Selected: " + selNodes.length + " nodes.");
+             }
+           }
+         });
+       });
 
- $( function ()
-   {
-     // Torrent file uploading.
-     $( "#upload_field" ).fileupload(
-       {
-	 dataType: 'json',
-	 url: "{{ url_for( "ajaxUploadTorrentFile" ) }}",
-	 replaceFileInput: false,
-	 start: function( e )
-	 {
-	   $( "#uploadtorrentfile_throbber" ).show();
-	 },
-	 done: function( e, data )
-	 {
-	   var jsonResponse = data.result;
-	   var jsonResult = jsonResponse[ "myResult" ];
-	   if ( jsonResult == "OK" )
+       $( "#upload_field" ).fileupload(
+         {
+	   dataType: 'json',
+	   url: "{{ url_for( "ajaxUploadTorrentFile" ) }}",
+	   replaceFileInput: false,
+	   start: function( e )
 	   {
-	     $( "#uploaded_torrentfilename" ).val( jsonResponse[ "torrentFilename" ] );
-	     $( "#uploaded_torrentcontentsize" ).val( jsonResponse[ "torrentContentSize" ] );
-	     $( "#uploaded_torrentcontentsizetext" ).text( jsonResponse[ "torrentContentSizeText" ] );
-	     $( "#release_name" ).val( jsonResponse[ "releaseName" ] );
-	     $( "#uploadtorrentfile_throbber" ).fadeOut( "slow" );
-	   }
-	   else
+	     $( "#uploadtorrentfile_throbber" ).show();
+	   },
+	   done: function( e, data )
 	   {
-	     alert( "Error!" );
-	   }
-	 },
-	 error: function( e, data )
-	 {
-	   alert( "Error: '" + data.textStatus + "'." );
-	 }
-       } );
-
-     // Do a quick naive check that a necessary field is filled
-     $( "#post" ).click( function( event )
-       {
-	 if ( ! ( $( "#torrent_site_link" ).val() || $( "#existingfile" ).val() || $( "#upload_field" ).val() ) )
-	 {
-	   alert( "Select something to upload!" );
-	   event.preventDefault();
-	 }
-       } );
-
-     // Go to parent directory.
-     // TODO: this is not too nice. ".." should be supported by the directory selector control...
-     $( "#DirectorySelectorGoToParent" ).click( function()
-       {
-	 var path = $( "#existingfile" ).val();
-
-	 // We do not remove the last slash. E.g.: C:\ remains C:\
-	 var startIndex = path.length - 1;
-	 if ( startIndex >= 0 && ( path.charAt( startIndex ) == '/' || path.charAt( startIndex ) == '\\' ) )
-	   --startIndex;
-
-	 var index = path.lastIndexOf( '/', startIndex );
-	 var index2 = path.lastIndexOf( '\\', startIndex );
-	 if ( index2 > index )
-	   index = index2;
-
-	 if ( index >= 0 )
-	 {
-	   path = path.substring( 0, index + 1 );
-
-	   $( "#existingfile" ).val( path );
-	   ShowDirectorySelector();
-	 }
-       } );
-
-     // Directory or file uploading.
-     $( "#DirectorySelectorToggle" ).click( function()
-       {
-	 var originalPath = $( "#existingfile" ).val();
-
-	 ShowDirectorySelector();
-
-	 // We don't need wait cursor on the dialog.
-	 delete $.blockUI.defaults.css.cursor;
-
-	 $.blockUI(
-	   {
-	     message: $( "#directoryselectordialog" ),
-	     fadeIn: 0,
-	     css:
-				{
-				  width: $( "#directoryselectordialog" ).width() + "px",
-				  left: ( $( window ).width() - $( "#directoryselectordialog" ).width() ) / 2 + 'px',
-				  top: ( $( window ).height() - $( "#directoryselectordialog" ).height() ) / 2 + 'px',
-				  textAlign: "left"
-				}
-	   } );
-
-	 $( ".blockOverlay" ).click( function()
-	   {
-	     var path = $( "#existingfile" ).val();
-	     if ( path != originalPath )
+	     var jsonResponse = data.result;
+	     var jsonResult = jsonResponse[ "myResult" ];
+	     if ( jsonResult == "OK" )
 	     {
-	       $( "#uploadfile_throbber" ).show();
-
-	       var url = "{{ url_for( "ajaxGetInfoForFileUpload" ) }}";
-	       $.post( url, { "path": path  }, function(data)
-		 {
-		   if ( data.result == "OK" )
-		   {
-		     $( "#release_name" ).val( data.releaseName );
-		     $( "#imdb" ).val( data.imdbUrl );
-		     $( "#uploadfile_throbber" ).fadeOut( "slow" );
-		   }
-		   else
-		   {
-		     var message = typeof( data.message ) === "undefined" ? "Unknown error!" : data.message;
-		     alert( message );
-		   }
-		 } );
+	       $( "#uploaded_torrentfilename" ).val( jsonResponse[ "torrentFilename" ] );
+	       $( "#uploaded_torrentcontentsize" ).val( jsonResponse[ "torrentContentSize" ] );
+	       $( "#uploaded_torrentcontentsizetext" ).text( jsonResponse[ "torrentContentSizeText" ] );
+	       $( "#release_name" ).val( jsonResponse[ "releaseName" ] );
+	       $( "#uploadtorrentfile_throbber" ).fadeOut( "slow" );
 	     }
+	     else
+	     {
+	       alert( "Error!" );
+	     }
+	   },
+	   error: function( e, data )
+	   {
+	     alert( "Error: '" + data.textStatus + "'." );
+	   }
+         } );
 
-	     $.unblockUI( { fadeOut: 0 } );
-	   } );
-       } );
- });
-</script>
+       // Do a quick naive check that a necessary field is filled
+       $( "#post" ).click( function( event )
+         {
+	   if ( ! ( $( "#torrent_site_link" ).val() || $( "#existingfile" ).val() || $( "#upload_field" ).val() ) )
+	   {
+	     alert( "Select something to upload!" );
+	     event.preventDefault();
+	   }
+         } );
+
+   });
+  </script>
 
 {% endblock %}

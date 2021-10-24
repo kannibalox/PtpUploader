@@ -40,7 +40,7 @@ class MyWebServer(threading.Thread):
         else:
             MyGlobals.Logger.info("Starting webserver on http://%s:%s." % (host, port))
 
-        app.run(host, port, debug=False, use_reloader=False, ssl_context=sslContext)
+        app.run(host, port, debug=True, use_reloader=False, ssl_context=sslContext)
 
     def StopServer(self):
         MyGlobals.Logger.info("Stopping webserver.")

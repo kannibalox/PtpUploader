@@ -1,4 +1,5 @@
 import os
+from pathlib import Path
 import urllib.error
 import urllib.parse
 import urllib.request
@@ -11,58 +12,30 @@ from PtpUploader.WebServer import app
 from PtpUploader.WebServer.Authentication import requires_auth
 
 
-# Needed for jQuery File Tree.
-@app.route("/ajaxgetdirectorylist/", methods=["POST"])
+@app.route("/ajax/localdir/")
 @requires_auth
-def ajaxGetDirectoryList():
-    try:
-        response = ['<ul class="jqueryFileTree" style="display: none;">']
-
-        path = urllib.parse.unquote(request.values["dir"])
-        if os.path.isfile(path):
-            # If it is file then start browsing from its parent directory.
-            path = os.path.dirname(path)
-        elif not os.path.isdir(path):
-            path = Settings.WebServerFileTreeInitRoot
-
-        directories = []
-        files = []
-
-        for fileName in os.listdir(path):
-            currentPath = os.path.join(path, fileName)
-            item = currentPath, fileName  # Add as a tuple.
-            if os.path.isdir(currentPath):
-                directories.append(item)
-            else:
-                files.append(item)
-
-        directories.sort()
-        files.sort()
-
-        for directory in directories:
-            currentPath, fileName = directory
-            response.append(
-                '<li class="directory collapsed"><a href="#" rel="%s/">%s</a></li>'
-                % (currentPath, fileName)
-            )
-
-        for file in files:
-            currentPath, fileName = file
-            extension = os.path.splitext(fileName)[1][1:]  # get .ext and remove dot
-            response.append(
-                '<li class="file ext_%s"><a href="#" rel="%s">%s</a></li>'
-                % (extension, currentPath, fileName)
-            )
-    except Exception as e:
-        response.append("Could not load directory: %s" % str(e))
-    response.append("</ul>")
-    return "".join(response)
+def ajaxGetDirList():
+    d: Path
+    if "dir" not in request.args:
+        d = Path(Settings.WebServerFileTreeInitRoot)
+    else:
+        d = Path(request.args["dir"])
+    val = []
+    for child in sorted(d.iterdir()):
+        c = {"title": child.name, "key": str(child)}
+        if child.is_dir():
+            c["folder"] = True
+            c["lazy"] = True
+        elif child.suffix.lower() in [".mkv", ".avi", ".mp4", ".vob", ".ifo", ".bup"]:
+            c["icon"] = "film"
+        val.append(c)
+    return jsonify(val)
 
 
 @app.route("/ajaxgetinfoforfileupload/", methods=["POST"])
 @requires_auth
 def ajaxGetInfoForFileUpload():
-    path = request.values.get("path")
+    path: str = request.values.get("path")
     # file is not None even there is no file specified, but checking file as a boolean is OK. (As shown in the Flask example.)
     if not path:
         return jsonify(result="ERROR", message="Missing request parameter: path.")
