@@ -37,17 +37,13 @@ class WorkerThread(threading.Thread):
         self.WaitEvent.set()
 
     def RequestStopJob(self, releaseInfoId):
-        self.Lock.acquire()
-
-        try:
+        with self.Lock:
             self.JobManager.StopJob(releaseInfoId)
             if (self.JobPhase is not None) and (
                 self.JobPhase.JobManagerItem.ReleaseInfoId == releaseInfoId
                 or releaseInfoId == -1
             ):
                 self.JobPhase.JobManagerItem.StopRequested = True
-        finally:
-            self.Lock.release()
 
         self.WaitEvent.set()
 
@@ -58,9 +54,7 @@ class WorkerThread(threading.Thread):
     def __ProcessJobPhase(self):
         jobPhase = None
 
-        self.Lock.acquire()
-
-        try:
+        with self.Lock:
             # If GetJobPhaseToProcess is not in lock block then this could happen:
             # 1. jobPhase = self.JobManager.GetJobPhaseToProcess()
             # 2. RequestStopJob acquires to lock
@@ -73,18 +67,12 @@ class WorkerThread(threading.Thread):
             self.JobPhase = jobPhase
             if jobPhase is None:
                 return False
-        finally:
-            self.Lock.release()
 
         # We can't lock on this because stopping a running job wouldn't be possible that way.
-        jobPhase = jobPhase.Work()
+        jobPhase.Work()
 
-        self.Lock.acquire()
-
-        try:
+        with self.Lock:
             self.JobPhase = None
-        finally:
-            self.Lock.release()
 
         return True
 
@@ -92,8 +80,7 @@ class WorkerThread(threading.Thread):
     def __GetLoggerFromException(exception):
         if hasattr(exception, "Logger"):
             return exception.Logger
-        else:
-            return MyGlobals.Logger
+        return MyGlobals.Logger
 
     def __RunInternal(self):
         try:

@@ -89,14 +89,14 @@ def ajaxGetInfoForFileUpload():
         # Try to read the NFO.
         nfoPath = os.path.join(basePath, releaseName) + ".nfo"
         if os.path.isfile(nfoPath):
-            nfo = NfoParser.ReadNfoFileToUnicode(nfoPath)
+            nfo = NfoParser.ReadNfo(nfoPath)
             imdbId = NfoParser.GetImdbId(nfo)
     else:
         message = "Path '%s' does not exist." % path
         return jsonify(result="ERROR", message=message)
 
-    imdbUrl = ""
-    if len(imdbId) > 0:
+    imdbUrl: str = ""
+    if imdbId:
         imdbUrl = "http://www.imdb.com/title/tt%s/" % imdbId
 
     return jsonify(result="OK", releaseName=releaseName, imdbUrl=imdbUrl)

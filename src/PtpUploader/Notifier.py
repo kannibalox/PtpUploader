@@ -16,9 +16,7 @@ def LoadNotifierSettings():
         __file__
     )  # __file__ contains the full path of the current running module
     settingsPath = os.path.join(settingsDirectory, "Notifier.ini")
-    fp = open(settingsPath, "r")
-    configParser.readfp(fp)
-    fp.close()
+    configParser.read(settingsPath)
 
     return configParser.get("Settings", "UserId")
 

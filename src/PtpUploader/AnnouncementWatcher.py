@@ -93,26 +93,23 @@ class AnnouncementWatcher:
                 # Try to read the NFO.
                 nfoPath = os.path.join(basePath, releaseName) + ".nfo"
                 if os.path.isfile(nfoPath):
-                    nfo = NfoParser.ReadNfoFileToUnicode(nfoPath)
+                    nfo = NfoParser.ReadNfo(nfoPath)
                     releaseInfo.ImdbId = NfoParser.GetImdbId(nfo)
 
     @staticmethod
     def __HandleFileSourceInternal(releaseInfo, announcementFilePath):
-        file = open(announcementFilePath, "r")
+        with open(announcementFilePath, "r") as handle:
+            for line in handle.readlines():
+                index = line.find("=")
+                if index == -1:
+                    continue
 
-        for line in file:
-            index = line.find("=")
-            if index == -1:
-                continue
+                property = line[:index].strip().lower()
+                value = line[index + 1 :].strip()
+                if len(property) <= 0 or len(value) <= 0:
+                    continue
 
-            property = line[:index].strip().lower()
-            value = line[index + 1 :].strip()
-            if len(property) <= 0 or len(value) <= 0:
-                continue
-
-            AnnouncementWatcher.__HandleFileSourceProperty(releaseInfo, property, value)
-
-        file.close()
+                AnnouncementWatcher.__HandleFileSourceProperty(releaseInfo, property, value)
 
         success = len(releaseInfo.ReleaseDownloadPath) > 0
         return success

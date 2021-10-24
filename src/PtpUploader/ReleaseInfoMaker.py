@@ -1,10 +1,7 @@
-import codecs
 import os
-import sys
 
 from PtpUploader.IncludedFileList import IncludedFileList
 from PtpUploader.MyGlobals import MyGlobals
-from PtpUploader.NfoParser import NfoParser
 from PtpUploader.PtpUploaderException import *
 from PtpUploader.ReleaseDescriptionFormatter import ReleaseDescriptionFormatter
 from PtpUploader.ReleaseExtractor import ReleaseExtractor
@@ -89,11 +86,8 @@ class ReleaseInfoMaker:
         )
         releaseDescription = releaseDescriptionFormatter.Format(includeReleaseName=True)
 
-        releaseDescriptionFile = codecs.open(
-            releaseDescriptionFilePath, encoding="utf-8", mode="w"
-        )
-        releaseDescriptionFile.write(releaseDescription)
-        releaseDescriptionFile.close()
+        with open(releaseDescriptionFilePath, 'w') as handle:
+            handle.write(releaseDescription)
 
     def MakeReleaseInfo(self, createTorrent=True, createScreens=True):
         logger = MyGlobals.Logger
