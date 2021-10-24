@@ -11,7 +11,7 @@ class MyWebServer(threading.Thread):
         threading.Thread.__init__(self, name="WebServerThread")
 
     def run(self):
-        host, separator, port = Settings.WebServerAddress.rpartition(":")
+        host, _, port = Settings.WebServerAddress.rpartition(":")
         if len(host) <= 0:
             host = "127.0.0.1"
 
