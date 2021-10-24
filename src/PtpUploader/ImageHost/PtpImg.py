@@ -12,11 +12,17 @@ class PtpImg:
         data = {"api_key": Settings.PtpImgApiKey}
         files = {}
         rjson = {}
-        if imagePath is None:
+        if imageUrl:
             data["link-upload"] = imageUrl
-        else:
-            files["file-upload"] = open(imagePath, "rb")
-        response = requests.post("https://ptpimg.me/upload.php", data=data, files=files)
+            response = requests.post(
+                "https://ptpimg.me/upload.php", data=data, files=files
+            )
+        elif imagePath:
+            with open(imagePath, "rb") as imageHandle:
+                files["file-upload"] = imageHandle
+                response = requests.post(
+                    "https://ptpimg.me/upload.php", data=data, files=files
+                )
         response.raise_for_status()
         try:
             rjson = response.json()[0]

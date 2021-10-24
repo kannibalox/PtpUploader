@@ -17,10 +17,8 @@ class Ffmpeg:
     def __CalculateSizeAccordingToAspectRatio(self):
         # Get resolution and pixel aspect ratio from FFmpeg.
         args = [Settings.FfmpegPath, "-i", self.InputVideoPath]
-        proc = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        stdout, stderr = proc.communicate()
-        proc.wait()
-        result = stderr.decode("utf-8", "ignore")
+        proc: subprocess.CompletedProcess = subprocess.run(args, check=True, capture_output=True)
+        result: str = proc.stderr.decode("utf-8", "ignore")
 
         # Formatting can be one of the following. PAR can be SAR too.
         # Stream #0.0(eng): Video: h264, yuv420p, 1280x544, PAR 1:1 DAR 40:17, 24 tbr, 1k tbn, 48 tbc

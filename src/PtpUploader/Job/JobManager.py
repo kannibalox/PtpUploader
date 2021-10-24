@@ -87,8 +87,7 @@ class JobManager:
 
         # Check if we can process anything from the pending announcments.
         # Jobs with immediate start option have priority over other jobs.
-        for announcementIndex in range(len(self.PendingAnnouncements)):
-            jobManagerItem = self.PendingAnnouncements[announcementIndex]
+        for announcementIndex, jobManagerItem in enumerate(self.PendingAnnouncements):
             releaseInfo = self.__GetJobManagerItemAsReleaseInfo(jobManagerItem)
             if releaseInfo.IsStartImmediately():
                 processIndex = announcementIndex
@@ -103,29 +102,20 @@ class JobManager:
 
     # Must be called from the WorkerThread because of ReleaseInfo.
     def AddToPendingDownloads(self, releaseInfo):
-        self.Lock.acquire()
-
-        try:
+        with self.Lock:
             self.PendingDownloads.append(JobManagerItem(releaseInfo.Id, releaseInfo))
-        finally:
-            self.Lock.release()
 
     # Can be called from any thread.
     def AddNewAnnouncementFile(self, announcementFilePath):
-        self.Lock.acquire()
-
-        try:
+        with self.Lock:
             self.PendingAnnouncementsFiles.append(announcementFilePath)
-        finally:
-            self.Lock.release()
-            
+
     def __GetFinishedDownloadToProcess(self):
         if len(self.PendingDownloads) > 0:
             print(("Pending downloads: %s" % len(self.PendingDownloads)))
 
         # TODO: can we use a multicast RPC call get all the statuses in one call?
-        for downloadIndex in range(len(self.PendingDownloads)):
-            jobManagerItem = self.PendingDownloads[downloadIndex]
+        for downloadIndex, jobManagerItem in enumerate(self.PendingDownloads):
             releaseInfo = self.__GetJobManagerItemAsReleaseInfo(jobManagerItem)
             logger = releaseInfo.Logger
             if releaseInfo.AnnouncementSource.IsDownloadFinished(
@@ -137,12 +127,8 @@ class JobManager:
 
     # Can be called from any thread.
     def StartJob(self, releaseInfoId):
-        self.Lock.acquire()
-
-        try:
+        with self.Lock:
             self.PendingAnnouncements.append(JobManagerItem(releaseInfoId, None))
-        finally:
-            self.Lock.release()
 
     def __StopJobInternal(self, releaseInfoId):
         # Iterate the list backwards because we may delete from it.
@@ -167,18 +153,12 @@ class JobManager:
 
     # Can be called from any thread.
     def StopJob(self, releaseInfoId):
-        self.Lock.acquire()
-
-        try:
+        with self.Lock:
             self.__StopJobInternal(releaseInfoId)
-        finally:
-            self.Lock.release()
 
     # Must be called from the WorkerThread because of ReleaseInfo.
     def GetJobPhaseToProcess(self):
-        self.Lock.acquire()
-
-        try:
+        with self.Lock:
             # If there is a finished download, then upload it.
             jobManagerItem = self.__GetFinishedDownloadToProcess()
             if jobManagerItem is not None:
@@ -194,5 +174,3 @@ class JobManager:
                 )
 
             return None
-        finally:
-            self.Lock.release()

@@ -10,9 +10,10 @@ class IdxReader:
         languageRe = re.compile(r"id: ([a-z][a-z]), index: \d+$", re.IGNORECASE)
 
         # U is needed for "universal" newline support: to handle \r\n as \n.
-        for line in open(path, "rU"):
-            match = languageRe.match(line)
-            if match is not None:
-                languages.append(match.group(1))
+        with open(path, "rU") as pathHandle:
+            for line in pathHandle.readlines():
+                match = languageRe.match(line)
+                if match is not None:
+                    languages.append(match.group(1))
 
         return languages

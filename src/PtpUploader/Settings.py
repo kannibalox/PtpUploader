@@ -1,10 +1,9 @@
-import codecs
+import shutil
 import configparser
 import fnmatch
 import os
 import os.path
 import re
-import subprocess
 from pathlib import Path
 
 from PtpUploader.MyGlobals import MyGlobals
@@ -17,40 +16,38 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = ''
+SECRET_KEY = ""
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['']
+ALLOWED_HOSTS = [""]
 
 LOGGING = {
-    'version': 1,
-    'disable_existing_loggers': False,
-    'handlers': {
-        'console': {
-            'class': 'logging.StreamHandler',
+    "version": 1,
+    "disable_existing_loggers": False,
+    "handlers": {
+        "console": {
+            "class": "logging.StreamHandler",
         },
     },
-    'root': {
-        'handlers': ['console'],
-        'level': 'DEBUG',
+    "root": {
+        "handlers": ["console"],
+        "level": "DEBUG",
     },
 }
 
 # Application definition
 
-INSTALLED_APPS = [
-    'PtpUploader.web'
-]
+INSTALLED_APPS = ["PtpUploader.web"]
 
 # Database
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+    "default": {
+        "ENGINE": "django.db.backends.sqlite3",
+        "NAME": BASE_DIR / "db.sqlite3",
     }
 }
 
@@ -60,16 +57,16 @@ DATABASES = {
 
 AUTH_PASSWORD_VALIDATORS = [
     {
-        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
+        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+        "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
+        "NAME": "django.contrib.auth.password_validation.CommonPasswordValidator",
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
+        "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",
     },
 ]
 
@@ -77,9 +74,9 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/3.2/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = "en-us"
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = "UTC"
 
 USE_I18N = True
 
@@ -91,15 +88,15 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.2/howto/static-files/
 
-STATIC_URL = '/static/'
+STATIC_URL = "/static/"
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
 
-DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 
-class Settings(object):
+class Settings:
     @staticmethod
     def MakeListFromExtensionString(extensions):
         # Make sure everything is in lower case in the settings.
@@ -113,11 +110,7 @@ class Settings(object):
     # Eg.: "A B, C, D E" will become [ [ "A", "B" ], [ "C" ], [ "D", "E" ] ]
     @staticmethod
     def MakeListOfListsFromString(extensions: str):
-        list = Settings.MakeListFromExtensionString(extensions)
-        for i in range(len(list)):
-            list[i] = list[i].split(" ")
-
-        return list
+        return [i.split(" ") for i in Settings.MakeListFromExtensionString(extensions)]
 
     @staticmethod
     def __HasValidExtensionToUpload(path, extensions):
@@ -180,13 +173,12 @@ class Settings(object):
     @staticmethod
     def __LoadSceneGroups(path):
         groups = []
-        file = open(path, "r")
-        for line in file:
-            groupName = line.strip()
-            if len(groupName) > 0:
-                groupName = groupName.lower()
-                groups.append(groupName)
-        file.close()
+        with open(path, "r") as handle:
+            for line in handle.readlines():
+                groupName = line.strip()
+                if len(groupName) > 0:
+                    groupName = groupName.lower()
+                    groups.append(groupName)
         return groups
 
     @staticmethod
@@ -213,7 +205,7 @@ class Settings(object):
         Settings.configParser = configParser = configparser.ConfigParser()
 
         # Load Settings.ini from the same directory where PtpUploader is.
-        settingsDirectory, moduleFilename = os.path.split(
+        settingsDirectory, _ = os.path.split(
             __file__
         )  # __file__ contains the full path of the current running module
         settingsPath = os.path.join(settingsDirectory, "Settings.ini")
@@ -222,9 +214,7 @@ class Settings(object):
         print(
             ("Loading settings from '%s'." % settingsPath)
         )  # MyGlobals.Logger is not initalized yet.
-        fp = codecs.open(settingsPath, "r", "utf-8-sig")
-        configParser.readfp(fp)
-        fp.close()
+        configParser.read(settingsPath)
 
         Settings.VideoExtensionsToUpload = Settings.MakeListFromExtensionString(
             configParser.get("Settings", "VideoExtensionsToUpload")
@@ -402,23 +392,10 @@ class Settings(object):
 
     @staticmethod
     def __VerifyProgramPath(programName, arguments):
-        if len(arguments[0]) <= 0:
-            MyGlobals.Logger.error("%s isn't set in the settings!" % programName)
-            return False
-
-        try:
-            proc = subprocess.Popen(
-                arguments, stdout=subprocess.PIPE, stderr=subprocess.PIPE
-            )
-            stdout, stderr = proc.communicate()
-            errorCode = proc.wait()
-        except OSError as e:
+        if shutil.which(arguments[0]) is None:
             MyGlobals.Logger.error(
-                "%s isn't set properly in the settings!" % programName
-            )
-            MyGlobals.Logger.error(
-                "Execution of %s at '%s' caused an exception. Error message: '%s'."
-                % (programName, arguments[0], str(e))
+                "%s isn't set properly in the settings or isn't in the path!",
+                programName,
             )
             return False
 
@@ -439,11 +416,10 @@ class Settings(object):
         elif Settings.IsMplayerEnabled():
             if not Settings.__VerifyProgramPath("mplayer", [Settings.MplayerPath]):
                 return False
-        else:
-            if not Settings.__VerifyProgramPath(
-                "ffmpeg", [Settings.FfmpegPath, "--help"]
-            ):
-                return False
+        elif not Settings.__VerifyProgramPath(
+            "ffmpeg", [Settings.FfmpegPath, "--help"]
+        ):
+            return False
 
         # Optional
         if len(Settings.UnrarPath) > 0 and (
