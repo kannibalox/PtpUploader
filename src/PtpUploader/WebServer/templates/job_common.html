@@ -1,391 +1,386 @@
 ﻿{% block job_common %}
 
-<input id="JobId" name="JobId" type="hidden" value="{{ job.JobId }}">
+  <input id="JobId" name="JobId" type="hidden" value="{{ job.JobId }}">
 
-<tr>
-  <td class="label">Included files</td>
-  <td>
-    <input type="button" id="IncludedFilesToggle" value="Select">
-    <input id="IncludedFilesCustomizedList" name="IncludedFilesCustomizedList" type="hidden" value="{{ job.IncludedFilesCustomizedList }}">
-    <div id="IncludedFilesDialog">
-      <div id="IncludedFilesTree"></div>
-    </div>
-  </td>
-</tr>
+  <tr>
+    <td class="label">Included files</td>
+    <td>
+      <input type="button" id="IncludedFilesToggle" value="Select">
+      <input id="IncludedFilesCustomizedList" name="IncludedFilesCustomizedList" type="hidden" value="{{ job.IncludedFilesCustomizedList }}">
+      <div id="IncludedFilesDialog">
+        <div id="IncludedFilesTree"></div>
+      </div>
+    </td>
+  </tr>
 
-<tr>
-  <td class="label">Make torrent without directory</td>
-  <td>
-    <input id="ForceDirectorylessSingleFileTorrent" name="ForceDirectorylessSingleFileTorrent" type="checkbox" title="If this is set and the release contains only a single video file then no directory will be created."
+  <tr>
+    <td class="label">Make torrent without directory</td>
+    <td>
+      <input id="ForceDirectorylessSingleFileTorrent" name="ForceDirectorylessSingleFileTorrent" type="checkbox" title="If this is set and the release contains only a single video file then no directory will be created."
 
-	   {% if job.ForceDirectorylessSingleFileTorrent %}
-	   checked
-	   {% endif %}
-    >
-  </td>
-</tr>
-
-<tr>
-  <td class="label">Type</td>
-  <td>
-    <select id="categories" name="type">
-      <option value="Feature Film">Feature Film</option>
-      <option value="Short Film">Short Film</option>
-      <option value="Miniseries">Miniseries</option>
-      <option value="Stand-up Comedy">Stand-up Comedy</option>
-      <option value="Concert">Concert</option>
-    </select>
-  </td>
-</tr>
-
-<tr id="imdb_tr">
-  <td class="label">IMDb or PTP link</td>
-  <td>
-    <input id="imdb" name="imdb" size="60" value="{{ job.imdb }}" type="text" title="Enter - or 0 if the movie is not on IMDb.">
-    {% if job.PtpUrl %}
-    <a href="{{ job.PtpUrl }}" target="_blank"><img src="{{ url_for( "static", filename = "ptp.ico" ) }}" title="Movie page on PTP" style="vertical-align: middle"></a>
-    {% endif %}
-  </td>
-</tr>
-
-<tr id="artist_tr">
-  <td class="label">Director(s)</td>
-  <td id="artistfields">
-    <input id="artists[]" name="artists[]" size="60" value="{{ job[ "artists[]" ] }}" type="text">
-  </td>
-</tr>
-
-<tr id="title_tr">
-  <td class="label">Movie title:</td>
-  <td>
-    <input id="title" name="title" size="60" value="{{ job.title }}" type="text">
-  </td>
-</tr>
-
-<tr id="year_tr">
-  <td class="label">
-    <span id="year_label_not_remaster">Year</span>
-  </td>
-  <td>
-    <input id="year" name="year" size="5" value="{{ job.year }}" onblur="CheckYear();" type="text">
-  </td>
-</tr>
-
-<tr id="coverart_tr">
-  <td class="label">Cover Art Image</td>
-  <td>
-    <input id="image" name="image" size="60" value="{{ job.image }}" type="text">
-  </td>
-</tr>
-
-<tr>
-  <td class="label">YouTube link</td>
-  <td>
-    <input name="trailer" size="60" value="{{ job.trailer }}" type="text">
-  </td>
-</tr>
-
-<tr>
-  <td class="label">Special release title</td>
-  <td>
-    <input id="remaster_title" name="remaster_title" size="60" value="{{ job.remaster_title }}" type="text">
-  </td>
-</tr>
-
-<tr>
-  <td class="label">Special release year</td>
-  <td>
-    <input id="remaster_year" name="remaster_year" size="5" value="{{ job.remaster_year }}" type="text"> <br>
-  </td>
-</tr>
-
-<tr>
-  <td class="label">Personal rip</td>
-  <td>
-    <input id="personal_rip" name="personal_rip" type="checkbox" title="Check this only if you made this rip."
-
-	       {% if job.PersonalRip %}
-	   checked
-	   {% endif %}
-    >
-  </td>
-</tr>
-
-<tr>
-  <td class="label">Scene</td>
-  <td>
-    <input id="scene" name="scene" type="checkbox"
-
-	       {% if job.scene %}
-	   checked
-	   {% endif %}
-    >
-  </td>
-</tr>
-
-<tr>
-  <td class="label">Special release (not main movie)</td>
-  <td>
-    <input id="special" name="special" type="checkbox"
-
-	       {% if job.special %}
-	   checked
-	   {% endif %}
-    >
-  </td>
-</tr>
-
-<tr>
-  <td class="label">Codec</td>
-  <td>
-    <select id="codec" name="codec">
-      <option>---</option>
-      <option value="XviD">XviD</option>
-      <option value="DivX">DivX</option>
-      <option value="H.264">H.264</option>
-      <option value="x264">x264</option>
-      <option value="DVD5">DVD5</option>
-      <option value="DVD9">DVD9</option>
-      <option value="BD25">BD25</option>
-      <option value="BD50">BD50</option>
-      <option value="Other">Other</option>
-    </select>
-
-    <span id="other_codec_span">
-      <input name="other_codec" size="5" id="other_codec" type="text">
-    </span>
-  </td>
-</tr>
-
-<tr>
-  <td class="label">Container</td>
-  <td>
-    <select id="container" name="container">
-      <option>---</option>
-      <option value="AVI">AVI</option>
-      <option value="MPG">MPG</option>
-      <option value="MKV">MKV</option>
-      <option value="MP4">MP4</option>
-      <option value="VOB IFO">VOB IFO</option>
-      <option value="ISO">ISO</option>
-      <option value="m2ts">m2ts</option>
-      <option value="Other">Other</option>
-    </select>
-
-    <span id="other_container_span">
-      <input name="other_container" size="5" id="other_container" type="text">
-    </span>
-  </td>
-</tr>
-
-<tr>
-  <td class="label">Resolution</td>
-  <td>
-    <select id="resolution" name="resolution">
-      <option selected="selected">---</option>
-      <option value="NTSC">NTSC</option>
-      <option value="PAL">PAL</option>
-      <option value="480p">480p</option>
-      <option value="576p">576p</option>
-      <option value="720p">720p</option>
-      <option value="1080i">1080i</option>
-      <option value="1080p">1080p</option>
-      <option value="4K">4K</option>
-      <option value="Other">Other</option>
-    </select>
-
-    <span id="other_resolution_span">
-      <input name="other_resolution" size="10" id="other_resolution" value="{{ job.other_resolution }}" type="text">
-    </span>
-  </td>
-</tr>
-
-<tr>
-  <td class="label">Source</td>
-  <td>
-    <select name="source" id="source" onchange="Source();">
-      <option>---</option>
-      <option value="CAM">CAM</option>
-      <option value="TC">TC</option>
-      <option value="TS">TS</option>
-      <option value="R5">R5</option>
-      <option value="DVD-Screener">DVD-Screener</option>
-      <option value="VHS">VHS</option>
-      <option value="DVD">DVD</option>
-      <option value="TV">TV</option>
-      <option value="HDTV">HDTV</option>
-      <option value="HD-DVD">HD-DVD</option>
-      <option value="Blu-ray">Blu-ray</option>
-      <option value="WEB">WEB</option>
-      <option value="Other">Other</option>
-    </select>
-
-    <span id="other_source_span">
-      <input name="other_source" size="5" id="other_source" type="text">
-    </span>
-  </td>
-</tr>
-
-<tr>
-  <td class="label">Subtitle</td>
-  <td>
-    <select name="subtitle[]" id="subtitle" multiple="multiple">
-      <option value="44">No Subtitles</option> <!-- This one makes no sense... -->
-      <option value="22">Arabic</option>
-      <option value="49">Brazilian Portuguese</option>
-      <option value="29">Bulgarian</option>
-      <option value="14">Chinese</option>
-      <option value="23">Croatian</option>
-      <option value="30">Czech</option>
-      <option value="10">Danish</option>
-      <option value="9">Dutch</option>
-      <option value="3">English</option>
-      <option value="50">English - Forced</option>
-      <option value="51">English Intertitle</option>
-      <option value="38">Estonian</option>
-      <option value="15">Finnish</option>
-      <option value="5">French</option>
-      <option value="6">German</option>
-      <option value="26">Greek</option>
-      <option value="40">Hebrew</option>
-      <option value="41">Hindi</option>
-      <option value="24">Hungarian</option>
-      <option value="28">Icelandic</option>
-      <option value="47">Indonesian</option>
-      <option value="16">Italian</option>
-      <option value="8">Japanese</option>
-      <option value="19">Korean</option>
-      <option value="37">Latvian</option>
-      <option value="39">Lithuanian</option>
-      <option value="12">Norwegian</option>
-      <option value="17">Polish</option>
-      <option value="21">Portuguese</option>
-      <option value="13">Romanian</option>
-      <option value="7">Russian</option>
-      <option value="31">Serbian</option>
-      <option value="42">Slovak</option>
-      <option value="43">Slovenian</option>
-      <option value="4">Spanish</option>
-      <option value="11">Swedish</option>
-      <option value="20">Thai</option>
-      <option value="18">Turkish</option>
-      <option value="34">Ukrainian</option>
-      <option value="25">Vietnamese</option>
-    </select>
-    <br/>
-    <input id="TrumpableForNoEnglishSubtitles" name="TrumpableForNoEnglishSubtitles" type="checkbox"
-	       {% if job.TrumpableForNoEnglishSubtitles %}
-	   checked
-	   {% endif %}
-    >
-    <label for="TrumpableForNoEnglishSubtitles">Trumpable for no English subtitles</label>
-  </td>
-</tr>
-
-<tr>
-  <td class="label">Tags</td>
-  <td>
-    <select name="genre_tags[]" id="genre_tags" multiple="multiple">
-      <option value="action">action</option>
-      <option value="adventure">adventure</option>
-      <option value="animation">animation</option>
-      <option value="arthouse">arthouse</option>
-      <option value="asian">asian</option>
-      <option value="biography">biography</option>
-      <option value="camp">camp</option>
-      <option value="comedy">comedy</option>
-
-      <option value="crime">crime</option>
-      <option value="cult">cult</option>
-      <option value="documentary">documentary</option>
-      <option value="drama">drama</option>
-      <option value="experimental">experimental</option>
-      <option value="exploitation">exploitation</option>
-
-      <option value="family">family</option>
-      <option value="fantasy">fantasy</option>
-      <option value="film.noir">film.noir</option>
-      <option value="history">history</option>
-      <option value="horror">horror</option>
-      <option value="martial.arts">martial.arts</option>
-
-      <option value="musical">musical</option>
-      <option value="mystery">mystery</option>
-      <option value="performance">performance</option>
-      <option value="philosophy">philosophy</option>
-      <option value="politics">politics</option>
-      <option value="romance">romance</option>
-
-      <option value="sci.fi">sci.fi</option>
-      <option value="short">short</option>
-      <option value="silent">silent</option>
-      <option value="sport">sport</option>
-      <option value="thriller">thriller</option>
-      <option value="video.art">video.art</option>
-
-      <option value="war">war</option>
-      <option value="western">western</option>
-    </select>
-  </td>
-</tr>
-
-<tr>
-  <td class="label">Synopsis</td>
-  <td>
-    <textarea name="album_desc" id="album_desc" cols="60" rows="8">{{ job.album_desc }}</textarea>
-  </td>
-</tr>
-
-<tr>
-  <td class="label">Release Description
-    <br>
-    <br>
-    <input type="button" id="ConvertComparisonCode" value="Convert comparison code" title="You can convert HTML source of an image comparison (obtained by View selection source and copy&paste) to BBCode.">
-    <br>
-    <br>
-    <label title="If checked then screens won't be taken, the ones listed in the release notes will be used.">
-      <input type="checkbox" name="OverrideScreenshots"
-		   {% if job.OverrideScreenshots %}
+	     {% if job.ForceDirectorylessSingleFileTorrent %}
 	     checked
 	     {% endif %}
-      > Override screens
-    </label>
-  </td>
-  <td>
-    <textarea name="ReleaseNotes" id="ReleaseNotes" cols="60" rows="8">{{ job.ReleaseNotes }}</textarea>
-  </td>
-</tr>
+      >
+    </td>
+  </tr>
 
-<tr>
-  <td class="label">Checking</td>
-  <td>
-    <input id="force_upload" name="force_upload" type="checkbox"
-	       {% if job.force_upload %}
-	   checked
-	   {% endif %}
-    >
-    <label for="force_upload">Skip adult tag, series checking and rip specification checking</label>
-    <br>
-    <input type="checkbox" id="SkipDuplicateCheckingButton" name="SkipDuplicateCheckingButton" value="{{ job.SkipDuplicateCheckingButton }}" title="The existing torrents (at the time of the button press) will be ignored at the duplicate checking."
-		 {% if job.SkipDuplicateCheckingButton > 0 %}
-    checked
-    {% endif %}
-    >
-    <label for="SkipDuplicateCheckingButton">Skip duplicate checking</label>
-    <span id="SkipDuplicateCheckingMessage"></span>
-  </td>
-</tr>
+  <tr>
+    <td class="label">Type</td>
+    <td>
+      <select id="categories" name="type">
+        <option value="Feature Film">Feature Film</option>
+        <option value="Short Film">Short Film</option>
+        <option value="Miniseries">Miniseries</option>
+        <option value="Stand-up Comedy">Stand-up Comedy</option>
+        <option value="Concert">Concert</option>
+      </select>
+    </td>
+  </tr>
 
-<tr>
-  <td class="label">Start immediately</td>
-  <td>
-    <input id="StartImmediately" name="StartImmediately" type="checkbox" title="If this is set then the job will be the next processed job and the download will start regardless the number of maximum parallel downloads set for the source."
+  <tr id="imdb_tr">
+    <td class="label">IMDb or PTP link</td>
+    <td>
+      <input id="imdb" name="imdb" size="60" value="{{ job.imdb }}" type="text" title="Enter - or 0 if the movie is not on IMDb.">
+      {% if job.PtpUrl %}
+        <a href="{{ job.PtpUrl }}" target="_blank"><img src="{{ url_for( "static", filename = "ptp.ico" ) }}" title="Movie page on PTP" style="vertical-align: middle"></a>
+      {% endif %}
+    </td>
+  </tr>
 
-	       {% if job.StartImmediately %}
-	   checked
-	   {% endif %}
-    >
-  </td>
-</tr>
+  <tr id="artist_tr">
+    <td class="label">Director(s)</td>
+    <td id="artistfields">
+      <input id="artists[]" name="artists[]" size="60" value="{{ job[ "artists[]" ] }}" type="text">
+    </td>
+  </tr>
+
+  <tr id="title_tr">
+    <td class="label">Movie title:</td>
+    <td>
+      <input id="title" name="title" size="60" value="{{ job.title }}" type="text">
+    </td>
+  </tr>
+
+  <tr id="year_tr">
+    <td class="label">
+      <span id="year_label_not_remaster">Year</span>
+    </td>
+    <td>
+      <input id="year" name="year" size="5" value="{{ job.year }}" onblur="CheckYear();" type="text">
+    </td>
+  </tr>
+
+  <tr id="coverart_tr">
+    <td class="label">Cover Art Image</td>
+    <td>
+      <input id="image" name="image" size="60" value="{{ job.image }}" type="text">
+    </td>
+  </tr>
+
+  <tr>
+    <td class="label">YouTube link</td>
+    <td>
+      <input name="trailer" size="60" value="{{ job.trailer }}" type="text">
+    </td>
+  </tr>
+
+  <tr>
+    <td class="label">Special release title</td>
+    <td>
+      <input id="remaster_title" name="remaster_title" size="60" value="{{ job.remaster_title }}" type="text">
+    </td>
+  </tr>
+
+  <tr>
+    <td class="label">Special release year</td>
+    <td>
+      <input id="remaster_year" name="remaster_year" size="5" value="{{ job.remaster_year }}" type="text"> <br>
+    </td>
+  </tr>
+
+  <tr>
+    <td class="label">Personal rip</td>
+    <td>
+      <input id="personal_rip" name="personal_rip" type="checkbox" title="Check this only if you made this rip."
+
+	     {% if job.PersonalRip %}
+	     checked
+	     {% endif %}
+      >
+    </td>
+  </tr>
+
+  <tr>
+    <td class="label">Scene</td>
+    <td>
+      <input id="scene" name="scene" type="checkbox"
+
+	     {% if job.scene %}
+	     checked
+	     {% endif %}
+      >
+    </td>
+  </tr>
+
+  <tr>
+    <td class="label">Special release (not main movie)</td>
+    <td>
+      <input id="special" name="special" type="checkbox"
+
+	     {% if job.special %}
+	     checked
+	     {% endif %}
+      >
+    </td>
+  </tr>
+
+  <tr>
+    <td class="label">Codec</td>
+    <td>
+      <select id="codec" name="codec">
+        <option>---</option>
+        <option value="XviD">XviD</option>
+        <option value="DivX">DivX</option>
+        <option value="H.264">H.264</option>
+        <option value="x264">x264</option>
+        <option value="DVD5">DVD5</option>
+        <option value="DVD9">DVD9</option>
+        <option value="BD25">BD25</option>
+        <option value="BD50">BD50</option>
+        <option value="Other">Other</option>
+      </select>
+
+      <span id="other_codec_span">
+        <input name="other_codec" size="5" id="other_codec" type="text">
+      </span>
+    </td>
+  </tr>
+
+  <tr>
+    <td class="label">Container</td>
+    <td>
+      <select id="container" name="container">
+        <option>---</option>
+        <option value="AVI">AVI</option>
+        <option value="MPG">MPG</option>
+        <option value="MKV">MKV</option>
+        <option value="MP4">MP4</option>
+        <option value="VOB IFO">VOB IFO</option>
+        <option value="ISO">ISO</option>
+        <option value="m2ts">m2ts</option>
+        <option value="Other">Other</option>
+      </select>
+
+      <span id="other_container_span">
+        <input name="other_container" size="5" id="other_container" type="text">
+      </span>
+    </td>
+  </tr>
+
+  <tr>
+    <td class="label">Resolution</td>
+    <td>
+      <select id="resolution" name="resolution">
+        <option selected="selected">---</option>
+        <option value="NTSC">NTSC</option>
+        <option value="PAL">PAL</option>
+        <option value="480p">480p</option>
+        <option value="576p">576p</option>
+        <option value="720p">720p</option>
+        <option value="1080i">1080i</option>
+        <option value="1080p">1080p</option>
+        <option value="2160p">2160p</option>
+        <option value="Other">Other</option>
+      </select>
+
+      <span id="other_resolution_span">
+        <input name="other_resolution" size="10" id="other_resolution" value="{{ job.other_resolution }}" type="text">
+      </span>
+    </td>
+  </tr>
+
+  <tr>
+    <td class="label">Source</td>
+    <td>
+      <select name="source" id="source" onchange="Source();">
+        <option>---</option>
+        <option value="VHS">VHS</option>
+        <option value="DVD">DVD</option>
+        <option value="TV">TV</option>
+        <option value="HDTV">HDTV</option>
+        <option value="HD-DVD">HD-DVD</option>
+        <option value="Blu-ray">Blu-ray</option>
+        <option value="WEB">WEB</option>
+        <option value="Other">Other</option>
+      </select>
+
+      <span id="other_source_span">
+        <input name="other_source" size="5" id="other_source" type="text">
+      </span>
+    </td>
+  </tr>
+
+  <tr>
+    <td class="label">Subtitle</td>
+    <td>
+      <select name="subtitle[]" id="subtitle" multiple="multiple">
+        <option value="44">No Subtitles</option> <!-- This one makes no sense... -->
+        <option value="22">Arabic</option>
+        <option value="49">Brazilian Portuguese</option>
+        <option value="29">Bulgarian</option>
+        <option value="14">Chinese</option>
+        <option value="23">Croatian</option>
+        <option value="30">Czech</option>
+        <option value="10">Danish</option>
+        <option value="9">Dutch</option>
+        <option value="3">English</option>
+        <option value="50">English - Forced</option>
+        <option value="51">English Intertitle</option>
+        <option value="38">Estonian</option>
+        <option value="15">Finnish</option>
+        <option value="5">French</option>
+        <option value="6">German</option>
+        <option value="26">Greek</option>
+        <option value="40">Hebrew</option>
+        <option value="41">Hindi</option>
+        <option value="24">Hungarian</option>
+        <option value="28">Icelandic</option>
+        <option value="47">Indonesian</option>
+        <option value="16">Italian</option>
+        <option value="8">Japanese</option>
+        <option value="19">Korean</option>
+        <option value="37">Latvian</option>
+        <option value="39">Lithuanian</option>
+        <option value="12">Norwegian</option>
+        <option value="17">Polish</option>
+        <option value="21">Portuguese</option>
+        <option value="13">Romanian</option>
+        <option value="7">Russian</option>
+        <option value="31">Serbian</option>
+        <option value="42">Slovak</option>
+        <option value="43">Slovenian</option>
+        <option value="4">Spanish</option>
+        <option value="11">Swedish</option>
+        <option value="20">Thai</option>
+        <option value="18">Turkish</option>
+        <option value="34">Ukrainian</option>
+        <option value="25">Vietnamese</option>
+      </select>
+      <br/>
+      <input id="TrumpableForNoEnglishSubtitles" name="TrumpableForNoEnglishSubtitles" type="checkbox"
+	     {% if job.TrumpableForNoEnglishSubtitles %}
+	     checked
+	     {% endif %}
+      >
+      <label for="TrumpableForNoEnglishSubtitles">Trumpable for no English subtitles</label>
+    </td>
+  </tr>
+
+  <tr>
+    <td class="label">Tags</td>
+    <td>
+      <select name="genre_tags[]" id="genre_tags" multiple="multiple">
+        <option value="action">action</option>
+        <option value="adventure">adventure</option>
+        <option value="animation">animation</option>
+        <option value="arthouse">arthouse</option>
+        <option value="asian">asian</option>
+        <option value="biography">biography</option>
+        <option value="camp">camp</option>
+        <option value="comedy">comedy</option>
+
+        <option value="crime">crime</option>
+        <option value="cult">cult</option>
+        <option value="documentary">documentary</option>
+        <option value="drama">drama</option>
+        <option value="experimental">experimental</option>
+        <option value="exploitation">exploitation</option>
+
+        <option value="family">family</option>
+        <option value="fantasy">fantasy</option>
+        <option value="film.noir">film.noir</option>
+        <option value="history">history</option>
+        <option value="horror">horror</option>
+        <option value="martial.arts">martial.arts</option>
+
+        <option value="musical">musical</option>
+        <option value="mystery">mystery</option>
+        <option value="performance">performance</option>
+        <option value="philosophy">philosophy</option>
+        <option value="politics">politics</option>
+        <option value="romance">romance</option>
+
+        <option value="sci.fi">sci.fi</option>
+        <option value="short">short</option>
+        <option value="silent">silent</option>
+        <option value="sport">sport</option>
+        <option value="thriller">thriller</option>
+        <option value="video.art">video.art</option>
+
+        <option value="war">war</option>
+        <option value="western">western</option>
+      </select>
+    </td>
+  </tr>
+
+  <tr>
+    <td class="label">Synopsis</td>
+    <td>
+      <textarea name="album_desc" id="album_desc" cols="60" rows="8">{{ job.album_desc }}</textarea>
+    </td>
+  </tr>
+
+  <tr>
+    <td class="label">Release Description
+      <br>
+      <br>
+      <input type="button" id="ConvertComparisonCode" value="Convert comparison code" title="You can convert HTML source of an image comparison (obtained by View selection source and copy&paste) to BBCode.">
+      <br>
+      <br>
+      <label title="If checked then screens won't be taken, the ones listed in the release notes will be used.">
+        <input type="checkbox" name="OverrideScreenshots"
+	       {% if job.OverrideScreenshots %}
+	       checked
+	       {% endif %}
+        > Override screens
+      </label>
+    </td>
+    <td>
+      <textarea name="ReleaseNotes" id="ReleaseNotes" cols="60" rows="8">{{ job.ReleaseNotes }}</textarea>
+    </td>
+  </tr>
+
+  <tr>
+    <td class="label">Checking</td>
+    <td>
+      <input id="force_upload" name="force_upload" type="checkbox"
+	     {% if job.force_upload %}
+	     checked
+	     {% endif %}
+      >
+      <label for="force_upload">Skip adult tag, series checking and rip specification checking</label>
+      <br>
+      <input type="checkbox" id="SkipDuplicateCheckingButton" name="SkipDuplicateCheckingButton" value="{{ job.SkipDuplicateCheckingButton }}" title="The existing torrents (at the time of the button press) will be ignored at the duplicate checking."
+	     {% if job.SkipDuplicateCheckingButton > 0 %}
+             checked
+             {% endif %}
+      >
+      <label for="SkipDuplicateCheckingButton">Skip duplicate checking</label>
+      <span id="SkipDuplicateCheckingMessage"></span>
+    </td>
+  </tr>
+
+  <tr>
+    <td class="label">Start immediately</td>
+    <td>
+      <input id="StartImmediately" name="StartImmediately" type="checkbox" title="If this is set then the job will be the next processed job and the download will start regardless the number of maximum parallel downloads set for the source."
+
+	     {% if job.StartImmediately %}
+	     checked
+	     {% endif %}
+      >
+    </td>
+  </tr>
 
 {% endblock %}
