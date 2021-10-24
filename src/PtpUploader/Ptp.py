@@ -1,6 +1,4 @@
 import json
-import mimetypes
-import os
 import re
 import time
 import traceback
@@ -41,17 +39,9 @@ class Ptp:
 
         if "passthepopcorn.me" in MyGlobals.session.cookies.list_domains():
             response = MyGlobals.session.get(
-                "https://passthepopcorn.me/torrents.php?json=noredirect"
+                "https://passthepopcorn.me/upload.php"
             ).text
-            jsonLoad = None
-            try:
-                jsonLoad = json.loads(response)
-            except (Exception, ValueError) as e:
-                raise PtpUploaderInvalidLoginException(
-                    "Got exception while loading JSON login response from PTP. Response: '%s'."
-                    % response
-                ) from e
-            Ptp.AntiCsrfToken = jsonLoad["AntiCsrfToken"]
+            Ptp.AntiCsrfToken = re.search(r'data-AntiCsrfToken="(.*)"', response).group(1)
         else:
             postData = {
                 "username": Settings.PtpUserName,
@@ -88,7 +78,7 @@ class Ptp:
 
     @staticmethod
     def Login():
-        maximumTries = 3
+        maximumTries = 1
 
         while True:
             try:
