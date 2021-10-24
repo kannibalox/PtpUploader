@@ -1,3 +1,15 @@
+##### Changelog
+
+Many things have changed in version 1.0. Most importantly, only python 3+ is supported.
+
+Non-exhaustive list of other changes:
+- Reduce login sessions by storing cookie
+- Update UI
+- TODO: Bulk uploads
+- TOOD: Prowlarr integration
+
+##### About
+
 With the PtpUploader's WebUI you can upload to PTP by specifying a torrent file and an IMDb or PTP link.
 There is also an automatic mode built-in that can check announcements from IRC or RSS and upload everything automatically.
 

@@ -57,7 +57,7 @@ class SourceBase:
             self.NameInSettings, "StopAutomaticJobIfThereAreMultipleVideos", ""
         ).lower()
 
-    def IsEnabled(self):
+    def IsEnabled(self) -> bool:
         return True
 
     def Login(self):
@@ -229,17 +229,17 @@ class SourceBase:
     def GetTemporaryFolderForImagesAndTorrent(self, releaseInfo):
         return releaseInfo.GetReleaseRootPath()
 
-    def IsSingleFileTorrentNeedsDirectory(self, releaseInfo):
+    def IsSingleFileTorrentNeedsDirectory(self, releaseInfo) -> bool:
         return True
 
     def IncludeReleaseNameInReleaseDescription(self):
         return True
 
-    def GetIdFromUrl(self, url):
+    def GetIdFromUrl(self, url: str) -> str:
         return ""
 
-    def GetUrlFromId(self, id):
+    def GetUrlFromId(self, id: str) -> str:
         return ""
 
-    def GetIdFromAutodlIrssiUrl(self, url):
+    def GetIdFromAutodlIrssiUrl(self, url: str) -> str:
         return ""
