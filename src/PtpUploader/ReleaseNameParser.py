@@ -6,14 +6,14 @@ from PtpUploader.Settings import Settings
 
 class ReleaseNameParser:
     def __init__(self, name):
-        self.guess = guessit(name, {'enforce_list': True})
+        self.guess = guessit(name, {"enforce_list": True})
 
         # Simply popping the last tag as a group name wouldn't work because of P2P release with multiple dashes in it:
         # Let Me In 2010 DVDRIP READNFO XViD-T0XiC-iNK
 
         self.group = ""
         if "release_group" in self.guess:
-            self.group = ' '.join(self.guess["release_group"])
+            self.group = " ".join(self.guess["release_group"])
 
         self.Scene = self.group in Settings.SceneReleaserGroup
 
@@ -63,18 +63,19 @@ class ReleaseNameParser:
                 if self.guess["screen_size"][0].lower() == a.lower():
                     releaseInfo.ResolutionType = a
                     break
-            if (
-                releaseInfo.Source == "DVD"
-                and "other" in self.guess
-            ):
-                for o in self.guess['other']:
-                    if o in ['NTSC', 'PAL']:
+            if releaseInfo.Source == "DVD" and "other" in self.guess:
+                for o in self.guess["other"]:
+                    if o in ["NTSC", "PAL"]:
                         releaseInfo.ResolutionType = self.guess["other"]
                         break
         else:
             releaseInfo.ResolutionType = "Other"
 
-        if not releaseInfo.RemasterTitle and "other" in self.guess and 'Remux' in self.guess['other']:
+        if (
+            not releaseInfo.RemasterTitle
+            and "other" in self.guess
+            and "Remux" in self.guess["other"]
+        ):
             releaseInfo.RemasterTitle = "Remux"
 
     @staticmethod

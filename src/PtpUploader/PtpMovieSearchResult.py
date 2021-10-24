@@ -1,8 +1,7 @@
 import datetime
 import json
 
-from PtpUploader.Helper import (SizeToText,
-                                TimeDifferenceToText)
+from PtpUploader.Helper import SizeToText, TimeDifferenceToText
 from PtpUploader.PtpUploaderException import PtpUploaderException
 
 

@@ -1,7 +1,6 @@
 import threading
 
-from PtpUploader.AnnouncementDirectoryWatcher import \
-    AnnouncementDirectoryWatcher
+from PtpUploader.AnnouncementDirectoryWatcher import AnnouncementDirectoryWatcher
 from PtpUploader.Job.JobManager import JobManager
 from PtpUploader.MyGlobals import MyGlobals
 from PtpUploader.PtpUploaderException import *

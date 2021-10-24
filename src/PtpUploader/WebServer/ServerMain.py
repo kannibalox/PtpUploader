@@ -34,13 +34,13 @@ def index():
 @app.route("/job/<int:jobId>/log/")
 @requires_auth
 def log(jobId):
-    releaseInfo = ReleaseInfo.objects.get(Id = jobId)
+    releaseInfo = ReleaseInfo.objects.get(Id=jobId)
 
     logFilePath = releaseInfo.GetLogFilePath()
     log_msg = ""
 
     if os.path.isfile(logFilePath):
-        with open(logFilePath, 'r') as fh:
+        with open(logFilePath, "r") as fh:
             log_msg = fh.read()
     else:
         log_msg = "Log file '%s' doesn't exists!" % logFilePath

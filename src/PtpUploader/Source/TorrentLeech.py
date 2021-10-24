@@ -4,8 +4,10 @@ from PtpUploader.Helper import DecodeHtmlEntities, GetSizeFromText
 from PtpUploader.Job.JobRunningState import JobRunningState
 from PtpUploader.MyGlobals import MyGlobals
 from PtpUploader.NfoParser import NfoParser
-from PtpUploader.PtpUploaderException import (PtpUploaderException,
-                                              PtpUploaderInvalidLoginException)
+from PtpUploader.PtpUploaderException import (
+    PtpUploaderException,
+    PtpUploaderInvalidLoginException,
+)
 from PtpUploader.ReleaseNameParser import ReleaseNameParser
 from PtpUploader.Source.SourceBase import SourceBase
 

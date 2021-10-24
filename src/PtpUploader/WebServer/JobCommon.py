@@ -219,13 +219,11 @@ class JobCommon:
                 )
             else:
                 job["PtpUrl"] = (
-                    "https://passthepopcorn.me/torrents.php?id=%s"
-                    % releaseInfo.PtpId
+                    "https://passthepopcorn.me/torrents.php?id=%s" % releaseInfo.PtpId
                 )
         elif releaseInfo.ImdbId and releaseInfo.ImdbId != 0:
             job["PtpUrl"] = (
-                "https://passthepopcorn.me/torrents.php?imdb=%s"
-                % releaseInfo.ImdbId
+                "https://passthepopcorn.me/torrents.php?imdb=%s" % releaseInfo.ImdbId
             )
 
 
@@ -321,7 +319,7 @@ def ajaxGetIncludedFileList():
 
     if jobId:
         jobId = int(jobId)
-        releaseInfo = ReleaseInfo.objects.get(Id = jobId)
+        releaseInfo = ReleaseInfo.objects.get(Id=jobId)
         announcementSource = MyGlobals.SourceFactory.GetSource(
             releaseInfo.AnnouncementSourceName
         )

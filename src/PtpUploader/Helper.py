@@ -99,8 +99,6 @@ def TimeDifferenceToText(
         return noDifferenceText
 
 
-
-
 def ParseQueryString(query):
     return parse_qs(query)
 
@@ -161,7 +159,7 @@ def GetPathSize(path):
 
 # Always uses / as path separator.
 def GetFileListFromTorrent(torrentPath):
-    with open(torrentPath, 'rb') as fh:
+    with open(torrentPath, "rb") as fh:
         data = bencode.decode(fh.read())
     name = data["info"].get("name", None)
     files = data["info"].get("files", None)
@@ -196,14 +194,14 @@ def RemoveDisallowedCharactersFromPath(text):
 
 def ValidateTorrentFile(torrentPath):
     try:
-        with open(torrentPath, 'rb') as fh:
+        with open(torrentPath, "rb") as fh:
             bencode.decode(fh.read())
     except Exception:
         raise PtpUploaderException("File '%s' is not a valid torrent." % torrentPath)
 
 
 def GetSuggestedReleaseNameAndSizeFromTorrentFile(torrentPath):
-    with open(torrentPath, 'rb') as fh:
+    with open(torrentPath, "rb") as fh:
         data = bencode.decode(torrentPath)
     name = data["info"].get("name", None)
     files = data["info"].get("files", None)

@@ -30,7 +30,6 @@ class Rtorrent:
             data = fh.read()
             contents = xmlrpc.client.Binary(data)
             torrentData = bencode.decode(data)
-            
 
         metafile.check_meta(torrentData)
         infoHash = metafile.info_hash(torrentData)
@@ -76,10 +75,10 @@ class Rtorrent:
 
         shutil.copyfile(torrentPath, destinationTorrentPath)
 
-        with open(destinationTorrentPath, 'rb') as fh:
+        with open(destinationTorrentPath, "rb") as fh:
             metainfo = bencode.decode(fh.read())
         metafile.add_fast_resume(metainfo, downloadPath)
-        with open(destinationTorrentPath, 'wb') as fh:
+        with open(destinationTorrentPath, "wb") as fh:
             fh.write(bencode.encode(metainfo))
 
         infoHash = ""
@@ -125,8 +124,8 @@ class Rtorrent:
     def CleanTorrentFile(self, logger, torrentPath):
         logger.info("Cleaning torrent file '%s'." % torrentPath)
 
-        with open(torrentPath, 'rb') as fh:
+        with open(torrentPath, "rb") as fh:
             metainfo = bencode.decode(fh.read())
         metafile.clean_meta(metainfo, including_info=False, logger=logger.info)
-        with open(torrentPath, 'wb') as fh:
+        with open(torrentPath, "wb") as fh:
             fh.write(bencode.encode(metainfo))

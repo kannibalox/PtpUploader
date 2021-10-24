@@ -143,9 +143,7 @@ class File(SourceBase):
 
             # Delete the data of the uploaded torrent.
             # If it is a single file then upload path is its parent directory, so it would be unfortunate to delete. (See GetCustomUploadPath.)
-            if not sourceIsAFile and os.path.isdir(
-                releaseInfo.GetReleaseUploadPath()
-            ):
+            if not sourceIsAFile and os.path.isdir(releaseInfo.GetReleaseUploadPath()):
                 shutil.rmtree(releaseInfo.GetReleaseUploadPath())
 
         if deleteSourceData and deleteUploadData:

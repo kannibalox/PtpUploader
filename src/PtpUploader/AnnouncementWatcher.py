@@ -109,7 +109,9 @@ class AnnouncementWatcher:
                 if len(property) <= 0 or len(value) <= 0:
                     continue
 
-                AnnouncementWatcher.__HandleFileSourceProperty(releaseInfo, property, value)
+                AnnouncementWatcher.__HandleFileSourceProperty(
+                    releaseInfo, property, value
+                )
 
         success = len(releaseInfo.ReleaseDownloadPath) > 0
         return success

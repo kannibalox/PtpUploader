@@ -1,11 +1,12 @@
 import re
 
-from PtpUploader.Helper import (DecodeHtmlEntities, GetSizeFromText,
-                                ValidateTorrentFile)
+from PtpUploader.Helper import DecodeHtmlEntities, GetSizeFromText, ValidateTorrentFile
 from PtpUploader.Job.JobRunningState import JobRunningState
 from PtpUploader.MyGlobals import MyGlobals
-from PtpUploader.PtpUploaderException import (PtpUploaderException,
-                                              PtpUploaderInvalidLoginException)
+from PtpUploader.PtpUploaderException import (
+    PtpUploaderException,
+    PtpUploaderInvalidLoginException,
+)
 from PtpUploader.Source.SourceBase import SourceBase
 
 

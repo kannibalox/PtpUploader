@@ -86,7 +86,7 @@ class ReleaseInfoMaker:
         )
         releaseDescription = releaseDescriptionFormatter.Format(includeReleaseName=True)
 
-        with open(releaseDescriptionFilePath, 'w') as handle:
+        with open(releaseDescriptionFilePath, "w") as handle:
             handle.write(releaseDescription)
 
     def MakeReleaseInfo(self, createTorrent=True, createScreens=True):

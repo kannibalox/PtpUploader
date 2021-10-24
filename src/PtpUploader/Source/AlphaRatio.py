@@ -1,8 +1,11 @@
 import re
 
-from PtpUploader.Helper import (DecodeHtmlEntities, GetSizeFromText,
-                                MakeRetryingHttpGetRequestWithRequests,
-                                MakeRetryingHttpPostRequestWithRequests)
+from PtpUploader.Helper import (
+    DecodeHtmlEntities,
+    GetSizeFromText,
+    MakeRetryingHttpGetRequestWithRequests,
+    MakeRetryingHttpPostRequestWithRequests,
+)
 from PtpUploader.Job.JobRunningState import JobRunningState
 from PtpUploader.MyGlobals import MyGlobals
 from PtpUploader.NfoParser import NfoParser

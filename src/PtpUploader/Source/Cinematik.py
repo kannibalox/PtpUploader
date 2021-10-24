@@ -1,10 +1,13 @@
 import os
 import re
 
-from PtpUploader.Helper import (DecodeHtmlEntities, GetFileListFromTorrent,
-                                GetSizeFromText,
-                                RemoveDisallowedCharactersFromPath,
-                                ValidateTorrentFile)
+from PtpUploader.Helper import (
+    DecodeHtmlEntities,
+    GetFileListFromTorrent,
+    GetSizeFromText,
+    RemoveDisallowedCharactersFromPath,
+    ValidateTorrentFile,
+)
 from PtpUploader.InformationSource.Imdb import Imdb
 from PtpUploader.Job.JobRunningState import JobRunningState
 from PtpUploader.MyGlobals import MyGlobals

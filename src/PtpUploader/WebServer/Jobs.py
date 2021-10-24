@@ -84,8 +84,7 @@ def ReleaseInfoToJobsPageData(releaseInfo, entry):
     entry["LogPageUrl"] = url_for("log", jobId=releaseInfo.Id)
     entry["Size"] = SizeToText(releaseInfo.Size)
     entry["Date"] = TimeDifferenceToText(
-        timezone.now()
-        - releaseInfo.LastModificationTime,
+        timezone.now() - releaseInfo.LastModificationTime,
         2,
     )
 
@@ -162,15 +161,17 @@ def jobs(page):
     pagination = Pagination(page, jobsPerPage, ReleaseInfo.objects.all().count())
 
     entries = []
-    for releaseInfo in list(ReleaseInfo.objects.all().order_by('LastModificationTime')[offset:jobsPerPage]):
+    for releaseInfo in list(
+        ReleaseInfo.objects.all().order_by("LastModificationTime")[offset:jobsPerPage]
+    ):
         entry = {}
         ReleaseInfoToJobsPageData(releaseInfo, entry)
         entries.append(entry)
 
     settings = {
-        "SearchText": '',
-        "OrderBy": '',
-        "OrderWay": '',
+        "SearchText": "",
+        "OrderBy": "",
+        "OrderWay": "",
         "States": [],
     }
     if Settings.OpenJobPageLinksInNewTab == "0":
@@ -188,7 +189,7 @@ def jobs(page):
 def StartJob(jobId):
     # TODO: This is very far from perfect. There is no guarantee that the job didn't start meanwhile.
     # Probably only the WorkerThread should change the running state.
-    releaseInfo = ReleaseInfo.objects.get(Id = jobId)
+    releaseInfo = ReleaseInfo.objects.get(Id=jobId)
     if not releaseInfo.CanResumed():
         return "The job is already running!"
 
@@ -212,7 +213,7 @@ def StartJob(jobId):
 def StopJob(jobId):
     # TODO: This is very far from perfect. There is no guarantee that the job didn't stop meanwhile.
     # Probably only the WorkerThread should change the running state.
-    releaseInfo = ReleaseInfo.objects.get(Id = jobId)
+    releaseInfo = ReleaseInfo.objects.get(Id=jobId)
     if not releaseInfo.CanStopped():
         return "The job is already stopped!"
 

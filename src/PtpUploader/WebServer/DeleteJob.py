@@ -10,7 +10,7 @@ from PtpUploader.WebServer.Authentication import requires_auth
 @app.route("/job/<int:jobId>/delete/")
 @requires_auth
 def DeleteTheJob(jobId):
-    releaseInfo = ReleaseInfo.objects.get(Id = jobId)
+    releaseInfo = ReleaseInfo.objects.get(Id=jobId)
 
     # TODO: This is very far from perfect. There is no guarantee that the job didn't start meanwhile.
     # Probably the WorkerThread should do the deleting.

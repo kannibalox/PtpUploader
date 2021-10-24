@@ -29,7 +29,12 @@ class MediaInfo:
         logger.info("Reading media info from '%s'." % self.Path)
 
         # MediaInfo is buggy on some videos and takes a lot of time to finish. We limit this time to the user specified maximum.
-        proc = subprocess.run(self.MediaInfoArgs, timeout=Settings.MediaInfoTimeOut, capture_output=True, check=True)
+        proc = subprocess.run(
+            self.MediaInfoArgs,
+            timeout=Settings.MediaInfoTimeOut,
+            capture_output=True,
+            check=True,
+        )
         return proc.stdout.decode("utf-8", "ignore")
 
     # removePathFromCompleteName: see MediaInfo's constructor

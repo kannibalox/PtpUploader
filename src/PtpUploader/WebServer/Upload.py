@@ -5,8 +5,7 @@ import uuid
 from flask import jsonify, render_template, request
 from werkzeug.utils import secure_filename
 
-from PtpUploader.Helper import (GetSuggestedReleaseNameAndSizeFromTorrentFile,
-                                SizeToText)
+from PtpUploader.Helper import GetSuggestedReleaseNameAndSizeFromTorrentFile, SizeToText
 from PtpUploader.MyGlobals import MyGlobals
 from PtpUploader.PtpUploaderMessage import *
 from PtpUploader.ReleaseInfo import ReleaseInfo
@@ -113,7 +112,6 @@ def upload():
         JobCommon.FillReleaseInfoFromRequestData(releaseInfo, request)
 
         # TODO: todo multiline torrent site link field
-
 
         releaseInfo.save()
         print(releaseInfo.Id)

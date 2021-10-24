@@ -14,7 +14,7 @@ from PtpUploader.WebServer.JobCommon import JobCommon
 @requires_auth
 def EditJob(jobId):
     if request.method == "POST":
-        releaseInfo = ReleaseInfo.objects.get(Id = jobId)
+        releaseInfo = ReleaseInfo.objects.get(Id=jobId)
 
         # TODO: This is very far from perfect. There is no guarantee that the job didn't start meanwhile.
         # Probably only the WorkerThread should change the running state.
@@ -35,7 +35,7 @@ def EditJob(jobId):
 
         return redirect(url_for("jobs"))
 
-    releaseInfo = ReleaseInfo.objects.get(Id = jobId)
+    releaseInfo = ReleaseInfo.objects.get(Id=jobId)
     job = {}
     JobCommon.FillDictionaryFromReleaseInfo(job, releaseInfo)
 

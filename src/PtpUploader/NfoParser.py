@@ -22,7 +22,7 @@ class NfoParser:
     def ReadNfo(nfoPath: os.PathLike) -> str:
         with Path(nfoPath).open("rb") as nfoFile:
             return nfoFile.read().decode("cp437", "ignore")
-    
+
     # If there are multiple NFOs, it returns with an empty string.
     @staticmethod
     def FindAndReadNfoFileToUnicode(directoryPath) -> str:
@@ -31,7 +31,7 @@ class NfoParser:
 
         for entry in os.listdir(directoryPath):
             entryPath = os.path.join(directoryPath, entry)
-            if os.path.isfile(entryPath) and entry.lower().endswith('.nfo'):
+            if os.path.isfile(entryPath) and entry.lower().endswith(".nfo"):
                 if nfoFound:
                     nfoPath = None
                 else:

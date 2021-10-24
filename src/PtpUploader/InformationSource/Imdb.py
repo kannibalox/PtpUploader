@@ -21,13 +21,13 @@ class Imdb:
         imdbInfo = ImdbInfo()
         try:
             ia = IMDb()
-            movie = ia.get_movie(imdbId.strip('t'))
-            imdbInfo.Title = movie['title']
-            imdbInfo.Year = str(movie['year'])
-            imdbInfo.ImdbRating = movie['rating']
-            imdbInfo.ImdbVoteCount = movie['votes']
-            imdbInfo.PosterUrl = movie['full-size cover url']
-            imdbInfo.Plot = movie['plot'][0]
+            movie = ia.get_movie(imdbId.strip("t"))
+            imdbInfo.Title = movie["title"]
+            imdbInfo.Year = str(movie["year"])
+            imdbInfo.ImdbRating = movie["rating"]
+            imdbInfo.ImdbVoteCount = movie["votes"]
+            imdbInfo.PosterUrl = movie["full-size cover url"]
+            imdbInfo.Plot = movie["plot"][0]
         except Exception:
             logger.exception(
                 "Got exception while trying to get IMDb info by IMDb id '%s'." % imdbId
