@@ -2,9 +2,11 @@ import html
 import os
 import re
 
-from PtpUploader.Helper import (GetSizeFromText,
-                                RemoveDisallowedCharactersFromPath,
-                                ValidateTorrentFile)
+from PtpUploader.Helper import (
+    GetSizeFromText,
+    RemoveDisallowedCharactersFromPath,
+    ValidateTorrentFile,
+)
 from PtpUploader.InformationSource.Imdb import Imdb
 from PtpUploader.Job.JobRunningState import JobRunningState
 from PtpUploader.MyGlobals import MyGlobals
@@ -25,12 +27,13 @@ class Cinemageddon(SourceBase):
     def Login(self):
         MyGlobals.Logger.info("Logging in to Cinemageddon.")
 
-        postData = {"username": self.Username, "password": self.Password}
-        result = MyGlobals.session.post(
-            "https://cinemageddon.net/takelogin.php", data=postData
-        )
-        result.raise_for_status()
-        self.__CheckIfLoggedInFromResponse(result.content)
+        if "cinemageddon.net" not in MyGlobals.session.cookies.list_domains():
+            postData = {"username": self.Username, "password": self.Password}
+            result = MyGlobals.session.post(
+                "https://cinemageddon.net/takelogin.php", data=postData
+            )
+            result.raise_for_status()
+            self.__CheckIfLoggedInFromResponse(result.content)
 
     def __CheckIfLoggedInFromResponse(self, response: bytes):
         if response.find(b'action="takelogin.php"') != -1:
@@ -38,7 +41,9 @@ class Cinemageddon(SourceBase):
                 "Looks like you are not logged in to Cinemageddon. Probably due to the bad user name or password in settings."
             )
 
-    def __ParsePage(self, logger, releaseInfo, raw_html, parseForExternalCreateJob=False):
+    def __ParsePage(
+        self, logger, releaseInfo, raw_html, parseForExternalCreateJob=False
+    ):
         # Make sure we only get information from the description and not from the comments.
         descriptionEndIndex = raw_html.find(b'<p><a name="startcomments"></a></p>')
         if descriptionEndIndex == -1:

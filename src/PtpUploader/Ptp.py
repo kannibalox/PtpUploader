@@ -47,32 +47,46 @@ class Ptp:
         }
 
         MyGlobals.session.get("https://passthepopcorn.me/ajax.php?action=login")
-        response = MyGlobals.session.post(
-            "https://passthepopcorn.me/ajax.php?action=login", data=postData
-        )
-        response = response.text
+        if "passthepopcorn.me" in MyGlobals.session.cookies.list_domains():
+            response = MyGlobals.session.get(
+                "https://passthepopcorn.me/torrents.php?json=noredirect"
+            ).text
+            jsonLoad = None
+            try:
+                jsonLoad = json.loads(response)
+            except (Exception, ValueError) as e:
+                raise PtpUploaderInvalidLoginException(
+                    "Got exception while loading JSON login response from PTP. Response: '%s'."
+                    % response
+                ) from e
+            Ptp.AntiCsrfToken = jsonLoad["AntiCsrfToken"]
+        else:
+            response = MyGlobals.session.post(
+                "https://passthepopcorn.me/ajax.php?action=login", data=postData
+            ).text
 
-        jsonLoad = None
-        try:
-            jsonLoad = json.loads(response)
-        except (Exception, ValueError):
-            raise PtpUploaderInvalidLoginException(
-                "Got exception while loading JSON login response from PTP. Response: '%s'."
-                % response
-            )
+            jsonLoad = None
+            try:
+                jsonLoad = json.loads(response)
+            except (Exception, ValueError) as e:
+                raise PtpUploaderInvalidLoginException(
+                    "Got exception while loading JSON login response from PTP. Response: '%s'."
+                    % response
+                ) from e
 
-        if jsonLoad is None:
-            raise PtpUploaderInvalidLoginException(
-                "Got bad JSON response from PTP while trying to log in. Response: '%s'."
-                % response
-            )
+            if jsonLoad is None:
+                raise PtpUploaderInvalidLoginException(
+                    "Got bad JSON response from PTP while trying to log in. Response: '%s'."
+                    % response
+                )
 
-        if jsonLoad["Result"] != "Ok":
-            raise PtpUploaderInvalidLoginException(
-                "Failed to login to PTP. Probably due to the bad user name, password or pass key."
-            )
+            if jsonLoad["Result"] != "Ok":
+                raise PtpUploaderInvalidLoginException(
+                    "Failed to login to PTP. Probably due to the bad user name, password or pass key."
+                )
 
-        Ptp.AntiCsrfToken = jsonLoad["AntiCsrfToken"]
+            Ptp.AntiCsrfToken = jsonLoad["AntiCsrfToken"]
+            MyGlobals.SaveCookies()
 
     @staticmethod
     def Login():
@@ -232,7 +246,7 @@ class Ptp:
         }
 
         # Add the IMDb ID.
-        if releaseInfo.ImdbId == '0':
+        if releaseInfo.ImdbId == "0":
             params.update({"imdb": "0"})
         else:
             params.update({"imdb": Ptp.NormalizeImdbIdForPtp(releaseInfo.ImdbId)})

@@ -1,5 +1,6 @@
+import pickle
 import datetime
-import http.cookiejar
+from pathlib import Path
 import logging
 import os
 import sys
@@ -11,7 +12,6 @@ from PtpUploader.PtpSubtitle import PtpSubtitle
 
 class MyGlobalsClass:
     def __init__(self):
-        self.CookieJar = None
         self.Logger = None
         self.PtpUploader = None
         self.SourceFactory = None
@@ -35,8 +35,15 @@ class MyGlobalsClass:
 
     def InitializeGlobals(self, workingPath):
         self.InitializeLogger(workingPath)
-        self.CookieJar = http.cookiejar.CookieJar()
         self.PtpSubtitle = PtpSubtitle()
+        self.cookie_file = Path(workingPath).joinpath("cookies.pickle")
+        if self.cookie_file.exists():
+            with self.cookie_file.open("rb") as fh:
+                self.session.cookies = pickle.load(fh)
+
+    def SaveCookies(self):
+        with self.cookie_file.open("wb") as fh:
+            pickle.dump(self.session.cookies, fh)
 
     # workingPath from Settings.WorkingPath.
     def InitializeLogger(self, workingPath):
