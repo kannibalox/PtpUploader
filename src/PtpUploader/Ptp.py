@@ -39,13 +39,6 @@ class Ptp:
 
         MyGlobals.Logger.info("Logging in to PTP.")
 
-        postData = {
-            "username": Settings.PtpUserName,
-            "password": Settings.PtpPassword,
-            "passkey": passKey,
-            "keeplogged": "1",
-        }
-
         if "passthepopcorn.me" in MyGlobals.session.cookies.list_domains():
             response = MyGlobals.session.get(
                 "https://passthepopcorn.me/torrents.php?json=noredirect"
@@ -60,6 +53,12 @@ class Ptp:
                 ) from e
             Ptp.AntiCsrfToken = jsonLoad["AntiCsrfToken"]
         else:
+            postData = {
+                "username": Settings.PtpUserName,
+                "password": Settings.PtpPassword,
+                "passkey": passKey,
+                "keeplogged": "1",
+            }
             response = MyGlobals.session.post(
                 "https://passthepopcorn.me/ajax.php?action=login", data=postData
             ).text
