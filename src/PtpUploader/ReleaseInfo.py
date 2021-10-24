@@ -38,6 +38,8 @@ class ReleaseInfo(models.Model):
         app_label = "web"
         __tablename__ = "release"
 
+    objects: models.manager.Manager
+
     Id = models.AutoField(primary_key=True)
 
     # Announcement
