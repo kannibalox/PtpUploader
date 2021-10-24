@@ -85,12 +85,10 @@
            // boxWidth: 480,
            onContentReady: function(){
              $("#tree").fancytree({
-               checkbox: true,
-               clickFolderMode: 3, // 1:activate, 2:expand, 3:activate and expand, 4:activate (dblclick expands)
-               checkbox: true, // Show check boxes
+               clickFolderMode: 4, // 1:activate, 2:expand, 3:activate and expand, 4:activate (dblclick expands
                debugLevel: 4, // 0:quiet, 1:errors, 2:warnings, 3:infos, 4:debug
                keyboard: false, // Support keyboard navigation
-               selectMode: 3, // 1:single, 2:multi, 3:multi-hier
+               selectMode: 1, // 1:single, 2:multi, 3:multi-hier
                tabindex: "", // Whole tree behaves as one single control
                source: {url: "/ajax/localdir/", cache: false},
                lazyLoad: function(event, data){
