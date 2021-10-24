@@ -32,7 +32,7 @@ class Mpv:
             "--frames=1",
             "--screenshot-format=png",
             "--screenshot-png-compression=9",  # doesn't seem to be working
-            "--vf=scale=0:0",  # 0: scaled d_width/d_height
+            "--vf=lavfi=[scale='max(iw,iw*sar)':'max(ih/sar,ih)']",
             "--o=" + outputPngPath,
             self.InputVideoPath,
         ]
