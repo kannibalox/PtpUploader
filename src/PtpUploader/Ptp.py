@@ -41,7 +41,9 @@ class Ptp:
             response = MyGlobals.session.get(
                 "https://passthepopcorn.me/upload.php"
             ).text
-            Ptp.AntiCsrfToken = re.search(r'data-AntiCsrfToken="(.*)"', response).group(1)
+            Ptp.AntiCsrfToken = re.search(r'data-AntiCsrfToken="(.*)"', response).group(
+                1
+            )
         else:
             postData = {
                 "username": Settings.PtpUserName,
