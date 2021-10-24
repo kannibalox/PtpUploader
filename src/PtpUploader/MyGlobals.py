@@ -36,7 +36,7 @@ class MyGlobalsClass:
     def InitializeGlobals(self, workingPath):
         self.InitializeLogger(workingPath)
         self.PtpSubtitle = PtpSubtitle()
-        self.cookie_file = Path(workingPath).joinpath("cookies.pickle")
+        self.cookie_file: Path = Path(workingPath).joinpath("cookies.pickle")
         if self.cookie_file.exists():
             with self.cookie_file.open("rb") as fh:
                 self.session.cookies = pickle.load(fh)
@@ -48,9 +48,9 @@ class MyGlobalsClass:
     # workingPath from Settings.WorkingPath.
     def InitializeLogger(self, workingPath):
         # This will create the log directory too.
-        announcementLogDirPath = os.path.join(workingPath, "log/announcement")
-        if not os.path.isdir(announcementLogDirPath):
-            os.makedirs(announcementLogDirPath)
+        announcementLogDirPath = Path(os.path.join(workingPath, "log/announcement"))
+        if not announcementLogDirPath.is_dir():
+            announcementLogDirPath.makedir(parents=True, exist_ok=True)
 
         logDirPath = os.path.join(workingPath, "log")
 
@@ -78,18 +78,14 @@ class MyGlobalsClass:
     def GetTorrentClient(self):
         if self.TorrentClient is None:
             from PtpUploader.Settings import Settings
-
             if Settings.TorrentClientName.lower() == "transmission":
                 from PtpUploader.Tool.Transmission import Transmission
-
                 self.TorrentClient = Transmission(
                     Settings.TorrentClientAddress, Settings.TorrentClientPort
                 )
             else:
                 from PtpUploader.Tool.Rtorrent import Rtorrent
-
                 self.TorrentClient = Rtorrent()
-
         return self.TorrentClient
 
 
