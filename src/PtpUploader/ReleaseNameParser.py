@@ -35,7 +35,7 @@ class ReleaseNameParser:
                 % releaseInfo.ReleaseName
             )
 
-        if releaseInfo.IsSourceSet():
+        if releaseInfo.Source:
             releaseInfo.Logger.info(
                 "Source '%s' is already set, not getting from release name."
                 % releaseInfo.Source

@@ -67,7 +67,7 @@ class Karagarga(SourceBase):
             )
 
     def __DownloadNfoParseSourceType(self, releaseInfo, description):
-        if releaseInfo.IsSourceSet():
+        if releaseInfo.Source:
             releaseInfo.Logger.info(
                 "Source '%s' is already set, not getting from the torrent page."
                 % releaseInfo.Source

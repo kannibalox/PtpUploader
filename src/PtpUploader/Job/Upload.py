@@ -88,7 +88,7 @@ class Upload(WorkerBase):
         )
         if len(customUploadPath) > 0:
             uploadPath = customUploadPath
-            self.ReleaseInfo.SetReleaseUploadPath(customUploadPath)
+            self.ReleaseInfo.ReleaseUploadPath = customUploadPath
 
         self.ReleaseInfo.AnnouncementSource.CreateUploadDirectory(self.ReleaseInfo)
 

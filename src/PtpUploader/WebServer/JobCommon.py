@@ -42,7 +42,7 @@ class JobCommon:
         if len(imdbId) > 0:
             releaseInfo.ImdbId = imdbId
         elif text == "0" or text == "-":
-            releaseInfo.SetZeroImdbId()
+            releaseInfo.ImdbId = "0"
         else:
             # Using urlparse because of torrent permalinks:
             # https://passthepopcorn.me/torrents.php?id=9730&torrentid=72322

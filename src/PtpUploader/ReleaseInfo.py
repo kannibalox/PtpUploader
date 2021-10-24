@@ -283,9 +283,6 @@ class ReleaseInfo(models.Model):
         path = os.path.join(self.GetReleaseRootPath(), "upload")
         return os.path.join(path, self.ReleaseName)
 
-    def SetReleaseUploadPath(self, path):
-        self.ReleaseUploadPath = path
-
     def IsTorrentNeedsDuplicateChecking(self, torrentId):
         return torrentId > self.DuplicateCheckCanIgnore
 
@@ -293,9 +290,6 @@ class ReleaseInfo(models.Model):
         return self.ImdbId == "0"
 
     def GetImdbId(self):
-        return self.ImdbId
-
-    def GetPtpId(self):
         return self.PtpId
 
     def GetPtpTorrentId(self):

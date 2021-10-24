@@ -136,7 +136,7 @@ class Cinematik(SourceBase):
                 "Unsupported resolution type '%s'." % resolutionType,
             )
 
-        if releaseInfo.IsCodecSet() and releaseInfo.IsSourceSet():
+        if releaseInfo.Codec and releaseInfo.Source:
             releaseInfo.Logger.info(
                 "Codec '%s' and source '%s' are already set, not getting from the torrent page."
                 % (releaseInfo.Codec, releaseInfo.Source)
