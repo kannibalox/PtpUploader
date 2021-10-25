@@ -67,7 +67,7 @@ class JobCommon:
         releaseInfo.Title = request.values["title"].strip()
         releaseInfo.Year = request.values["year"]
         if "genre_tags[]" in request.values:
-            releaseInfo.Tags = ', '.join()
+            releaseInfo.Tags = ', '.join(request.values.getlist("genre_tags[]"))
         else:
             releaseInfo.Tags = ''
         releaseInfo.MovieDescription = request.values["album_desc"]
@@ -206,6 +206,7 @@ class JobCommon:
         job["ReleaseNotes"] = releaseInfo.ReleaseNotes
 
         job["Subtitles"] = releaseInfo.GetSubtitles()
+        job["Tags"] = releaseInfo.Tags.split(', ')
         job["IncludedFilesCustomizedList"] = releaseInfo.IncludedFiles
         job["SkipDuplicateCheckingButton"] = int(releaseInfo.DuplicateCheckCanIgnore)
 
