@@ -1,9 +1,12 @@
 import os
 import sys
 import uuid
+from pathlib import Path
 
 from flask import jsonify, render_template, request
 from werkzeug.utils import secure_filename
+
+import bencode
 
 from PtpUploader.Helper import GetSuggestedReleaseNameAndSizeFromTorrentFile, SizeToText
 from PtpUploader.MyGlobals import MyGlobals
@@ -17,58 +20,27 @@ from PtpUploader.WebServer.UploadFile import UploadFile
 
 
 def IsFileAllowed(filename):
-    _, extension = os.path.splitext(filename)
-    return extension == ".torrent"
-
-
-@app.route("/ajaxuploadtorrentfile/", methods=["POST"])
-@requires_auth
-def ajaxUploadTorrentFile():
-    file = request.files.get("files[]")
-    # file is not None even there is no file specified, but checking file as a boolean is OK. (As shown in the Flask example.)
-    if (not file) or (not IsFileAllowed(file.filename)):
-        return jsonify(myResult="ERROR")
-
-    filename = secure_filename(file.filename)
-
-    # We add an UUID to the filename to make sure it is unique in the temporary folder.
-    filename, extension = os.path.splitext(filename)
-    filename += "." + str(uuid.uuid1()) + extension
-
-    sourceTorrentFilePath = os.path.join(Settings.GetTemporaryPath(), filename)
-    file.save(sourceTorrentFilePath)
-
-    releaseName, size = GetSuggestedReleaseNameAndSizeFromTorrentFile(
-        sourceTorrentFilePath
-    )
-    sizeText = SizeToText(size)
-
-    return jsonify(
-        myResult="OK",
-        torrentFilename=filename,
-        releaseName=releaseName,
-        torrentContentSize=size,
-        torrentContentSizeText=sizeText,
-    )
+    return os.path.splitext(filename)[1] == ".torrent"
 
 
 def UploadTorrentFile(releaseInfo, request):
-    torrentFilename = request.values["uploaded_torrentfilename"]
-    if not IsFileAllowed(torrentFilename):
+    if 'uploaded_torrent' not in request.files:
         return False
-
-    torrentContentSize = request.values["uploaded_torrentcontentsize"]
-    if len(torrentContentSize) <= 0:  # Length of the string.
+    file = request.files['uploaded_torrent']
+    torrentFilename: str = file.filename
+    if not IsFileAllowed(torrentFilename):
         return False
 
     torrentFilename = secure_filename(torrentFilename)
     torrentFilename = os.path.join(Settings.GetTemporaryPath(), torrentFilename)
+    file.save(torrentFilename)
     if not os.path.isfile(torrentFilename):
         return False
 
     releaseInfo.SourceTorrentFilePath = torrentFilename
     releaseInfo.AnnouncementSourceName = "torrent"
-    releaseInfo.Size = int(torrentContentSize)
+    releaseInfo.Size = int(len(file.read()))
+    releaseInfo.ReleaseName = Path(torrentFilename).stem
     return True
 
 
@@ -104,7 +76,8 @@ def upload():
         else:
             return "Select something to upload!"
 
-        releaseInfo.ReleaseName = request.values["release_name"]
+        if request.values["release_name"]:
+            releaseInfo.ReleaseName = request.values["release_name"]
         releaseInfo.SetStopBeforeUploading(
             request.values["post"] == "Upload but stop before uploading"
         )

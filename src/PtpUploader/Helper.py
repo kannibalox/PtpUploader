@@ -170,7 +170,6 @@ def GetFileListFromTorrent(torrentPath):
         fileList = []
         for fileInfo in files:
             path = "/".join(fileInfo["path"])
-            path = path.decode("utf-8", "ignore")
             fileList.append(path)
 
         return fileList

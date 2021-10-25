@@ -32,48 +32,6 @@ def ajaxGetDirList():
     return jsonify(val)
 
 
-@app.route("/ajaxgetinfoforfileupload/", methods=["POST"])
-@requires_auth
-def ajaxGetInfoForFileUpload():
-    path: str = request.values.get("path")
-    # file is not None even there is no file specified, but checking file as a boolean is OK. (As shown in the Flask example.)
-    if not path:
-        return jsonify(result="ERROR", message="Missing request parameter: path.")
-
-    releaseName: str = ""
-    imdbId: str = ""
-
-    if os.path.isdir(path):
-        # Make sure that path doesn't ends with a trailing slash or else os.path.split would return with wrong values.
-        path = path.rstrip("\\/")
-
-        # Release name will be the directory's name. Eg. it will be "anything" for "/something/anything"
-        basePath, releaseName = os.path.split(path)
-
-        # Try to read the NFO.
-        nfo = NfoParser.FindAndReadNfoFileToUnicode(path)
-        imdbId = NfoParser.GetImdbId(nfo)
-    elif os.path.isfile(path):
-        # Release name will be the file's name without extension.
-        basePath, releaseName = os.path.split(path)
-        releaseName, extension = os.path.splitext(releaseName)
-
-        # Try to read the NFO.
-        nfoPath = os.path.join(basePath, releaseName) + ".nfo"
-        if os.path.isfile(nfoPath):
-            nfo = NfoParser.ReadNfo(nfoPath)
-            imdbId = NfoParser.GetImdbId(nfo)
-    else:
-        message = "Path '%s' does not exist." % path
-        return jsonify(result="ERROR", message=message)
-
-    imdbUrl: str = ""
-    if imdbId:
-        imdbUrl = "http://www.imdb.com/title/tt%s/" % imdbId
-
-    return jsonify(result="OK", releaseName=releaseName, imdbUrl=imdbUrl)
-
-
 def UploadFile(releaseInfo, request):
     path = request.values.get("existingfile_input")
     if path is None:
@@ -84,5 +42,6 @@ def UploadFile(releaseInfo, request):
 
     releaseInfo.AnnouncementSourceName = "file"
     releaseInfo.ReleaseDownloadPath = path
+    releaseInfo.ReleaseName = Path(path).stem
 
     return True
