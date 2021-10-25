@@ -13,10 +13,6 @@
 	  <td class="label">Upload a torrent file</td>
 	  <td>
 	    <input type="file" id="uploaded_torrent" name="uploaded_torrent" accept="application/x-bittorrent" title="You have to specify an IMDB or PTP link too."/>
-	    <input id="uploaded_torrentfilename" name="uploaded_torrentfilename" type="hidden">
-	    <img src="{{ url_for( "static", filename = "throbber.gif" ) }}" style="display: none;" id="uploadtorrentfile_throbber">
-	    <span id="uploaded_torrentcontentsizetext"></span>
-	    <input id="uploaded_torrentcontentsize" name="uploaded_torrentcontentsize" type="hidden">
 	  </td>
         </tr>
 
@@ -103,10 +99,6 @@
                icon: function(event, data) {
                  if (data.node.icon) { return '{{ url_for( "static", filename="/") }}/'+data.node.icon+'.png'; }
                },
-               loadChildren: function(event, data) {
-                 // Apply parent's state to new child nodes:
-                 data.node.fixSelection3AfterClick();
-               },
              });
            },
            onAction: function(btnName){
@@ -118,38 +110,6 @@
            }
          });
        });
-
-       $( "#upload_field" ).fileupload(
-         {
-	   dataType: 'json',
-	   url: "{{ url_for( "ajaxUploadTorrentFile" ) }}",
-	   replaceFileInput: false,
-	   start: function( e )
-	   {
-	     $( "#uploadtorrentfile_throbber" ).show();
-	   },
-	   done: function( e, data )
-	   {
-	     var jsonResponse = data.result;
-	     var jsonResult = jsonResponse[ "myResult" ];
-	     if ( jsonResult == "OK" )
-	     {
-	       $( "#uploaded_torrentfilename" ).val( jsonResponse[ "torrentFilename" ] );
-	       $( "#uploaded_torrentcontentsize" ).val( jsonResponse[ "torrentContentSize" ] );
-	       $( "#uploaded_torrentcontentsizetext" ).text( jsonResponse[ "torrentContentSizeText" ] );
-	       $( "#release_name" ).val( jsonResponse[ "releaseName" ] );
-	       $( "#uploadtorrentfile_throbber" ).fadeOut( "slow" );
-	     }
-	     else
-	     {
-	       alert( "Error!" );
-	     }
-	   },
-	   error: function( e, data )
-	   {
-	     alert( "Error: '" + data.textStatus + "'." );
-	   }
-         } );
 
        // Do a quick naive check that a necessary field is filled
        $("#post").click(function(event) {

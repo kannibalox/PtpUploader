@@ -94,6 +94,7 @@ def upload():
     # job parameter is needed because it uses the same template as edit job
     job = {}
     job["Subtitles"] = []
+    job["Tags"] = []
     job["SkipDuplicateCheckingButton"] = 0
 
     if Settings.ForceDirectorylessSingleFileTorrent:
