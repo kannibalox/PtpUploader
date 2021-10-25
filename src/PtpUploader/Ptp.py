@@ -207,8 +207,9 @@ class Ptp:
         if len(releaseInfo.RemasterYear) > 0 or len(releaseInfo.RemasterTitle) > 0:
             paramList.update({"remaster": "on"})
         # Trumpable for no English subtitles is only needed if it is specified.
-        if releaseInfo.IsTrumpableForNoEnglishSubtitles():
-            paramList.update({"trumpable[]": "14"})
+        for t_id in releaseInfo.Trumpable.split(","):
+            if t_id in ["14", "4"]:
+                paramList.update({"trumpable[]": t_id})
         subtitles = releaseInfo.GetSubtitles()
         for subtitle in subtitles:
             paramList.update({"subtitles[]": subtitle})

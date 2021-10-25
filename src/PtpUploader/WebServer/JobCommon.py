@@ -85,6 +85,8 @@ class JobCommon:
 
         if request.values.get("TrumpableForNoEnglishSubtitles") is not None:
             releaseInfo.SetTrumpableForNoEnglishSubtitles()
+        if request.values.get("TrumpableForHardcodedSubtitles") is not None:
+            releaseInfo.SetTrumpableForHardcodedSubtitles()
 
         codec = request.values.get("codec")
         if (codec is None) or codec == "---" or codec == "Other":
@@ -181,6 +183,8 @@ class JobCommon:
 
         if releaseInfo.IsTrumpableForNoEnglishSubtitles():
             job["TrumpableForNoEnglishSubtitles"] = "on"
+        if releaseInfo.IsTrumpableForHardcodedSubtitles():
+            job["TrumpableForHardcodedSubtitles"] = "on"
 
         job["codec"] = releaseInfo.Codec
         job["container"] = releaseInfo.Container

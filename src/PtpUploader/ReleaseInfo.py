@@ -28,7 +28,6 @@ class ReleaseInfoFlags:
     # Job will be stopped before uploading.
     StopBeforeUploading = 1 << 4
 
-    TrumpableForNoEnglishSubtitles = 1 << 5
     OverrideScreenshots = 1 << 6
 
     PersonalRip = 1 << 7
@@ -97,6 +96,7 @@ class ReleaseInfo(models.Model):
     IncludedFiles = models.TextField(blank=True, default="")
     DuplicateCheckCanIgnore = models.IntegerField(default=0)
     ScheduleTimeUtc = models.DateTimeField(default=timezone.now)
+    Trumpable = models.TextField(blank=True, default="") # CSV of trump IDs
 
     def __init__(self, *args, **kwargs):
         # <<< These are the required fields needed for an upload to PTP.
@@ -205,10 +205,18 @@ class ReleaseInfo(models.Model):
         return (self.Flags & ReleaseInfoFlags.StopBeforeUploading) != 0
 
     def IsTrumpableForNoEnglishSubtitles(self):
-        return (self.Flags & ReleaseInfoFlags.TrumpableForNoEnglishSubtitles) != 0
+        return "14" in self.Trumpable.split(",")
 
     def SetTrumpableForNoEnglishSubtitles(self):
-        self.Flags |= ReleaseInfoFlags.TrumpableForNoEnglishSubtitles
+        if "14" not in self.Trumpable.split(","):
+            self.Trumpable += self.Trumpable.split(",")
+
+    def IsTrumpableForHardcodedSubtitles(self):
+        return "4" in self.Trumpable.split(",")
+
+    def SetTrumpableForHardcodedSubtitles(self):
+        if "4" not in self.Trumpable.split(","):
+            self.Trumpable += ",4"
 
     def IsOverrideScreenshotsSet(self):
         return (self.Flags & ReleaseInfoFlags.OverrideScreenshots) != 0
