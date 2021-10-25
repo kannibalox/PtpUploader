@@ -34,6 +34,7 @@ class Cinemageddon(SourceBase):
             )
             result.raise_for_status()
             self.__CheckIfLoggedInFromResponse(result.content)
+            MyGlobals.SaveCookies()
 
     def __CheckIfLoggedInFromResponse(self, response: bytes):
         if response.find(b'action="takelogin.php"') != -1:

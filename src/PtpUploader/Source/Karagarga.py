@@ -1,6 +1,7 @@
 import re
+from html import unescape
 
-from PtpUploader.Helper import DecodeHtmlEntities, GetSizeFromText, ValidateTorrentFile
+from PtpUploader.Helper import GetSizeFromText, ValidateTorrentFile
 from PtpUploader.Job.JobRunningState import JobRunningState
 from PtpUploader.MyGlobals import MyGlobals
 from PtpUploader.PtpUploaderException import (
@@ -50,12 +51,14 @@ class Karagarga(SourceBase):
 
         MyGlobals.Logger.info("Logging in to Karagarga.")
 
-        postData = {"username": self.Username, "password": self.Password}
-        result = MyGlobals.session.post(
-            "https://karagarga.in/takelogin.php", data=postData
-        )
-        result.raise_for_status()
-        self.__CheckIfLoggedInFromResponse(result.text)
+        if "karagarga.in" not in MyGlobals.session.cookies.list_domains():
+            postData = {"username": self.Username, "password": self.Password}
+            result = MyGlobals.session.post(
+                "https://karagarga.in/takelogin.php", data=postData
+            )
+            result.raise_for_status()
+            self.__CheckIfLoggedInFromResponse(result.text)
+            MyGlobals.SaveCookies()
 
     def __CheckIfLoggedInFromResponse(self, response):
         if (
@@ -306,7 +309,7 @@ class Karagarga(SourceBase):
                     "Can't get release name from torrent page.",
                 )
 
-            releaseName = DecodeHtmlEntities(matches.group(2))
+            releaseName = unescape(matches.group(2))
 
             # Remove the extension of the container from the release name. (It is there on single file releases.)
             # Optional flags parameter for sub function was only introduced in Python v2.7 so we use compile.sub instead.
