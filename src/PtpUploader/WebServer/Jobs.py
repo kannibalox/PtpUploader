@@ -2,6 +2,7 @@ import datetime
 
 from django.utils import timezone
 from django.core.serializers import serialize
+from django.forms.models import model_to_dict
 from flask import render_template, url_for, jsonify
 
 from PtpUploader.Helper import SizeToText, TimeDifferenceToText
@@ -108,7 +109,6 @@ def ReleaseInfoToJobsPageData(releaseInfo, entry):
 @app.route("/jobs/page/<int:page>/")
 @requires_auth
 def jobs(page):
-
     entries = []
     for releaseInfo in list(ReleaseInfo.objects.all().order_by("LastModificationTime")):
         entry = {}
@@ -126,11 +126,70 @@ def jobs(page):
 
 @app.route("/ajax/jobs")
 def jobs_json():
-    return serialize(
-        "json",
-        ReleaseInfo.objects.all().order_by("LastModificationTime"),
-        fields=("Id", "Source", "Size", "AnnouncementSourceName"),
-    )
+    settings = {}
+    if Settings.OpenJobPageLinksInNewTab == "0":
+        settings["OpenJobPageLinksInNewTab"] = ""
+    else:
+        settings["OpenJobPageLinksInNewTab"] = ' target="_blank"'
+
+    entries = []
+    for release in ReleaseInfo.objects.all():
+        # Preprocess some values for consistent formatting
+        entry = {}
+        for field in ["PtpId", "ImdbId", "ErrorMessage", "ReleaseName"]:
+            entry[field] = getattr(release, field)
+        entry["Size"] = {
+            "sort": int(release.Size),
+            "_": SizeToText(release.Size),
+        }
+        entry["LastModificationTime"] = {
+            "sort": int(release.LastModificationTime.strftime("%s")),
+            "_": TimeDifferenceToText(
+                timezone.now() - release.LastModificationTime,
+                2,
+            ),
+        }
+
+        source = MyGlobals.SourceFactory.GetSource(release.AnnouncementSourceName)
+        if source is not None:
+            icon = url_for("static", filename=f"source_icon/{source.Name}.ico")
+            entry["AnnouncementSourceName"] = {
+                "sort": release.AnnouncementSourceName,
+                "_": f'<img src="{icon}">',
+            }
+            url = source.GetUrlFromId(release.AnnouncementId)
+            if url:
+                entry["AnnouncementSourceName"][
+                    "_"
+                ] = f'<a href="{url}"><img src="{icon}"></a>'
+
+        icon = url_for("static", filename=GetStateIcon(release.JobRunningState))
+        logUrl = url_for("log", jobId=release.Id)
+        entry["JobRunningState"] = {
+            "sort": release.JobRunningState,
+            "_": f'<a href="{logUrl}"><img src="{icon}"/></a>',
+        }
+
+        entry["Actions"] = ""
+        if release.CanResumed():
+            url = url_for("StartJob", jobId=release.Id)
+            icon = url_for( "static", filename = "start.png" )
+            entry["Actions"] += f'<a href="#" onclick=\'executeJobCommand( this, {release.Id}, "/stop/" ); return false;\'><img src={icon} title="Start"></a>'
+        if release.CanStopped():
+            url = url_for("StopJob", jobId=release.Id)
+            icon = url_for( "static", filename = "stop.png" )
+            entry["Actions"] += f'<a href="#" onclick=\'executeJobCommand( this, {release.Id}, "/stop/" ); return false;\'><img src={icon} title="Stop"></a>'
+        if release.CanEdited():
+            url = url_for("EditJob", jobId=release.Id)
+            icon = url_for( "static", filename = "edit.png" )
+            entry["Actions"] += f'<a href="{url}"><img src={icon} title="Edit"></a>'
+        if release.CanDeleted():
+            url = url_for("StartJob", jobId=release.Id)
+            icon = url_for( "static", filename = "delete.png" )
+            entry["Actions"] += f'<a href="#" class="delete_job_context_menu" PtpUploaderJobId="{release.Id}"><img src={icon} title="Delete"></a>'
+        entries.append(entry)
+
+    return jsonify({"data": entries, "settings": settings})
 
 
 @app.route("/job/<int:jobId>/start/")

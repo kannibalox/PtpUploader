@@ -18,60 +18,20 @@
     </thead>
 
     <tbody>
-      {% for entry in entries %}
         <tr>
           <td class="state">
-	    <a href="{{ entry.LogPageUrl }}" {{ settings.OpenJobPageLinksInNewTab|safe }}><img src={{ entry.StateIcon }} title="{{ entry.State }}"></a>
           </td>
           <td class="name">
-	    <span class="title">
-	      {% if entry.PtpUrl %}
-	        <a href="{{ entry.PtpUrl }}" {{ settings.OpenJobPageLinksInNewTab|safe }}>{{ entry.ReleaseName }}</a>
-	      {% else %}
-	        {{ entry.ReleaseName }}
-	      {% endif %}
-	    </span>
-
-	    {% if entry.ErrorMessage %}
-	      <br>
-	      {{ entry.ErrorMessage }}
-	    {% endif %}
           </td>
           <td class="nowrap">
-	    {% if entry.SourceIcon %}
-	      {% if entry.SourceUrl %}
-	        <a href="{{ entry.SourceUrl }}" {{ settings.OpenJobPageLinksInNewTab|safe }}><img src={{ entry.SourceIcon }}></a>
-	      {% else %}
-	        <img src={{ entry.SourceIcon }}>
-	      {% endif %}
-	    {% endif %}
           </td>
           <td class="nowrap">
-	    {{ entry.Size }}
           </td>
           <td class="nowrap">
-	    {{ entry.Date }}
           </td>
           <td class="nowrap jobbuttons">
-	    {% if entry.StartJobUrl %}
-	      <a href="#" onclick='executeJobCommand( this, {{ entry.Id }}, "/start/" ); return false;'><img src={{ url_for( "static", filename = "start.png" ) }} title="Start"></a>
-	    {% endif %}
-	    {% if entry.StopJobUrl %}
-	      <a href="#" onclick='executeJobCommand( this, {{ entry.Id }}, "/stop/" ); return false;'><img src={{ url_for( "static", filename = "stop.png" ) }} title="Stop"></a>
-	    {% endif %}
-	    {% if entry.EditJobUrl %}
-	      <a href="{{ entry.EditJobUrl }}" {{ settings.OpenJobPageLinksInNewTab|safe }}><img src={{ url_for( "static", filename = "edit.png" ) }} title="Edit"></a>
-	    {% endif %}
-	    {% if entry.CanDeleteJob %}
-	      <a href="#" class="delete_job_context_menu" PtpUploaderJobId='{{ entry.Id }}'><img src={{ url_for( "static", filename = "delete.png" ) }} title="Delete"></a>
-	    {% endif %}
           </td>
         </tr>
-    {% else %}
-        <tr>
-          <td>No entries.</td>
-        </tr>
-      {% endfor %}
     </tbody>
   </table>
 
@@ -138,6 +98,41 @@
 
    $(document).ready( function () {
      $('#jobs').DataTable({
+       "ajax": "/ajax/jobs",
+       "lengthChange": false,
+       "order": [[4, "desc"]],
+       "columns": [
+         { "data": "JobRunningState", "type": "num",
+           "render": {_: '_', sort: 'sort'}
+         },
+         { "data": "ReleaseName",
+           "render": function(data, type, row) {
+             ret = data;
+             if (row['PtpId']) {
+               if (row['PtpTorrentId']) {
+                 ret = '<a href="https://passthepopcorn.me/torrents.php?id='+row['PtpId']+'&torrentid='+row['PtpTorrentId']+'">' + data + '</a>'
+               } else {
+                 ret = '<a href="https://passthepopcorn.me/torrents.php?id='+row['PtpId']+'">' + data + '</a>'
+               }
+             } else if (row['ImdbId'] && row['ImdbId'] != "0") {
+               ret = '<a href="https://passthepopcorn.me/torrents.php?imdb='+row['ImdbId']+'">' + data + '</a>'
+             }
+             ret = '<span class="title">' + ret + '</span>';
+             if (row['ErrorMessage']) {
+               ret = ret + '</br>' + row['ErrorMessage'];
+             }
+             return ret;
+           }
+         },
+         { "data": "AnnouncementSourceName", className: "nowrap",
+           "render": {_: '_', sort: 'sort'}
+         },
+         { "data": "Size", 'type': 'num', className: "nowrap",
+           "render": {_: '_', sort: 'sort'}},
+         { "data": "LastModificationTime", 'type': 'num', className: "nowrap",
+           "render": {_: '_', sort: 'sort'} },
+         { "data": "Actions",  "orderable": false, className: "nowrap jobbuttons" },
+       ]
      });
      $.contextMenu( {
        selector: '.delete_job_context_menu',
