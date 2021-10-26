@@ -13,7 +13,7 @@ from PtpUploader.Source.SourceBase import SourceBase
 
 class Karagarga(SourceBase):
     def __init__(self):
-        SourceBase.__init__(self)
+        super().__init__()
 
         self.Name = "kg"
         self.NameInSettings = "Karagarga"
@@ -60,7 +60,7 @@ class Karagarga(SourceBase):
             self.__CheckIfLoggedInFromResponse(result.text)
             MyGlobals.SaveCookies()
 
-    def __CheckIfLoggedInFromResponse(self, response):
+    def __CheckIfLoggedInFromResponse(self, response: str):
         if (
             response.find('action="takelogin.php"') != -1
             or response.find("""<h2>Login failed!</h2>""") != -1
@@ -107,7 +107,7 @@ class Karagarga(SourceBase):
             )
 
     @staticmethod
-    def __DownloadNfoParseDvdImage(releaseInfo, ripSpecs):
+    def __DownloadNfoParseDvdImage(releaseInfo, ripSpecs: str):
         if ripSpecs.find("DVD FORMAT: NTSC") >= 0:
             releaseInfo.ResolutionType = "NTSC"
         elif ripSpecs.find("DVD FORMAT: PAL") >= 0:
@@ -431,12 +431,11 @@ class Karagarga(SourceBase):
 
         result = MyGlobals.session.get(url)
         result.raise_for_status()
-        response = result.content
-        self.__CheckIfLoggedInFromResponse(response)
+        response: bytes = result.content
+        self.__CheckIfLoggedInFromResponse(response.decode(errors="ignore"))
 
-        file = open(path, "wb")
-        file.write(response)
-        file.close()
+        with open(path, "wb") as fh:
+            fh.write(response)
 
         ValidateTorrentFile(path)
 

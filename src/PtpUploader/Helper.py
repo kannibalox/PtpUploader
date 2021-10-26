@@ -3,6 +3,7 @@ import re
 import time
 from datetime import timedelta
 from urllib.parse import parse_qs
+from pathlib import Path
 
 import bencode
 import requests
@@ -117,7 +118,7 @@ def MakeRetryingHttpGetRequestWithRequests(
             result = MyGlobals.session.get(url, headers=headers)
             result.raise_for_status()
             return result
-        except requests.exceptions.ConnectionError as e:
+        except requests.exceptions.ConnectionError:
             if maximumTries > 1:
                 maximumTries -= 1
                 time.sleep(delayBetweenRetriesInSec)
@@ -137,7 +138,7 @@ def MakeRetryingHttpPostRequestWithRequests(
             result = MyGlobals.session.post(url, data=postData, headers=headers)
             result.raise_for_status()
             return result
-        except requests.exceptions.ConnectionError as e:
+        except requests.exceptions.ConnectionError:
             if maximumTries > 1:
                 maximumTries -= 1
                 time.sleep(delayBetweenRetriesInSec)
@@ -146,18 +147,12 @@ def MakeRetryingHttpPostRequestWithRequests(
 
 
 # Path can be a file or a directory. (Obviously.)
-def GetPathSize(path):
-    if os.path.isfile(path):
-        return os.path.getsize(path)
+def GetPathSize(path) -> int:
+    path = Path(path).resolve()
+    if path.is_file():
+        return path.stat().st_size
 
-    totalSize = 0
-    for (dirPath, dirNames, fileNames) in os.walk(path):
-        for file in fileNames:
-            filePath = os.path.join(dirPath, file)
-            totalSize += os.path.getsize(filePath)
-
-    return totalSize
-
+    return sum([p.stat().st_size for p in path.rglob("*")])
 
 # Always uses / as path separator.
 def GetFileListFromTorrent(torrentPath):
@@ -197,18 +192,18 @@ def ValidateTorrentFile(torrentPath):
     try:
         with open(torrentPath, "rb") as fh:
             bencode.decode(fh.read())
-    except Exception:
-        raise PtpUploaderException("File '%s' is not a valid torrent." % torrentPath)
+    except Exception as e:
+        raise PtpUploaderException("File '%s' is not a valid torrent." % torrentPath) from e
 
 
 def GetSuggestedReleaseNameAndSizeFromTorrentFile(torrentPath):
     with open(torrentPath, "rb") as fh:
-        data = bencode.decode(torrentPath)
+        data = bencode.decode(fh.read())
     name = data["info"].get("name", None)
     files = data["info"].get("files", None)
     if files is None:
         # It is a single file torrent, remove the extension.
-        name, extension = os.path.splitext(name)
+        name, _ = os.path.splitext(name)
         size = data["info"]["length"]
         return name, size
     else:
@@ -220,6 +215,4 @@ def GetSuggestedReleaseNameAndSizeFromTorrentFile(torrentPath):
 
 
 def DecodeHtmlEntities(html):
-    # We are using an internal function of HTMLParser.
-    # See this: http://fredericiana.com/2010/10/08/decoding-html-entities-to-text-in-python/
     return html.unescape(html)
