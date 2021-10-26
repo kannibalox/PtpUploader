@@ -66,12 +66,12 @@ def ReleaseInfoToJobsPageData(releaseInfo, entry):
         entry["ErrorMessage"] = releaseInfo.ErrorMessage
 
     if releaseInfo.PtpId:
-        if releaseInfo.HasPtpTorrentId():
+        if releaseInfo.PtpTorrentId:
             entry[
                 "PtpUrl"
             ] = "https://passthepopcorn.me/torrents.php?id=%s&torrentid=%s" % (
                 releaseInfo.PtpId,
-                releaseInfo.GetPtpTorrentId(),
+                releaseInfo.PtpTorrentId,
             )
         else:
             entry["PtpUrl"] = (
@@ -136,7 +136,7 @@ def jobs_json():
     for release in ReleaseInfo.objects.all():
         # Preprocess some values for consistent formatting
         entry = {}
-        for field in ["PtpId", "ImdbId", "ErrorMessage", "ReleaseName"]:
+        for field in ["PtpId", "ImdbId", "ErrorMessage", "ReleaseName", "PtpTorrentId"]:
             entry[field] = getattr(release, field)
         entry["Size"] = {
             "sort": int(release.Size),
