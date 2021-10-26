@@ -298,9 +298,6 @@ class ReleaseInfo(models.Model):
     def IsZeroImdbId(self):
         return self.ImdbId == "0"
 
-    def GetImdbId(self):
-        return self.PtpId
-
     def GetPtpTorrentId(self):
         return self.PtpTorrentId
 
@@ -318,9 +315,6 @@ class ReleaseInfo(models.Model):
 
     def IsSynopsisSet(self):
         return len(self.MovieDescription) > 0
-
-    def IsCoverArtUrlSet(self):
-        return len(self.CoverArtUrl) > 0
 
     def IsReleaseNameSet(self):
         return len(self.ReleaseName) > 0

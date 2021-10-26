@@ -239,7 +239,7 @@ class CheckAnnouncement(WorkerBase):
                 )
 
         # Cover art URL
-        if self.ReleaseInfo.IsCoverArtUrlSet():
+        if self.ReleaseInfo.CoverArtUrl:
             self.ReleaseInfo.Logger.info(
                 "Cover art URL '%s' is already set, not getting from PTP's movie info."
                 % self.ReleaseInfo.CoverArtUrl
@@ -288,9 +288,9 @@ class CheckAnnouncement(WorkerBase):
         if len(self.ReleaseInfo.MovieDescription) <= 0:
             self.ReleaseInfo.MovieDescription = imdbInfo.Plot
 
-        if not self.ReleaseInfo.IsCoverArtUrlSet():
+        if not self.ReleaseInfo.CoverArtUrl:
             self.ReleaseInfo.CoverArtUrl = imdbInfo.PosterUrl
-            if not self.ReleaseInfo.IsCoverArtUrlSet():
+            if not self.ReleaseInfo.CoverArtUrl:
                 self.ReleaseInfo.CoverArtUrl = MoviePoster.Get(
                     self.ReleaseInfo.Logger, self.ReleaseInfo.ImdbId
                 )
