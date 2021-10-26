@@ -46,9 +46,11 @@ def SizeToText(size):
 
 # timeDifference must be datetime.timedelta.
 def TimeDifferenceToText(
-    td: timedelta, levels=2, agoText=" ago", noDifferenceText="Just now"
-):
-    timeDifference: int = td.seconds
+    td: timedelta, levels: int = 2, agoText=" ago", noDifferenceText="Just now"
+) -> str:
+    timeDifference: int = int(td.total_seconds())
+    if timeDifference < 3:
+        return noDifferenceText
 
     years = timeDifference // 31556926  # 31556926 seconds = 1 year
     timeDifference %= 31556926
