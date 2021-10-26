@@ -63,7 +63,7 @@ var openPtpAndPtpUploaderInNewTab = false;
 // END OF SETTINGS
 
 function SendTorrentToPtpUploader(rawTorrentData, imdbUrl, sendToLink, sendPageContent) {
-    var uploadUrl = ptpUploaderUrl + "/ajaxexternalcreatejob/";
+    var uploadUrl = ptpUploaderUrl + "/ajax/create";
 
     var formData = new FormData();
     formData.append("Password", ptpUploaderTorrentSenderPassword);

@@ -34,7 +34,7 @@ def DoParsePageForExternalCreateJob(releaseInfo, sourceUrl, pageContent):
         MyGlobals.Logger.exception("Got exception in DoParsePageForExternalCreateJob.")
 
 
-@app.route("/ajaxexternalcreatejob/", methods=["POST"])
+@app.route("/ajax/create", methods=["POST"])
 def ajaxExternalCreateJob():
     if ("Password" not in request.values) or request.values[
         "Password"
