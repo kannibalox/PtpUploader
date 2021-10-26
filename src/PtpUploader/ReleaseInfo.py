@@ -37,7 +37,6 @@ class ReleaseInfo(models.Model):
     # pylint: disable=too-many-public-methods, too-many-instance-attributes
     class Meta:
         app_label = "web"
-        __tablename__ = "release"
 
     objects: models.manager.Manager
 

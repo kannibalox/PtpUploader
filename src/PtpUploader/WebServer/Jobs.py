@@ -1,8 +1,4 @@
-import datetime
-
 from django.utils import timezone
-from django.core.serializers import serialize
-from django.forms.models import model_to_dict
 from flask import render_template, url_for, jsonify
 
 from PtpUploader.Helper import SizeToText, TimeDifferenceToText
@@ -21,13 +17,13 @@ def GetStateIcon(state):
         return "success.png"
     elif state == JobRunningState.Failed:
         return "error.png"
-    elif (
-        state == JobRunningState.Ignored
-        or state == JobRunningState.Ignored_AlreadyExists
-        or state == JobRunningState.Ignored_Forbidden
-        or state == JobRunningState.Ignored_MissingInfo
-        or state == JobRunningState.Ignored_NotSupported
-    ):
+    elif state in [
+        JobRunningState.Ignored,
+        JobRunningState.Ignored_AlreadyExists,
+        JobRunningState.Ignored_Forbidden,
+        JobRunningState.Ignored_MissingInfo,
+        JobRunningState.Ignored_NotSupported,
+    ]:
         return "warning.png"
     elif state == JobRunningState.WaitingForStart:
         return "hourglass.png"
@@ -65,7 +61,7 @@ def jobs_json():
     for release in ReleaseInfo.objects.all():
         # Preprocess some values for consistent formatting
         entry = {}
-        for field in ["PtpId", "ImdbId", "ErrorMessage", "ReleaseName", "PtpTorrentId"]:
+        for field in ("PtpId", "ImdbId", "ErrorMessage", "ReleaseName", "PtpTorrentId"):
             entry[field] = getattr(release, field)
         entry["Size"] = {
             "sort": int(release.Size),
