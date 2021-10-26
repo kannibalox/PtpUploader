@@ -101,7 +101,7 @@ class Cinemageddon(SourceBase):
         # Get IMDb id.
         if (not releaseInfo.ImdbId) and (not releaseInfo.PtpId):
             imdbs = (
-                re.search(r'<span id="torrent_imdb">(.*?)</span>', description.decode())
+                re.search(r'<span id="torrent_imdb">(.*?)</span>', description.decode(errors="ignore"))
                 .group(1)
                 .replace("t", "")
                 .split(" ")
