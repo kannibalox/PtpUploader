@@ -29,11 +29,6 @@
 	  <td>
 	    <input id="existingfile" name="existingfile_input" size="60" title="Path of the directory or the file to upload.">
 	    <input type="button" id="DirectorySelectorToggle" value="Browse..." title="Directory selector.">
-	    <img src="{{ url_for( "static", filename = "throbber.gif" ) }}" style="display: none;" id="uploadfile_throbber">
-	    <div id="directoryselectordialog">
-	      <input type="button" id="DirectorySelectorGoToParent" value=".." title="Go to parent directory.">
-	      <div id="directoryselector"></div>
-	    </div>
 	  </td>
         </tr>
 
@@ -73,7 +68,7 @@
        $('#DirectorySelectorToggle').click(function() {
          $.confirm({
            // theme: "material",
-           title: "Select Files",
+           title: "Select File",
            // title: "Fancytree & jquery-confirm",
            content: "<div id='tree'></div>",
            escape: true,
@@ -103,9 +98,9 @@
            },
            onAction: function(btnName){
              var tree = $.ui.fancytree.getTree("#tree"),
-                 selNodes = tree.getSelectedNodes();
+                 selNode = tree.getActiveNode();
              if( btnName === "ok" ) {
-               alert("Selected: " + selNodes.length + " nodes.");
+               $('#existingfile').val(selNode.key);
              }
            }
          });
