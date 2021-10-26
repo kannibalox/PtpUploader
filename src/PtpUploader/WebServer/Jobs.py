@@ -44,83 +44,12 @@ def GetStateIcon(state):
     return "error.png"
 
 
-def ReleaseInfoToJobsPageData(releaseInfo, entry):
-    entry["Id"] = releaseInfo.Id
-    entry["ReleaseName"] = releaseInfo.ReleaseName
-
-    stateMessage = JobRunningState.ToText(releaseInfo.JobRunningState)
-    if releaseInfo.JobRunningState == JobRunningState.Scheduled:
-        differenceText = TimeDifferenceToText(
-            releaseInfo.ScheduleTimeUtc - datetime.datetime.utcnow(), 2, " to go", ""
-        )
-        if len(differenceText) > 0:
-            stateMessage += " (%s)" % differenceText
-
-    entry["State"] = stateMessage + ". (Click to see the log.)"
-
-    entry["StateIcon"] = url_for(
-        "static", filename=GetStateIcon(releaseInfo.JobRunningState)
-    )
-
-    if len(releaseInfo.ErrorMessage) > 0:
-        entry["ErrorMessage"] = releaseInfo.ErrorMessage
-
-    if releaseInfo.PtpId:
-        if releaseInfo.PtpTorrentId:
-            entry[
-                "PtpUrl"
-            ] = "https://passthepopcorn.me/torrents.php?id=%s&torrentid=%s" % (
-                releaseInfo.PtpId,
-                releaseInfo.PtpTorrentId,
-            )
-        else:
-            entry["PtpUrl"] = (
-                "https://passthepopcorn.me/torrents.php?id=%s" % releaseInfo.PtpId
-            )
-    elif releaseInfo.ImdbId and releaseInfo.ImdbId != "0":
-        entry["PtpUrl"] = (
-            "https://passthepopcorn.me/torrents.php?imdb=%s" % releaseInfo.ImdbId
-        )
-
-    entry["LogPageUrl"] = url_for("log", jobId=releaseInfo.Id)
-    entry["Size"] = SizeToText(releaseInfo.Size)
-    entry["Date"] = TimeDifferenceToText(
-        timezone.now() - releaseInfo.LastModificationTime,
-        2,
-    )
-
-    if releaseInfo.CanEdited():
-        entry["EditJobUrl"] = url_for("EditJob", jobId=releaseInfo.Id)
-    if releaseInfo.CanStopped():
-        entry["StopJobUrl"] = url_for("StopJob", jobId=releaseInfo.Id)
-    if releaseInfo.CanResumed():
-        entry["StartJobUrl"] = url_for("StartJob", jobId=releaseInfo.Id)
-    if releaseInfo.CanDeleted():
-        entry["CanDeleteJob"] = True
-
-    source = MyGlobals.SourceFactory.GetSource(releaseInfo.AnnouncementSourceName)
-    if source is not None:
-        filename = "source_icon/%s.ico" % releaseInfo.AnnouncementSourceName
-        entry["SourceIcon"] = url_for("static", filename=filename)
-        entry["SourceUrl"] = source.GetUrlFromId(releaseInfo.AnnouncementId)
-
-
 @app.route("/jobs/", defaults={"page": 1})
 @app.route("/jobs/page/<int:page>/")
 @requires_auth
 def jobs(page):
     entries = []
-    for releaseInfo in list(ReleaseInfo.objects.all().order_by("LastModificationTime")):
-        entry = {}
-        ReleaseInfoToJobsPageData(releaseInfo, entry)
-        entries.append(entry)
-
     settings = {}
-    if Settings.OpenJobPageLinksInNewTab == "0":
-        settings["OpenJobPageLinksInNewTab"] = ""
-    else:
-        settings["OpenJobPageLinksInNewTab"] = ' target="_blank"'
-
     return render_template("jobs.html", entries=entries, settings=settings)
 
 
@@ -173,20 +102,26 @@ def jobs_json():
         entry["Actions"] = ""
         if release.CanResumed():
             url = url_for("StartJob", jobId=release.Id)
-            icon = url_for( "static", filename = "start.png" )
-            entry["Actions"] += f'<a href="#" onclick=\'executeJobCommand( this, {release.Id}, "/start/" ); jobsTable.ajax.reload(null, false); return false;\'><img src={icon} title="Start"></a>'
+            icon = url_for("static", filename="start.png")
+            entry[
+                "Actions"
+            ] += f'<a href="#" onclick=\'executeJobCommand( this, {release.Id}, "/start/" ); jobsTable.ajax.reload(null, false); return false;\'><img src={icon} title="Start"></a>'
         if release.CanStopped():
             url = url_for("StopJob", jobId=release.Id)
-            icon = url_for( "static", filename = "stop.png" )
-            entry["Actions"] += f'<a href="#" onclick=\'executeJobCommand( this, {release.Id}, "/stop/" ); jobsTable.ajax.reload(null, false); return false;\'><img src={icon} title="Stop"></a>'
+            icon = url_for("static", filename="stop.png")
+            entry[
+                "Actions"
+            ] += f'<a href="#" onclick=\'executeJobCommand( this, {release.Id}, "/stop/" ); jobsTable.ajax.reload(null, false); return false;\'><img src={icon} title="Stop"></a>'
         if release.CanEdited():
             url = url_for("EditJob", jobId=release.Id)
-            icon = url_for( "static", filename = "edit.png" )
+            icon = url_for("static", filename="edit.png")
             entry["Actions"] += f'<a href="{url}"><img src={icon} title="Edit"></a>'
         if release.CanDeleted():
             url = url_for("StartJob", jobId=release.Id)
-            icon = url_for( "static", filename = "delete.png" )
-            entry["Actions"] += f'<a href="#" class="delete_job_context_menu" PtpUploaderJobId="{release.Id}"><img src={icon} title="Delete"></a>'
+            icon = url_for("static", filename="delete.png")
+            entry[
+                "Actions"
+            ] += f'<a href="#" class="delete_job_context_menu" PtpUploaderJobId="{release.Id}"><img src={icon} title="Delete"></a>'
         entries.append(entry)
 
     return jsonify({"data": entries, "settings": settings})
