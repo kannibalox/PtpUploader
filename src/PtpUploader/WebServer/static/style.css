@@ -1,160 +1,136 @@
 a, a:visited
 {
-	color: #859292;
-	text-decoration: none;
+    color: #859292;
+    text-decoration: none;
 }
 
 body
 {
-	color: #859292;
-	background-color: #020C0E;
+    color: #859292;
+    background-color: #020C0E;
 
-	margin: 0 auto;  
-	width: 940px;
+    margin: 0 auto;
+    width: 940px;
 
-	font-family: Arial,sans-serif;
+    font-family: Arial,sans-serif;
 }
 
 html.busy, html.busy *
 {
-	cursor: wait !important;
+    cursor: wait !important;
 }
 
-/* Tell the browser to render HTML 5 elements as block */  
+/* Tell the browser to render HTML 5 elements as block */
 header, section, nav
 {
-	display: block;  
-} 
+    display: block;
+}
 
 nav
 {
-	background-color: #000C0E;
+    background-color: #000C0E;
 }
 
 nav ul
 {
-	margin: 0 0 10px 0;
-	padding: 0;
+    margin: 0 0 10px 0;
+    padding: 0;
 }
 
 nav ul li
 {
-	display: inline;
+    display: inline;
 }
 
 nav ul li a,
 nav ul li a:visited
 {
-	color: #565656;
-	font-size: 1.25em;
-	font-weight: bold;
-	margin: 5px 2px;
-	padding: 7px 10px 4px;
-	text-transform: uppercase;
+    color: #565656;
+    font-size: 1.25em;
+    font-weight: bold;
+    margin: 5px 2px;
+    padding: 7px 10px 4px;
+    text-transform: uppercase;
 }
 
 nav ul li a:hover
 {
-	background-color:#f0f0f0;
+    background-color:#f0f0f0;
 }
 
 span.title, span.title a
 {
-	color: white;
-	font-weight: bold;
+    color: white;
+    font-weight: bold;
 }
 
 table.jobs
 {
-	border-spacing: 0;
-	width: 100%;
+    border-spacing: 0;
+    width: 100%;
 }
 
 table.jobs th, #jobs_filter, #jobs_length
 {
-	background-color: #0F2127;
-	border-bottom: 5px solid #0F2127;
+    background-color: #0F2127;
+    border-bottom: 5px solid #0F2127;
 }
 
 table#jobs tr:nth-child(odd)
 {
-	background-color: #020C0E;
+    background-color: #020C0E;
 }
 
 table#jobs tr:nth-child(even)
 {
-	background-color: #071115;
+    background-color: #071115;
 }
 
 table#jobs tr:hover, table#jobs tr:hover:nth-child(odd)
 {
-	background-color: #202020;
-} 
+    background-color: #202020;
+}
 
 table#jobs th.state
 {
-        padding-left: 1px;
+    padding-left: 1px;
 }
 
 table#jobs td
 {
-	/*border-bottom: 1px solid #151D1F;*/
-	padding: 5px;
-	font-size: 12px;
+    /*border-bottom: 1px solid #151D1F;*/
+    padding: 5px;
+    font-size: 12px;
 }
 
-table.jobs td.name
+table#jobs td.name
 {
-	width: 100%;
+    width: 100%;
 }
 
-table.jobs td.nowrap
+table#jobs td.nowrap
 {
-	white-space: nowrap;
+    white-space: nowrap;
 }
 
-table.jobs td.jobbuttons
+table#jobs td.jobbuttons
 {
-	text-align: right;
+    text-align: right;
 }
 
 table
 {
-	border-collapse: collapse;
+    border-collapse: collapse;
 }
 
 #editjob_table td.label
 {
-	text-align: right;
+    text-align: right;
 }
 
 #editjob_table td, th
 {
-	border: thin solid #121C1E;
-	padding: 0 2px 0 2px;
-	text-align: left;
-}
-
-div.pagination
-{
-	padding-top: 32px;
-	padding-bottom: 32px;
-}
-
-div#directoryselectordialog
-{
-	display: none;
-	width: 500px;
-	height: 500px;
-	overflow: auto;
-	background: #FFF;
-	padding: 5px;
-}
-
-div#IncludedFilesDialog
-{
-	display: none;
-	width: 500px;
-	height: 500px;
-	overflow: auto;
+    border: thin solid #121C1E;
+    padding: 0 2px 0 2px;
+    text-align: left;
 }
