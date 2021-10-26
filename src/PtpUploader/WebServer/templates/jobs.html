@@ -5,86 +5,25 @@
 {% endblock %}
 
 {% block body %}
-
-  <style type="text/css">
-   .InitialHideSearchStyle .ToggledByHideSearch { display: none; }
-  </style>
-  <script>
-   if ( window.localStorage && window.localStorage.getItem( 'HideSearch' ) == '1' )
-     document.documentElement.className += " InitialHideSearchStyle";
-  </script>
-
-  <form id="jobs_search_form" name="filter" method="get" action=''>
-    <div class="box pad">
-      <table>
-        <tr>
-	  <td>
-	    <input type="text" size="50" name="searchstr" class="inputtext smaller" placeholder="Search by release name" value="{{ settings.SearchText }}" />
-	    <a title="More search options" onclick="ToggleSearch( this );" href="javascript:void(0);">[+]</a>
-	  </td>
-        </tr>
-        <tr style="text-align: left" class="ToggledByHideSearch">
-	  <td>
-	    State:<br>
-	    <div class="jobs_search_states_div">
-	      <ul class="jobs_search_states_ul">
-	        <li><input type="checkbox" name="state[]" id="state10" value="10" {% if "10" in settings.States %} checked{% endif %}/><label for="state10"> Downloaded, already exists</label></li>
-	        <li><input type="checkbox" name="state[]" id="state4" value="4" {% if "4" in settings.States %} checked{% endif %}/><label for="state4"> Failed</label></li>
-	        <li><input type="checkbox" name="state[]" id="state3" value="3" {% if "3" in settings.States %} checked{% endif %}/><label for="state3"> Finished</label></li>
-	        <li><input type="checkbox" name="state[]" id="state5" value="5" {% if "5" in settings.States %} checked{% endif %}/><label for="state5"> Ignored</label></li>
-	        <li><input type="checkbox" name="state[]" id="state6" value="6" {% if "6" in settings.States %} checked{% endif %}/><label for="state6"> Ignored: already exists</label></li>
-	        <li><input type="checkbox" name="state[]" id="state7" value="7" {% if "7" in settings.States %} checked{% endif %}/><label for="state7"> Ignored: forbidden</label></li>
-	      </ul>
-	    </div>
-	    <div class="jobs_search_states_div">
-	      <ul class="jobs_search_states_ul">
-	        <li><input type="checkbox" name="state[]" id="state8" value="8" {% if "8" in settings.States %} checked{% endif %}/><label for="state8"> Ignored: missing info</label></li>
-	        <li><input type="checkbox" name="state[]" id="state9" value="9" {% if "9" in settings.States %} checked{% endif %}/><label for="state9"> Ignored: not supported</label></li>
-	        <li><input type="checkbox" name="state[]" id="state1" value="1" {% if "1" in settings.States %} checked{% endif %}/><label for="state1"> In progress</label></li>
-	        <li><input type="checkbox" name="state[]" id="state2" value="2" {% if "2" in settings.States %} checked{% endif %}/><label for="state2"> Paused</label></li>
-	        <li><input type="checkbox" name="state[]" id="state11" value="11" {% if "11" in settings.States %} checked{% endif %}/><label for="state11"> Scheduled</label></li>
-	        <li><input type="checkbox" name="state[]" id="state0" value="0" {% if "0" in settings.States %} checked{% endif %}/><label for="state0"> Waiting for start</label></li>
-	      </ul>
-	      <div>
-	  </td>
-        </tr>
-        <tr style="text-align: left" class="ToggledByHideSearch">
-	  <td>
-	    Order by:
-	    <select name="orderby" style="text-align: left">
-	      <option value="" {% if settings.OrderBy == "" %} selected{% endif %}>Date</option>
-	      <option value="size" {% if settings.OrderBy == "size" %} selected{% endif %}>Size</option>
-	    </select>
-	    <select name="orderway">
-	      <option value="asc" {% if settings.OrderWay == "asc" %} selected{% endif %}>Ascending</option>
-	      <option value="" {% if settings.OrderWay != "asc" %} selected{% endif %}>Descending</option>
-	    </select>
-	  </td>
-        </tr>
-        <tr style="text-align: right" class="ToggledByHideSearch">
-	  <td>
-	    <input type="submit" value="Search"/>
-	  </td>
-        </tr>
-      </table>
-	      </div>
-  </form>
-
-  <table class="jobs" border="0" cellpadding="3" cellspacing="1">
-    <tr>
-      <th>Release name</th>
-      <th>Source</th>
-      <th>Size</th>
-      <th>Date</th>
-      <th>Edit</th>
-    </tr>
+  <table id="jobs" class="jobs rowborder compact" border="0" cellpadding="3" cellspacing="1">
+    <thead>
+      <tr>
+        <th class="state"></th>
+        <th>Release name</th>
+        <th>Source</th>
+        <th>Size</th>
+        <th>Date</th>
+        <th>Edit</th>
+      </tr>
+    </thead>
 
     <tbody>
       {% for entry in entries %}
         <tr>
-          <td class="name">
+          <td class="state">
 	    <a href="{{ entry.LogPageUrl }}" {{ settings.OpenJobPageLinksInNewTab|safe }}><img src={{ entry.StateIcon }} title="{{ entry.State }}"></a>
-
+          </td>
+          <td class="name">
 	    <span class="title">
 	      {% if entry.PtpUrl %}
 	        <a href="{{ entry.PtpUrl }}" {{ settings.OpenJobPageLinksInNewTab|safe }}>{{ entry.ReleaseName }}</a>
@@ -136,30 +75,13 @@
     </tbody>
   </table>
 
-  <div class="pagination">
-    {% if pagination.has_prev %}
-      <a href="{{ url_for_other_page( pagination.page - 1 ) }}">&laquo; Prev</a>
-    {% endif %}
-    {%- for page in pagination.iter_pages() %}
-      {% if page %}
-        {% if page != pagination.page %}
-          <a href="{{ url_for_other_page( page ) }}">{{ page }}</a>
-        {% else %}
-          <strong>{{ page }}</strong>
-        {% endif %}
-      {% else %}
-        <span class="ellipsis">…</span>
-      {% endif %}
-    {%- endfor %}
-    {% if pagination.has_next %}
-      <a href="{{ url_for_other_page( pagination.page + 1 ) }}">Next &raquo;</a>
-    {% endif %}
-  </div>
-
   <script type=text/javascript src="{{ url_for( "static", filename = "script/jquery-3.6.0.min.js" ) }}"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-contextmenu/2.7.1/jquery.contextMenu.min.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-contextmenu/2.7.1/jquery.contextMenu.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-contextmenu/2.7.1/jquery.ui.position.js"></script>
+  <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.3/css/jquery.dataTables.css">
+
+  <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.11.3/js/jquery.dataTables.js"></script>
   <script type="text/javascript">
    var $SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
 
@@ -215,6 +137,8 @@
 
 
    $(document).ready( function () {
+     $('#jobs').DataTable({
+     });
      $.contextMenu( {
        selector: '.delete_job_context_menu',
        trigger: 'left',

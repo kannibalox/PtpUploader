@@ -1,7 +1,8 @@
 import datetime
 
 from django.utils import timezone
-from flask import render_template, url_for
+from django.core.serializers import serialize
+from flask import render_template, url_for, jsonify
 
 from PtpUploader.Helper import SizeToText, TimeDifferenceToText
 from PtpUploader.Job.JobRunningState import JobRunningState
@@ -12,7 +13,6 @@ from PtpUploader.ReleaseInfo import ReleaseInfo
 from PtpUploader.Settings import Settings
 from PtpUploader.WebServer import app
 from PtpUploader.WebServer.Authentication import requires_auth
-from PtpUploader.WebServer.Pagination import Pagination
 
 
 def GetStateIcon(state):
@@ -108,79 +108,28 @@ def ReleaseInfoToJobsPageData(releaseInfo, entry):
 @app.route("/jobs/page/<int:page>/")
 @requires_auth
 def jobs(page):
-    jobsPerPage = 50
-
-    if page < 1:
-        page = 1
-
-    offset = (page - 1) * jobsPerPage
-    # query = Database.DbSession.query(ReleaseInfo)
-
-    # # Search text
-    # searchText = request.args.get("searchstr", "")
-    # if len(searchText) > 0:
-    #     # We replace the periods and the hyphen because of the relase names.
-    #     searchWords = searchText.replace(".", " ").replace("-", " ").split(" ")
-    #     for searchWord in searchWords:
-    #         searchWord = searchWord.strip()
-    #         if len(searchWord) > 0:
-    #             # "_", "%" and "\" have be escaped because the contains function uses SQL LIKE
-    #             searchWord.replace("\\", "\\\\")
-    #             searchWord.replace("%", "\\%")
-    #             searchWord.replace("_", "\\_")
-    #             query = query.filter(ReleaseInfo.ReleaseName.contains(searchWord))
-
-    # # Search states
-    # states = request.args.getlist("state[]")
-    # if states and len(states) > 0:
-    #     stateQuery = or_()
-    #     for state in states:
-    #         stateQuery.append(or_(ReleaseInfo.JobRunningState == state))
-
-    #     query = query.filter(stateQuery)
-
-    # totalJobs = query.count()
-
-    # # Ordering
-
-    # orderWay = request.args.get("orderway")
-    # orderWayFunction = asc
-    # if orderWay != "asc":
-    #     orderWayFunction = desc
-    #     orderWay = ""
-
-    # orderBy = request.args.get("orderby")
-    # if orderBy == "size":
-    #     query = query.order_by(orderWayFunction(ReleaseInfo.Size))
-    # else:
-    #     query = query.order_by(orderWayFunction(ReleaseInfo.LastModificationTime))
-    #     orderBy = ""
-
-    # query = query.limit(jobsPerPage).offset(offset)
-
-    pagination = Pagination(page, jobsPerPage, ReleaseInfo.objects.all().count())
 
     entries = []
-    for releaseInfo in list(
-        ReleaseInfo.objects.all().order_by("LastModificationTime")[offset:jobsPerPage]
-    ):
+    for releaseInfo in list(ReleaseInfo.objects.all().order_by("LastModificationTime")):
         entry = {}
         ReleaseInfoToJobsPageData(releaseInfo, entry)
         entries.append(entry)
 
-    settings = {
-        "SearchText": "",
-        "OrderBy": "",
-        "OrderWay": "",
-        "States": [],
-    }
+    settings = {}
     if Settings.OpenJobPageLinksInNewTab == "0":
         settings["OpenJobPageLinksInNewTab"] = ""
     else:
         settings["OpenJobPageLinksInNewTab"] = ' target="_blank"'
 
-    return render_template(
-        "jobs.html", entries=entries, pagination=pagination, settings=settings
+    return render_template("jobs.html", entries=entries, settings=settings)
+
+
+@app.route("/ajax/jobs")
+def jobs_json():
+    return serialize(
+        "json",
+        ReleaseInfo.objects.all().order_by("LastModificationTime"),
+        fields=("Id", "Source", "Size", "AnnouncementSourceName"),
     )
 
 
