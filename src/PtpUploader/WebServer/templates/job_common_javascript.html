@@ -26,6 +26,15 @@
  }
 
  $(function () {
+   $( ".show_images" ).click(function() {
+     console.log("#"+$(this).data("target"));
+     $("#"+$(this).data("target")).toggle();
+     if ($(this).text() == "Show") {
+       $(this).text("Hide");
+     } else {
+       $(this).text("Show");
+     }
+   });
      // Select subtitles that are specified in the job.
      $( "#subtitle" ).val( {{ job.Subtitles|tojson|safe }} );
      $( "#subtitle" ).trigger("change");

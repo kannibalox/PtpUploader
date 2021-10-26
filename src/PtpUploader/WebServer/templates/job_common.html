@@ -337,7 +337,16 @@
       <textarea name="album_desc" id="album_desc" cols="60" rows="8">{{ job.album_desc }}</textarea>
     </td>
   </tr>
-
+  {% if job.Screenshots %}
+  <tr>
+    <td class="label">Screenshots</td>
+    <td>
+      {% for item in job.Screenshots.items() %}
+        <button type="button" data-target="{{item.index0}}_images" class="show_images">Show</button> {{item[0]}} <span id="{{item.index0}}_images" style="display:none;">{{item[1]|safe}}</span>
+      {% endfor %}
+    </td>
+  </tr>
+  {% endif %}
   <tr>
     <td class="label">Release Description
       <br>

@@ -1,5 +1,6 @@
 import os
 import urllib.parse
+import json
 from datetime import datetime
 
 from flask import jsonify, request
@@ -193,6 +194,15 @@ class JobCommon:
         job["source"] = releaseInfo.Source
         job["remaster_title"] = releaseInfo.RemasterTitle
         job["remaster_year"] = releaseInfo.RemasterYear
+        job["Screenshots"] = {}
+        if releaseInfo.Screenshots:
+            for f in json.loads(releaseInfo.Screenshots):
+                print(f)
+                print(releaseInfo.UploadTorrentFilePath)
+                path = f[0].replace(releaseInfo.UploadTorrentCreatePath, '').strip('/')
+                job["Screenshots"][path] = ""
+                for s in f[1]:
+                    job["Screenshots"][path] += f'<img src="{s}"/>'
 
         # Other
         job["JobId"] = releaseInfo.Id
