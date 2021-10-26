@@ -44,6 +44,7 @@
   <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.11.3/js/jquery.dataTables.js"></script>
   <script type="text/javascript">
    var $SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
+   var jobsTable;
 
    function ToggleSearch( searchToggler )
    {
@@ -97,7 +98,7 @@
 
 
    $(document).ready( function () {
-     $('#jobs').DataTable({
+     jobsTable = $('#jobs').DataTable({
        "ajax": "/ajax/jobs",
        "lengthChange": false,
        "order": [[4, "desc"]],

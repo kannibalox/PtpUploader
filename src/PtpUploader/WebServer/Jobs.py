@@ -174,11 +174,11 @@ def jobs_json():
         if release.CanResumed():
             url = url_for("StartJob", jobId=release.Id)
             icon = url_for( "static", filename = "start.png" )
-            entry["Actions"] += f'<a href="#" onclick=\'executeJobCommand( this, {release.Id}, "/stop/" ); return false;\'><img src={icon} title="Start"></a>'
+            entry["Actions"] += f'<a href="#" onclick=\'executeJobCommand( this, {release.Id}, "/start/" ); jobsTable.ajax.reload(null, false); return false;\'><img src={icon} title="Start"></a>'
         if release.CanStopped():
             url = url_for("StopJob", jobId=release.Id)
             icon = url_for( "static", filename = "stop.png" )
-            entry["Actions"] += f'<a href="#" onclick=\'executeJobCommand( this, {release.Id}, "/stop/" ); return false;\'><img src={icon} title="Stop"></a>'
+            entry["Actions"] += f'<a href="#" onclick=\'executeJobCommand( this, {release.Id}, "/stop/" ); jobsTable.ajax.reload(null, false); return false;\'><img src={icon} title="Stop"></a>'
         if release.CanEdited():
             url = url_for("EditJob", jobId=release.Id)
             icon = url_for( "static", filename = "edit.png" )

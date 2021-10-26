@@ -5,6 +5,7 @@ Many things have changed in version 1.0. Most importantly, only python 3+ is sup
 Non-exhaustive list of other changes:
 - Reduce login sessions by storing cookie
 - Update UI
+- Allow viewing screenshots in edit page
 - TODO: Bulk uploads
 - TOOD: Prowlarr integration
 
