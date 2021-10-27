@@ -44,14 +44,13 @@ class JobSupervisor(threading.Thread):
         for release in ReleaseInfo.objects.filter(
             JobRunningState=ReleaseInfo.JobState.InDownload
         ):
-            if release.Id not in self.futures.keys() and release.AnnouncementSource.IsDownloadFinished(
-                    logger, release
+            if (
+                release.Id not in self.futures.keys()
+                and release.AnnouncementSource.IsDownloadFinished(logger, release)
             ):
                 logger.info("Launching upload job for %s", release.Id)
                 worker_stop_flag = threading.Event()
-                worker = Upload(
-                    release_id=release.Id, stop_requested=worker_stop_flag
-                )
+                worker = Upload(release_id=release.Id, stop_requested=worker_stop_flag)
                 self.futures[release.Id] = [
                     worker_stop_flag,
                     self.pool.submit(worker.Work),
@@ -88,7 +87,12 @@ class JobSupervisor(threading.Thread):
         self.scan_db()
 
     def stop_future(self, releaseId):
-        pass
+        release = ReleaseInfo.objects.get(Id=releaseId)
+        if release.Id in self.futures.keys():
+            pass
+        elif release.JobRunningState == ReleaseInfo.JobState.InDownload:
+            release.JobRunningState = ReleaseInfo.JobState.Paused
+            release.save()
 
     def reap_finished(self):
         for key, val in list(self.futures.items()):
@@ -100,25 +104,34 @@ class JobSupervisor(threading.Thread):
                     )
                 del self.futures[key]
 
+    def work(self):
+        print(self.futures)
+        try:
+            message = self.message_queue.get(timeout=3)
+            if isinstance(message, PtpUploaderMessageStopJob):
+                self.stop_future(message.ReleaseInfoId)
+            elif isinstance(message, PtpUploaderMessageQuit):
+                self.stop_requested.set()
+        except queue.Empty:
+            pass
+
+        if self.stop_requested.is_set():
+            self.reap_finished()
+            self.cleanup_futures()
+            return True
+        else:
+            self.reap_finished()
+            self.process_pending()
+
     def run(self):
         logger.info("Starting supervisors")
         while True:
-            print(self.futures)
             try:
-                message = self.message_queue.get(timeout=3)
-                if isinstance(message, PtpUploaderMessageStopJob):
-                    self.stop_future(message.releaseInfoId)
-                elif isinstance(message, PtpUploaderMessageQuit):
-                    self.stop_requested.set()
-            except queue.Empty:
-                pass
-
-            if self.stop_requested.is_set():
-                self.cleanup_futures()
-                break
-            else:
-                self.reap_finished()
-                self.process_pending()
+                if self.work() is not None:
+                    break
+            except (KeyboardInterrupt, SystemExit):
+                logger.info("Received system interrupt")
+                self.stop_requested.set()
 
     def cleanup_futures(self):
         pass
