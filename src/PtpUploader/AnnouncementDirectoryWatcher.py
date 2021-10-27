@@ -14,7 +14,7 @@ class MyWatchdogEventHandler(FileSystemEventHandler):
 
         if not event.is_directory:
             path = event.dest_path.decode(sys.getfilesystemencoding())
-            MyGlobals.PtpUploader.AddMessage(
+            MyGlobals.PtpUploader.add_message(
                 PtpUploaderMessageNewAnnouncementFile(path)
             )
 
@@ -23,7 +23,7 @@ class MyWatchdogEventHandler(FileSystemEventHandler):
 
         if not event.is_directory:
             path = event.src_path.decode(sys.getfilesystemencoding())
-            MyGlobals.PtpUploader.AddMessage(
+            MyGlobals.PtpUploader.add_message(
                 PtpUploaderMessageNewAnnouncementFile(path)
             )
 
@@ -32,7 +32,7 @@ class MyWatchdogEventHandler(FileSystemEventHandler):
 
         if not event.is_directory:
             path = event.src_path.decode(sys.getfilesystemencoding())
-            MyGlobals.PtpUploader.AddMessage(
+            MyGlobals.PtpUploader.add_message(
                 PtpUploaderMessageNewAnnouncementFile(path)
             )
 

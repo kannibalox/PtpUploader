@@ -31,7 +31,7 @@ def EditJob(jobId):
         JobCommon.FillReleaseInfoFromRequestData(releaseInfo, request)
         releaseInfo.JobRunningState = JobRunningState.WaitingForStart
         releaseInfo.save()
-        MyGlobals.PtpUploader.AddMessage(PtpUploaderMessageStartJob(releaseInfo.Id))
+        MyGlobals.PtpUploader.add_message(PtpUploaderMessageStartJob(releaseInfo.Id))
 
         return redirect(url_for("jobs"))
 

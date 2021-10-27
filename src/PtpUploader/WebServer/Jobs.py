@@ -143,7 +143,7 @@ def StartJob(jobId):
     releaseInfo.SetStopBeforeUploading(False)
 
     releaseInfo.save()
-    MyGlobals.PtpUploader.AddMessage(PtpUploaderMessageStartJob(jobId))
+    MyGlobals.PtpUploader.add_message(PtpUploaderMessageStartJob(jobId))
     return "OK"
 
 
@@ -156,5 +156,5 @@ def StopJob(jobId):
     if not releaseInfo.CanStopped():
         return "The job is already stopped!"
 
-    MyGlobals.PtpUploader.AddMessage(PtpUploaderMessageStopJob(jobId))
+    MyGlobals.PtpUploader.add_message(PtpUploaderMessageStopJob(jobId))
     return "OK"

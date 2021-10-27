@@ -53,7 +53,7 @@ def log(jobId):
 @app.route("/quit")
 @requires_auth
 def quit():
-    MyGlobals.PtpUploader.AddMessage(PtpUploaderMessageQuit())
+    MyGlobals.PtpUploader.add_message(PtpUploaderMessageQuit())
 
     func = request.environ.get("werkzeug.server.shutdown")
     func()

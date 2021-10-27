@@ -4,6 +4,8 @@ import os
 from django.db import models
 from django.utils import timezone
 
+from PtpUploader.MyGlobals import MyGlobals
+from PtpUploader.Logger import Logger
 from PtpUploader.Job.FinishedJobPhase import FinishedJobPhase
 from PtpUploader.Job.JobRunningState import JobRunningState
 from PtpUploader.Job.JobStartMode import JobStartMode
@@ -95,14 +97,12 @@ class ReleaseInfo(models.Model):
     IncludedFiles = models.TextField(blank=True, default="")
     DuplicateCheckCanIgnore = models.IntegerField(default=0)
     ScheduleTimeUtc = models.DateTimeField(default=timezone.now)
-    Trumpable = models.TextField(blank=True, default="") # CSV of trump IDs
+    Trumpable = models.TextField(blank=True, default="")  # CSV of trump IDs
 
     def __init__(self, *args, **kwargs):
         # <<< These are the required fields needed for an upload to PTP.
         super().__init__(*args, **kwargs)
 
-        self.AnnouncementSource = None  # A class from the Source namespace.
-        self.Logger = None
         self.SceneAccessDownloadUrl = ""  # Temporary store for FunFile.
         self.SourceIsAFile = False  # Used by Source.File class.
         self.ImdbRating = ""  # Not saved in the database.
@@ -235,11 +235,11 @@ class ReleaseInfo(models.Model):
 
     def CanEdited(self):
         return self.JobRunningState not in [
-                JobRunningState.WaitingForStart,
-                JobRunningState.Scheduled,
-                JobRunningState.InProgress,
-                JobRunningState.Finished,
-            ]
+            JobRunningState.WaitingForStart,
+            JobRunningState.Scheduled,
+            JobRunningState.InProgress,
+            JobRunningState.Finished,
+        ]
 
     def IsReleaseNameEditable(self):
         return self.CanEdited() and not self.IsJobPhaseFinished(
@@ -327,3 +327,11 @@ class ReleaseInfo(models.Model):
 
     def IsSourceSet(self):
         return len(self.Source) > 0
+
+    @property
+    def Logger(self):
+        return Logger(self.GetLogFilePath())
+
+    @property
+    def AnnouncementSource(self):
+        return MyGlobals.SourceFactory.GetSource(self.AnnouncementSourceName)

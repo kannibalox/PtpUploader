@@ -1,4 +1,5 @@
 import datetime
+import threading
 import os
 
 from PtpUploader.InformationSource.Imdb import Imdb
@@ -6,6 +7,7 @@ from PtpUploader.InformationSource.MoviePoster import MoviePoster
 from PtpUploader.Job.FinishedJobPhase import FinishedJobPhase
 from PtpUploader.Job.JobRunningState import JobRunningState
 from PtpUploader.Job.WorkerBase import WorkerBase
+from PtpUploader.MyGlobals import MyGlobals
 from PtpUploader import Ptp
 from PtpUploader.PtpImdbInfo import PtpImdbInfo, PtpZeroImdbInfo
 from PtpUploader.PtpUploaderException import *
@@ -13,8 +15,9 @@ from PtpUploader.Settings import Settings
 
 
 class CheckAnnouncement(WorkerBase):
-    def __init__(self, jobManager, jobManagerItem, torrentClient):
-        phases = [
+    def __init__(self, release_id: int, stop_requested: threading.Event):
+        super().__init__(release_id, stop_requested)
+        self.Phases = [
             self.__CheckAnnouncementSource,
             self.__PrepareDownload,
             self.__CheckSizeLimit,
@@ -29,11 +32,11 @@ class CheckAnnouncement(WorkerBase):
         ]
 
         # Instead of this if, it would be possible to make a totally generic downloader system through SourceBase.
-        if jobManagerItem.ReleaseInfo.AnnouncementSourceName == "file":
-            phases.append(self.__DetectSceneReleaseFromFileList)
-            phases.append(self.__AddToPendingDownloads)
+        if self.ReleaseInfo.AnnouncementSourceName == "file":
+            self.Phases.append(self.__DetectSceneReleaseFromFileList)
+            self.Phases.append(self.__AddToPendingDownloads)
         else:
-            phases.extend(
+            self.Phases.extend(
                 [
                     self.__CreateReleaseDirectory,
                     self.__DownloadTorrentFile,
@@ -44,8 +47,7 @@ class CheckAnnouncement(WorkerBase):
                 ]
             )
 
-        WorkerBase.__init__(self, phases, jobManager, jobManagerItem)
-        self.TorrentClient = torrentClient
+        self.TorrentClient = MyGlobals.GetTorrentClient()
 
     def __CheckAnnouncementSource(self):
         self.ReleaseInfo.Logger.info(
@@ -451,4 +453,6 @@ class CheckAnnouncement(WorkerBase):
             self.ReleaseInfo.save()
 
     def __AddToPendingDownloads(self):
-        self.JobManager.AddToPendingDownloads(self.ReleaseInfo)
+        # TODO Change DB status so supervisor can check this
+        # self.JobManager.AddToPendingDownloads(self.ReleaseInfo)
+        pass

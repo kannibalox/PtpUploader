@@ -15,7 +15,7 @@ class PtpUploaderRunner:
         )  # Contains class instances from PtpUploaderMessage.
         self.WorkerThread = WorkerThread()
 
-    def AddMessage(self, message):
+    def add_message(self, message):
         self.MessageQueue.put(message)
         self.WaitEvent.set()
 

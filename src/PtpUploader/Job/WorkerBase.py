@@ -1,17 +1,21 @@
+import threading
+
 from PtpUploader.Job.JobRunningState import JobRunningState
 from PtpUploader.PtpUploaderException import *
+from PtpUploader.ReleaseInfo import ReleaseInfo
 
 
 class WorkerBase:
-    def __init__(self, phases, jobManager, jobManagerItem):
-        self.Phases = phases
-        self.JobManager = jobManager
-        self.JobManagerItem = jobManagerItem
-        self.ReleaseInfo = jobManagerItem.ReleaseInfo
+    def __init__(self, release_id: int, stop_requested: threading.Event):
+        self.Phases = []
+        self.stop_requested: threading.Event = stop_requested
+        self.ReleaseInfo = ReleaseInfo.objects.get(Id=release_id)
 
     def __WorkInternal(self):
+        if not self.Phases:
+            raise NotImplementedError("Add phases to this worker")
         for phase in self.Phases:
-            if self.JobManagerItem.StopRequested:
+            if self.stop_requested.is_set():
                 self.ReleaseInfo.JobRunningState = JobRunningState.Paused
                 self.ReleaseInfo.save()
                 return

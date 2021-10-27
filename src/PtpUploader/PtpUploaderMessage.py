@@ -1,17 +1,21 @@
-class PtpUploaderMessageStartJob:
+class PtpUploaderMessageBase:
+    pass
+
+
+class PtpUploaderMessageStartJob(PtpUploaderMessageBase):
     def __init__(self, releaseInfoId):
         self.ReleaseInfoId = releaseInfoId
 
 
-class PtpUploaderMessageStopJob:
+class PtpUploaderMessageStopJob(PtpUploaderMessageBase):
     def __init__(self, releaseInfoId):
         self.ReleaseInfoId = releaseInfoId
 
 
-class PtpUploaderMessageNewAnnouncementFile:
+class PtpUploaderMessageNewAnnouncementFile(PtpUploaderMessageBase):
     def __init__(self, announcementFilePath):
         self.AnnouncementFilePath = announcementFilePath
 
 
-class PtpUploaderMessageQuit:
+class PtpUploaderMessageQuit(PtpUploaderMessageBase):
     pass

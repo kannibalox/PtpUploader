@@ -88,7 +88,7 @@ def upload():
 
         releaseInfo.save()
         print(releaseInfo.Id)
-        MyGlobals.PtpUploader.AddMessage(PtpUploaderMessageStartJob(releaseInfo.Id))
+        MyGlobals.PtpUploader.add_message(PtpUploaderMessageStartJob(releaseInfo.Id))
         releaseInfo.save()
 
     # job parameter is needed because it uses the same template as edit job
