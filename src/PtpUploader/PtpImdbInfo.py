@@ -2,7 +2,7 @@ import json
 import re
 
 from PtpUploader.MyGlobals import MyGlobals
-from PtpUploader.Ptp import Ptp
+from PtpUploader import Ptp
 from PtpUploader.PtpUploaderException import *
 
 

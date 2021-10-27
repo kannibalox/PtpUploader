@@ -12,7 +12,7 @@ from PtpUploader.IncludedFileList import IncludedFileList
 from PtpUploader.Job.JobStartMode import JobStartMode
 from PtpUploader.MyGlobals import MyGlobals
 from PtpUploader.NfoParser import NfoParser
-from PtpUploader.Ptp import Ptp
+from PtpUploader import Ptp
 from PtpUploader.ReleaseInfo import ReleaseInfo
 from PtpUploader.Settings import Settings
 from PtpUploader.WebServer import app

@@ -337,6 +337,7 @@ class Settings:
             != 0
         )
 
+        Settings.AntiCsrfToken = None # Stored after logging in
         Settings.SizeLimitForAutoCreatedJobs = (
             float(
                 Settings.__GetDefault(

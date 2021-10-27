@@ -9,7 +9,7 @@ from PtpUploader.Job.FinishedJobPhase import FinishedJobPhase
 from PtpUploader.Job.JobRunningState import JobRunningState
 from PtpUploader.Job.WorkerBase import WorkerBase
 from PtpUploader.MyGlobals import MyGlobals
-from PtpUploader.Ptp import Ptp
+from PtpUploader import Ptp
 from PtpUploader.PtpSubtitle import *
 from PtpUploader.PtpUploaderException import *
 from PtpUploader.ReleaseDescriptionFormatter import ReleaseDescriptionFormatter

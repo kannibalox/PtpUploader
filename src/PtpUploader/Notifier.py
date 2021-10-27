@@ -3,7 +3,7 @@ import os
 import sys
 
 from PtpUploader.MyGlobals import MyGlobals
-from PtpUploader.Ptp import Ptp
+from PtpUploader import Ptp
 from PtpUploader.Settings import Settings
 
 

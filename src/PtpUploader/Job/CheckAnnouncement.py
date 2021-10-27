@@ -6,7 +6,7 @@ from PtpUploader.InformationSource.MoviePoster import MoviePoster
 from PtpUploader.Job.FinishedJobPhase import FinishedJobPhase
 from PtpUploader.Job.JobRunningState import JobRunningState
 from PtpUploader.Job.WorkerBase import WorkerBase
-from PtpUploader.Ptp import Ptp
+from PtpUploader import Ptp
 from PtpUploader.PtpImdbInfo import PtpImdbInfo, PtpZeroImdbInfo
 from PtpUploader.PtpUploaderException import *
 from PtpUploader.Settings import Settings
