@@ -190,7 +190,7 @@ def __UploadMovieGetParamsCommon(releaseInfo, releaseDescription):
         "other_source": releaseInfo.Source,
         "release_desc": releaseDescription,
         "nfo_text": releaseInfo.Nfo,
-        "Settings.AntiCsrfToken": Settings.AntiCsrfToken,
+        "AntiCsrfToken": Settings.AntiCsrfToken,
         "subtitles[]": releaseInfo.GetSubtitles(),
     }
 
@@ -337,7 +337,7 @@ def SendPrivateMessage(userId, subject, message):
         "body": message,
         "auth": auth,
         "action": "takecompose",
-        "Settings.AntiCsrfToken": Settings.AntiCsrfToken,
+        "AntiCsrfToken": Settings.AntiCsrfToken,
     }
 
     result = MyGlobals.session.post("https://passthepopcorn.me/inbox.php", postData)
