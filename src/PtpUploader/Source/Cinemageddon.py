@@ -100,9 +100,14 @@ class Cinemageddon(SourceBase):
 
         # Get IMDb id.
         if (not releaseInfo.ImdbId) and (not releaseInfo.PtpId):
+            match = re.search(r'<span id="torrent_imdb">(.*?)</span>', description.decode(errors="ignore"))
+            if not match:
+                raise PtpUploaderException(
+                    JobRunningState.Ignored_MissingInfo,
+                    "IMDb container can't be found on torrent page.",
+                )
             imdbs = (
-                re.search(r'<span id="torrent_imdb">(.*?)</span>', description.decode(errors="ignore"))
-                .group(1)
+                match.group(1)
                 .replace("t", "")
                 .split(" ")
             )
@@ -164,7 +169,7 @@ class Cinemageddon(SourceBase):
 
         self.__ParsePage(logger, releaseInfo, response)
 
-    def __MapSourceAndFormatToPtp(self, releaseInfo, sourceType, formatType, html):
+    def __MapSourceAndFormatToPtp(self, releaseInfo, sourceType, formatType, html: bytes):
         sourceType = sourceType.lower()
         formatType = formatType.lower()
 
@@ -218,9 +223,9 @@ class Cinemageddon(SourceBase):
                 % releaseInfo.ResolutionType
             )
         elif releaseInfo.IsDvdImage():
-            if re.search(r"Standard +: NTSC", html):
+            if re.search(rb"Standard +: NTSC", html):
                 releaseInfo.ResolutionType = "NTSC"
-            elif re.search(r"Standard +: PAL", html):
+            elif re.search(rb"Standard +: PAL", html):
                 releaseInfo.ResolutionType = "PAL"
             else:
                 releaseInfo.Logger.info("DVD detected but could not find resolution")
@@ -228,9 +233,9 @@ class Cinemageddon(SourceBase):
             releaseInfo.ResolutionType = "Other"
 
         if releaseInfo.IsDvdImage() and not releaseInfo.Container:
-            if re.search(r"\.vob</td>", html, re.IGNORECASE):
+            if re.search(rb"\.vob</td>", html, re.IGNORECASE):
                 releaseInfo.Container = "VOB IFO"
-            elif re.search(r"\.iso</td>", html, re.IGNORECASE):
+            elif re.search(rb"\.iso</td>", html, re.IGNORECASE):
                 releaseInfo.Container = "ISO"
             else:
                 releaseInfo.Logger.info("DVD detected but could not find container")
