@@ -9,8 +9,8 @@ from PtpUploader.PtpUploaderException import *
 class WorkerThread(threading.Thread):
     def __init__(self):
         threading.Thread.__init__(self, name="WorkerThread")
-        self.Lock = threading.RLock()
-        self.WaitEvent = threading.Event()
+        self.Lock: threading.RLock = threading.RLock()
+        self.WaitEvent: threading.Event = threading.Event()
         self.StopRequested = False
         self.JobPhase = None
         self.JobManager = None
