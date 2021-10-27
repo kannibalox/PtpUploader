@@ -47,7 +47,7 @@ class CheckAnnouncement(WorkerBase):
                 ]
             )
 
-        self.TorrentClient = MyGlobals.GetTorrentClient()
+        self.TorrentClient = Settings.GetTorrentClient()
 
     def __CheckAnnouncementSource(self):
         self.ReleaseInfo.Logger.info(

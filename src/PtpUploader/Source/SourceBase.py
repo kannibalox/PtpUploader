@@ -112,8 +112,8 @@ class SourceBase:
                 releaseInfo.SetSceneRelease()
                 break
 
-    def IsDownloadFinished(self, logger, releaseInfo, torrentClient):
-        return torrentClient.IsTorrentFinished(
+    def IsDownloadFinished(self, logger, releaseInfo):
+        return Settings.GetTorrentClient().IsTorrentFinished(
             logger, releaseInfo.SourceTorrentInfoHash
         )
 

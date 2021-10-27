@@ -24,7 +24,6 @@ from concurrent import futures
 
 from PtpUploader.ReleaseInfo import ReleaseInfo
 from PtpUploader.Job.Upload import Upload
-from PtpUploader.Job.JobRunningState import JobRunningState
 from PtpUploader.Job.CheckAnnouncement import CheckAnnouncement
 from PtpUploader.PtpUploaderMessage import *
 
@@ -42,7 +41,21 @@ class JobSupervisor(threading.Thread):
         )
 
     def check_pending_downloads(self):
-        pass
+        for release in ReleaseInfo.objects.filter(
+            JobRunningState=ReleaseInfo.JobState.InDownload
+        ):
+            if release.Id not in self.futures.keys() and release.AnnouncementSource.IsDownloadFinished(
+                    logger, release
+            ):
+                logger.info("Launching upload job for %s", release.Id)
+                worker_stop_flag = threading.Event()
+                worker = Upload(
+                    release_id=release.Id, stop_requested=worker_stop_flag
+                )
+                self.futures[release.Id] = [
+                    worker_stop_flag,
+                    self.pool.submit(worker.Work),
+                ]
 
     def load_announcements(self):
         pass
@@ -56,9 +69,10 @@ class JobSupervisor(threading.Thread):
     def scan_db(self):
         """Find releases pending work by their DB status"""
         for release in ReleaseInfo.objects.filter(
-            JobRunningState=JobRunningState.WaitingForStart
+            JobRunningState=ReleaseInfo.JobState.WaitingForStart
         ):
             if release.Id not in self.futures.keys():
+                logger.info("Launching check job for %s", release.Id)
                 worker_stop_flag = threading.Event()
                 worker = CheckAnnouncement(
                     release_id=release.Id, stop_requested=worker_stop_flag

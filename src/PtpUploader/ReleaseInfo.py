@@ -254,6 +254,7 @@ class ReleaseInfo(models.Model):
             self.JobState.WaitingForStart,
             self.JobState.Scheduled,
             self.JobState.InProgress,
+            self.JobState.InDownload,
             self.JobState.Finished,
         ]
 
@@ -269,6 +270,7 @@ class ReleaseInfo(models.Model):
         return self.JobRunningState in [
             self.JobState.WaitingForStart,
             self.JobState.Scheduled,
+            self.JobState.InDownload,
             self.JobState.InProgress,
         ]
 

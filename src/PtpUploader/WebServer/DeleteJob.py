@@ -35,7 +35,7 @@ def DeleteTheJob(jobId):
         releaseInfo.Logger = Logger(releaseInfo.GetLogFilePath())
 
     announcementSource.Delete(
-        releaseInfo, MyGlobals.GetTorrentClient(), deleteSourceData, deleteUploadData
+        releaseInfo, Settings.GetTorrentClient(), deleteSourceData, deleteUploadData
     )
 
     releaseInfo.delete()

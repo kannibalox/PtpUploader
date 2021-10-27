@@ -227,6 +227,7 @@ class Settings:
                 "bup, idx, ifo, srt, sub",
             )
         )
+        Settings.TorrentClient = None
         Settings.IgnoreFile = Settings.MakeListFromExtensionString(
             Settings.__GetDefault(configParser, "Settings", "IgnoreFile", "")
         )

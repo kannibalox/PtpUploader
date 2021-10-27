@@ -119,7 +119,7 @@ class JobManager:
             releaseInfo = self.__GetJobManagerItemAsReleaseInfo(jobManagerItem)
             logger = releaseInfo.Logger
             if releaseInfo.AnnouncementSource.IsDownloadFinished(
-                logger, releaseInfo, MyGlobals.GetTorrentClient()
+                logger, releaseInfo, Settings.GetTorrentClient()
             ):
                 return self.PendingDownloads.pop(downloadIndex)
 
@@ -162,7 +162,7 @@ class JobManager:
             # If there is a finished download, then upload it.
             jobManagerItem = self.__GetFinishedDownloadToProcess()
             if jobManagerItem is not None:
-                return Upload(self, jobManagerItem, MyGlobals.GetTorrentClient())
+                return Upload(self, jobManagerItem, Settings.GetTorrentClient())
 
             self.__ProcessPendingAnnouncementFiles()
 
@@ -170,7 +170,7 @@ class JobManager:
             jobManagerItem = self.__GetAnnouncementToProcess()
             if jobManagerItem is not None:
                 return CheckAnnouncement(
-                    self, jobManagerItem, MyGlobals.GetTorrentClient()
+                    self, jobManagerItem, Settings.GetTorrentClient()
                 )
 
             return None

@@ -1,6 +1,7 @@
 import datetime
 import os
 import subprocess
+import threading
 
 from PtpUploader.Helper import TimeDifferenceToText, GetIdxSubtitleLanguages
 from PtpUploader.ImageHost.ImageUploader import ImageUploader
@@ -17,8 +18,9 @@ from PtpUploader.Tool import Mktor
 
 
 class Upload(WorkerBase):
-    def __init__(self, jobManager, jobManagerItem, torrentClient):
-        phases = [
+    def __init__(self, release_id: int, stop_requested: threading.Event):
+        super().__init__(release_id, stop_requested)
+        self.Phases = [
             self.__StopAutomaticJobBeforeExtracting,
             self.__StopAutomaticJobIfThereAreMultipleVideosBeforeExtracting,
             self.__CreateUploadPath,
@@ -38,9 +40,7 @@ class Upload(WorkerBase):
             self.__ExecuteCommandOnSuccessfulUpload,
         ]
 
-        WorkerBase.__init__(self, phases, jobManager, jobManagerItem)
-
-        self.TorrentClient = torrentClient
+        self.TorrentClient = Settings.GetTorrentClient()
         self.IncludedFileList = None
         self.VideoFiles = []
         self.AdditionalFiles = []

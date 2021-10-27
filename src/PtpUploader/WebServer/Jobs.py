@@ -27,7 +27,7 @@ def GetStateIcon(state):
         return "warning.png"
     elif state == JobRunningState.WaitingForStart:
         return "hourglass.png"
-    elif state in [JobRunningState.InProgress, ReleaseInfo.JobState.InDownload]
+    elif state in [JobRunningState.InProgress, ReleaseInfo.JobState.InDownload]:
         return "throbber.gif"
     elif state == JobRunningState.Paused:
         return "pause.png"
