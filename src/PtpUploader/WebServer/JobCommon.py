@@ -198,8 +198,6 @@ class JobCommon:
         job["Screenshots"] = {}
         if releaseInfo.Screenshots:
             for f in json.loads(releaseInfo.Screenshots):
-                print(f)
-                print(releaseInfo.UploadTorrentFilePath)
                 path = f[0].replace(releaseInfo.UploadTorrentCreatePath, '').strip('/')
                 job["Screenshots"][path] = ""
                 for s in f[1]:
