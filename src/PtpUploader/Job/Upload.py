@@ -307,7 +307,7 @@ class Upload(WorkerBase):
 
     def __DetectSubtitles(self):
         subtitleIds = self.ReleaseInfo.GetSubtitles()
-        if len(subtitleIds) > 0:
+        if subtitleIds:
             self.ReleaseInfo.Logger.info(
                 "Subtitle list is not empty. Skipping subtitle detection."
             )
@@ -317,7 +317,7 @@ class Upload(WorkerBase):
 
         # We can't do anything with DVD images.
         if self.ReleaseInfo.IsDvdImage():
-            return
+            raise PtpUploaderException("Unable to automatically detect DVD subtitles, please select them manually")
 
         containsUnknownSubtitle = False
 
@@ -348,10 +348,13 @@ class Upload(WorkerBase):
                     containsUnknownSubtitle = True
                     break
 
-        if len(subtitleIds) > 0:
+        if subtitleIds:
             self.ReleaseInfo.SetSubtitles(subtitleIds)
         elif not containsUnknownSubtitle:
             self.ReleaseInfo.SetSubtitles([str(PtpSubtitleId.NoSubtitle)])
+
+        if not self.ReleaseInfo.GetSubtitles():
+            raise PtpUploaderException("Unable to automatically detect subtitles, please select them manually")
 
     def __MakeTorrent(self):
         if self.ReleaseInfo.UploadTorrentFilePath:
