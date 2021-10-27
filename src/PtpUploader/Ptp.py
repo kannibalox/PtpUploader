@@ -95,7 +95,7 @@ class Ptp:
                     raise
 
     @staticmethod
-    def __CheckIfLoggedInFromResponseLogResponse(result, responseBody):
+    def __CheckIfLoggedInFromResponseLogResponse(result, responseBody: str):
         MyGlobals.Logger.info("MSG: %s" % result.reason)
         MyGlobals.Logger.info("CODE: %s" % result.status_code)
         MyGlobals.Logger.info("URL: %s" % result.url)
@@ -104,7 +104,7 @@ class Ptp:
         MyGlobals.Logger.info("RESPONSE BODY: %s" % responseBody)
 
     @staticmethod
-    def CheckIfLoggedInFromResponse(result, responseBody):
+    def CheckIfLoggedInFromResponse(result, responseBody: str):
         if responseBody.find("""<a href="login.php?act=recover">""") != -1:
             Ptp.__CheckIfLoggedInFromResponseLogResponse(result, responseBody)
             raise PtpUploaderException(
@@ -192,6 +192,7 @@ class Ptp:
             "release_desc": releaseDescription,
             "nfo_text": releaseInfo.Nfo,
             "AntiCsrfToken": Ptp.AntiCsrfToken,
+            "subtitles[]": releaseInfo.GetSubtitles(),
         }
 
         # personal rip only needed if it is specified
@@ -211,9 +212,6 @@ class Ptp:
         for t_id in releaseInfo.Trumpable.split(","):
             if t_id in ["14", "4"]:
                 paramList.update({"trumpable[]": t_id})
-        subtitles = releaseInfo.GetSubtitles()
-        for subtitle in subtitles:
-            paramList.update({"subtitles[]": subtitle})
         return paramList
 
     @staticmethod
