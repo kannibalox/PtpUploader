@@ -1,4 +1,4 @@
-from PtpUploader.Job.JobRunningState import JobRunningState
+from PtpUploader.ReleaseInfo import ReleaseInfo
 
 # Inner exceptions will be only supported in Python 3000...
 
@@ -10,7 +10,7 @@ class PtpUploaderException(Exception):
     def __init__(self, *args):
         if len(args) == 1:
             Exception.__init__(self, args[0])
-            self.JobRunningState = JobRunningState.Failed
+            self.JobRunningState = ReleaseInfo.JobState.Failed
         else:
             Exception.__init__(self, args[1])
             self.JobRunningState = args[0]

@@ -5,10 +5,10 @@ import os
 from PtpUploader.InformationSource.Imdb import Imdb
 from PtpUploader.InformationSource.MoviePoster import MoviePoster
 from PtpUploader.Job.FinishedJobPhase import FinishedJobPhase
-from PtpUploader.Job.JobRunningState import JobRunningState
 from PtpUploader.Job.WorkerBase import WorkerBase
 from PtpUploader.MyGlobals import MyGlobals
 from PtpUploader import Ptp
+from PtpUploader.ReleaseInfo import ReleaseInfo
 from PtpUploader.PtpImdbInfo import PtpImdbInfo, PtpZeroImdbInfo
 from PtpUploader.PtpUploaderException import *
 from PtpUploader.Settings import Settings
@@ -60,7 +60,7 @@ class CheckAnnouncement(WorkerBase):
         )
 
         self.ReleaseInfo.JobStartTimeUtc = datetime.datetime.utcnow()
-        self.ReleaseInfo.JobRunningState = JobRunningState.InProgress
+        self.ReleaseInfo.JobRunningState = ReleaseInfo.JobState.InProgress
         self.ReleaseInfo.ErrorMessage = ""
         self.ReleaseInfo.save()
 
@@ -88,42 +88,42 @@ class CheckAnnouncement(WorkerBase):
             and self.ReleaseInfo.Size > Settings.SizeLimitForAutoCreatedJobs
         ):
             raise PtpUploaderException(
-                JobRunningState.Ignored, "Ignored because of its size."
+                ReleaseInfo.JobState.Ignored, "Ignored because of its size."
             )
 
     def __ValidateReleaseInfo(self):
         # Make sure we have IMDb or PTP id.
         if (not self.ReleaseInfo.ImdbId) and (not self.ReleaseInfo.PtpId):
             raise PtpUploaderException(
-                JobRunningState.Ignored_MissingInfo, "IMDb or PTP id must be specified."
+                ReleaseInfo.JobState.Ignored_MissingInfo, "IMDb or PTP id must be specified."
             )
 
         # Make sure the source is providing a name.
         self.ReleaseInfo.ReleaseName = self.ReleaseInfo.ReleaseName.strip()
         if len(self.ReleaseInfo.ReleaseName) <= 0:
             raise PtpUploaderException(
-                JobRunningState.Ignored_MissingInfo,
+                ReleaseInfo.JobState.Ignored_MissingInfo,
                 "Name of the release is not specified.",
             )
 
         # Make sure the source is providing release source information.
         if len(self.ReleaseInfo.Source) <= 0:
             raise PtpUploaderException(
-                JobRunningState.Ignored_MissingInfo,
+                ReleaseInfo.JobState.Ignored_MissingInfo,
                 "Source of the release is not specified.",
             )
 
         # Make sure the source is providing release codec information.
         if len(self.ReleaseInfo.Codec) <= 0:
             raise PtpUploaderException(
-                JobRunningState.Ignored_MissingInfo,
+                ReleaseInfo.JobState.Ignored_MissingInfo,
                 "Codec of the release is not specified.",
             )
 
         # Make sure the source is providing release resolution type information.
         if len(self.ReleaseInfo.ResolutionType) <= 0:
             raise PtpUploaderException(
-                JobRunningState.Ignored_MissingInfo,
+                ReleaseInfo.JobState.Ignored_MissingInfo,
                 "Resolution type of the release is not specified.",
             )
 
@@ -132,13 +132,13 @@ class CheckAnnouncement(WorkerBase):
             self.ReleaseInfo.Codec == "XviD" or self.ReleaseInfo.Codec == "DivX"
         ):
             raise PtpUploaderException(
-                JobRunningState.Ignored_Forbidden, "HD XviDs and DivXs are not allowed."
+                ReleaseInfo.JobState.Ignored_Forbidden, "HD XviDs and DivXs are not allowed."
             )
 
         # We only support VOB IFO container for DVD images.
         if self.ReleaseInfo.IsDvdImage() and self.ReleaseInfo.Container != "VOB IFO":
             raise PtpUploaderException(
-                JobRunningState.Ignored_NotSupported,
+                ReleaseInfo.JobState.Ignored_NotSupported,
                 "Only VOB IFO container is supported for DVD images.",
             )
 
@@ -174,7 +174,7 @@ class CheckAnnouncement(WorkerBase):
         existingRelease = movieOnPtpResult.IsReleaseExists(self.ReleaseInfo)
         if existingRelease is not None:
             raise PtpUploaderException(
-                JobRunningState.Ignored_AlreadyExists,
+                ReleaseInfo.JobState.Ignored_AlreadyExists,
                 "Already exists on PTP: '%s'." % existingRelease,
             )
 
@@ -202,7 +202,7 @@ class CheckAnnouncement(WorkerBase):
             self.ReleaseInfo.Title = ptpImdbInfo.GetTitle()
             if len(self.ReleaseInfo.Title) <= 0:
                 raise PtpUploaderException(
-                    JobRunningState.Ignored_MissingInfo, "Movie title is not set."
+                    ReleaseInfo.JobState.Ignored_MissingInfo, "Movie title is not set."
                 )
 
         # Year
@@ -215,7 +215,7 @@ class CheckAnnouncement(WorkerBase):
             self.ReleaseInfo.Year = ptpImdbInfo.GetYear()
             if len(self.ReleaseInfo.Year) <= 0:
                 raise PtpUploaderException(
-                    JobRunningState.Ignored_MissingInfo, "Movie year is not set."
+                    ReleaseInfo.JobState.Ignored_MissingInfo, "Movie year is not set."
                 )
 
         # Movie description
@@ -236,7 +236,7 @@ class CheckAnnouncement(WorkerBase):
             self.ReleaseInfo.Tags = ptpImdbInfo.GetTags()
             if len(self.ReleaseInfo.Tags) <= 0:
                 raise PtpUploaderException(
-                    JobRunningState.Ignored_MissingInfo,
+                    ReleaseInfo.JobState.Ignored_MissingInfo,
                     "At least one tag must be specified for a movie.",
                 )
 
@@ -257,7 +257,7 @@ class CheckAnnouncement(WorkerBase):
                 )
             else:
                 raise PtpUploaderException(
-                    JobRunningState.Ignored_Forbidden, "Genre is adult."
+                    ReleaseInfo.JobState.Ignored_Forbidden, "Genre is adult."
                 )
 
     # Uses IMDb and The Internet Movie Poster DataBase.
@@ -275,7 +275,7 @@ class CheckAnnouncement(WorkerBase):
                 )
             else:
                 raise PtpUploaderException(
-                    JobRunningState.Ignored_Forbidden, "It is a series."
+                    ReleaseInfo.JobState.Ignored_Forbidden, "It is a series."
                 )
 
         # PTP returns with the original title, IMDb's iPhone API returns with the international English title.
@@ -450,9 +450,9 @@ class CheckAnnouncement(WorkerBase):
                 self.ReleaseInfo.SourceTorrentFilePath,
                 self.ReleaseInfo.GetReleaseDownloadPath(),
             )
+            self.ReleaseInfo.JobRunningState = ReleaseInfo.JobState.InDownload
             self.ReleaseInfo.save()
 
     def __AddToPendingDownloads(self):
-        # TODO Change DB status so supervisor can check this
-        # self.JobManager.AddToPendingDownloads(self.ReleaseInfo)
-        pass
+        self.ReleaseInfo.JobRunningState = ReleaseInfo.JobState.InDownload
+        self.ReleaseInfo.save()
