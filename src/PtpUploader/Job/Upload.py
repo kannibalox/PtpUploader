@@ -2,8 +2,7 @@ import datetime
 import os
 import subprocess
 
-from PtpUploader.Helper import TimeDifferenceToText
-from PtpUploader.IdxReader import IdxReader
+from PtpUploader.Helper import TimeDifferenceToText, GetIdxSubtitleLanguages
 from PtpUploader.ImageHost.ImageUploader import ImageUploader
 from PtpUploader.Job.FinishedJobPhase import FinishedJobPhase
 from PtpUploader.Job.JobRunningState import JobRunningState
@@ -332,7 +331,7 @@ class Upload(WorkerBase):
         idxPath, extension = os.path.splitext(self.MainMediaInfo.Path)
         idxPath += ".idx"
         if os.path.isfile(idxPath):
-            idxLanguages = IdxReader.GetSubtitleLanguages(idxPath)
+            idxLanguages = GetIdxSubtitleLanguages(idxPath)
             if len(idxLanguages) > 0:
                 for language in idxLanguages:
                     containsUnknownSubtitle |= self.__DetectSubtitlesAddOne(

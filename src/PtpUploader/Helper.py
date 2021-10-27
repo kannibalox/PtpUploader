@@ -2,7 +2,6 @@ import os
 import re
 import time
 from datetime import timedelta
-from urllib.parse import parse_qs
 from pathlib import Path
 
 import bencode
@@ -10,6 +9,21 @@ import requests
 
 from PtpUploader.MyGlobals import MyGlobals
 from PtpUploader.PtpUploaderException import PtpUploaderException
+
+def GetIdxSubtitleLanguages(path):
+    languages = []
+
+    # id: en, index: 0
+    languageRe = re.compile(r"id: ([a-z][a-z]), index: \d+$", re.IGNORECASE)
+
+    # U is needed for "universal" newline support: to handle \r\n as \n.
+    with open(path, "rU") as pathHandle:
+        for line in pathHandle.readlines():
+            match = languageRe.match(line)
+            if match is not None:
+                languages.append(match.group(1))
+
+    return languages
 
 
 # Supported formats: "100 GB", "100 MB", "100 bytes". (Space is optional.)
