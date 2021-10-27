@@ -1,5 +1,7 @@
 {% extends "layout.html" %}
 
+{% load static %}
+
 {% block head %}
   <title>PtpUploader - Jobs</title>
 {% endblock %}
@@ -35,7 +37,7 @@
     </tbody>
   </table>
 
-  <script type=text/javascript src="{{ url_for( "static", filename = "script/jquery-3.6.0.min.js" ) }}"></script>
+  <script type=text/javascript src="{% static "script/jquery-3.6.0.min.js" %}"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-contextmenu/2.7.1/jquery.contextMenu.min.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-contextmenu/2.7.1/jquery.contextMenu.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-contextmenu/2.7.1/jquery.ui.position.js"></script>
@@ -43,7 +45,6 @@
 
   <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.11.3/js/jquery.dataTables.js"></script>
   <script type="text/javascript">
-   var $SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
    var jobsTable;
 
    function ToggleSearch( searchToggler )
@@ -68,7 +69,7 @@
      $.ajax(
        {
          type: "GET",
-         url: $SCRIPT_ROOT + "/job/" + jobId + jobCommand,
+         url: "/job/" + jobId + jobCommand,
          context: linkNode,
          success: function(msg)
          {
@@ -84,7 +85,7 @@
      $.ajax(
        {
          type: "GET",
-         url: $SCRIPT_ROOT + "/job/" + jobId + '/delete/?mode=' + deleteMode,
+         url: "/job/" + jobId + '/delete/?mode=' + deleteMode,
          context: linkNode,
          success: function(msg)
          {
