@@ -119,9 +119,9 @@ class JobSupervisor(threading.Thread):
             self.reap_finished()
             self.cleanup_futures()
             return True
-        else:
-            self.reap_finished()
-            self.process_pending()
+        self.reap_finished()
+        self.process_pending()
+        return None
 
     def run(self):
         logger.info("Starting supervisors")
@@ -131,7 +131,7 @@ class JobSupervisor(threading.Thread):
                     break
             except (KeyboardInterrupt, SystemExit):
                 logger.info("Received system interrupt")
-                self.stop_requested.set()
+                self.add_message(PtpUploaderMessageQuit())
 
     def cleanup_futures(self):
         pass
