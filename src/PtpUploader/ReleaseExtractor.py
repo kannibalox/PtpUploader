@@ -108,11 +108,13 @@ class ReleaseExtractorInternal:
         # Make hard link from supported files.
         destinationFilePath = os.path.join(self.__MakeDestinationDirectory(), entryName)
         if os.path.exists(destinationFilePath):
-            raise PtpUploaderException(
-                "Can't make link from file '%s' to '%s' because destination already exists."
-                % (entryPath, destinationFilePath)
-            )
-
+            if os.path.samefile(entryPath, destinationFilePath):
+                return
+            else:
+                raise PtpUploaderException(
+                    "Can't make link from file '%s' to '%s' because destination already exists."
+                    % (entryPath, destinationFilePath)
+                )
         os.link(entryPath, destinationFilePath)
 
 

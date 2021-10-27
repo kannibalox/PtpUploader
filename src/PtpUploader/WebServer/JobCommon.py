@@ -1,12 +1,13 @@
 import os
 import urllib.parse
 import json
+from urllib.parse import parse_qs
 from datetime import datetime
 
 from flask import jsonify, request
 from werkzeug.utils import secure_filename
 
-from PtpUploader.Helper import ParseQueryString, TimeDifferenceToText
+from PtpUploader.Helper import TimeDifferenceToText
 from PtpUploader.IncludedFileList import IncludedFileList
 from PtpUploader.Job.JobStartMode import JobStartMode
 from PtpUploader.MyGlobals import MyGlobals
@@ -30,7 +31,7 @@ class JobCommon:
     def __GetYouTubeId(text):
         url = urllib.parse.urlparse(JobCommon.__AddHttpToUrl(text))
         if url.netloc == "youtube.com" or url.netloc == "www.youtube.com":
-            params = ParseQueryString(url.query)
+            params = parse_qs(url.query)
             youTubeIdList = params.get("v")
             if youTubeIdList is not None:
                 return youTubeIdList[0]
@@ -53,7 +54,7 @@ class JobCommon:
                 or url.netloc == "www.passthepopcorn.me"
                 or url.netloc == "tls.passthepopcorn.me"
             ):
-                params = ParseQueryString(url.query)
+                params = parse_qs(url.query)
                 ptpIdList = params.get("id")
                 if ptpIdList is not None:
                     releaseInfo.PtpId = ptpIdList[0]

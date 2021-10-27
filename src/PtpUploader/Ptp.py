@@ -10,14 +10,16 @@ from PtpUploader.Settings import Settings
 
 
 class Ptp:
+    AntiCsrfToken: str
+
     @staticmethod
     def __LoginInternal():
-        if len(Settings.PtpUserName) <= 0:
+        if not Settings.PtpUserName:
             raise PtpUploaderInvalidLoginException(
                 "Couldn't log in to PTP. Your user name is not specified."
             )
 
-        if len(Settings.PtpPassword) <= 0:
+        if not Settings.PtpPassword:
             raise PtpUploaderInvalidLoginException(
                 "Couldn't log in to PTP. Your password is not specified."
             )
@@ -36,12 +38,11 @@ class Ptp:
         MyGlobals.Logger.info("Logging in to PTP.")
 
         if "passthepopcorn.me" in MyGlobals.session.cookies.list_domains():
-            response = MyGlobals.session.get(
-                "https://passthepopcorn.me/upload.php"
-            ).text
-            Ptp.AntiCsrfToken = re.search(r'data-AntiCsrfToken="(.*)"', response).group(
-                1
-            )
+            response = MyGlobals.session.get("https://passthepopcorn.me/upload.php")
+            Ptp.CheckIfLoggedInFromResponse(response, response.text)
+            Ptp.AntiCsrfToken = re.search(
+                r'data-AntiCsrfToken="(.*)"', response.text
+            ).group(1)
         else:
             postData = {
                 "username": Settings.PtpUserName,

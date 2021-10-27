@@ -49,61 +49,19 @@ def SizeToText(size):
 def TimeDifferenceToText(
     td: timedelta, levels: int = 2, agoText=" ago", noDifferenceText="Just now"
 ) -> str:
-    timeDifference: int = int(td.total_seconds())
-    if timeDifference < 3:
-        return noDifferenceText
+    data = {}
+    data["y"], seconds = divmod(int(td.total_seconds()), 31556926)
+    # 2629744 seconds = ~1 month (The mean month length of the Gregorian calendar is 30.436875 days.)
+    data["mo"], seconds = divmod(seconds, 2629744)
+    data["d"], seconds = divmod(seconds, 86400)
+    data["h"], seconds = divmod(seconds, 3600)
+    data["m"], data["s"] = divmod(seconds, 60)
 
-    years = timeDifference // 31556926  # 31556926 seconds = 1 year
-    timeDifference %= 31556926
-
-    months = (
-        timeDifference // 2629744
-    )  # 2629744 seconds = ~1 month (The mean month length of the Gregorian calendar is 30.436875 days.)
-    timeDifference %= 2629744
-
-    days = timeDifference // 86400  # 86400 seconds = 1 day
-    timeDifference %= 86400
-
-    hours = timeDifference // 3600
-    timeDifference %= 3600
-
-    minutes = timeDifference // 60
-    timeDifference %= 60
-
-    seconds = timeDifference
-
-    text = ""
-    if years > 0:
-        text += str(years) + "y"
-        levels -= 1
-
-    if months > 0 and levels > 0:
-        text += str(months) + "mo"
-        levels -= 1
-
-    if days > 0 and levels > 0:
-        text += str(days) + "d"
-        levels -= 1
-
-    if hours > 0 and levels > 0:
-        text += str(hours) + "h"
-        levels -= 1
-
-    if minutes > 0 and levels > 0:
-        text += str(minutes) + "m"
-        levels -= 1
-
-    if seconds > 0 and levels > 0:
-        text += str(seconds) + "s"
-
-    if len(text) > 0:
-        return text + agoText
+    time_parts = [f"{round(value)}{name}" for name, value in data.items() if value > 0]
+    if time_parts:
+        return "".join(time_parts[:levels]) + agoText
     else:
         return noDifferenceText
-
-
-def ParseQueryString(query):
-    return parse_qs(query)
 
 
 def MakeRetryingHttpGetRequestWithRequests(
@@ -154,6 +112,7 @@ def GetPathSize(path) -> int:
 
     return sum([p.stat().st_size for p in path.rglob("*")])
 
+
 # Always uses / as path separator.
 def GetFileListFromTorrent(torrentPath):
     with open(torrentPath, "rb") as fh:
@@ -193,7 +152,9 @@ def ValidateTorrentFile(torrentPath):
         with open(torrentPath, "rb") as fh:
             bencode.decode(fh.read())
     except Exception as e:
-        raise PtpUploaderException("File '%s' is not a valid torrent." % torrentPath) from e
+        raise PtpUploaderException(
+            "File '%s' is not a valid torrent." % torrentPath
+        ) from e
 
 
 def GetSuggestedReleaseNameAndSizeFromTorrentFile(torrentPath):
