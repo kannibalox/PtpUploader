@@ -27,7 +27,7 @@ def GetStateIcon(state):
         return "warning.png"
     elif state == JobRunningState.WaitingForStart:
         return "hourglass.png"
-    elif state == JobRunningState.InProgress:
+    elif state in [JobRunningState.InProgress, ReleaseInfo.JobState.InDownload]
         return "throbber.gif"
     elif state == JobRunningState.Paused:
         return "pause.png"
@@ -75,6 +75,7 @@ def jobs_json():
             ),
         }
 
+        # Build icons and links
         source = MyGlobals.SourceFactory.GetSource(release.AnnouncementSourceName)
         if source is not None:
             icon = url_for("static", filename=f"source_icon/{source.Name}.ico")
@@ -95,6 +96,7 @@ def jobs_json():
             "_": f'<a href="{logUrl}"><img src="{icon}"/></a>',
         }
 
+        # Build actions
         entry["Actions"] = ""
         if release.CanResumed():
             url = url_for("StartJob", jobId=release.Id)

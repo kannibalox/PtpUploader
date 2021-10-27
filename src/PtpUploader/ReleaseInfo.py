@@ -7,7 +7,6 @@ from django.utils import timezone
 from PtpUploader.MyGlobals import MyGlobals
 from PtpUploader.Logger import Logger
 from PtpUploader.Job.FinishedJobPhase import FinishedJobPhase
-from PtpUploader.Job.JobRunningState import JobRunningState
 from PtpUploader.Job.JobStartMode import JobStartMode
 from PtpUploader.PtpUploaderException import PtpUploaderException
 from PtpUploader.Settings import Settings
@@ -39,6 +38,21 @@ class ReleaseInfo(models.Model):
     # pylint: disable=too-many-public-methods, too-many-instance-attributes
     class Meta:
         app_label = "web"
+
+    class JobState(models.IntegerChoices):
+        WaitingForStart = 0, "Waiting for start"
+        InProgress = 1, "In progress"
+        Paused = 2
+        Finished = 3
+        Failed = 4
+        Ignored = 5
+        Ignored_AlreadyExists = 6, "Ignored, already exists"
+        Ignored_Forbidden = 7, "Ignored, forbidden"
+        Ignored_MissingInfo = 8, "Ignored, missing info"
+        Ignored_NotSupported = 9, "Ignored, not supported"
+        DownloadedAlreadyExists = 10, "Downloaded, already exists"
+        Scheduled = 11
+        InDownload = 12, "Downloading"
 
     objects: models.manager.Manager
 
@@ -74,7 +88,9 @@ class ReleaseInfo(models.Model):
 
     # Other
     JobStartMode = models.IntegerField(default=JobStartMode.Automatic)
-    JobRunningState = models.IntegerField(default=JobRunningState.WaitingForStart)
+    JobRunningState = models.IntegerField(
+        choices=JobState.choices, default=JobState.WaitingForStart
+    )
     FinishedJobPhase = models.IntegerField(default=0)
     Flags = models.IntegerField(default=0)
     ErrorMessage = models.TextField(blank=True, default="")
@@ -235,10 +251,10 @@ class ReleaseInfo(models.Model):
 
     def CanEdited(self):
         return self.JobRunningState not in [
-            JobRunningState.WaitingForStart,
-            JobRunningState.Scheduled,
-            JobRunningState.InProgress,
-            JobRunningState.Finished,
+            self.JobState.WaitingForStart,
+            self.JobState.Scheduled,
+            self.JobState.InProgress,
+            self.JobState.Finished,
         ]
 
     def IsReleaseNameEditable(self):
@@ -250,18 +266,14 @@ class ReleaseInfo(models.Model):
         return self.CanEdited()
 
     def CanStopped(self):
-        return (
-            self.JobRunningState == JobRunningState.WaitingForStart
-            or self.JobRunningState == JobRunningState.Scheduled
-            or self.JobRunningState == JobRunningState.InProgress
-        )
+        return self.JobRunningState in [
+            self.JobState.WaitingForStart,
+            self.JobState.Scheduled,
+            self.JobState.InProgress,
+        ]
 
     def CanDeleted(self):
-        return (
-            self.JobRunningState != JobRunningState.WaitingForStart
-            and self.JobRunningState != JobRunningState.Scheduled
-            and self.JobRunningState != JobRunningState.InProgress
-        )
+        return not self.CanStopped()
 
     def IsJobPhaseFinished(self, jobPhase):
         return (self.FinishedJobPhase & jobPhase) != 0
