@@ -1,5 +1,6 @@
 import json
 import os
+from typing import Any, Dict
 
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.shortcuts import redirect, render
@@ -177,7 +178,7 @@ def stop_job(r_id) -> str:
 
 
 def edit_job(request, r_id: int):
-    job = {}  # Non-form data for display but too complex for a template
+    job: Dict[str, Any] = {}  # Non-form data for display but too complex for a template
     if request.method == "POST":
         # create a form instance and populate it with data from the request:
         form = forms.ReleaseForm(request.POST)
