@@ -54,6 +54,15 @@ class ReleaseInfo(models.Model):
         Scheduled = 11
         InDownload = 12, "Downloading"
 
+    class MediaType(models.TextChoices):
+        feature = ("Feature Film", "Feature Film")
+        short = ("Short Film", "Short Film")
+        miniseries = "Miniseries"
+        standup = ("Stand-up Comedy", "Stand-up Comedy")
+        concert = "Concert"
+        live = ("Live Performance", "Live Performance")
+        collection = ("Movie Collection", "Movie Collection")
+
     objects: models.manager.Manager
 
     Id = models.AutoField(primary_key=True)
