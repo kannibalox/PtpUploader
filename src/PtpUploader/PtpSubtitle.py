@@ -3,6 +3,11 @@ from PtpUploader.PtpUploaderException import PtpUploaderException
 
 class PtpSubtitleId:
     NoSubtitle = 44
+    English = 3
+    EnglishForced = 50
+    EnglishIntertitles = 51
+    Spanish = 4
+    French = 5
     Arabic = 22
     BrazilianPortuguese = 49
     Bulgarian = 29
@@ -11,12 +16,8 @@ class PtpSubtitleId:
     Czech = 30
     Danish = 10
     Dutch = 9
-    English = 3
-    EnglishForced = 50
-    EnglishIntertitles = 51
     Estonian = 38
     Finnish = 15
-    French = 5
     German = 6
     Greek = 26
     Hebrew = 40
@@ -30,6 +31,7 @@ class PtpSubtitleId:
     Latvian = 37
     Lithuanian = 39
     Norwegian = 12
+    Persian = 52
     Polish = 17
     Portuguese = 21
     Romanian = 13
@@ -37,7 +39,6 @@ class PtpSubtitleId:
     Serbian = 31
     Slovak = 42
     Slovenian = 43
-    Spanish = 4
     Swedish = 11
     Thai = 20
     Turkish = 18
@@ -103,6 +104,7 @@ class PtpSubtitle:
         self.__Add(PtpSubtitleId.Latvian, "Latvian", "lav", "lv")
         self.__Add(PtpSubtitleId.Lithuanian, "Lithuanian", "lit", "lt")
         self.__Add(PtpSubtitleId.Norwegian, "Norwegian", "nor", "no")
+        self.__Add(PtpSubtitleId.Persian, "Persian", "fa", "far")
         self.__Add(PtpSubtitleId.Polish, "Polish", "pol", "pl")
         self.__Add(PtpSubtitleId.Portuguese, "Portuguese", "por", "pt")
         self.__Add(PtpSubtitleId.Romanian, "Romanian", "rum", "ro")
