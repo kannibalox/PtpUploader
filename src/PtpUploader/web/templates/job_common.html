@@ -1,4 +1,6 @@
-﻿{% block job_common %}
+﻿{% load static %}
+
+{% block job_common %}
 
   <input id="JobId" name="JobId" type="hidden" value="{{ job.JobId }}">
 
@@ -43,7 +45,7 @@
     <td>
       <input id="imdb" name="imdb" size="60" value="{{ job.imdb }}" type="text" title="Enter - or 0 if the movie is not on IMDb.">
       {% if job.PtpUrl %}
-        <a href="{{ job.PtpUrl }}" target="_blank"><img src="{{ url_for( "static", filename = "ptp.ico" ) }}" title="Movie page on PTP" style="vertical-align: middle"></a>
+        <a href="{{ job.PtpUrl }}" target="_blank"><img src="{% static "ptp.ico" %}" title="Movie page on PTP" style="vertical-align: middle"></a>
       {% endif %}
     </td>
   </tr>
@@ -51,7 +53,7 @@
   <tr id="artist_tr">
     <td class="label">Director(s)</td>
     <td id="artistfields">
-      <input id="artists[]" name="artists[]" size="60" value="{{ job[ "artists[]" ] }}" type="text">
+      <input id="artists[]" name="artists[]" size="60" value="{{ job.artists }}" type="text">
     </td>
   </tr>
 
@@ -347,8 +349,8 @@
   <tr>
     <td class="label">Screenshots</td>
     <td>
-      {% for item in job.Screenshots.items() %}
-        <button type="button" data-target="{{item.index0}}_images" class="show_images">Show</button> {{item[0]}} <span id="{{item.index0}}_images" style="display:none;">{{item[1]|safe}}</span>
+      {% for file, links in job.Screenshots.items %}
+        <button type="button" data-target="{{forloop.counter0}}_images" class="show_images">Show</button>{{file}}<span id="{{forloop.counter0}}_images" style="display:none;">{{links|safe}}</span>
       {% endfor %}
     </td>
   </tr>
