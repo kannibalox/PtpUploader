@@ -2,10 +2,10 @@ import json
 import os
 
 from django.http import HttpResponse, JsonResponse
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.templatetags.static import static
 from django.urls import reverse
-from django.utils import timezone
+from django.utils import timezone, html
 from PtpUploader.Helper import SizeToText, TimeDifferenceToText
 from PtpUploader.Job.JobRunningState import JobRunningState
 from PtpUploader.Job.JobStartMode import JobStartMode
@@ -15,7 +15,7 @@ from PtpUploader.ReleaseInfo import ReleaseInfo
 from PtpUploader.Settings import Settings
 from PtpUploader.WebServer import app
 from PtpUploader.WebServer.Authentication import requires_auth
-
+from . import forms
 
 def GetStateIcon(state):
     if state == JobRunningState.Finished:
@@ -158,16 +158,57 @@ def start_job(r_id):
     releaseInfo.SetStopBeforeUploading(False)
 
     releaseInfo.save()
-    MyGlobals.PtpUploader.add_message(PtpUploaderMessageStartJob(jobId))
+    MyGlobals.PtpUploader.add_message(PtpUploaderMessageStartJob(r_id))
     return "OK"
 
 
-def stop_job(jobId):
+def stop_job(r_id):
     # TODO: This is very far from perfect. There is no guarantee that the job didn't stop meanwhile.
     # Probably only the WorkerThread should change the running state.
-    releaseInfo = ReleaseInfo.objects.get(Id=jobId)
+    releaseInfo = ReleaseInfo.objects.get(Id=r_id)
     if not releaseInfo.CanStopped():
         return "The job is already stopped!"
 
-    MyGlobals.PtpUploader.add_message(PtpUploaderMessageStopJob(jobId))
+    MyGlobals.PtpUploader.add_message(PtpUploaderMessageStopJob(r_id))
     return "OK"
+
+from PtpUploader.Job.JobRunningState import JobRunningState
+from PtpUploader.MyGlobals import MyGlobals
+from PtpUploader.PtpUploaderMessage import *
+from PtpUploader.ReleaseInfo import ReleaseInfo
+from PtpUploader.Settings import Settings
+from PtpUploader.WebServer import app
+from PtpUploader.WebServer.Authentication import requires_auth
+from PtpUploader.WebServer.JobCommon import JobCommon
+
+
+def edit_job(request, r_id):
+    job = {} # Non-form data for display but too complex for a template
+    if request.method == 'POST':
+        # create a form instance and populate it with data from the request:
+        form = forms.ReleaseForm(request.POST)
+        # check whether it's valid:
+        if form.is_valid():
+            # process the data in form.cleaned_data as required
+            # ...
+            # redirect to a new URL:
+            return HttpResponseRedirect('/thanks/')
+
+    # if a GET (or any other method) we'll create a blank form
+    else:
+        release = ReleaseInfo.objects.get(Id=r_id)
+        source = MyGlobals.SourceFactory.GetSource(release.AnnouncementSourceName)
+        job["Screenshots"] = {}
+        if release.Screenshots:
+            for f in json.loads(release.Screenshots):
+                path = f[0].replace(release.UploadTorrentCreatePath, '').strip('/')
+                job["Screenshots"][path] = ""
+                for s in f[1]:
+                    job["Screenshots"][path] += f'<img src="{s}"/>'
+        if source is not None:
+            filename = "source_icon/%s.ico" % release.AnnouncementSourceName
+            job["SourceIcon"] = static(filename)
+            job["SourceUrl"] = source.GetUrlFromId(release.AnnouncementId)
+ 
+        form = forms.ReleaseForm(instance=release)
+    return render(request, "edit_job.html", {'form':form, 'settings': {}, 'job': job})
