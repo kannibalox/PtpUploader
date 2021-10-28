@@ -63,6 +63,21 @@ class ReleaseInfo(models.Model):
         live = ("Live Performance", "Live Performance")
         collection = ("Movie Collection", "Movie Collection")
 
+    class CodecChoices(models.TextChoices):
+        XVID = ("XviD","XviD")
+        DIVX = ("DivX","DivX")
+        H_264 = ("H.264","H.264")
+        X264 = ("x264","x264")
+        H_265 = ("H.265","H.265")
+        X265 = ("x265","x265")
+        DVD5 = ("DVD5","DVD5")
+        DVD9 = ("DVD9","DVD9")
+        BD25 = ("BD25","BD25")
+        BD50 = ("BD50","BD50")
+        BD66 = ("BD66","BD66")
+        BD100 = ("BD100","BD100")
+        Other = ("Other","Other")
+
     objects: models.manager.Manager
 
     Id = models.AutoField(primary_key=True)
