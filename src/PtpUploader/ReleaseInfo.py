@@ -162,12 +162,12 @@ class ReleaseInfo(models.Model):
             return self.Subtitles.split(", ")
         return []
 
-    def SetSubtitles(self, list):
-        for id in list:
-            if id.find(",") != -1:
-                raise PtpUploaderException("Language id '%s' contains a comma." % id)
+    def SetSubtitles(self, sub_ids):
+        for sub_id in sub_ids:
+            if sub_id.find(",") != -1:
+                raise PtpUploaderException("Language id '%s' contains a comma." % sub_id)
 
-        self.Subtitles = ", ".join(list)
+        self.Subtitles = ", ".join(sub_ids)
 
     def IsPersonalRip(self):
         return (self.Flags & ReleaseInfoFlags.PersonalRip) != 0
