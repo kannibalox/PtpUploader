@@ -12,28 +12,6 @@ from PtpUploader.PtpUploaderException import PtpUploaderException
 from PtpUploader.Settings import Settings
 
 
-class ReleaseInfoFlags:
-    # There are three categories on PTP: SD, HD and Other. The former two can figured out from the resolution type.
-    # This flag is for indicating the Other ("Not main movie") category. Extras, Rifftrax, etc. belong here.
-    SpecialRelease = 1 << 0
-
-    # Release made by a scene group.
-    SceneRelease = 1 << 1
-
-    # If set, then it overrides the value returned by SourceBase.IsSingleFileTorrentNeedsDirectory.
-    ForceDirectorylessSingleFileTorrent = 1 << 2
-
-    # If this is set then the job will be the next processed job and the download will start regardless the number of maximum parallel downloads set for the source.
-    StartImmediately = 1 << 3
-
-    # Job will be stopped before uploading.
-    StopBeforeUploading = 1 << 4
-
-    OverrideScreenshots = 1 << 6
-
-    PersonalRip = 1 << 7
-
-
 class ReleaseInfo(models.Model):
     # pylint: disable=too-many-public-methods, too-many-instance-attributes
     class Meta:
@@ -93,7 +71,6 @@ class ReleaseInfo(models.Model):
     Directors = models.TextField(blank=True, default="")
     Title = models.TextField(blank=True, default="")
     Year = models.TextField(blank=True, default="")
-    Tags = models.TextField(blank=True, default="")
     MovieDescription = models.TextField(blank=True, default="")
     CoverArtUrl = models.TextField(blank=True, default="")
     YouTubeId = models.TextField(blank=True, default="")
@@ -138,6 +115,17 @@ class ReleaseInfo(models.Model):
     DuplicateCheckCanIgnore = models.IntegerField(default=0)
     ScheduleTimeUtc = models.DateTimeField(default=timezone.now)
     Trumpable = models.TextField(blank=True, default="")  # CSV of trump IDs
+    SpecialRelease = models.BooleanField(default=False)
+    # Release made by a scene group.
+    SceneRelease = models.BooleanField(default=False)
+    # If set, then it overrides the value returned by SourceBase.IsSingleFileTorrentNeedsDirectory.
+    ForceDirectorylessSingleFileTorrent = models.BooleanField(default=False)
+    # If this is set then the job will be the next processed job and the download will start regardless the number of maximum parallel downloads set for the source.
+    StartImmediately = models.BooleanField(default=False)
+    # Job will be stopped before uploading.
+    StopBeforeUploading = models.BooleanField(default=False)
+    OverrideScreenshots = models.BooleanField(default=False)
+    PersonalRip = models.BooleanField(default=False)
 
     def __init__(self, *args, **kwargs):
         # <<< These are the required fields needed for an upload to PTP.
@@ -185,16 +173,16 @@ class ReleaseInfo(models.Model):
         self.Subtitles = ", ".join(sub_ids)
 
     def IsPersonalRip(self):
-        return (self.Flags & ReleaseInfoFlags.PersonalRip) != 0
+        return self.PersonalRip
 
     def SetPersonalRip(self):
-        self.Flags |= ReleaseInfoFlags.PersonalRip
+        self.PersonalRip = True
 
     def IsSceneRelease(self):
-        return (self.Flags & ReleaseInfoFlags.SceneRelease) != 0
+        return self.SceneRelease
 
     def SetSceneRelease(self):
-        self.Flags |= ReleaseInfoFlags.SceneRelease
+        self.SceneRelease = True
 
     def IsHighDefinition(self):
         return (
@@ -217,31 +205,30 @@ class ReleaseInfo(models.Model):
 
     # See the description at the flag.
     def IsSpecialRelease(self):
-        return (self.Flags & ReleaseInfoFlags.SpecialRelease) != 0
+        return self.SpecialRelease
 
     # See the description at the flag.
     def SetSpecialRelease(self):
-        self.Flags |= ReleaseInfoFlags.SpecialRelease
+        self.SpecialRelease = True
 
     # See the description at the flag.
     def IsForceDirectorylessSingleFileTorrent(self):
-        return (self.Flags & ReleaseInfoFlags.ForceDirectorylessSingleFileTorrent) != 0
+        return self.ForceDirectorylessSingleFileTorrent
 
     # See the description at the flag.
     def SetForceDirectorylessSingleFileTorrent(self):
-        self.Flags |= ReleaseInfoFlags.ForceDirectorylessSingleFileTorrent
+        self.ForceDirectorylessSingleFileTorrent = True
 
     # See the description at the flag.
     def IsStartImmediately(self):
-        return (self.Flags & ReleaseInfoFlags.StartImmediately) != 0
+        return self.StartImmediately
 
     # See the description at the flag.
     def SetStartImmediately(self):
-        self.Flags |= ReleaseInfoFlags.StartImmediately
+        self.StartImmediately = True
 
-    # See the description at the flag.
     def IsStopBeforeUploading(self):
-        return (self.Flags & ReleaseInfoFlags.StopBeforeUploading) != 0
+        return self.StopBeforeUploading
 
     def IsTrumpableForNoEnglishSubtitles(self):
         return "14" in self.Trumpable.split(",")
@@ -257,21 +244,15 @@ class ReleaseInfo(models.Model):
         if "4" not in self.Trumpable.split(","):
             self.Trumpable += ",4"
 
-    def IsOverrideScreenshotsSet(self):
-        return (self.Flags & ReleaseInfoFlags.OverrideScreenshots) != 0
+    def IsOverrideScreenshotsSet(self) -> bool:
+        return Self.OverrideScreenshots
 
-    def SetOverrideScreenshots(self, override):
-        if override:
-            self.Flags |= ReleaseInfoFlags.OverrideScreenshots
-        else:
-            self.Flags &= ~ReleaseInfoFlags.OverrideScreenshots
+    def SetOverrideScreenshots(self, override: bool):
+        self.OverrideScreenshots = override
 
     # See the description at the flag.
-    def SetStopBeforeUploading(self, stop):
-        if stop:
-            self.Flags |= ReleaseInfoFlags.StopBeforeUploading
-        else:
-            self.Flags &= ~ReleaseInfoFlags.StopBeforeUploading
+    def SetStopBeforeUploading(self, stop: bool):
+        self.StopBeforeUploading = stop
 
     def CanEdited(self):
         return self.JobRunningState not in [
