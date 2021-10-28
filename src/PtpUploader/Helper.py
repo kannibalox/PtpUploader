@@ -1,6 +1,7 @@
 import os
 import re
 import time
+from typing import List, Tuple
 from datetime import timedelta
 from pathlib import Path
 
@@ -10,7 +11,8 @@ import requests
 from PtpUploader.MyGlobals import MyGlobals
 from PtpUploader.PtpUploaderException import PtpUploaderException
 
-def GetIdxSubtitleLanguages(path):
+
+def GetIdxSubtitleLanguages(path: str):
     languages = []
 
     # id: en, index: 0
@@ -30,20 +32,16 @@ def GetIdxSubtitleLanguages(path):
 # Returns with an integer.
 # Returns with 0 if size can't be found.
 def GetSizeFromText(text: str):
-    text = text.replace(" ", "")
-    text = text.replace(",", "")  # For sizes like this: 1,471,981,530bytes
-    text = text.replace("GiB", "GB")
-    text = text.replace("MiB", "MB")
+    text = text.replace(" ", "").replace(",", "")  # For sizes like this: 1,471,981,530bytes
+    text = text.replace("GiB", "GB").replace("MiB", "MB")
 
     matches = re.match("(.+)GB", text)
     if matches is not None:
-        size = float(matches.group(1))
-        return int(size * 1024 * 1024 * 1024)
+        return int(float(matches.group(1)) * 1024 * 1024 * 1024)
 
     matches = re.match("(.+)MB", text)
     if matches is not None:
-        size = float(matches.group(1))
-        return int(size * 1024 * 1024)
+        return int(float(matches.group(1)) * 1024 * 1024)
 
     matches = re.match("(.+)bytes", text)
     if matches is not None:
@@ -52,11 +50,10 @@ def GetSizeFromText(text: str):
     return 0
 
 
-def SizeToText(size):
+def SizeToText(size: int):
     if size < 1024 * 1024 * 1024:
         return "%.2f MiB" % (float(size) / (1024 * 1024))
-    else:
-        return "%.2f GiB" % (float(size) / (1024 * 1024 * 1024))
+    return "%.2f GiB" % (float(size) / (1024 * 1024 * 1024))
 
 
 # timeDifference must be datetime.timedelta.
@@ -74,12 +71,11 @@ def TimeDifferenceToText(
     time_parts = [f"{round(value)}{name}" for name, value in data.items() if value > 0]
     if time_parts:
         return "".join(time_parts[:levels]) + agoText
-    else:
-        return noDifferenceText
+    return noDifferenceText
 
 
 def MakeRetryingHttpGetRequestWithRequests(
-    url, maximumTries=3, delayBetweenRetriesInSec=10
+    url: str, maximumTries=3, delayBetweenRetriesInSec=10
 ):
     headers = {
         "User-Agent": "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:34.0) Gecko/20100101 Firefox/34.0"
@@ -99,7 +95,7 @@ def MakeRetryingHttpGetRequestWithRequests(
 
 
 def MakeRetryingHttpPostRequestWithRequests(
-    url, postData, maximumTries=3, delayBetweenRetriesInSec=10
+    url: str, postData, maximumTries=3, delayBetweenRetriesInSec=10
 ):
     headers = {
         "User-Agent": "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:34.0) Gecko/20100101 Firefox/34.0"
@@ -128,7 +124,7 @@ def GetPathSize(path) -> int:
 
 
 # Always uses / as path separator.
-def GetFileListFromTorrent(torrentPath):
+def GetFileListFromTorrent(torrentPath) -> List[str]:
     with open(torrentPath, "rb") as fh:
         data = bencode.decode(fh.read())
     name = data["info"].get("name", None)
@@ -136,16 +132,16 @@ def GetFileListFromTorrent(torrentPath):
 
     if files is None:
         return [name]
-    else:
-        fileList = []
-        for fileInfo in files:
-            path = "/".join(fileInfo["path"])
-            fileList.append(path)
 
-        return fileList
+    fileList = []
+    for fileInfo in files:
+        path = "/".join(fileInfo["path"])
+        fileList.append(path)
+
+    return fileList
 
 
-def RemoveDisallowedCharactersFromPath(text):
+def RemoveDisallowedCharactersFromPath(text: str) -> str:
     newText = text
 
     # These characters can't be in filenames on Windows.
@@ -157,21 +153,21 @@ def RemoveDisallowedCharactersFromPath(text):
 
     if len(newText) > 0:
         return newText
-    else:
-        raise PtpUploaderException("New name for '%s' resulted in empty string." % text)
+    raise PtpUploaderException("New name for '%s' resulted in empty string." % text)
 
 
 def ValidateTorrentFile(torrentPath):
     try:
         with open(torrentPath, "rb") as fh:
             bencode.decode(fh.read())
+            return True
     except Exception as e:
         raise PtpUploaderException(
             "File '%s' is not a valid torrent." % torrentPath
         ) from e
 
 
-def GetSuggestedReleaseNameAndSizeFromTorrentFile(torrentPath):
+def GetSuggestedReleaseNameAndSizeFromTorrentFile(torrentPath) -> Tuple[str, int]:
     with open(torrentPath, "rb") as fh:
         data = bencode.decode(fh.read())
     name = data["info"].get("name", None)
@@ -181,12 +177,11 @@ def GetSuggestedReleaseNameAndSizeFromTorrentFile(torrentPath):
         name, _ = os.path.splitext(name)
         size = data["info"]["length"]
         return name, size
-    else:
-        size = 0
-        for file in files:
-            size += file["length"]
+    size = 0
+    for file in files:
+        size += file["length"]
 
-        return name, size
+    return name, size
 
 
 def DecodeHtmlEntities(html):

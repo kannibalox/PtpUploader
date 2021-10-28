@@ -1,11 +1,11 @@
 import json
 import os
 
-from django.http import HttpResponse, JsonResponse
-from django.shortcuts import render, redirect
+from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
+from django.shortcuts import redirect, render
 from django.templatetags.static import static
 from django.urls import reverse
-from django.utils import timezone, html
+from django.utils import html, timezone
 from PtpUploader.Helper import SizeToText, TimeDifferenceToText
 from PtpUploader.Job.JobRunningState import JobRunningState
 from PtpUploader.Job.JobStartMode import JobStartMode
@@ -15,9 +15,12 @@ from PtpUploader.ReleaseInfo import ReleaseInfo
 from PtpUploader.Settings import Settings
 from PtpUploader.WebServer import app
 from PtpUploader.WebServer.Authentication import requires_auth
+from PtpUploader.WebServer.JobCommon import JobCommon
+
 from . import forms
 
-def GetStateIcon(state):
+
+def GetStateIcon(state: int) -> str:
     if state == JobRunningState.Finished:
         return "success.png"
     elif state == JobRunningState.Failed:
@@ -49,7 +52,7 @@ def jobs(request):
     return render(request, "jobs.html")
 
 
-def log(request, r_id):
+def log(request, r_id: int):
     releaseInfo = ReleaseInfo.objects.get(Id=r_id)
 
     logFilePath = releaseInfo.GetLogFilePath()
@@ -140,7 +143,7 @@ def jobs_json(request):
     return JsonResponse({"data": entries, "settings": settings})
 
 
-def start_job(r_id):
+def start_job(r_id) -> str:
     # TODO: This is very far from perfect. There is no guarantee that the job didn't start meanwhile.
     # Probably only the WorkerThread should change the running state.
     releaseInfo = ReleaseInfo.objects.get(Id=r_id)
@@ -162,7 +165,7 @@ def start_job(r_id):
     return "OK"
 
 
-def stop_job(r_id):
+def stop_job(r_id) -> str:
     # TODO: This is very far from perfect. There is no guarantee that the job didn't stop meanwhile.
     # Probably only the WorkerThread should change the running state.
     releaseInfo = ReleaseInfo.objects.get(Id=r_id)
@@ -172,19 +175,10 @@ def stop_job(r_id):
     MyGlobals.PtpUploader.add_message(PtpUploaderMessageStopJob(r_id))
     return "OK"
 
-from PtpUploader.Job.JobRunningState import JobRunningState
-from PtpUploader.MyGlobals import MyGlobals
-from PtpUploader.PtpUploaderMessage import *
-from PtpUploader.ReleaseInfo import ReleaseInfo
-from PtpUploader.Settings import Settings
-from PtpUploader.WebServer import app
-from PtpUploader.WebServer.Authentication import requires_auth
-from PtpUploader.WebServer.JobCommon import JobCommon
 
-
-def edit_job(request, r_id):
-    job = {} # Non-form data for display but too complex for a template
-    if request.method == 'POST':
+def edit_job(request, r_id: int):
+    job = {}  # Non-form data for display but too complex for a template
+    if request.method == "POST":
         # create a form instance and populate it with data from the request:
         form = forms.ReleaseForm(request.POST)
         # check whether it's valid:
@@ -192,7 +186,7 @@ def edit_job(request, r_id):
             # process the data in form.cleaned_data as required
             # ...
             # redirect to a new URL:
-            return HttpResponseRedirect('/thanks/')
+            return HttpResponseRedirect("/thanks/")
 
     # if a GET (or any other method) we'll create a blank form
     else:
@@ -201,7 +195,7 @@ def edit_job(request, r_id):
         job["Screenshots"] = {}
         if release.Screenshots:
             for f in json.loads(release.Screenshots):
-                path = f[0].replace(release.UploadTorrentCreatePath, '').strip('/')
+                path = f[0].replace(release.UploadTorrentCreatePath, "").strip("/")
                 job["Screenshots"][path] = ""
                 for s in f[1]:
                     job["Screenshots"][path] += f'<img src="{s}"/>'
@@ -209,6 +203,6 @@ def edit_job(request, r_id):
             filename = "source_icon/%s.ico" % release.AnnouncementSourceName
             job["SourceIcon"] = static(filename)
             job["SourceUrl"] = source.GetUrlFromId(release.AnnouncementId)
- 
+
         form = forms.ReleaseForm(instance=release)
-    return render(request, "edit_job.html", {'form':form, 'settings': {}, 'job': job})
+    return render(request, "edit_job.html", {"form": form, "settings": {}, "job": job})
