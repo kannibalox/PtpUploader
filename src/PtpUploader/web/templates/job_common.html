@@ -30,19 +30,14 @@
   <tr>
     <td class="label">Type</td>
     <td>
-      <select id="categories" name="type">
-        <option value="Feature Film">Feature Film</option>
-        <option value="Short Film">Short Film</option>
-        <option value="Miniseries">Miniseries</option>
-        <option value="Stand-up Comedy">Stand-up Comedy</option>
-        <option value="Concert">Concert</option>
-      </select>
+    {{ form.Type }}
     </td>
   </tr>
 
   <tr id="imdb_tr">
     <td class="label">IMDb or PTP link</td>
     <td>
+      {{ form.ImdbId }}
       <input id="imdb" name="imdb" size="60" value="{{ job.imdb }}" type="text" title="Enter - or 0 if the movie is not on IMDb.">
       {% if job.PtpUrl %}
         <a href="{{ job.PtpUrl }}" target="_blank"><img src="{% static "ptp.ico" %}" title="Movie page on PTP" style="vertical-align: middle"></a>
@@ -53,14 +48,14 @@
   <tr id="artist_tr">
     <td class="label">Director(s)</td>
     <td id="artistfields">
-      <input id="artists[]" name="artists[]" size="60" value="{{ job.artists }}" type="text">
+      {{ form.Directors }}
     </td>
   </tr>
 
   <tr id="title_tr">
     <td class="label">Movie title:</td>
     <td>
-      <input id="title" name="title" size="60" value="{{ job.title }}" type="text">
+      {{ form.Title }}
     </td>
   </tr>
 
@@ -69,14 +64,14 @@
       <span id="year_label_not_remaster">Year</span>
     </td>
     <td>
-      <input id="year" name="year" size="5" value="{{ job.year }}" onblur="CheckYear();" type="text">
+      {{ form.Year }}
     </td>
   </tr>
 
   <tr id="coverart_tr">
     <td class="label">Cover Art Image</td>
     <td>
-      <input id="image" name="image" size="60" value="{{ job.image }}" type="text">
+      {{ form.CoverArtUrl }}
     </td>
   </tr>
 
@@ -90,14 +85,14 @@
   <tr>
     <td class="label">Special release title</td>
     <td>
-      <input id="remaster_title" name="remaster_title" size="60" value="{{ job.remaster_title }}" type="text">
+      {{ form.RemasterTitle }}
     </td>
   </tr>
 
   <tr>
     <td class="label">Special release year</td>
     <td>
-      <input id="remaster_year" name="remaster_year" size="5" value="{{ job.remaster_year }}" type="text"> <br>
+      {{ form.RemasterYear }}
     </td>
   </tr>
 
@@ -140,6 +135,7 @@
   <tr>
     <td class="label">Codec</td>
     <td>
+      {{ form.Codec }}
       <select id="codec" name="codec">
         <option>---</option>
         <option value="XviD">XviD</option>
