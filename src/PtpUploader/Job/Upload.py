@@ -317,7 +317,9 @@ class Upload(WorkerBase):
 
         # We can't do anything with DVD images.
         if self.ReleaseInfo.IsDvdImage():
-            raise PtpUploaderException("Unable to automatically detect DVD subtitles, please select them manually")
+            raise PtpUploaderException(
+                "Unable to automatically detect DVD subtitles, please select them manually"
+            )
 
         containsUnknownSubtitle = False
 
@@ -354,7 +356,9 @@ class Upload(WorkerBase):
             self.ReleaseInfo.SetSubtitles([str(PtpSubtitleId.NoSubtitle)])
 
         if not self.ReleaseInfo.GetSubtitles():
-            raise PtpUploaderException("Unable to automatically detect subtitles, please select them manually")
+            raise PtpUploaderException(
+                "Unable to automatically detect subtitles, please select them manually"
+            )
 
     def __MakeTorrent(self):
         if self.ReleaseInfo.UploadTorrentFilePath:

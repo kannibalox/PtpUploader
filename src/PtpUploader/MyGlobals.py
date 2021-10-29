@@ -78,13 +78,16 @@ class MyGlobalsClass:
     def GetTorrentClient(self):
         if self.TorrentClient is None:
             from PtpUploader.Settings import Settings
+
             if Settings.TorrentClientName.lower() == "transmission":
                 from PtpUploader.Tool.Transmission import Transmission
+
                 self.TorrentClient = Transmission(
                     Settings.TorrentClientAddress, Settings.TorrentClientPort
                 )
             else:
                 from PtpUploader.Tool.Rtorrent import Rtorrent
+
                 self.TorrentClient = Rtorrent()
         return self.TorrentClient
 

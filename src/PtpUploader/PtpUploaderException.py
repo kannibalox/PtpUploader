@@ -1,6 +1,7 @@
 # Inner exceptions will be only supported in Python 3000...
 # All this magic here looks gross
 
+
 class PtpUploaderException(Exception):
     # Overloads:
     # - PtpUploaderException( message )
@@ -8,7 +9,7 @@ class PtpUploaderException(Exception):
     def __init__(self, *args):
         if len(args) == 1:
             Exception.__init__(self, args[0])
-            self.JobRunningState = 4 # Failed, see ReleaseInfo
+            self.JobRunningState = 4  # Failed, see ReleaseInfo
         else:
             Exception.__init__(self, args[1])
             self.JobRunningState = args[0]

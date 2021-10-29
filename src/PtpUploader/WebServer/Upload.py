@@ -24,9 +24,9 @@ def IsFileAllowed(filename):
 
 
 def UploadTorrentFile(releaseInfo, request):
-    if 'uploaded_torrent' not in request.files:
+    if "uploaded_torrent" not in request.files:
         return False
-    file = request.files['uploaded_torrent']
+    file = request.files["uploaded_torrent"]
     torrentFilename: str = file.filename
     if not IsFileAllowed(torrentFilename):
         return False

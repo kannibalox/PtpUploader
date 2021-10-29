@@ -100,17 +100,16 @@ class Cinemageddon(SourceBase):
 
         # Get IMDb id.
         if (not releaseInfo.ImdbId) and (not releaseInfo.PtpId):
-            match = re.search(r'<span id="torrent_imdb">(.*?)</span>', description.decode(errors="ignore"))
+            match = re.search(
+                r'<span id="torrent_imdb">(.*?)</span>',
+                description.decode(errors="ignore"),
+            )
             if not match:
                 raise PtpUploaderException(
                     JobRunningState.Ignored_MissingInfo,
                     "IMDb container can't be found on torrent page.",
                 )
-            imdbs = (
-                match.group(1)
-                .replace("t", "")
-                .split(" ")
-            )
+            imdbs = match.group(1).replace("t", "").split(" ")
             if not imdbs:
                 raise PtpUploaderException(
                     JobRunningState.Ignored_MissingInfo,
@@ -169,7 +168,9 @@ class Cinemageddon(SourceBase):
 
         self.__ParsePage(logger, releaseInfo, response)
 
-    def __MapSourceAndFormatToPtp(self, releaseInfo, sourceType, formatType, html: bytes):
+    def __MapSourceAndFormatToPtp(
+        self, releaseInfo, sourceType, formatType, html: bytes
+    ):
         sourceType = sourceType.lower()
         formatType = formatType.lower()
 

@@ -142,7 +142,9 @@ class ReleaseInfo(models.Model):
     Screenshots = models.TextField(blank=True, default="")
     LastModificationTime = models.DateTimeField(auto_now=True)
     Size = models.IntegerField(default=0)
-    Subtitles = models.TextField(blank=True, default="", validators=[validate_comma_separated_integer_list])
+    Subtitles = models.TextField(
+        blank=True, default="", validators=[validate_comma_separated_integer_list]
+    )  # CSV of subtitle IDs
     IncludedFiles = models.TextField(blank=True, default="")
     DuplicateCheckCanIgnore = models.IntegerField(default=0)
     ScheduleTimeUtc = models.DateTimeField(default=timezone.now)

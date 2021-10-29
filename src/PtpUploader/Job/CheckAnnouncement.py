@@ -95,7 +95,8 @@ class CheckAnnouncement(WorkerBase):
         # Make sure we have IMDb or PTP id.
         if (not self.ReleaseInfo.ImdbId) and (not self.ReleaseInfo.PtpId):
             raise PtpUploaderException(
-                ReleaseInfo.JobState.Ignored_MissingInfo, "IMDb or PTP id must be specified."
+                ReleaseInfo.JobState.Ignored_MissingInfo,
+                "IMDb or PTP id must be specified.",
             )
 
         # Make sure the source is providing a name.
@@ -132,7 +133,8 @@ class CheckAnnouncement(WorkerBase):
             self.ReleaseInfo.Codec == "XviD" or self.ReleaseInfo.Codec == "DivX"
         ):
             raise PtpUploaderException(
-                ReleaseInfo.JobState.Ignored_Forbidden, "HD XviDs and DivXs are not allowed."
+                ReleaseInfo.JobState.Ignored_Forbidden,
+                "HD XviDs and DivXs are not allowed.",
             )
 
         # We only support VOB IFO container for DVD images.

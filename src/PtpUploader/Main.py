@@ -13,6 +13,7 @@ from PtpUploader.Source.SourceFactory import SourceFactory
 from PtpUploader.WebServer.MyWebServer import MyWebServer
 from PtpUploader.Job import Supervisor
 
+
 def Initialize():
     Settings.LoadSettings()
 

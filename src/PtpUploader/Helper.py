@@ -32,7 +32,9 @@ def GetIdxSubtitleLanguages(path: str):
 # Returns with an integer.
 # Returns with 0 if size can't be found.
 def GetSizeFromText(text: str):
-    text = text.replace(" ", "").replace(",", "")  # For sizes like this: 1,471,981,530bytes
+    text = text.replace(" ", "").replace(
+        ",", ""
+    )  # For sizes like this: 1,471,981,530bytes
     text = text.replace("GiB", "GB").replace("MiB", "MB")
 
     matches = re.match("(.+)GB", text)

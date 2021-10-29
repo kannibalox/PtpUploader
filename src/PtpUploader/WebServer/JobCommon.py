@@ -69,9 +69,9 @@ class JobCommon:
         releaseInfo.Title = request.values["title"].strip()
         releaseInfo.Year = request.values["year"]
         if "genre_tags[]" in request.values:
-            releaseInfo.Tags = ', '.join(request.values.getlist("genre_tags[]"))
+            releaseInfo.Tags = ", ".join(request.values.getlist("genre_tags[]"))
         else:
-            releaseInfo.Tags = ''
+            releaseInfo.Tags = ""
         releaseInfo.MovieDescription = request.values["album_desc"]
         releaseInfo.CoverArtUrl = request.values["image"].strip()
         releaseInfo.YouTubeId = JobCommon.__GetYouTubeId(request.values["trailer"])
@@ -143,9 +143,7 @@ class JobCommon:
     @staticmethod
     def __GetPtpOrImdbLink(releaseInfo):
         if releaseInfo.PtpId:
-            return (
-                "https://passthepopcorn.me/torrents.php?id=%s" % releaseInfo.PtpId
-            )
+            return "https://passthepopcorn.me/torrents.php?id=%s" % releaseInfo.PtpId
         elif releaseInfo.ImdbId:
             if releaseInfo.IsZeroImdbId():
                 return "0"
@@ -169,7 +167,7 @@ class JobCommon:
         job["artists[]"] = releaseInfo.Directors
         job["title"] = releaseInfo.Title
         job["year"] = releaseInfo.Year
-        job["genre_tags"] = releaseInfo.Tags.split(', ')
+        job["genre_tags"] = releaseInfo.Tags.split(", ")
         job["album_desc"] = releaseInfo.MovieDescription
         job["image"] = releaseInfo.CoverArtUrl
         job["trailer"] = JobCommon.__GetYouTubeLink(releaseInfo)
@@ -198,7 +196,7 @@ class JobCommon:
         job["Screenshots"] = {}
         if releaseInfo.Screenshots:
             for f in json.loads(releaseInfo.Screenshots):
-                path = f[0].replace(releaseInfo.UploadTorrentCreatePath, '').strip('/')
+                path = f[0].replace(releaseInfo.UploadTorrentCreatePath, "").strip("/")
                 job["Screenshots"][path] = ""
                 for s in f[1]:
                     job["Screenshots"][path] += f'<img src="{s}"/>'
@@ -219,7 +217,7 @@ class JobCommon:
         job["ReleaseNotes"] = releaseInfo.ReleaseNotes
 
         job["Subtitles"] = releaseInfo.GetSubtitles()
-        job["Tags"] = releaseInfo.Tags.split(', ')
+        job["Tags"] = releaseInfo.Tags.split(",")
         job["IncludedFilesCustomizedList"] = releaseInfo.IncludedFiles
         job["SkipDuplicateCheckingButton"] = int(releaseInfo.DuplicateCheckCanIgnore)
 
@@ -227,7 +225,7 @@ class JobCommon:
             job["OverrideScreenshots"] = 1
 
         if releaseInfo.PtpId:
-            if releaseInfo.HasPtpTorrentId():
+            if releaseInfo.PtpTorrentId:
                 job[
                     "PtpUrl"
                 ] = "https://passthepopcorn.me/torrents.php?id=%s&torrentid=%s" % (

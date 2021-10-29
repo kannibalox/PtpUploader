@@ -338,7 +338,7 @@ class Settings:
             != 0
         )
 
-        Settings.AntiCsrfToken = None # Stored after logging in
+        Settings.AntiCsrfToken = None  # Stored after logging in
         Settings.SizeLimitForAutoCreatedJobs = (
             float(
                 Settings.__GetDefault(
@@ -392,20 +392,20 @@ class Settings:
         if not os.path.exists(temporaryPath):
             os.makedirs(temporaryPath)
 
-
     @staticmethod
     def GetTorrentClient():
         if Settings.TorrentClient is None:
             if Settings.TorrentClientName.lower() == "transmission":
                 from PtpUploader.Tool.Transmission import Transmission
+
                 Settings.TorrentClient = Transmission(
                     Settings.TorrentClientAddress, Settings.TorrentClientPort
                 )
             else:
                 from PtpUploader.Tool.Rtorrent import Rtorrent
+
                 Settings.TorrentClient = Rtorrent()
         return Settings.TorrentClient
-
 
     @staticmethod
     def __VerifyProgramPath(programName, arguments):
