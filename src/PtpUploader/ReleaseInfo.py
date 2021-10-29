@@ -199,7 +199,7 @@ class ReleaseInfo(models.Model):
 
     def SetSubtitles(self, sub_ids: Iterator[str]):
         for sub_id in sub_ids:
-            sub_id = sub_id.trim()
+            sub_id = sub_id.strip()
             if sub_id.find(",") != -1:
                 raise PtpUploaderException(
                     "Language id '%s' contains a comma." % sub_id
