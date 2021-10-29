@@ -183,10 +183,15 @@ def edit_job(request, r_id: int):
         form = forms.ReleaseForm(request.POST, instance=release)
         # check whether it's valid:
         if form.is_valid():
-            # process the data in form.cleaned_data as required
-            # ...
-            # redirect to a new URL:
             form.save()
+            release.JobRunningState = JobRunningState.WaitingForStart
+            if 'post_stop_before' in request.POST:
+                release.StopBeforeUploading = True
+            else:
+                release.StopBeforeUploading = False
+            release.save()
+            MyGlobals.PtpUploader.add_message(PtpUploaderMessageStartJob(release.Id))
+            # TODO: Change running state and trigger supervisor
             return HttpResponseRedirect("/jobs")
 
     # if a GET (or any other method) we'll create a blank form
