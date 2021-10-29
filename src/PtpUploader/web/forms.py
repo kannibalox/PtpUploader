@@ -88,6 +88,7 @@ class ReleaseForm(ModelForm):
             "FinishedJobPhase",
             "Size",
             "DuplicateCheckCanIgnore",
+            "Trumpable",
         ]
         widgets = {
             "ImdbId": TextInput(attrs={"size": "60"}),
@@ -105,15 +106,14 @@ class ReleaseForm(ModelForm):
 
     def clean(self):
         data = super().clean()
-        data["Subtitles"] = ",".join(data["Subtitles"])
         data["Tags"] = ",".join(data["Tags"])
         data["JobStartMode"] = JobStartMode.Manual
         if data["ForceUpload"]:
             data["JobStartMode"] = JobStartMode.ManualForced
         del data["ForceUpload"]
-        data['Trumpable'] = []
-        if data['TrumpableNoEnglish']:
-            data['Trumpable'].append(14)
-        if data['TrumpableHardSubs']:
-            data['Trumpable'].append(4)
+        data["Trumpable"] = []
+        if data["TrumpableNoEnglish"]:
+            data["Trumpable"] += [14]
+        if data["TrumpableHardSubs"]:
+            data["Trumpable"] += [4]
         return data

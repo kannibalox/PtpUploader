@@ -178,12 +178,10 @@ def stop_job(r_id) -> str:
 def edit_job(request, r_id: int):
     job: Dict[str, Any] = {}  # Non-form data for display but too complex for a template
     release = get_object_or_404(ReleaseInfo, Id=r_id)
-    print(release.__dict__)
     if request.method == "POST":
         # create a form instance and populate it with data from the request:
         form = forms.ReleaseForm(request.POST, instance=release)
         # check whether it's valid:
-        print(form.errors)
         if form.is_valid():
             # process the data in form.cleaned_data as required
             # ...
@@ -211,10 +209,10 @@ def edit_job(request, r_id: int):
         form = forms.ReleaseForm(
             instance=release,
             initial={
-                "Subtitles": [s.strip() for s in release.Subtitles.split(",")],
-                "Tags": release.Tags.split(","),
-                "TrumpableNoEnglish": release.IsTrumpableForNoEnglishSubtitles(),
-                "TrumpableHardSubs": release.IsTrumpableForHardcodedSubtitles()
+                "Subtitles": release.Subtitles,
+                "Tags": release.Tags.split(','),
+                "TrumpableNoEnglish": release.TrumpableReasons.NO_ENGLISH_SUBS in release.Trumpable,
+                "TrumpableHardSubs": release.TrumpableReasons.HARDCODED_SUBS in release.Trumpable,
             },
         )
     return render(request, "edit_job.html", {"form": form, "settings": {}, "job": job})

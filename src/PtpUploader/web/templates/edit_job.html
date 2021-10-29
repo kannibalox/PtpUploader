@@ -12,6 +12,7 @@
   {% endif %}
 
   <form action="" enctype="multipart/form-data" method="post" id="resume_table">
+    {{ form.errors }}
     {% csrf_token %}
     <table id="editjob_table" class="border" border="0" cellpadding="3" cellspacing="1">
       <tbody>

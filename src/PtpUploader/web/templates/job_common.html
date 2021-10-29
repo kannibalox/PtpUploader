@@ -2,8 +2,7 @@
 
 {% block job_common %}
 
-  <input id="JobId" name="JobId" type="hidden" value="{{ job.JobId }}">
-
+  {{ form.Trumpable.as_hidden }}
   <tr>
     <td class="label">Included files</td>
     <td>

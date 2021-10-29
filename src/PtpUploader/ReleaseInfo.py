@@ -88,6 +88,10 @@ class ReleaseInfo(models.Model):
         VHS = ("VHS", "VHS")
         Other = ("Other", "Other")
 
+    class TrumpableReasons(models.IntegerChoices):
+        NO_ENGLISH_SUBS = 14
+        HARDCODED_SUBS = 4
+
     objects: models.manager.Manager
 
     Id = models.AutoField(primary_key=True)
@@ -142,11 +146,11 @@ class ReleaseInfo(models.Model):
     Screenshots = models.TextField(blank=True, default="")
     LastModificationTime = models.DateTimeField(auto_now=True)
     Size = models.IntegerField(default=0)
-    Subtitles = models.TextField(blank=True, default="")  # CSV of subtitle IDs
+    Subtitles = models.JSONField(blank=True, default=list)  # CSV of subtitle IDs
     IncludedFiles = models.TextField(blank=True, default="")
     DuplicateCheckCanIgnore = models.IntegerField(default=0)
     ScheduleTimeUtc = models.DateTimeField(default=timezone.now, null=True)
-    Trumpable = models.TextField(blank=True, default="")  # CSV of trump IDs
+    Trumpable = models.JSONField(blank=True, default=list)  # CSV of trump IDs
     SpecialRelease = models.BooleanField(default=False)
     # Release made by a scene group.
     SceneRelease = models.BooleanField(default=False)
@@ -266,21 +270,21 @@ class ReleaseInfo(models.Model):
         return self.StopBeforeUploading
 
     def IsTrumpableForNoEnglishSubtitles(self):
-        return "14" in self.Trumpable.split(",")
+        return self.TrumpableReasons.NO_ENGLISH_SUBS in self.Trumpable
 
     def SetTrumpableForNoEnglishSubtitles(self):
-        if "14" not in self.Trumpable.split(","):
-            self.Trumpable += self.Trumpable.split(",")
+        if self.TrumpableReasons.NO_ENGLISH_SUBS not in self.Trumpable:
+            self.Trumpable += [self.TrumpableReasons.NO_ENGLISH_SUBS]
 
     def IsTrumpableForHardcodedSubtitles(self):
-        return "4" in self.Trumpable.split(",")
+        return self.TrumpableReasons.HARDCODED_SUBS in self.Trumpable
 
     def SetTrumpableForHardcodedSubtitles(self):
-        if "4" not in self.Trumpable.split(","):
-            self.Trumpable += ",4"
+        if self.TrumpableReasons.HARDCODED_SUBS not in self.Trumpable:
+            self.Trumpable += [self.TrumpableReasons.HARDCODED_SUBS]
 
     def IsOverrideScreenshotsSet(self) -> bool:
-        return Self.OverrideScreenshots
+        return self.OverrideScreenshots
 
     def SetOverrideScreenshots(self, override: bool):
         self.OverrideScreenshots = override
