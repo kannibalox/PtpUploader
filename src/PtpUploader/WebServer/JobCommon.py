@@ -144,11 +144,10 @@ class JobCommon:
     def __GetPtpOrImdbLink(releaseInfo):
         if releaseInfo.PtpId:
             return "https://passthepopcorn.me/torrents.php?id=%s" % releaseInfo.PtpId
-        elif releaseInfo.ImdbId:
+        if releaseInfo.ImdbId:
             if releaseInfo.IsZeroImdbId():
                 return "0"
-            else:
-                return "http://www.imdb.com/title/tt%s/" % releaseInfo.ImdbId
+            return "http://www.imdb.com/title/tt%s/" % releaseInfo.ImdbId
 
         return ""
 

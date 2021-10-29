@@ -14,8 +14,6 @@ from PtpUploader.MyGlobals import MyGlobals
 from PtpUploader.PtpUploaderMessage import *
 from PtpUploader.ReleaseInfo import ReleaseInfo
 from PtpUploader.Settings import Settings
-from PtpUploader.WebServer import app
-from PtpUploader.WebServer.Authentication import requires_auth
 from PtpUploader.WebServer.JobCommon import JobCommon
 
 from . import forms
@@ -195,9 +193,7 @@ def edit_job(request, r_id: int):
 
     # if a GET (or any other method) we'll create a blank form
     else:
-        source = (
-            MyGlobals.SourceFactory.GetSource(release.AnnouncementSourceName)
-        )
+        source = MyGlobals.SourceFactory.GetSource(release.AnnouncementSourceName)
         job["Screenshots"] = {}
         if release.Screenshots:
             for f in json.loads(release.Screenshots):

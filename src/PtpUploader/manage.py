@@ -5,8 +5,10 @@ import sys
 from PtpUploader.MyGlobals import MyGlobals
 from PtpUploader.Settings import Settings
 
+
 def Initialize():
     from PtpUploader.Source.SourceFactory import SourceFactory
+
     Settings.LoadSettings()
 
     MyGlobals.InitializeGlobals(Settings.WorkingPath)
@@ -16,6 +18,7 @@ def Initialize():
         return False
 
     return True
+
 
 if __name__ == "__main__":
     os.environ.setdefault("DJANGO_SETTINGS_MODULE", "PtpUploader.Settings")
