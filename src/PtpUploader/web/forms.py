@@ -1,10 +1,8 @@
 from django.forms import (
     BooleanField,
-    CharField,
     ChoiceField,
     ModelForm,
     MultipleChoiceField,
-    Select,
     Textarea,
     TextInput,
 )
