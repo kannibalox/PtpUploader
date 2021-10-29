@@ -1,17 +1,18 @@
 import datetime
-import threading
 import os
+import threading
 
 from PtpUploader.InformationSource.Imdb import Imdb
 from PtpUploader.InformationSource.MoviePoster import MoviePoster
 from PtpUploader.Job.FinishedJobPhase import FinishedJobPhase
 from PtpUploader.Job.WorkerBase import WorkerBase
 from PtpUploader.MyGlobals import MyGlobals
-from PtpUploader import Ptp
-from PtpUploader.ReleaseInfo import ReleaseInfo
 from PtpUploader.PtpImdbInfo import PtpImdbInfo, PtpZeroImdbInfo
 from PtpUploader.PtpUploaderException import *
+from PtpUploader.ReleaseInfo import ReleaseInfo
 from PtpUploader.Settings import Settings
+
+from PtpUploader import Ptp
 
 
 class CheckAnnouncement(WorkerBase):

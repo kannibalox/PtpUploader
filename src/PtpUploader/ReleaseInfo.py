@@ -2,13 +2,13 @@ import datetime
 import os
 from typing import Iterator
 
+from django.core.validators import validate_comma_separated_integer_list
 from django.db import models
 from django.utils import timezone
-from django.core.validators import validate_comma_separated_integer_list
-from PtpUploader.MyGlobals import MyGlobals
-from PtpUploader.Logger import Logger
 from PtpUploader.Job.FinishedJobPhase import FinishedJobPhase
 from PtpUploader.Job.JobStartMode import JobStartMode
+from PtpUploader.Logger import Logger
+from PtpUploader.MyGlobals import MyGlobals
 from PtpUploader.PtpUploaderException import PtpUploaderException
 from PtpUploader.Settings import Settings
 

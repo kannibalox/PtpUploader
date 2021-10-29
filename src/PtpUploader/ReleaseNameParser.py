@@ -1,5 +1,4 @@
 from guessit import guessit
-
 from PtpUploader.PtpUploaderException import PtpUploaderException
 from PtpUploader.Settings import Settings
 

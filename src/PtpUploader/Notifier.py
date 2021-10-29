@@ -3,8 +3,9 @@ import os
 import sys
 
 from PtpUploader.MyGlobals import MyGlobals
-from PtpUploader import Ptp
 from PtpUploader.Settings import Settings
+
+from PtpUploader import Ptp
 
 
 def LoadNotifierSettings():

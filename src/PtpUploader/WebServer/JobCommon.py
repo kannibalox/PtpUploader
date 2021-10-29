@@ -1,22 +1,22 @@
+import json
 import os
 import urllib.parse
-import json
-from urllib.parse import parse_qs
 from datetime import datetime
+from urllib.parse import parse_qs
 
 from flask import jsonify, request
-from werkzeug.utils import secure_filename
-
 from PtpUploader.Helper import TimeDifferenceToText
 from PtpUploader.IncludedFileList import IncludedFileList
 from PtpUploader.Job.JobStartMode import JobStartMode
 from PtpUploader.MyGlobals import MyGlobals
 from PtpUploader.NfoParser import NfoParser
-from PtpUploader import Ptp
 from PtpUploader.ReleaseInfo import ReleaseInfo
 from PtpUploader.Settings import Settings
 from PtpUploader.WebServer import app
 from PtpUploader.WebServer.Authentication import requires_auth
+from werkzeug.utils import secure_filename
+
+from PtpUploader import Ptp
 
 
 class JobCommon:

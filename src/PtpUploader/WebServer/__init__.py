@@ -2,7 +2,6 @@
 # http://docs.python.org/tutorial/modules.html
 
 from flask import request, url_for
-
 from PtpUploader.WebServer.MyFlask import MyFlask
 
 app = MyFlask(__name__)

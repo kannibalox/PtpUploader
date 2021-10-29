@@ -1,16 +1,15 @@
 from django.forms import (
-    ModelForm,
-    ChoiceField,
     BooleanField,
-    Select,
     CharField,
-    TextInput,
-    Textarea,
+    ChoiceField,
+    ModelForm,
     MultipleChoiceField,
+    Select,
+    Textarea,
+    TextInput,
 )
-
-from PtpUploader.ReleaseInfo import ReleaseInfo
 from PtpUploader.PtpSubtitle import PtpSubtitleId
+from PtpUploader.ReleaseInfo import ReleaseInfo
 
 
 class ReleaseForm(ModelForm):

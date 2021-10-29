@@ -4,7 +4,6 @@
 from functools import wraps
 
 from flask import Response, request
-
 from PtpUploader.Settings import Settings
 
 

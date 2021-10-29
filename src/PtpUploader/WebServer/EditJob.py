@@ -1,5 +1,4 @@
 from flask import redirect, render_template, request, url_for
-
 from PtpUploader.Job.JobRunningState import JobRunningState
 from PtpUploader.MyGlobals import MyGlobals
 from PtpUploader.PtpUploaderMessage import *

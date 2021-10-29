@@ -3,18 +3,19 @@ import os
 import subprocess
 import threading
 
-from PtpUploader.Helper import TimeDifferenceToText, GetIdxSubtitleLanguages
+from PtpUploader.Helper import GetIdxSubtitleLanguages, TimeDifferenceToText
 from PtpUploader.ImageHost.ImageUploader import ImageUploader
 from PtpUploader.Job.FinishedJobPhase import FinishedJobPhase
 from PtpUploader.Job.JobRunningState import JobRunningState
 from PtpUploader.Job.WorkerBase import WorkerBase
 from PtpUploader.MyGlobals import MyGlobals
-from PtpUploader import Ptp
 from PtpUploader.PtpSubtitle import *
 from PtpUploader.PtpUploaderException import *
 from PtpUploader.ReleaseDescriptionFormatter import ReleaseDescriptionFormatter
 from PtpUploader.Settings import Settings
 from PtpUploader.Tool import Mktor
+
+from PtpUploader import Ptp
 
 
 class Upload(WorkerBase):

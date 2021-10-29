@@ -1,6 +1,5 @@
 from django.utils import timezone
-from flask import render_template, url_for, jsonify
-
+from flask import jsonify, render_template, url_for
 from PtpUploader.Helper import SizeToText, TimeDifferenceToText
 from PtpUploader.Job.JobRunningState import JobRunningState
 from PtpUploader.Job.JobStartMode import JobStartMode

@@ -1,12 +1,12 @@
 import re
 
 from flask import render_template, request
-
 from PtpUploader.MyGlobals import MyGlobals
-from PtpUploader import Ptp
 from PtpUploader.ReleaseInfo import ReleaseInfo
 from PtpUploader.WebServer import app
 from PtpUploader.WebServer.Authentication import requires_auth
+
+from PtpUploader import Ptp
 
 
 def GetPtpIdIfExists(imdbId, releaseInfo, anyFormat):

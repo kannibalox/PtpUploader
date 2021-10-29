@@ -1,11 +1,10 @@
 import os
-from pathlib import Path
 import urllib.error
 import urllib.parse
 import urllib.request
+from pathlib import Path
 
 from flask import jsonify, request
-
 from PtpUploader.NfoParser import NfoParser
 from PtpUploader.Settings import Settings
 from PtpUploader.WebServer import app

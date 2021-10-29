@@ -1,5 +1,4 @@
 import requests
-
 from PtpUploader.PtpUploaderException import PtpUploaderException
 from PtpUploader.Settings import Settings
 

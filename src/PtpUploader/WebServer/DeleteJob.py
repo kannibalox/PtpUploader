@@ -1,5 +1,4 @@
 from flask import request
-
 from PtpUploader.Logger import Logger
 from PtpUploader.MyGlobals import MyGlobals
 from PtpUploader.ReleaseInfo import ReleaseInfo

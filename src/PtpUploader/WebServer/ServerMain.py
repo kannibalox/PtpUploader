@@ -17,7 +17,6 @@ https://github.com/blueimp/jQuery-File-Upload/
 import os
 
 from flask import redirect, request, url_for
-
 from PtpUploader.MyGlobals import MyGlobals
 from PtpUploader.PtpUploaderMessage import *
 from PtpUploader.ReleaseInfo import ReleaseInfo

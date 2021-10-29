@@ -6,7 +6,6 @@ import sys
 from pathlib import Path
 
 import requests
-
 from PtpUploader.PtpSubtitle import PtpSubtitle
 
 

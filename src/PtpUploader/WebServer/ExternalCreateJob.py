@@ -3,7 +3,6 @@ import sys
 import uuid
 
 from flask import jsonify, make_response, request
-
 from PtpUploader.Helper import GetSuggestedReleaseNameAndSizeFromTorrentFile
 from PtpUploader.Job.JobRunningState import JobRunningState
 from PtpUploader.Job.JobStartMode import JobStartMode

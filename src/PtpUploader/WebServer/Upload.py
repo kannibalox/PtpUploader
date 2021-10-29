@@ -3,11 +3,8 @@ import sys
 import uuid
 from pathlib import Path
 
-from flask import jsonify, render_template, request
-from werkzeug.utils import secure_filename
-
 import bencode
-
+from flask import jsonify, render_template, request
 from PtpUploader.Helper import GetSuggestedReleaseNameAndSizeFromTorrentFile, SizeToText
 from PtpUploader.MyGlobals import MyGlobals
 from PtpUploader.PtpUploaderMessage import *
@@ -17,6 +14,7 @@ from PtpUploader.WebServer import app
 from PtpUploader.WebServer.Authentication import requires_auth
 from PtpUploader.WebServer.JobCommon import JobCommon
 from PtpUploader.WebServer.UploadFile import UploadFile
+from werkzeug.utils import secure_filename
 
 
 def IsFileAllowed(filename):
