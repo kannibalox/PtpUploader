@@ -18,6 +18,7 @@ It's called the JobSupervisor because supervisors are better than managers.
 
 import logging
 import queue
+import traceback
 import threading
 from concurrent import futures
 from typing import Dict, List
@@ -132,6 +133,8 @@ class JobSupervisor(threading.Thread):
             except (KeyboardInterrupt, SystemExit):
                 logger.info("Received system interrupt")
                 self.add_message(PtpUploaderMessageQuit())
+            except Exception as e:
+                print(traceback.print_exc())
 
     def cleanup_futures(self):
         pass

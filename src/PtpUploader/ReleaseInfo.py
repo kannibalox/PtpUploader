@@ -197,19 +197,10 @@ class ReleaseInfo(models.Model):
         self.Directors = ", ".join(list)
 
     def GetSubtitles(self):
-        if self.Subtitles:
-            return [s.trim for s in self.Subtitles.split(",")]
-        return []
+        return self.Subtitles
 
-    def SetSubtitles(self, sub_ids: Iterator[str]):
-        for sub_id in sub_ids:
-            sub_id = sub_id.strip()
-            if sub_id.find(",") != -1:
-                raise PtpUploaderException(
-                    "Language id '%s' contains a comma." % sub_id
-                )
-
-        self.Subtitles = ",".join(sub_ids)
+    def SetSubtitles(self, sub_ids: Iterator[int]):
+        self.Subtitles = sub_ids
 
     def IsPersonalRip(self):
         return self.PersonalRip

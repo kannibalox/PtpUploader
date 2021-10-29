@@ -39,7 +39,7 @@ class File(SourceBase):
     def CheckFileList(self, *_):
         pass
 
-    def IsDownloadFinished(self, logger, releaseInfo, torrentClient):
+    def IsDownloadFinished(self, logger, releaseInfo):
         return True
 
     def GetCustomUploadPath(self, logger, releaseInfo):
