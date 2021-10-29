@@ -40,11 +40,8 @@
      $( "#id_Subtitles" ).select2({
        width: '80%'
      });
-     {# $( "#genre_tags" ).val( {{ job.Tags|tojson|safe }} ); #}
-     $( "#genre_tags" ).trigger("change");
-
-     $( "#genre_tags" ).select2({
-       width: '90%',
+     $( "#id_Tags" ).select2({
+       width: '80%',
        placeholder: '---'
      });
 

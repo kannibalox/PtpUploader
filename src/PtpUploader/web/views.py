@@ -206,6 +206,7 @@ def edit_job(request, r_id: int):
             job["SourceUrl"] = source.GetUrlFromId(release.AnnouncementId)
 
         form = forms.ReleaseForm(instance=release, initial={
-            'Subtitles': [s.strip() for s in release.Subtitles.split(',')]
+            'Subtitles': [s.strip() for s in release.Subtitles.split(',')],
+            'Tags': release.Tags.split(',')
         })
     return render(request, "edit_job.html", {"form": form, "settings": {}, "job": job})
