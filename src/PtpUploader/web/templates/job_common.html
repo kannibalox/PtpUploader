@@ -41,7 +41,7 @@
       {{ form.ImdbId }}
       <input id="imdb" name="imdb" size="60" value="{{ job.imdb }}" type="text" title="Enter - or 0 if the movie is not on IMDb.">
       {% if form.PtpId.value %}
-        <a href="https://passthepopcorn.me/torrents.php?id={{form.PtpId.value}}" target="_blank"><img src="{% static "ptp.ico" %}" title="Movie page on PTP" style="vertical-align: middle"></a>
+        <a href="https://passthepopcorn.me/torrents.php?id={{form.PtpId.value}}{% if form.PtpTorrentId.value%}&torrentid={{form.PtpTorrentId.value}}{% endif %}" target="_blank"><img src="{% static "ptp.ico" %}" title="Movie page on PTP" style="vertical-align: middle"></a>
       {% endif %}
     </td>
   </tr>
