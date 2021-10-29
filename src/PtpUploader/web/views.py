@@ -213,6 +213,8 @@ def edit_job(request, r_id: int):
             initial={
                 "Subtitles": [s.strip() for s in release.Subtitles.split(",")],
                 "Tags": release.Tags.split(","),
+                "TrumpableNoEnglish": release.IsTrumpableForNoEnglishSubtitles(),
+                "TrumpableHardSubs": release.IsTrumpableForHardcodedSubtitles()
             },
         )
     return render(request, "edit_job.html", {"form": form, "settings": {}, "job": job})

@@ -76,6 +76,8 @@ class ReleaseForm(ModelForm):
         ],
     )
     ForceUpload = BooleanField(required=False, initial=False)
+    TrumpableNoEnglish = BooleanField(required=False, initial=False)
+    TrumpableHardSubs = BooleanField(required=False, initial=False)
 
     class Meta:
         model = ReleaseInfo
@@ -106,8 +108,12 @@ class ReleaseForm(ModelForm):
         data["Subtitles"] = ",".join(data["Subtitles"])
         data["Tags"] = ",".join(data["Tags"])
         data["JobStartMode"] = JobStartMode.Manual
-        if "ForceUpload" in data:
-            if data["ForceUpload"]:
-                data["JobStartMode"] = JobStartMode.ManualForced
-            del data["ForceUpload"]
+        if data["ForceUpload"]:
+            data["JobStartMode"] = JobStartMode.ManualForced
+        del data["ForceUpload"]
+        data['Trumpable'] = []
+        if data['TrumpableNoEnglish']:
+            data['Trumpable'].append(14)
+        if data['TrumpableHardSubs']:
+            data['Trumpable'].append(4)
         return data

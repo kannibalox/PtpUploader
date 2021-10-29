@@ -169,18 +169,10 @@
       Trumpable
     </td>
     <td>
-      <input id="TrumpableForNoEnglishSubtitles" name="TrumpableForNoEnglishSubtitles" type="checkbox"
-	     {% if job.TrumpableForNoEnglishSubtitles %}
-	     checked
-	     {% endif %}
-      >
+      {{ form.TrumpableNoEnglish }}
       <label for="TrumpableForNoEnglishSubtitles">Trumpable for no English subtitles</label>
       <br/>
-      <input id="TrumpableForHardcodedSubtitles" name="TrumpableForHardcodedSubtitles" type="checkbox"
-	     {% if job.TrumpableForHardcodedSubtitles %}
-	     checked
-	     {% endif %}
-      >
+      {{ form.TrumpableHardSubs }}
       <label for="TrumpableForHardcodedSubtitles">Trumpable for hard-coded subtitles</label>
     </td>
   </tr>
