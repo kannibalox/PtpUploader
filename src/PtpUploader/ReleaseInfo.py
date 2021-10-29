@@ -143,11 +143,11 @@ class ReleaseInfo(models.Model):
     LastModificationTime = models.DateTimeField(auto_now=True)
     Size = models.IntegerField(default=0)
     Subtitles = models.TextField(
-        blank=True, default="", validators=[validate_comma_separated_integer_list]
+        blank=True, default=""
     )  # CSV of subtitle IDs
     IncludedFiles = models.TextField(blank=True, default="")
     DuplicateCheckCanIgnore = models.IntegerField(default=0)
-    ScheduleTimeUtc = models.DateTimeField(default=timezone.now)
+    ScheduleTimeUtc = models.DateTimeField(default=timezone.now, null=True)
     Trumpable = models.TextField(blank=True, default="")  # CSV of trump IDs
     SpecialRelease = models.BooleanField(default=False)
     # Release made by a scene group.
