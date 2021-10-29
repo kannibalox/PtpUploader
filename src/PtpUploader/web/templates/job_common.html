@@ -30,7 +30,7 @@
   <tr>
     <td class="label">Type</td>
     <td>
-    {{ form.Type }}
+      {{ form.Type }}
     </td>
   </tr>
 
@@ -136,19 +136,6 @@
     <td class="label">Codec</td>
     <td>
       {{ form.Codec }}
-      <select id="codec" name="codec">
-        <option>---</option>
-        <option value="XviD">XviD</option>
-        <option value="DivX">DivX</option>
-        <option value="H.264">H.264</option>
-        <option value="x264">x264</option>
-        <option value="DVD5">DVD5</option>
-        <option value="DVD9">DVD9</option>
-        <option value="BD25">BD25</option>
-        <option value="BD50">BD50</option>
-        <option value="Other">Other</option>
-      </select>
-
       <span id="other_codec_span">
         <input name="other_codec" size="5" id="other_codec" type="text">
       </span>
@@ -158,18 +145,7 @@
   <tr>
     <td class="label">Container</td>
     <td>
-      <select id="container" name="container">
-        <option>---</option>
-        <option value="AVI">AVI</option>
-        <option value="MPG">MPG</option>
-        <option value="MKV">MKV</option>
-        <option value="MP4">MP4</option>
-        <option value="VOB IFO">VOB IFO</option>
-        <option value="ISO">ISO</option>
-        <option value="m2ts">m2ts</option>
-        <option value="Other">Other</option>
-      </select>
-
+      {{ form.Container }}
       <span id="other_container_span">
         <input name="other_container" size="5" id="other_container" type="text">
       </span>
@@ -179,19 +155,7 @@
   <tr>
     <td class="label">Resolution</td>
     <td>
-      <select id="resolution" name="resolution">
-        <option selected="selected">---</option>
-        <option value="NTSC">NTSC</option>
-        <option value="PAL">PAL</option>
-        <option value="480p">480p</option>
-        <option value="576p">576p</option>
-        <option value="720p">720p</option>
-        <option value="1080i">1080i</option>
-        <option value="1080p">1080p</option>
-        <option value="2160p">2160p</option>
-        <option value="Other">Other</option>
-      </select>
-
+      {{ form.ResolutionType }}
       <span id="other_resolution_span">
         <input name="other_resolution" size="10" id="other_resolution" value="{{ job.other_resolution }}" type="text">
       </span>
@@ -201,18 +165,7 @@
   <tr>
     <td class="label">Source</td>
     <td>
-      <select name="source" id="source" onchange="Source();">
-        <option>---</option>
-        <option value="VHS">VHS</option>
-        <option value="DVD">DVD</option>
-        <option value="TV">TV</option>
-        <option value="HDTV">HDTV</option>
-        <option value="HD-DVD">HD-DVD</option>
-        <option value="Blu-ray">Blu-ray</option>
-        <option value="WEB">WEB</option>
-        <option value="Other">Other</option>
-      </select>
-
+      {{ form.Source }}
       <span id="other_source_span">
         <input name="other_source" size="5" id="other_source" type="text">
       </span>
