@@ -125,7 +125,7 @@ class ReleaseInfo(models.Model):
         choices=JobState.choices, default=JobState.WaitingForStart
     )
     FinishedJobPhase = models.IntegerField(default=0)
-    Flags = models.IntegerField(default=0)
+    Tags = models.TextField(blank=True, default="")
     ErrorMessage = models.TextField(blank=True, default="")
     PtpId = models.TextField(blank=True, default="")
     PtpTorrentId = models.TextField(blank=True, default="")
