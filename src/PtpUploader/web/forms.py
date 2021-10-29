@@ -10,6 +10,7 @@ from django.forms import (
 )
 from PtpUploader.PtpSubtitle import PtpSubtitleId
 from PtpUploader.ReleaseInfo import ReleaseInfo
+from PtpUploader.Job.JobStartMode import JobStartMode
 
 
 class ReleaseForm(ModelForm):
@@ -74,12 +75,18 @@ class ReleaseForm(ModelForm):
             )
         ],
     )
-    ForceUpload = BooleanField(required=False)
+    ForceUpload = BooleanField(required=False, initial=False)
 
     class Meta:
         model = ReleaseInfo
-        fields = "__all__"
-        labels = {"ReleaseName": "Release Name"}
+        exclude = [
+            "JobRunningState",
+            "JobStartMode",
+            "ScheduleTimeUtc",
+            "FinishedJobPhase",
+            "Size",
+            "DuplicateCheckCanIgnore",
+        ]
         widgets = {
             "ImdbId": TextInput(attrs={"size": "60"}),
             "Directors": TextInput(attrs={"size": "60"}),
@@ -93,3 +100,14 @@ class ReleaseForm(ModelForm):
             "ReleaseNotes": Textarea(attrs={"cols": "60", "rows": "8"}),
             "ReleaseName": TextInput(attrs={"size": "60"}),
         }
+
+    def clean(self):
+        data = super().clean()
+        data["Subtitles"] = ",".join(data["Subtitles"])
+        data["Tags"] = ",".join(data["Tags"])
+        data["JobStartMode"] = JobStartMode.Manual
+        if "ForceUpload" in data:
+            if data["ForceUpload"]:
+                data["JobStartMode"] = JobStartMode.ManualForced
+            del data["ForceUpload"]
+        return data
