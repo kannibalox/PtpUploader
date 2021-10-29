@@ -37,12 +37,8 @@
          $(this).text("Show");
        }
      });
-     // Select subtitles that are specified in the job.
-     {# $( "#subtitle" ).val( {{ job.Subtitles|tojson|safe }} ); #}
-     $( "#subtitle" ).trigger("change");
-
-     $( "#subtitle" ).select2({
-       width: '90%'
+     $( "#id_Subtitles" ).select2({
+       width: '80%'
      });
      {# $( "#genre_tags" ).val( {{ job.Tags|tojson|safe }} ); #}
      $( "#genre_tags" ).trigger("change");
