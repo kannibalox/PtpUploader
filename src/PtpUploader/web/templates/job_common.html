@@ -78,7 +78,7 @@
   <tr>
     <td class="label">YouTube link</td>
     <td>
-      <input name="trailer" size="60" value="{{ job.trailer }}" type="text">
+      {{ form.YouTubeId }}
     </td>
   </tr>
 
@@ -99,36 +99,21 @@
   <tr>
     <td class="label">Personal rip</td>
     <td>
-      <input id="personal_rip" name="personal_rip" type="checkbox" title="Check this only if you made this rip."
-
-	     {% if job.PersonalRip %}
-	     checked
-	     {% endif %}
-      >
+      {{ form.PersonalRip }}
     </td>
   </tr>
 
   <tr>
     <td class="label">Scene</td>
     <td>
-      <input id="scene" name="scene" type="checkbox"
-
-	     {% if job.scene %}
-	     checked
-	     {% endif %}
-      >
+      {{ form.SceneRelease }}
     </td>
   </tr>
 
   <tr>
     <td class="label">Special release (not main movie)</td>
     <td>
-      <input id="special" name="special" type="checkbox"
-
-	     {% if job.special %}
-	     checked
-	     {% endif %}
-      >
+      {{ form.SpecialRelease}}
     </td>
   </tr>
 
