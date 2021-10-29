@@ -238,14 +238,14 @@
     </td>
   </tr>
   {% if job.Screenshots %}
-  <tr>
-    <td class="label">Screenshots</td>
-    <td>
-      {% for file, links in job.Screenshots.items %}
-        <button type="button" data-target="{{forloop.counter0}}_images" class="show_images">Show</button>{{file}}<span id="{{forloop.counter0}}_images" style="display:none;">{{links|safe}}</span>
-      {% endfor %}
-    </td>
-  </tr>
+    <tr>
+      <td class="label">Screenshots</td>
+      <td>
+        {% for file, links in job.Screenshots.items %}
+          <button type="button" data-target="{{forloop.counter0}}_images" class="show_images">Show</button>{{file}}<span id="{{forloop.counter0}}_images" style="display:none;">{{links|safe}}</span>
+        {% endfor %}
+      </td>
+    </tr>
   {% endif %}
   <tr>
     <td class="label">Release Description
