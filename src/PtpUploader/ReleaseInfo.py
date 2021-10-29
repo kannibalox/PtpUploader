@@ -1,9 +1,10 @@
 import datetime
 import os
+from typing import Iterator
 
 from django.db import models
 from django.utils import timezone
-
+from django.core.validators import validate_comma_separated_integer_list
 from PtpUploader.MyGlobals import MyGlobals
 from PtpUploader.Logger import Logger
 from PtpUploader.Job.FinishedJobPhase import FinishedJobPhase
@@ -141,7 +142,7 @@ class ReleaseInfo(models.Model):
     Screenshots = models.TextField(blank=True, default="")
     LastModificationTime = models.DateTimeField(auto_now=True)
     Size = models.IntegerField(default=0)
-    Subtitles = models.TextField(blank=True, default="")
+    Subtitles = models.TextField(blank=True, default="", validators=[validate_comma_separated_integer_list])
     IncludedFiles = models.TextField(blank=True, default="")
     DuplicateCheckCanIgnore = models.IntegerField(default=0)
     ScheduleTimeUtc = models.DateTimeField(default=timezone.now)
