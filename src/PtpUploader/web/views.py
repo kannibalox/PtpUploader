@@ -3,7 +3,7 @@ import os
 from typing import Any, Dict
 
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
-from django.shortcuts import redirect, render
+from django.shortcuts import redirect, render, get_object_or_404
 from django.templatetags.static import static
 from django.urls import reverse
 from django.utils import html, timezone
@@ -179,20 +179,25 @@ def stop_job(r_id) -> str:
 
 def edit_job(request, r_id: int):
     job: Dict[str, Any] = {}  # Non-form data for display but too complex for a template
+    release = get_object_or_404(ReleaseInfo, Id=r_id)
+    print(release.__dict__)
     if request.method == "POST":
         # create a form instance and populate it with data from the request:
-        form = forms.ReleaseForm(request.POST)
+        form = forms.ReleaseForm(request.POST, instance=release)
         # check whether it's valid:
+        print(form.errors)
         if form.is_valid():
             # process the data in form.cleaned_data as required
             # ...
             # redirect to a new URL:
-            return HttpResponseRedirect("/thanks/")
+            form.save()
+            return HttpResponseRedirect("/jobs")
 
     # if a GET (or any other method) we'll create a blank form
     else:
-        release = ReleaseInfo.objects.get(Id=r_id)
-        source = MyGlobals.SourceFactory.GetSource(release.AnnouncementSourceName)
+        source = (
+            MyGlobals.SourceFactory.GetSource(release.AnnouncementSourceName)
+        )
         job["Screenshots"] = {}
         if release.Screenshots:
             for f in json.loads(release.Screenshots):
