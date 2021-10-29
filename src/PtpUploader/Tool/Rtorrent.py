@@ -14,8 +14,11 @@ class Rtorrent:
     def __init__(self):
         MyGlobals.Logger.info("Initializing PyroScope.")
 
-        load_config.ConfigLoader().load()
-        self.proxy = config.engine.open()
+        proxy = config.engine.open()
+        if proxy is None:
+            load_config.ConfigLoader().load()
+            proxy = config.engine.open()
+        self.proxy = proxy
 
     # downloadPath is the final path. Suggested directory name from torrent won't be added to it.
     # Returns with the info hash of the torrent.
