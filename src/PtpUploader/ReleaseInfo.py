@@ -42,19 +42,50 @@ class ReleaseInfo(models.Model):
         collection = ("Movie Collection", "Movie Collection")
 
     class CodecChoices(models.TextChoices):
-        XVID = ("XviD","XviD")
-        DIVX = ("DivX","DivX")
-        H_264 = ("H.264","H.264")
-        X264 = ("x264","x264")
-        H_265 = ("H.265","H.265")
-        X265 = ("x265","x265")
-        DVD5 = ("DVD5","DVD5")
-        DVD9 = ("DVD9","DVD9")
-        BD25 = ("BD25","BD25")
-        BD50 = ("BD50","BD50")
-        BD66 = ("BD66","BD66")
-        BD100 = ("BD100","BD100")
-        Other = ("Other","Other")
+        XVID = ("XviD", "XviD")
+        DIVX = ("DivX", "DivX")
+        H_264 = ("H.264", "H.264")
+        X264 = ("x264", "x264")
+        H_265 = ("H.265", "H.265")
+        X265 = ("x265", "x265")
+        DVD5 = ("DVD5", "DVD5")
+        DVD9 = ("DVD9", "DVD9")
+        BD25 = ("BD25", "BD25")
+        BD50 = ("BD50", "BD50")
+        BD66 = ("BD66", "BD66")
+        BD100 = ("BD100", "BD100")
+        Other = ("Other", "Other")
+
+    class ContainerChoices(models.TextChoices):
+        AVI = ("AVI", "AVI")
+        MPG = ("MPG", "MPG")
+        MKV = ("MKV", "MKV")
+        MP4 = ("MP4", "MP4")
+        VOB_IFO = ("VOB IFO", "VOB IFO")
+        ISO = ("ISO", "ISO")
+        M2TS = ("m2ts", "m2ts")
+        Other = ("Other", "Other")
+
+    class ResolutionChoices(models.TextChoices):
+        NTSC = ("NTSC", "NTSC")
+        PAL = ("PAL", "PAL")
+        r480p = ("480p", "480p")
+        r576p = ("576p", "576p")
+        r720p = ("720p", "720p")
+        r1080i = ("1080i", "1080i")
+        r1080p = ("1080p", "1080p")
+        r2160p = ("2160p", "2160p")
+        Other = ("Other", "Other")
+
+    class SourceChoices(models.TextChoices):
+        Bluray = ("Blu-ray", "Blu-ray")
+        DVD = ("DVD", "DVD")
+        WEB = ("WEB", "WEB")
+        HDDVD = ("HD-DVD", "HD-DVD")
+        HDTV = ("HDTV", "HDTV")
+        TV = ("TV", "TV")
+        VHS = ("VHS", "VHS")
+        Other = ("Other", "Other")
 
     objects: models.manager.Manager
 
