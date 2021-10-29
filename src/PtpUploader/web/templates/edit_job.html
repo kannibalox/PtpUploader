@@ -6,12 +6,13 @@
 
 {% block body %}
 
-  {% if job.CanBeEdited %}
+  {% if job.CanEdited %}
   {% else %}
     <h2 style="color: red; font-weight: bold;">The job is currently running and can't be edited!</h2>
   {% endif %}
 
   <form action="" enctype="multipart/form-data" method="post" id="resume_table">
+    {% csrf_token %}
     <table id="editjob_table" class="border" border="0" cellpadding="3" cellspacing="1">
       <tbody>
         <tr>
@@ -39,7 +40,7 @@
         </tr>
         {% include "job_common.html" %}
 
-        {% if job.CanBeEdited %}
+        {% if job.CanEdited %}
           <tr>
 	    <td colspan="2" style="text-align: center; border: none;">
 	      <br/>

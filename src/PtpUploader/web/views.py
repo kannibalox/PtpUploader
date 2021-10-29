@@ -204,9 +204,14 @@ def edit_job(request, r_id: int):
             filename = "source_icon/%s.ico" % release.AnnouncementSourceName
             job["SourceIcon"] = static(filename)
             job["SourceUrl"] = source.GetUrlFromId(release.AnnouncementId)
+        job["SkipDuplicateCheckingButton"] = release.DuplicateCheckCanIgnore
+        job["CanEdited"] = release.CanEdited
 
-        form = forms.ReleaseForm(instance=release, initial={
-            'Subtitles': [s.strip() for s in release.Subtitles.split(',')],
-            'Tags': release.Tags.split(',')
-        })
+        form = forms.ReleaseForm(
+            instance=release,
+            initial={
+                "Subtitles": [s.strip() for s in release.Subtitles.split(",")],
+                "Tags": release.Tags.split(","),
+            },
+        )
     return render(request, "edit_job.html", {"form": form, "settings": {}, "job": job})

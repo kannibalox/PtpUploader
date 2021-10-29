@@ -18,6 +18,7 @@
   <tr>
     <td class="label">Make torrent without directory</td>
     <td>
+      {{ ForceDirectorylessSingleFileTorrent }}
       <input id="ForceDirectorylessSingleFileTorrent" name="ForceDirectorylessSingleFileTorrent" type="checkbox" title="If this is set and the release contains only a single video file then no directory will be created."
 
 	     {% if job.ForceDirectorylessSingleFileTorrent %}
@@ -39,8 +40,8 @@
     <td>
       {{ form.ImdbId }}
       <input id="imdb" name="imdb" size="60" value="{{ job.imdb }}" type="text" title="Enter - or 0 if the movie is not on IMDb.">
-      {% if job.PtpUrl %}
-        <a href="{{ job.PtpUrl }}" target="_blank"><img src="{% static "ptp.ico" %}" title="Movie page on PTP" style="vertical-align: middle"></a>
+      {% if form.PtpId.value %}
+        <a href="https://passthepopcorn.me/torrents.php?id={{form.PtpId.value}}" target="_blank"><img src="{% static "ptp.ico" %}" title="Movie page on PTP" style="vertical-align: middle"></a>
       {% endif %}
     </td>
   </tr>
@@ -194,7 +195,7 @@
   <tr>
     <td class="label">Synopsis</td>
     <td>
-      <textarea name="album_desc" id="album_desc" cols="60" rows="8">{{ job.album_desc }}</textarea>
+      {{ form.MovieDescription }}
     </td>
   </tr>
   {% if job.Screenshots %}
@@ -215,28 +216,20 @@
       <br>
       <br>
       <label title="If checked then screens won't be taken, the ones listed in the release notes will be used.">
-        <input type="checkbox" name="OverrideScreenshots"
-	       {% if job.OverrideScreenshots %}
-	       checked
-	       {% endif %}
-        > Override screens
+        {{ form.OverrideScreenshots }} Override screens
       </label>
     </td>
     <td>
-      <textarea name="ReleaseNotes" id="ReleaseNotes" cols="60" rows="8">{{ job.ReleaseNotes }}</textarea>
+      {{ form.ReleaseNotes }}
     </td>
   </tr>
 
   <tr>
     <td class="label">Checking</td>
     <td>
-      <input id="force_upload" name="force_upload" type="checkbox"
-	     {% if job.force_upload %}
-	     checked
-	     {% endif %}
-      >
-      <label for="force_upload">Skip adult tag, series checking and rip specification checking</label>
-      <br>
+      {{ form.ForceUpload }}
+      <label for="id_ForceUpload">Skip adult tag, series checking and rip specification checking</label>
+      <br/>
       <input type="checkbox" id="SkipDuplicateCheckingButton" name="SkipDuplicateCheckingButton" value="{{ job.SkipDuplicateCheckingButton }}" title="The existing torrents (at the time of the button press) will be ignored at the duplicate checking."
 	     {% if job.SkipDuplicateCheckingButton > 0 %}
              checked
@@ -251,7 +244,6 @@
     <td class="label">Start immediately</td>
     <td>
       <input id="StartImmediately" name="StartImmediately" type="checkbox" title="If this is set then the job will be the next processed job and the download will start regardless the number of maximum parallel downloads set for the source."
-
 	     {% if job.StartImmediately %}
 	     checked
 	     {% endif %}
