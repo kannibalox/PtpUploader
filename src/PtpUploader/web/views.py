@@ -121,13 +121,13 @@ def jobs_json(request):
             icon = static("start.png")
             entry[
                 "Actions"
-            ] += f'<a href="#" onclick=\'executeJobCommand( this, {release.Id}, "/start/" ); jobsTable.ajax.reload(null, false); return false;\'><img src={icon} title="Start"></a>'
+            ] += f'<a href="#" onclick=\'executeJobCommand( this, {release.Id}, "/start" ); jobsTable.ajax.reload(null, false); return false;\'><img src={icon} title="Start"></a>'
         if release.CanStopped():
             url = reverse("stop_job", args=[release.Id])
             icon = static("stop.png")
             entry[
                 "Actions"
-            ] += f'<a href="#" onclick=\'executeJobCommand( this, {release.Id}, "/stop/" ); jobsTable.ajax.reload(null, false); return false;\'><img src={icon} title="Stop"></a>'
+            ] += f'<a href="#" onclick=\'executeJobCommand( this, {release.Id}, "/stop" ); jobsTable.ajax.reload(null, false); return false;\'><img src={icon} title="Stop"></a>'
         if release.CanEdited():
             url = reverse("edit_job", args=[release.Id])
             icon = static("edit.png")
@@ -142,7 +142,7 @@ def jobs_json(request):
     return JsonResponse({"data": entries, "settings": settings})
 
 
-def start_job(r_id) -> str:
+def start_job(request, r_id) -> str:
     # TODO: This is very far from perfect. There is no guarantee that the job didn't start meanwhile.
     # Probably only the WorkerThread should change the running state.
     releaseInfo = ReleaseInfo.objects.get(Id=r_id)
@@ -164,7 +164,7 @@ def start_job(r_id) -> str:
     return "OK"
 
 
-def stop_job(r_id) -> str:
+def stop_job(request, r_id: int) -> str:
     # TODO: This is very far from perfect. There is no guarantee that the job didn't stop meanwhile.
     # Probably only the WorkerThread should change the running state.
     releaseInfo = ReleaseInfo.objects.get(Id=r_id)
