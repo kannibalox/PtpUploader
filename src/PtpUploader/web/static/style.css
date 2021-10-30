@@ -33,9 +33,15 @@ input[type="text"], input[type="search"], textarea, button, select, textarea {
 }
 
 
-table#editjob_table
+table#editjob_table, table#jobs
 {
     line-height: 1;
+    border-collapse: collapse;
+}
+
+table#jobs
+{
+    line-height: 1.2;
     border-collapse: collapse;
 }
 
