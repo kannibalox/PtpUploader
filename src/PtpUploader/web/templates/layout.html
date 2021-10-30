@@ -1,31 +1,50 @@
 {% load static %}
 <!doctype html>
-<html>
+<html id="uploader">
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" type="text/css" href="{% static "normalize.css" %}">
     <link rel="stylesheet" type="text/css" href="{% static "style.css" %}">
     <link rel="shortcut icon" href="{% static "favicon.png" %}">
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/js/all.min.js"></script>
     {% block head %}
     {% endblock %}
   </head>
-  <body>
-    <section>
-      <header>
-	<nav>
-	  <ul>
-	    <li><a href="{% url "jobs" %}">Jobs</a></li>
-	    <li><a href="{% url "upload" %}">Upload</a></li>
-	    <li><a href="{% url "movieAvailabilityCheck" %}">Availability check</a></li>
-	    <li><a href="{% url "quit" %}">Shutdown</a></li>
-	  </ul>
-	</nav>
-      </header>
-      <section>
-	{% block body %}
-	{% endblock %}
-      </section>
-    </section>
+  <body class="uploader" id="uploader">
+    <header>
+      <nav class="navbar is-dark" role="navigation" aria-label="main navigation">
+        <div class="navbar-brand">
+          <a class="navbar-item" href="/jobs">
+            <img src="https://bulma.io/images/bulma-logo.png" width="112" height="28">
+          </a>
+
+          <a role="button" class="navbar-burger" aria-label="menu" aria-expanded="false" data-target="navbarBasicExample">
+            <span aria-hidden="true"></span>
+            <span aria-hidden="true"></span>
+            <span aria-hidden="true"></span>
+          </a>
+        </div>
+
+        <div id="navbarBasicExample" class="navbar-menu">
+          <div class="navbar-start">
+	    <a class="navbar-item" href="{% url "jobs" %}">Jobs</a>
+	    <a class="navbar-item" href="{% url "upload" %}">Upload</a>
+	    <a class="navbar-item" href="{% url "movieAvailabilityCheck" %}">Availability check</a>
+	    <a class="navbar-item" href="{% url "quit" %}">Shutdown</a>
+          </div>
+        </div>
+      </nav>
+      <nav>
+	<ul>
+	</ul>
+      </nav>
+    </header>
+    <!-- <section class="section"> -->
+    <div class="container">
+      {% block body %}
+      {% endblock %}
+    </div>
+    <!-- </section> -->
   </body>
 </html>

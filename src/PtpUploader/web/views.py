@@ -1,6 +1,6 @@
 import json
 import os
-from typing import Any, Dict
+from typing import Any, Dict, List
 
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.shortcuts import redirect, render, get_object_or_404
@@ -20,31 +20,24 @@ from . import forms
 
 
 def GetStateIcon(state: int) -> str:
-    if state == JobRunningState.Finished:
-        return "success.png"
-    elif state == JobRunningState.Failed:
-        return "error.png"
-    elif state in [
-        JobRunningState.Ignored,
-        JobRunningState.Ignored_AlreadyExists,
-        JobRunningState.Ignored_Forbidden,
-        JobRunningState.Ignored_MissingInfo,
-        JobRunningState.Ignored_NotSupported,
+    if state in [
+        ReleaseInfo.JobState.Ignored,
+        ReleaseInfo.JobState.Ignored_AlreadyExists,
+        ReleaseInfo.JobState.Ignored_Forbidden,
+        ReleaseInfo.JobState.Ignored_MissingInfo,
+        ReleaseInfo.JobState.Ignored_NotSupported,
     ]:
-        return "warning.png"
-    elif state == JobRunningState.WaitingForStart:
-        return "hourglass.png"
-    elif state in [JobRunningState.InProgress, ReleaseInfo.JobState.InDownload]:
-        return "throbber.gif"
-    elif state == JobRunningState.Paused:
-        return "pause.png"
-    elif state == JobRunningState.Scheduled:
-        return "scheduled.png"
-    elif state == JobRunningState.DownloadedAlreadyExists:
-        return "sad.png"
-
-    # This is not possible.
-    return "error.png"
+        return "fa-exclamation-triangle has-text-warning"
+    i = {
+        ReleaseInfo.JobState.Finished: "fa-check has-text-success",
+        ReleaseInfo.JobState.Failed: "fa-exclamation-circle has-text-danger",
+        ReleaseInfo.JobState.WaitingForStart: "fa-hourglass has-text-info",
+        ReleaseInfo.JobState.Paused: "fa-pause has-text-info",
+        ReleaseInfo.JobState.DownloadedAlreadyExists: "fa-frown has-text-warning",
+        ReleaseInfo.JobState.InProgress: "fa-spinner fa-spinner fa-pulse has-text-info",
+        ReleaseInfo.JobState.InDownload: "fa-circle-notch fa-spinner fa-pulse has-text-info",
+    }
+    return i[state]
 
 
 def jobs(request):
@@ -107,15 +100,15 @@ def jobs_json(request):
                     "_"
                 ] = f'<a href="{url}"><img src="{icon}"></a>'
 
-        icon = static(GetStateIcon(release.JobRunningState))
+        icon = GetStateIcon(release.JobRunningState)
         logUrl = reverse("log", args=[release.Id])
         entry["JobRunningState"] = {
             "sort": release.JobRunningState,
-            "_": f'<a href="{logUrl}"><img src="{icon}"/></a>',
+            "_": f'<a href="{logUrl}"><span class="icon"><i class="fas {icon}"></span></i></a>',
         }
 
         # Build actions
-        entry["Actions"] = ""
+        entry["Actions"] = "<span>"
         if release.CanResumed():
             url = reverse("start_job", args=[release.Id])
             icon = static("start.png")
@@ -137,6 +130,7 @@ def jobs_json(request):
             entry[
                 "Actions"
             ] += f'<a href="#" class="delete_job_context_menu" PtpUploaderJobId="{release.Id}"><img src={icon} title="Delete"></a>'
+        entry["Actions"] += "</span>"
         entries.append(entry)
 
     return JsonResponse({"data": entries, "settings": settings})
@@ -188,7 +182,7 @@ def edit_job(request, r_id: int = -1):
         if form.is_valid():
             form.save()
             release.JobRunningState = JobRunningState.WaitingForStart
-            if 'post_stop_before' in request.POST:
+            if "post_stop_before" in request.POST:
                 release.StopBeforeUploading = True
             else:
                 release.StopBeforeUploading = False
@@ -218,9 +212,11 @@ def edit_job(request, r_id: int = -1):
             instance=release,
             initial={
                 "Subtitles": release.Subtitles,
-                "Tags": release.Tags.split(','),
-                "TrumpableNoEnglish": release.TrumpableReasons.NO_ENGLISH_SUBS in release.Trumpable,
-                "TrumpableHardSubs": release.TrumpableReasons.HARDCODED_SUBS in release.Trumpable,
+                "Tags": release.Tags.split(","),
+                "TrumpableNoEnglish": release.TrumpableReasons.NO_ENGLISH_SUBS
+                in release.Trumpable,
+                "TrumpableHardSubs": release.TrumpableReasons.HARDCODED_SUBS
+                in release.Trumpable,
             },
         )
     return render(request, "edit_job.html", {"form": form, "settings": {}, "job": job})

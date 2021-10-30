@@ -8,9 +8,9 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-contextmenu/2.7.1/jquery.contextMenu.min.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-contextmenu/2.7.1/jquery.contextMenu.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-contextmenu/2.7.1/jquery.ui.position.js"></script>
-  <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.3/css/jquery.dataTables.css">
-
-  <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.11.3/js/jquery.dataTables.js"></script>
+  <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.9.2/css/bulma.min.css"/>
+  <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/bm/dt-1.11.3/datatables.min.css"/>
+  <script type="text/javascript" src="https://cdn.datatables.net/v/bm/dt-1.11.3/datatables.min.js"></script>
   <script type="text/javascript">
    var jobsTable;
 
@@ -70,60 +70,58 @@
          "type": "num",
          "render": {
            _: '_',
+           sort: 'sort',
+         },
+         className: "dt-right"
+       }, {
+         "data": "ReleaseName",
+         "render": function(data, type, row) {
+           ret = data;
+           if (row['PtpId']) {
+             if (row['PtpTorrentId']) {
+               ret = '<a href="https://passthepopcorn.me/torrents.php?id=' + row['PtpId'] + '&torrentid=' + row['PtpTorrentId'] + '">' + data + '</a>'
+             } else {
+               ret = '<a href="https://passthepopcorn.me/torrents.php?id=' + row['PtpId'] + '">' + data + '</a>'
+             }
+           } else if (row['ImdbId'] && row['ImdbId'] != "0") {
+             ret = '<a href="https://passthepopcorn.me/torrents.php?imdb=' + row['ImdbId'] + '">' + data + '</a>'
+           }
+           ret = '<span class="job_title">' + ret + '</span>';
+           if (row['ErrorMessage']) {
+             ret = ret + '</br>' + row['ErrorMessage'];
+           }
+           return ret;
+         }
+       },{
+         "data": "AnnouncementSourceName",
+         'type': 'html',
+         className: "nowrap",
+         "render": {
+           _: '_',
            sort: 'sort'
          }
+       },{
+         "data": "Size",
+         'type': 'num',
+         className: "nowrap",
+         "render": {
+           _: '_',
+           sort: 'sort'
+         }
+       },{
+         "data": "LastModificationTime",
+         'type': 'num',
+         className: "nowrap",
+         "render": {
+           _: '_',
+           sort: 'sort'
+         }
+       },{
+         "data": "Actions",
+         "orderable": false,
+         className: "nowrap jobbuttons dt-right",
+         width: "60px"
        },
-                   {
-                     "data": "ReleaseName",
-                     "render": function(data, type, row) {
-                       ret = data;
-                       if (row['PtpId']) {
-                         if (row['PtpTorrentId']) {
-                           ret = '<a href="https://passthepopcorn.me/torrents.php?id=' + row['PtpId'] + '&torrentid=' + row['PtpTorrentId'] + '">' + data + '</a>'
-                         } else {
-                           ret = '<a href="https://passthepopcorn.me/torrents.php?id=' + row['PtpId'] + '">' + data + '</a>'
-                         }
-                       } else if (row['ImdbId'] && row['ImdbId'] != "0") {
-                         ret = '<a href="https://passthepopcorn.me/torrents.php?imdb=' + row['ImdbId'] + '">' + data + '</a>'
-                       }
-                       ret = '<span class="title">' + ret + '</span>';
-                       if (row['ErrorMessage']) {
-                         ret = ret + '</br>' + row['ErrorMessage'];
-                       }
-                       return ret;
-                     }
-                   },
-                   {
-                     "data": "AnnouncementSourceName",
-                     className: "nowrap",
-                     "render": {
-                       _: '_',
-                       sort: 'sort'
-                     }
-                   },
-                   {
-                     "data": "Size",
-                     'type': 'num',
-                     className: "nowrap",
-                     "render": {
-                       _: '_',
-                       sort: 'sort'
-                     }
-                   },
-                   {
-                     "data": "LastModificationTime",
-                     'type': 'num',
-                     className: "nowrap",
-                     "render": {
-                       _: '_',
-                       sort: 'sort'
-                     }
-                   },
-                   {
-                     "data": "Actions",
-                     "orderable": false,
-                     className: "nowrap jobbuttons"
-                   },
        ]
      });
      $.contextMenu({
@@ -156,32 +154,35 @@
 {% endblock %}
 
 {% block body %}
-  <table id="jobs" class="jobs rowborder compact" border="0" cellpadding="3" cellspacing="1">
-    <thead>
-      <tr>
-        <th class="state"></th>
-        <th>Release name</th>
-        <th>Source</th>
-        <th>Size</th>
-        <th>Date</th>
-        <th>Edit</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td class="state">
-        </td>
-        <td class="name">
-        </td>
-        <td class="nowrap">
-        </td>
-        <td class="nowrap">
-        </td>
-        <td class="nowrap">
-        </td>
-        <td class="nowrap jobbuttons">
-        </td>
-      </tr>
-    </tbody>
-  </table>
+  <div class="column dt-bulma is-10 is-offset-1">
+    <table id="jobs" class="jobs table is-hoverable is-striped
+               is-fullwidth" border="0" cellpadding="3" cellspacing="1">
+      <thead>
+        <tr>
+          <th class="state"></th>
+          <th>Release name</th>
+          <th>Source</th>
+          <th>Size</th>
+          <th>Date</th>
+          <th>Edit</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="state">
+          </td>
+          <td class="name">
+          </td>
+          <td class="nowrap">
+          </td>
+          <td class="nowrap">
+          </td>
+          <td class="nowrap">
+          </td>
+          <td class="nowrap jobbuttons dt-right">
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
 {% endblock %}
