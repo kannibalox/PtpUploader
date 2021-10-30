@@ -4,6 +4,155 @@
 
 {% block head %}
   <title>PtpUploader - Jobs</title>
+  <script type=text/javascript src="{% static "script/jquery-3.6.0.min.js" %}"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-contextmenu/2.7.1/jquery.contextMenu.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-contextmenu/2.7.1/jquery.contextMenu.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-contextmenu/2.7.1/jquery.ui.position.js"></script>
+  <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.3/css/jquery.dataTables.css">
+
+  <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.11.3/js/jquery.dataTables.js"></script>
+  <script type="text/javascript">
+   var jobsTable;
+
+   function ToggleSearch(searchToggler) {
+     if (!window.localStorage)
+       return;
+
+     if (window.localStorage.getItem('HideSearch') == '1') {
+       $(".ToggledByHideSearch").toggle(true);
+       window.localStorage.removeItem('HideSearch');
+     } else {
+       $(".ToggledByHideSearch").toggle(false);
+       window.localStorage.setItem('HideSearch', '1');
+     }
+   }
+
+   function executeJobCommand(linkNode, jobId, jobCommand) {
+     $.ajax({
+       type: "GET",
+       url: "/job/" + jobId + jobCommand,
+       context: linkNode,
+       success: function(msg) {
+         $(this).text(msg);
+         if (msg == "OK")
+           $(this).fadeOut("slow");
+       }
+     });
+   }
+
+   function executeDeleteJobCommand(linkNode, jobId, deleteMode) {
+     $.ajax({
+       type: "GET",
+       url: "/job/" + jobId + '/delete/?mode=' + deleteMode,
+       context: linkNode,
+       success: function(msg) {
+         if (msg == "OK")
+           $(this).parent().parent().fadeOut("fast");
+         else
+           $(this).text(msg);
+       }
+     });
+   }
+
+
+   $(document).ready(function() {
+     jobsTable = $('#jobs').DataTable({
+       "ajax": "/ajax/jobs",
+       "lengthChange": false,
+       "order": [
+         [4, "desc"]
+       ],
+       "searchBuilder": {
+         "columns": [2]
+       },
+       "columns": [{
+         "data": "JobRunningState",
+         "type": "num",
+         "render": {
+           _: '_',
+           sort: 'sort'
+         }
+       },
+                   {
+                     "data": "ReleaseName",
+                     "render": function(data, type, row) {
+                       ret = data;
+                       if (row['PtpId']) {
+                         if (row['PtpTorrentId']) {
+                           ret = '<a href="https://passthepopcorn.me/torrents.php?id=' + row['PtpId'] + '&torrentid=' + row['PtpTorrentId'] + '">' + data + '</a>'
+                         } else {
+                           ret = '<a href="https://passthepopcorn.me/torrents.php?id=' + row['PtpId'] + '">' + data + '</a>'
+                         }
+                       } else if (row['ImdbId'] && row['ImdbId'] != "0") {
+                         ret = '<a href="https://passthepopcorn.me/torrents.php?imdb=' + row['ImdbId'] + '">' + data + '</a>'
+                       }
+                       ret = '<span class="title">' + ret + '</span>';
+                       if (row['ErrorMessage']) {
+                         ret = ret + '</br>' + row['ErrorMessage'];
+                       }
+                       return ret;
+                     }
+                   },
+                   {
+                     "data": "AnnouncementSourceName",
+                     className: "nowrap",
+                     "render": {
+                       _: '_',
+                       sort: 'sort'
+                     }
+                   },
+                   {
+                     "data": "Size",
+                     'type': 'num',
+                     className: "nowrap",
+                     "render": {
+                       _: '_',
+                       sort: 'sort'
+                     }
+                   },
+                   {
+                     "data": "LastModificationTime",
+                     'type': 'num',
+                     className: "nowrap",
+                     "render": {
+                       _: '_',
+                       sort: 'sort'
+                     }
+                   },
+                   {
+                     "data": "Actions",
+                     "orderable": false,
+                     className: "nowrap jobbuttons"
+                   },
+       ]
+     });
+     $.contextMenu({
+       selector: '.delete_job_context_menu',
+       trigger: 'left',
+       callback: function(key, options) {
+         var deleteLink = options.$trigger;
+         var jobId = deleteLink.attr('PtpUploaderJobId');
+         if (jobId.length > 0) {
+           executeDeleteJobCommand(deleteLink, jobId, key);
+         }
+       },
+       items: {
+         "DeleteJob": {
+           name: "Delete job"
+         },
+         "DeleteJobAndSourceData": {
+           name: "Delete job & source data"
+         },
+         "DeleteJobAndUploadData": {
+           name: "Delete job & upload data"
+         },
+         "DeleteJobAndAllData": {
+           name: "Delete job & all data"
+         },
+       }
+     });
+   });
+  </script>
 {% endblock %}
 
 {% block body %}
@@ -18,142 +167,21 @@
         <th>Edit</th>
       </tr>
     </thead>
-
     <tbody>
-        <tr>
-          <td class="state">
-          </td>
-          <td class="name">
-          </td>
-          <td class="nowrap">
-          </td>
-          <td class="nowrap">
-          </td>
-          <td class="nowrap">
-          </td>
-          <td class="nowrap jobbuttons">
-          </td>
-        </tr>
+      <tr>
+        <td class="state">
+        </td>
+        <td class="name">
+        </td>
+        <td class="nowrap">
+        </td>
+        <td class="nowrap">
+        </td>
+        <td class="nowrap">
+        </td>
+        <td class="nowrap jobbuttons">
+        </td>
+      </tr>
     </tbody>
   </table>
-
-  <script type=text/javascript src="{% static "script/jquery-3.6.0.min.js" %}"></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-contextmenu/2.7.1/jquery.contextMenu.min.css">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-contextmenu/2.7.1/jquery.contextMenu.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-contextmenu/2.7.1/jquery.ui.position.js"></script>
-  <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.3/css/jquery.dataTables.css">
-
-  <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.11.3/js/jquery.dataTables.js"></script>
-  <script type="text/javascript">
-   var jobsTable;
-
-   function ToggleSearch( searchToggler )
-   {
-     if ( !window.localStorage )
-       return;
-
-     if ( window.localStorage.getItem( 'HideSearch' ) == '1' )
-     {
-       $( ".ToggledByHideSearch" ).toggle( true );
-       window.localStorage.removeItem( 'HideSearch' );
-     }
-     else
-     {
-       $( ".ToggledByHideSearch" ).toggle( false );
-       window.localStorage.setItem( 'HideSearch', '1' );
-     }
-   }
-
-   function executeJobCommand(linkNode, jobId, jobCommand)
-   {
-     $.ajax(
-       {
-         type: "GET",
-         url: "/job/" + jobId + jobCommand,
-         context: linkNode,
-         success: function(msg)
-         {
-	   $(this).text( msg );
-	   if ( msg == "OK" )
-	     $(this).fadeOut( "slow" );
-         }
-       } );
-   }
-
-   function executeDeleteJobCommand(linkNode, jobId, deleteMode)
-   {
-     $.ajax(
-       {
-         type: "GET",
-         url: "/job/" + jobId + '/delete/?mode=' + deleteMode,
-         context: linkNode,
-         success: function(msg)
-         {
-	   if ( msg == "OK" )
-	     $( this ).parent().parent().fadeOut( "fast" );
-	   else
-	     $( this ).text( msg );
-         }
-       } );
-   }
-
-
-   $(document).ready( function () {
-     jobsTable = $('#jobs').DataTable({
-       "ajax": "/ajax/jobs",
-       "lengthChange": false,
-       "order": [[4, "desc"]],
-       "searchBuilder": {"columns": [2]},
-       "columns": [
-         { "data": "JobRunningState", "type": "num",
-           "render": {_: '_', sort: 'sort'}
-         },
-         { "data": "ReleaseName",
-           "render": function(data, type, row) {
-             ret = data;
-             if (row['PtpId']) {
-               if (row['PtpTorrentId']) {
-                 ret = '<a href="https://passthepopcorn.me/torrents.php?id='+row['PtpId']+'&torrentid='+row['PtpTorrentId']+'">' + data + '</a>'
-               } else {
-                 ret = '<a href="https://passthepopcorn.me/torrents.php?id='+row['PtpId']+'">' + data + '</a>'
-               }
-             } else if (row['ImdbId'] && row['ImdbId'] != "0") {
-               ret = '<a href="https://passthepopcorn.me/torrents.php?imdb='+row['ImdbId']+'">' + data + '</a>'
-             }
-             ret = '<span class="title">' + ret + '</span>';
-             if (row['ErrorMessage']) {
-               ret = ret + '</br>' + row['ErrorMessage'];
-             }
-             return ret;
-           }
-         },
-         { "data": "AnnouncementSourceName", className: "nowrap",
-           "render": {_: '_', sort: 'sort'}
-         },
-         { "data": "Size", 'type': 'num', className: "nowrap",
-           "render": {_: '_', sort: 'sort'}},
-         { "data": "LastModificationTime", 'type': 'num', className: "nowrap",
-           "render": {_: '_', sort: 'sort'} },
-         { "data": "Actions",  "orderable": false, className: "nowrap jobbuttons" },
-       ]
-     });
-     $.contextMenu( {
-       selector: '.delete_job_context_menu',
-       trigger: 'left',
-       callback: function( key, options ) {
-	 var deleteLink = options.$trigger;
-	 var jobId = deleteLink.attr( 'PtpUploaderJobId' );
-	 if ( jobId.length > 0 ) {
-	   executeDeleteJobCommand( deleteLink, jobId, key );
-	 }
-       },
-       items: {
-	 "DeleteJob": { name: "Delete job" },
-	 "DeleteJobAndSourceData": { name: "Delete job & source data" },
-	 "DeleteJobAndUploadData": { name: "Delete job & upload data" },
-	 "DeleteJobAndAllData": { name: "Delete job & all data" },
-       }
-     } );
-   } );
-  </script>
 {% endblock %}
