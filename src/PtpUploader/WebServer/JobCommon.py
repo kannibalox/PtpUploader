@@ -171,10 +171,10 @@ class JobCommon:
         job["image"] = releaseInfo.CoverArtUrl
         job["trailer"] = JobCommon.__GetYouTubeLink(releaseInfo)
 
-        if releaseInfo.IsPersonalRip():
+        if releaseInfo.PersonalRip:
             job["PersonalRip"] = "on"
 
-        if releaseInfo.IsSceneRelease():
+        if releaseInfo.SceneRelease:
             job["scene"] = "on"
 
         if releaseInfo.IsSpecialRelease():
@@ -220,7 +220,7 @@ class JobCommon:
         job["IncludedFilesCustomizedList"] = releaseInfo.IncludedFiles
         job["SkipDuplicateCheckingButton"] = int(releaseInfo.DuplicateCheckCanIgnore)
 
-        if releaseInfo.IsOverrideScreenshotsSet():
+        if releaseInfo.OverrideScreenshots:
             job["OverrideScreenshots"] = 1
 
         if releaseInfo.PtpId:

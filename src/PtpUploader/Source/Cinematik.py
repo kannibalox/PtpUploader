@@ -88,7 +88,7 @@ class Cinematik(SourceBase):
         releaseInfo.ReleaseName = RemoveDisallowedCharactersFromPath(releaseName)
 
         # Get IMDb id.
-        if (not releaseInfo.HasImdbId()) and (not releaseInfo.PtpId):
+        if (not releaseInfo.ImdbId) and (not releaseInfo.PtpId):
             matches = re.search(r"imdb\.com/title/tt(\d+)", description)
             if matches is None:
                 raise PtpUploaderException(
@@ -153,7 +153,7 @@ class Cinematik(SourceBase):
                 "Unsupported codec type '%s'." % codec,
             )
 
-        if releaseInfo.IsContainerSet():
+        if releaseInfo.Container:
             releaseInfo.Logger.info(
                 "Container '%s' is already set, not getting from the torrent page."
                 % releaseInfo.Container

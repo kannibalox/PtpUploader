@@ -202,9 +202,6 @@ class ReleaseInfo(models.Model):
     def SetSubtitles(self, sub_ids: Iterator[int]):
         self.Subtitles = sub_ids
 
-    def IsPersonalRip(self):
-        return self.PersonalRip
-
     def SetPersonalRip(self):
         self.PersonalRip = True
 
@@ -273,9 +270,6 @@ class ReleaseInfo(models.Model):
     def SetTrumpableForHardcodedSubtitles(self):
         if self.TrumpableReasons.HARDCODED_SUBS not in self.Trumpable:
             self.Trumpable += [self.TrumpableReasons.HARDCODED_SUBS]
-
-    def IsOverrideScreenshotsSet(self) -> bool:
-        return self.OverrideScreenshots
 
     def SetOverrideScreenshots(self, override: bool):
         self.OverrideScreenshots = override
@@ -346,36 +340,6 @@ class ReleaseInfo(models.Model):
 
     def IsZeroImdbId(self):
         return self.ImdbId == "0"
-
-    def GetPtpTorrentId(self):
-        return self.PtpTorrentId
-
-    def HasImdbId(self):
-        return len(self.ImdbId) > 0
-
-    def SetZeroImdbId(self):
-        self.ImdbId = "0"
-
-    def HasPtpId(self):
-        return len(self.PtpId) > 0
-
-    def HasPtpTorrentId(self):
-        return len(self.PtpTorrentId) > 0
-
-    def IsSynopsisSet(self):
-        return len(self.MovieDescription) > 0
-
-    def IsReleaseNameSet(self):
-        return len(self.ReleaseName) > 0
-
-    def IsCodecSet(self):
-        return len(self.Codec) > 0
-
-    def IsContainerSet(self):
-        return len(self.Container) > 0
-
-    def IsSourceSet(self):
-        return len(self.Source) > 0
 
     @property
     def Logger(self):

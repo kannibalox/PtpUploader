@@ -195,11 +195,11 @@ def __UploadMovieGetParamsCommon(releaseInfo, releaseDescription):
     }
 
     # personal rip only needed if it is specified
-    if releaseInfo.IsPersonalRip():
+    if releaseInfo.PersonalRip:
         paramList.update({"internalrip": "on"})
 
     # scene only needed if it is specified
-    if releaseInfo.IsSceneRelease():
+    if releaseInfo.SceneRelease:
         paramList.update({"scene": "on"})
     # other category is only needed if it is specified
     if releaseInfo.IsSpecialRelease():

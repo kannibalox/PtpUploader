@@ -104,7 +104,7 @@ class HDTorrents(SourceBase):
 
     def __HandleUserCreatedJob(self, logger, releaseInfo):
         releaseName = self.__ReadTorrentPage(logger, releaseInfo)
-        if not releaseInfo.IsReleaseNameSet():
+        if not releaseInfo.ReleaseName:
             releaseInfo.ReleaseName = RemoveDisallowedCharactersFromPath(releaseName)
 
         releaseNameParser = ReleaseNameParser(releaseInfo.ReleaseName)
@@ -136,7 +136,7 @@ class HDTorrents(SourceBase):
             releaseInfo.SetSceneRelease()
 
         if (
-            not releaseInfo.IsSceneRelease()
+            not releaseInfo.SceneRelease
         ) and self.AutomaticJobFilter == "SceneOnly":
             raise PtpUploaderException(JobRunningState.Ignored, "Non-scene release.")
 

@@ -149,7 +149,7 @@ class Gft(SourceBase):
 
     def __HandleUserCreatedJob(self, logger, releaseInfo):
         releaseName = self.__ReadTorrentPage(logger, releaseInfo)
-        if not releaseInfo.IsReleaseNameSet():
+        if not releaseInfo.ReleaseName:
             releaseInfo.ReleaseName = releaseName
 
         releaseNameParser = ReleaseNameParser(releaseInfo.ReleaseName)
@@ -178,7 +178,7 @@ class Gft(SourceBase):
             releaseInfo.SetSceneRelease()
 
         if (
-            not releaseInfo.IsSceneRelease()
+            not releaseInfo.SceneRelease
         ) and self.AutomaticJobFilter == "SceneOnly":
             raise PtpUploaderException(JobRunningState.Ignored, "Non-scene release.")
 

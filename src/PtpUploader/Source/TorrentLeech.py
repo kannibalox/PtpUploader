@@ -89,7 +89,7 @@ class TorrentLeech(SourceBase):
 
     # On TorrentLeech the torrent page doesn't contain the NFO, and the NFO page doesn't contain the release name so we have to read them separately.
     def __ReadImdbIdFromNfoPage(self, logger, releaseInfo):
-        if releaseInfo.HasImdbId() or releaseInfo.PtpId:
+        if releaseInfo.ImdbId or releaseInfo.PtpId:
             return
 
         url = (
@@ -106,11 +106,11 @@ class TorrentLeech(SourceBase):
         releaseInfo.ImdbId = NfoParser.GetImdbId(response)
 
     def __HandleUserCreatedJob(self, logger, releaseInfo):
-        if (not releaseInfo.IsReleaseNameSet()) or releaseInfo.Size == 0:
+        if (not releaseInfo.ReleaseName) or releaseInfo.Size == 0:
             releaseName, releaseInfo.Size = self.__GetReleaseNameAndSize(
                 logger, releaseInfo
             )
-            if not releaseInfo.IsReleaseNameSet():
+            if not releaseInfo.ReleaseName:
                 releaseInfo.ReleaseName = releaseName
 
         releaseNameParser = ReleaseNameParser(releaseInfo.ReleaseName)
@@ -148,7 +148,7 @@ class TorrentLeech(SourceBase):
             releaseInfo.SetSceneRelease()
 
         if (
-            not releaseInfo.IsSceneRelease()
+            not releaseInfo.SceneRelease
         ) and self.AutomaticJobFilter == "SceneOnly":
             raise PtpUploaderException(JobRunningState.Ignored, "Non-scene release.")
 

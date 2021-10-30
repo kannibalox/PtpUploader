@@ -429,7 +429,7 @@ class CheckAnnouncement(WorkerBase):
         )
 
     def __DetectSceneReleaseFromFileList(self):
-        if self.ReleaseInfo.IsSceneRelease():
+        if self.ReleaseInfo.SceneRelease:
             return
 
         includedFileList = self.ReleaseInfo.AnnouncementSource.GetIncludedFileList(

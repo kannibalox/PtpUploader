@@ -67,7 +67,7 @@ class HDBits(SourceBase):
             )
 
         # Get IMDb id.
-        if (not releaseInfo.HasImdbId()) and (not releaseInfo.PtpId):
+        if (not releaseInfo.ImdbId) and (not releaseInfo.PtpId):
             releaseInfo.ImdbId = str(response.json()["data"][0]["imdb"]["id"])
 
         # Get size.
@@ -131,7 +131,7 @@ class HDBits(SourceBase):
             releaseInfo.SetSceneRelease()
 
         if (
-            not releaseInfo.IsSceneRelease()
+            not releaseInfo.SceneRelease
         ) and self.AutomaticJobFilter == "SceneOnly":
             raise PtpUploaderException(JobRunningState.Ignored, "Non-scene release.")
 

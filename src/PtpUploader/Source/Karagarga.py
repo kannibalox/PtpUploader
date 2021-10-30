@@ -158,7 +158,7 @@ class Karagarga(SourceBase):
         releaseInfo.Container = "VOB IFO"
 
     def __DownloadNfoParseFormatType(self, releaseInfo, description):
-        if releaseInfo.IsCodecSet():
+        if releaseInfo.Codec:
             releaseInfo.Logger.info(
                 "Codec '%s' is already set, not getting from the torrent page."
                 % releaseInfo.Codec
@@ -317,7 +317,7 @@ class Karagarga(SourceBase):
             releaseName = re.compile(r"\.mkv$", re.IGNORECASE).sub("", releaseName)
             releaseName = re.compile(r"\.mp4$", re.IGNORECASE).sub("", releaseName)
             if (
-                not releaseInfo.IsReleaseNameSet()
+                not releaseInfo.ReleaseName
             ) or releaseInfo.ReleaseName == "none":  # "none" can come from FlexGet from the announcement directory.
                 releaseInfo.ReleaseName = releaseName
 

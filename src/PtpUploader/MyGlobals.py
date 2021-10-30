@@ -49,7 +49,7 @@ class MyGlobalsClass:
         # This will create the log directory too.
         announcementLogDirPath = Path(os.path.join(workingPath, "log/announcement"))
         if not announcementLogDirPath.is_dir():
-            announcementLogDirPath.makedir(parents=True, exist_ok=True)
+            announcementLogDirPath.mkdir(parents=True, exist_ok=True)
 
         logDirPath = os.path.join(workingPath, "log")
 

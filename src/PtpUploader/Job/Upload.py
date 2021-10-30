@@ -147,7 +147,7 @@ class Upload(WorkerBase):
         elif mediaInfo.IsVob():
             container = "VOB IFO"
 
-        if self.ReleaseInfo.IsContainerSet():
+        if self.ReleaseInfo.Container:
             if container != self.ReleaseInfo.Container:
                 if self.ReleaseInfo.IsForceUpload():
                     self.ReleaseInfo.Logger.info(
@@ -200,7 +200,7 @@ class Upload(WorkerBase):
             # Codec type DVD5 and DVD9 can't be figured out from MediaInfo.
             codec = self.ReleaseInfo.Codec
 
-        if self.ReleaseInfo.IsCodecSet():
+        if self.ReleaseInfo.Codec:
             if codec != self.ReleaseInfo.Codec:
                 if Upload.__CanIgnoreDetectedAndSetCodecDifference(
                     codec, self.ReleaseInfo.Codec
@@ -272,13 +272,12 @@ class Upload(WorkerBase):
                 self.ReleaseInfo
             )
         )
-        makeScreenshots = not self.ReleaseInfo.IsOverrideScreenshotsSet()
         releaseDescriptionFormatter = ReleaseDescriptionFormatter(
             self.ReleaseInfo,
             self.VideoFiles,
             self.AdditionalFiles,
             outputImageDirectory,
-            makeScreenshots,
+            not self.ReleaseInfo.OverrideScreenshots,
         )
         self.ReleaseDescription = releaseDescriptionFormatter.Format(includeReleaseName)
         self.MainMediaInfo = releaseDescriptionFormatter.GetMainMediaInfo()
