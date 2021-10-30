@@ -99,6 +99,11 @@ def jobs_json(request):
                 entry["AnnouncementSourceName"][
                     "_"
                 ] = f'<a href="{url}"><img src="{icon}"></a>'
+        else:
+            entry["AnnouncementSourceName"] = {
+                "sort": "",
+                "_": "",
+            }
 
         icon = GetStateIcon(release.JobRunningState)
         logUrl = reverse("log", args=[release.Id])
@@ -124,7 +129,9 @@ def jobs_json(request):
         if release.CanEdited():
             url = reverse("edit_job", args=[release.Id])
             icon = static("edit.png")
-            entry["Actions"] += f'<a href="{url}"><span class="icon"><i class="fas fa-edit"></i></span></a>'
+            entry[
+                "Actions"
+            ] += f'<a href="{url}"><span class="icon"><i class="fas fa-edit"></i></span></a>'
         if release.CanDeleted():
             icon = static("delete.png")
             entry[
@@ -170,7 +177,9 @@ def stop_job(request, r_id: int) -> str:
 
 
 def edit_job(request, r_id: int = -1):
-    job: Dict[str, Any] = {'id': r_id}  # Non-form data for display but too complex for a template
+    job: Dict[str, Any] = {
+        "id": r_id
+    }  # Non-form data for display but too complex for a template
     if r_id > 0:
         release = get_object_or_404(ReleaseInfo, Id=r_id)
     else:
