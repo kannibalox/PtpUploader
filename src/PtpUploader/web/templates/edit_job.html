@@ -1,4 +1,4 @@
-﻿{% extends "layout.html" %}
+{% extends "layout.html" %}
 
 {% load static %}
 
@@ -71,31 +71,28 @@
 	 {
 	   $( "html" ).addClass( 'busy' );
 
-	   $.ajax(
+	   $.ajax({
+	     type: "GET",
+	     url: "{% url "jobs_get_latest" %}",
+	     dataType: "json",
+	     data: {
+	       "PtpOrImdbLink": $( "#imdb" ).val()
+	     },
+	     success: function( data )
 	     {
-	       type: "GET",
-	       url: "{% url "jobs_get_latest" %}",
-	       dataType: "json",
-	       data: {
-		 "PtpOrImdbLink": $( "#imdb" ).val()
-	       },
-	       success: function( data )
-	       {
-		 if ( data.Result == "OK" )
-		   FinishSkipDuplicateCheckingAjaxCall( data.TorrentId, data.UploadedAgo );
-		 else
-		   FinishSkipDuplicateCheckingAjaxCall( 0, "" );
-	       },
-	       error: function()
-	       {
+	       if ( data.Result == "OK" )
+		 FinishSkipDuplicateCheckingAjaxCall( data.TorrentId, data.UploadedAgo );
+	       else
 		 FinishSkipDuplicateCheckingAjaxCall( 0, "" );
-	       }
-	     } );
-	 }
-	 else
-	 {
-	   $( "#SkipDuplicateCheckingMessage" ).html( "" );
-	 }
+	     },
+	     error: function()
+	     {
+	       FinishSkipDuplicateCheckingAjaxCall( 0, "" );
+	     }
+	   } );
+         } else {
+           $( "#SkipDuplicateCheckingMessage" ).html( "" );
+         }
        } );
    } );
   </script>
@@ -107,7 +104,6 @@
          $.confirm({
            // theme: "material",
            title: "Select File",
-           // title: "Fancytree & jquery-confirm",
            content: "<div id='tree'></div>",
            escape: true,
            useBootstrap: false,
@@ -146,12 +142,12 @@
 
        // Do a quick naive check that a necessary field is filled
        $("#post").click(function(event) {
-	 if (!($("#torrent_site_link").val() || $("#existingfile").val() || $("#upload_field").val())) {
-	   alert("Select something to upload!");
-	   event.preventDefault();
-	 }
+         if (!($("#torrent_site_link").val() || $("#existingfile").val() || $("#upload_field").val())) {
+           alert("Select something to upload!");
+           event.preventDefault();
+         }
        });
-       });
+   });
   </script>
 {% endblock %}
 
@@ -167,53 +163,53 @@
       <tbody>
         {% if form.is_bound %}
           <tr>
-	    <td class="label">Release name</td>
-	    <td>
+            <td class="label">Release name</td>
+            <td>
               {{ form.ReleaseName }}
-	      {% if job.IsReleaseNameEditable %}
-	        <input id="release_name" name="release_name" size="60" type="text" value="{{ job.ReleaseName }}" title="The specified release name will be the name of the directory in the torrent uploaded to PTP. (Not supported yet on CG.)"/>
-	      {% else %}
-	        {{ job.ReleaseName }}
-	      {% endif %}
-	    </td>
+              {% if job.IsReleaseNameEditable %}
+                <input id="release_name" name="release_name" size="60" type="text" value="{{ job.ReleaseName }}" title="The specified release name will be the name of the directory in the torrent uploaded to PTP. (Not supported yet on CG.)"/>
+              {% else %}
+                {{ job.ReleaseName }}
+              {% endif %}
+            </td>
           </tr>
           <tr>
-	    <td class="label">Release source</td>
-	    <td>
-	      {% if job.SourceIcon %}
-	        {% if job.SourceUrl %}
-	          <a href="{{ job.SourceUrl }}" {{ settings.OpenJobPageLinksInNewTab|safe }}><img src={{ job.SourceIcon }}></a>
-	        {% else %}
-	          <img src={{ job.SourceIcon }}/>
-	        {% endif %}
-	      {% endif %}
-	    </td>
+            <td class="label">Release source</td>
+            <td>
+              {% if job.SourceIcon %}
+                {% if job.SourceUrl %}
+                  <a href="{{ job.SourceUrl }}" {{ settings.OpenJobPageLinksInNewTab|safe }}><img src={{ job.SourceIcon }}></a>
+                {% else %}
+                  <img src={{ job.SourceIcon }}/>
+                {% endif %}
+              {% endif %}
+            </td>
           </tr>
         {% else %}
           <tr>
-	    <td class="label">Upload a torrent file</td>
-	    <td>
-	      <input type="file" id="uploaded_torrent" name="uploaded_torrent" accept="application/x-bittorrent" title="You have to specify an IMDB or PTP link too."/>
-	    </td>
+            <td class="label">Upload a torrent file</td>
+            <td>
+              <input type="file" id="uploaded_torrent" name="uploaded_torrent" accept="application/x-bittorrent" title="You have to specify an IMDB or PTP link too."/>
+            </td>
           </tr>
           <tr>
-	    <td class="label">Or specify a torrent page link</td>
-	    <td>
-	      <input id="torrent_site_link" name="torrent_site_link" size="60" type="text">
-	    </td>
+            <td class="label">Or specify a torrent page link</td>
+            <td>
+              <input id="torrent_site_link" name="torrent_site_link" size="60" type="text">
+            </td>
           </tr>
           <tr>
-	    <td class="label">Or select an existing file or folder</td>
-	    <td>
-	      <input id="existingfile" name="existingfile_input" size="60" title="Path of the directory or the file to upload.">
-	      <input type="button" id="DirectorySelectorToggle" value="Browse..." title="Directory selector.">
-	    </td>
+            <td class="label">Or select an existing file or folder</td>
+            <td>
+              <input id="existingfile" name="existingfile_input" size="60" title="Path of the directory or the file to upload.">
+              <input type="button" id="DirectorySelectorToggle" value="Browse..." title="Directory selector.">
+            </td>
           </tr>
           <tr>
-	    <td class="label">Release name</td>
-	    <td>
-	      <input id="release_name" name="release_name" size="60" type="text" title="The specified release name will be the name of the directory in the torrent uploaded to PTP. (Not supported yet on CG.)">
-	    </td>
+            <td class="label">Release name</td>
+            <td>
+              <input id="release_name" name="release_name" size="60" type="text" title="The specified release name will be the name of the directory in the torrent uploaded to PTP. (Not supported yet on CG.)">
+            </td>
           </tr>
         {% endif %}
 
@@ -222,22 +218,22 @@
         {% if form.is_bound %}
           {% if job.CanEdited %}
             <tr>
-	      <td colspan="2" style="text-align: center; border: none;">
-	        <br/><br/>
-	        <input id="post" name="post" type="submit" value="Resume">
-	        <input id="post" name="post_stop_before" type="submit" value="Resume but stop before uploading" title="The job will be stopped after everything has completed and the only remaining thing to do is the uploading to PTP.">
-	        <br/><br/><br/>
-	      </td>
+              <td colspan="2" style="text-align: center; border: none;">
+                <br/><br/>
+                <input id="post" name="post" type="submit" value="Resume">
+                <input id="post" name="post_stop_before" type="submit" value="Resume but stop before uploading" title="The job will be stopped after everything has completed and the only remaining thing to do is the uploading to PTP.">
+                <br/><br/><br/>
+              </td>
             </tr>
           {% endif %}
         {% else %}
           <tr>
-	    <td colspan="2" style="text-align: center; border: none;">
-	      <br/><br/>
-	      <input id="post" name="post" type="submit" value="Upload">
-	      <input id="post" name="post_stop_before" type="submit" value="Upload but stop before uploading" title="The job will be stopped after everything has completed and the only remaining thing to do is the uploading to PTP.">
-	      <br/><br/><br/>
-	    </td>
+            <td colspan="2" style="text-align: center; border: none;">
+              <br/><br/>
+              <input id="post" name="post" type="submit" value="Upload">
+              <input id="post" name="post_stop_before" type="submit" value="Upload but stop before uploading" title="The job will be stopped after everything has completed and the only remaining thing to do is the uploading to PTP.">
+              <br/><br/><br/>
+            </td>
           </tr>
 
         {% endif %}
