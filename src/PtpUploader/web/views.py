@@ -170,7 +170,7 @@ def stop_job(request, r_id: int) -> str:
 
 
 def edit_job(request, r_id: int = -1):
-    job: Dict[str, Any] = {}  # Non-form data for display but too complex for a template
+    job: Dict[str, Any] = {'id': r_id}  # Non-form data for display but too complex for a template
     if r_id > 0:
         release = get_object_or_404(ReleaseInfo, Id=r_id)
     else:
@@ -193,7 +193,6 @@ def edit_job(request, r_id: int = -1):
 
     # if a GET (or any other method) we'll create a blank form
     else:
-        source = MyGlobals.SourceFactory.GetSource(release.AnnouncementSourceName)
         job["Screenshots"] = {}
         if release.Screenshots:
             for f in json.loads(release.Screenshots):
@@ -201,6 +200,7 @@ def edit_job(request, r_id: int = -1):
                 job["Screenshots"][path] = ""
                 for s in f[1]:
                     job["Screenshots"][path] += f'<img src="{s}"/>'
+        source = MyGlobals.SourceFactory.GetSource(release.AnnouncementSourceName)
         if source is not None:
             filename = "source_icon/%s.ico" % release.AnnouncementSourceName
             job["SourceIcon"] = static(filename)

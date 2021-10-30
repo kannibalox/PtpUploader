@@ -3,7 +3,7 @@
 {% load static %}
 
 {% block head %}
-  <title>{% if form.is_bound %}{{ form.ReleaseName.value }}{% else %}Upload{% endif %} - PtpUploader</title>
+  <title>{% if job.id > 0 %}{{ form.ReleaseName.value }}{% else %}Upload{% endif %} - PtpUploader</title>
   <script src="{% static "script/jquery-3.6.0.min.js" %}"></script>
   <script src="{% static "script/select2.min.js" %}"></script>
   <link href="{% static "script/select2.min.css" %}" rel="stylesheet" type="text/css" />
@@ -140,7 +140,7 @@
 {% endblock %}
 
 {% block body %}
-  {% if form.is_bound and not job.CanEdited %}
+  {% if job.id > 0 and not job.CanEdited %}
     <div class="column">
       <h2 style="color: red; font-weight: bold;">The job is currently running and can't be edited!</h2>
     </div>
@@ -152,7 +152,7 @@
       {% csrf_token %}
       <table id="editjob_table" class="border" border="0" cellpadding="3" cellspacing="1">
         <tbody>
-          {% if form.is_bound %}
+          {% if form.id > 0 %}
             <tr>
               <td class="label">Release name</td>
               <td>
@@ -206,7 +206,7 @@
 
           {% include "job_common.html" %}
 
-          {% if form.is_bound %}
+          {% if job.id > 0 %}
             {% if job.CanEdited %}
               <tr>
                 <td colspan="2" style="text-align: center; border: none;">
@@ -226,7 +226,6 @@
                 <br/><br/><br/>
               </td>
             </tr>
-
           {% endif %}
         </tbody>
       </table>

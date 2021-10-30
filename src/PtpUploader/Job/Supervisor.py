@@ -99,14 +99,15 @@ class JobSupervisor(threading.Thread):
         for key, val in list(self.futures.items()):
             flag, result = val
             if result.done():
-                if result.exception():  # Exceptions are used as messengers, hence info
-                    logger.info(
+                if result.exception():
+                    logger.info(  # Exceptions are used as messengers, hence info
                         "Job %s finished with exception '%s'", key, result.exception()
                     )
                 del self.futures[key]
 
     def work(self):
-        print(self.futures)
+        if self.futures.keys():
+            print(self.futures)
         try:
             message = self.message_queue.get(timeout=3)
             if isinstance(message, PtpUploaderMessageStopJob):
