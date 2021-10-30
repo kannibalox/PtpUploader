@@ -175,9 +175,12 @@ def stop_job(r_id) -> str:
     return "OK"
 
 
-def edit_job(request, r_id: int):
+def edit_job(request, r_id: int = -1):
     job: Dict[str, Any] = {}  # Non-form data for display but too complex for a template
-    release = get_object_or_404(ReleaseInfo, Id=r_id)
+    if r_id > 0:
+        release = get_object_or_404(ReleaseInfo, Id=r_id)
+    else:
+        release = ReleaseInfo()
     if request.method == "POST":
         # create a form instance and populate it with data from the request:
         form = forms.ReleaseForm(request.POST, instance=release)
