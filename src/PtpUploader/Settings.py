@@ -6,8 +6,6 @@ import re
 import shutil
 from pathlib import Path
 
-from PtpUploader.MyGlobals import MyGlobals
-
 class Settings:
     @staticmethod
     def MakeListFromExtensionString(extensions):
@@ -322,7 +320,7 @@ class Settings:
     @staticmethod
     def __VerifyProgramPath(programName, arguments):
         if shutil.which(arguments[0]) is None:
-            MyGlobals.Logger.error(
+            print(
                 "%s isn't set properly in the settings or isn't in the path!",
                 programName,
             )
@@ -332,7 +330,7 @@ class Settings:
 
     @staticmethod
     def VerifyPaths():
-        MyGlobals.Logger.info("Checking paths")
+        print("Checking paths")
 
         if not Settings.__VerifyProgramPath(
             "MediaInfo", [Settings.MediaInfoPath, "--version"]
