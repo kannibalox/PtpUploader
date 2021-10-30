@@ -192,7 +192,7 @@
             <tr>
               <td class="label">Or select an existing file or folder</td>
               <td>
-                <input id="existingfile" name="existingfile_input" size="60" title="Path of the directory or the file to upload.">
+                <input id="existingfile" type="text" name="existingfile_input" size="60" title="Path of the directory or the file to upload.">
                 <input type="button" id="DirectorySelectorToggle" value="Browse..." title="Directory selector.">
               </td>
             </tr>
@@ -221,8 +221,8 @@
             <tr>
               <td colspan="2" style="text-align: center; border: none;">
                 <br/><br/>
-                <input id="post" name="post" type="submit" value="Upload">
-                <input id="post" name="post_stop_before" type="submit" value="Upload but stop before uploading" title="The job will be stopped after everything has completed and the only remaining thing to do is the uploading to PTP.">
+                <input class="is-primary button is-dark is-light" id="post" name="post" type="submit" value="Upload">
+                <input class="is-primary button" id="post" name="post_stop_before" type="submit" value="Upload but stop before uploading" title="The job will be stopped after everything has completed and the only remaining thing to do is the uploading to PTP.">
                 <br/><br/><br/>
               </td>
             </tr>

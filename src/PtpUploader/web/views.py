@@ -104,7 +104,7 @@ def jobs_json(request):
         logUrl = reverse("log", args=[release.Id])
         entry["JobRunningState"] = {
             "sort": release.JobRunningState,
-            "_": f'<a href="{logUrl}"><span class="icon"><i class="fas {icon}"></span></i></a>',
+            "_": f'<a href="{logUrl}"><span class="icon"><i class="fas {icon}"></i></span></a>',
         }
 
         # Build actions
@@ -114,22 +114,22 @@ def jobs_json(request):
             icon = static("start.png")
             entry[
                 "Actions"
-            ] += f'<a href="#" onclick=\'executeJobCommand( this, {release.Id}, "/start" ); jobsTable.ajax.reload(null, false); return false;\'><img src={icon} title="Start"></a>'
+            ] += f'<a href="#" onclick=\'executeJobCommand( this, {release.Id}, "/start" ); jobsTable.ajax.reload(null, false); return false;\'><span class="icon is-small"><i class="fas fa-play-circle"></i></span></a>'
         if release.CanStopped():
             url = reverse("stop_job", args=[release.Id])
             icon = static("stop.png")
             entry[
                 "Actions"
-            ] += f'<a href="#" onclick=\'executeJobCommand( this, {release.Id}, "/stop" ); jobsTable.ajax.reload(null, false); return false;\'><img src={icon} title="Stop"></a>'
+            ] += f'<a href="#" onclick=\'executeJobCommand( this, {release.Id}, "/stop" ); jobsTable.ajax.reload(null, false); return false;\'><span class="icon is-small"><i class="fas fa-stop-circle"></i></span></a>'
         if release.CanEdited():
             url = reverse("edit_job", args=[release.Id])
             icon = static("edit.png")
-            entry["Actions"] += f'<a href="{url}"><img src={icon} title="Edit"></a>'
+            entry["Actions"] += f'<a href="{url}"><span class="icon"><i class="fas fa-edit"></i></span></a>'
         if release.CanDeleted():
             icon = static("delete.png")
             entry[
                 "Actions"
-            ] += f'<a href="#" class="delete_job_context_menu" PtpUploaderJobId="{release.Id}"><img src={icon} title="Delete"></a>'
+            ] += f'<a href="#" class="delete_job_context_menu" PtpUploaderJobId="{release.Id}"><span class="icon is-small"><i class="fas fa-trash has-text-danger"></i></span></a>'
         entry["Actions"] += "</span>"
         entries.append(entry)
 

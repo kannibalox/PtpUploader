@@ -25,10 +25,24 @@ html#uploader, body#uploader, table#jobs th, #jobs.table.is-striped tbody, td.la
     text-align: right;
 }
 
+input[type="text"], input[type="search"], textarea, button, select, textarea {
+    background-color : #363636;
+    border: thin solid #30373d;
+    border-radius: 3px;
+    color: white;
+}
+
+
+table#editjob_table
+{
+    line-height: 1;
+    border-collapse: collapse;
+}
+
 #editjob_table td, th
 {
-    border: thin solid #121C1E;
-    padding: 0 2px 0 2px;
+    border: 1px;
+    padding: 1px 3px 1px 3px;
     text-align: left;
 }
 
