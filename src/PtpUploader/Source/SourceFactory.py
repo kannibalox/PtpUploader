@@ -13,6 +13,7 @@ from PtpUploader.Source.Karagarga import Karagarga
 from PtpUploader.Source.Torrent import Torrent
 from PtpUploader.Source.TorrentBytes import TorrentBytes
 from PtpUploader.Source.TorrentLeech import TorrentLeech
+from PtpUploader.Source.Prowlarr import Prowlarr
 
 
 class SourceFactory:
@@ -33,6 +34,7 @@ class SourceFactory:
         self.__AddSource(Karagarga())
         self.__AddSource(TorrentBytes())
         self.__AddSource(TorrentLeech())
+        self.__AddSource(Prowlarr())
 
         MyGlobals.Logger.info("Sources initialized.")
 
