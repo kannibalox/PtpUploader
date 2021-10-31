@@ -40,7 +40,7 @@ def GetStateIcon(state: int) -> str:
         ReleaseInfo.JobState.WaitingForStart: "fa-hourglass has-text-info",
         ReleaseInfo.JobState.Paused: "fa-pause has-text-info",
         ReleaseInfo.JobState.DownloadedAlreadyExists: "fa-frown has-text-warning",
-        ReleaseInfo.JobState.InProgress: "fa-spin fa-pulse has-text-info",
+        ReleaseInfo.JobState.InProgress: "fa-spinner fa-pulse has-text-info",
         ReleaseInfo.JobState.InDownload: "fa-circle-notch fa-spin fa-pulse has-text-info",
     }
     return i[state]
