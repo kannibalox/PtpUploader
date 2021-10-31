@@ -25,6 +25,7 @@ from typing import Dict, List
 
 from PtpUploader.Job.CheckAnnouncement import CheckAnnouncement
 from PtpUploader.Job.Upload import Upload
+from PtpUploader.Job.Delete import Delete
 from PtpUploader.PtpUploaderMessage import *
 from PtpUploader.ReleaseInfo import ReleaseInfo
 
@@ -65,6 +66,16 @@ class JobSupervisor(threading.Thread):
             self.message_queue.put(message)
         else:
             logger.warning("Unknown message '%s'", message)
+
+    def delete_job(self, r_id, mode):
+        if r_id in self.futures.keys():
+            return  # Don't muck with an active job
+        worker_stop_flag = threading.Event()
+        worker = Delete(release_id=r_id, mode=mode, stop_requested=worker_stop_flag)
+        self.futures[r_id] = [
+            worker_stop_flag,
+            self.pool.submit(worker.Work),
+        ]
 
     def scan_db(self):
         """Find releases pending work by their DB status"""
@@ -112,6 +123,10 @@ class JobSupervisor(threading.Thread):
             message = self.message_queue.get(timeout=3)
             if isinstance(message, PtpUploaderMessageStopJob):
                 self.stop_future(message.ReleaseInfoId)
+            elif isinstance(message, PtpUploaderMessageStartJob):
+                pass  # Just wake up the thread to scan the db
+            elif isinstance(message, PtpUploaderMessageDeleteJob):
+                self.delete_job(message.ReleaseInfoId, message.mode)
             elif isinstance(message, PtpUploaderMessageQuit):
                 self.stop_requested.set()
         except queue.Empty:

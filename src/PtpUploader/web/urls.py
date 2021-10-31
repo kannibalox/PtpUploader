@@ -16,5 +16,6 @@ urlpatterns = [
     path("job/<int:r_id>/stop", views.stop_job, name="stop_job"),
     path("job/<int:r_id>/start", views.start_job, name="start_job"),
     path("job/<int:r_id>/edit", views.edit_job, name="edit_job"),
+    path("job/<int:r_id>/delete/<str:mode>", views.delete_job, name="edit_job"),
     path("admin/", admin.site.urls)
 ]

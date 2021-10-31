@@ -1,6 +1,6 @@
 import json
 import os
-from typing import Any, Dict, List
+from typing import Any, Dict
 
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.shortcuts import redirect, render, get_object_or_404
@@ -14,7 +14,6 @@ from PtpUploader.MyGlobals import MyGlobals
 from PtpUploader.PtpUploaderMessage import *
 from PtpUploader.ReleaseInfo import ReleaseInfo
 from PtpUploader.Settings import Settings
-from PtpUploader.WebServer.JobCommon import JobCommon
 
 from . import forms
 
@@ -143,12 +142,12 @@ def jobs_json(request):
     return JsonResponse({"data": entries, "settings": settings})
 
 
-def start_job(request, r_id) -> str:
+def start_job(request, r_id):
     # TODO: This is very far from perfect. There is no guarantee that the job didn't start meanwhile.
     # Probably only the WorkerThread should change the running state.
     releaseInfo = ReleaseInfo.objects.get(Id=r_id)
     if not releaseInfo.CanResumed():
-        return "The job is already running!"
+        return HttpResponse("The job is already running!")
 
     releaseInfo.JobRunningState = JobRunningState.WaitingForStart
 
@@ -162,18 +161,25 @@ def start_job(request, r_id) -> str:
 
     releaseInfo.save()
     MyGlobals.PtpUploader.add_message(PtpUploaderMessageStartJob(r_id))
-    return "OK"
+    return HttpResponse("OK")
 
 
-def stop_job(request, r_id: int) -> str:
-    # TODO: This is very far from perfect. There is no guarantee that the job didn't stop meanwhile.
-    # Probably only the WorkerThread should change the running state.
+def stop_job(request, r_id: int):
     releaseInfo = ReleaseInfo.objects.get(Id=r_id)
     if not releaseInfo.CanStopped():
-        return "The job is already stopped!"
+        return HttpResponse("The job is already stopped!")
 
     MyGlobals.PtpUploader.add_message(PtpUploaderMessageStopJob(r_id))
-    return "OK"
+    return HttpResponse("OK")
+
+
+def delete_job(request, r_id: int, mode: str):
+    releaseInfo = ReleaseInfo.objects.get(Id=r_id)
+    if not releaseInfo.CanDeleted():
+        return HttpResponse("The job cannot be deleted!")
+
+    MyGlobals.PtpUploader.add_message(PtpUploaderMessageDeleteJob(r_id, mode))
+    return HttpResponse("OK")
 
 
 def edit_job(request, r_id: int = -1):
@@ -192,13 +198,15 @@ def edit_job(request, r_id: int = -1):
             form.save()
             release.JobRunningState = JobRunningState.WaitingForStart
             if r_id < 0:
-                if request.POST['TorrentLink']:
-                        source, id = MyGlobals.SourceFactory.GetSourceAndIdByUrl(request.POST['TorrentLink'])
-                        if source is None:
-                            return False
+                if request.POST["TorrentLink"]:
+                    source, id = MyGlobals.SourceFactory.GetSourceAndIdByUrl(
+                        request.POST["TorrentLink"]
+                    )
+                    if source is None:
+                        return False
 
-                        release.AnnouncementSourceName = source.Name
-                        release.AnnouncementId = id
+                    release.AnnouncementSourceName = source.Name
+                    release.AnnouncementId = id
 
             if "post_stop_before" in request.POST:
                 release.StopBeforeUploading = True
@@ -206,9 +214,7 @@ def edit_job(request, r_id: int = -1):
                 release.StopBeforeUploading = False
             release.save()
             MyGlobals.PtpUploader.add_message(PtpUploaderMessageStartJob(release.Id))
-            # TODO: Change running state and trigger supervisor
             return HttpResponseRedirect("/jobs")
-
     # if a GET (or any other method) we'll create a blank form
     else:
         job["Screenshots"] = {}

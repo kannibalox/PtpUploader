@@ -43,7 +43,7 @@
    function executeDeleteJobCommand(linkNode, jobId, deleteMode) {
      $.ajax({
        type: "GET",
-       url: "/job/" + jobId + '/delete/?mode=' + deleteMode,
+       url: "/job/" + jobId + '/delete/' + deleteMode,
        context: linkNode,
        success: function(msg) {
          if (msg == "OK")
@@ -135,16 +135,16 @@
          }
        },
        items: {
-         "DeleteJob": {
+         "job": {
            name: "Delete job"
          },
-         "DeleteJobAndSourceData": {
+         "job_source": {
            name: "Delete job & source data"
          },
-         "DeleteJobAndUploadData": {
+         "job_upload": {
            name: "Delete job & upload data"
          },
-         "DeleteJobAndAllData": {
+         "job_all": {
            name: "Delete job & all data"
          },
        }
