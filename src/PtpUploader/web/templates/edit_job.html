@@ -152,7 +152,7 @@
       {% csrf_token %}
       <table id="editjob_table" class="border" border="0" cellpadding="3" cellspacing="1">
         <tbody>
-          {% if form.id > 0 %}
+          {% if job.id > 0 %}
             <tr>
               <td class="label">Release name</td>
               <td>
@@ -186,7 +186,7 @@
             <tr>
               <td class="label">Or specify a torrent page link</td>
               <td>
-                <input id="torrent_site_link" name="torrent_site_link" size="60" type="text">
+                {{ form.TorrentLink }}
               </td>
             </tr>
             <tr>

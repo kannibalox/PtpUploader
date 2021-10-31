@@ -191,6 +191,15 @@ def edit_job(request, r_id: int = -1):
         if form.is_valid():
             form.save()
             release.JobRunningState = JobRunningState.WaitingForStart
+            if r_id < 0:
+                if request.POST['TorrentLink']:
+                        source, id = MyGlobals.SourceFactory.GetSourceAndIdByUrl(request.POST['TorrentLink'])
+                        if source is None:
+                            return False
+
+                        release.AnnouncementSourceName = source.Name
+                        release.AnnouncementId = id
+
             if "post_stop_before" in request.POST:
                 release.StopBeforeUploading = True
             else:

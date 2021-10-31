@@ -1,5 +1,6 @@
 from django.forms import (
     BooleanField,
+    CharField,
     ChoiceField,
     ModelForm,
     MultipleChoiceField,
@@ -73,9 +74,11 @@ class ReleaseForm(ModelForm):
             )
         ],
     )
+    # Fields that don't map the release object
     ForceUpload = BooleanField(required=False, initial=False)
     TrumpableNoEnglish = BooleanField(required=False, initial=False)
     TrumpableHardSubs = BooleanField(required=False, initial=False)
+    TorrentLink = CharField(required=False)
 
     class Meta:
         model = ReleaseInfo
