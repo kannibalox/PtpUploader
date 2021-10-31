@@ -6,12 +6,11 @@ from PtpUploader.ReleaseInfo import ReleaseInfo
 from PtpUploader.Settings import Settings
 from PtpUploader.Job.WorkerBase import WorkerBase
 
+
 class Delete(WorkerBase):
     def __init__(self, release_id: int, mode: str, stop_requested: threading.Event):
         super().__init__(release_id, stop_requested)
-        self.Phases = [
-            self.__delete
-        ]
+        self.Phases = [self.__delete]
         self.mode = mode
 
     def __delete(self):
@@ -28,12 +27,15 @@ class Delete(WorkerBase):
                 self.ReleaseInfo.AnnouncementSourceName
             )
 
-        if announcementSource is not None: # Still possibly not there
+        if announcementSource is not None:  # Still possibly not there
             if self.ReleaseInfo.Logger is None:
                 self.ReleaseInfo.Logger = Logger(self.ReleaseInfo.GetLogFilePath())
 
             announcementSource.Delete(
-                self.ReleaseInfo, Settings.GetTorrentClient(), deleteSourceData, deleteUploadData
+                self.ReleaseInfo,
+                Settings.GetTorrentClient(),
+                deleteSourceData,
+                deleteUploadData,
             )
 
         self.ReleaseInfo.delete()
