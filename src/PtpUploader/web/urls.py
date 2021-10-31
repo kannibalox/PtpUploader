@@ -1,4 +1,5 @@
-from django.shortcuts import redirect, reverse
+from django.shortcuts import redirect
+from django.contrib import admin
 from django.urls import path
 
 from . import views
@@ -15,4 +16,5 @@ urlpatterns = [
     path("job/<int:r_id>/stop", views.stop_job, name="stop_job"),
     path("job/<int:r_id>/start", views.start_job, name="start_job"),
     path("job/<int:r_id>/edit", views.edit_job, name="edit_job"),
+    path("admin/", admin.site.urls)
 ]
