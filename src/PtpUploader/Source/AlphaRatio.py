@@ -125,9 +125,7 @@ class AlphaRatio(SourceBase):
         if releaseNameParser.Scene:
             releaseInfo.SetSceneRelease()
 
-        if (
-            not releaseInfo.SceneRelease
-        ) and self.AutomaticJobFilter == "SceneOnly":
+        if (not releaseInfo.SceneRelease) and self.AutomaticJobFilter == "SceneOnly":
             raise PtpUploaderException(JobRunningState.Ignored, "Non-scene release.")
 
     def PrepareDownload(self, logger, releaseInfo):

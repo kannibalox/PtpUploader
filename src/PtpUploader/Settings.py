@@ -6,6 +6,7 @@ import re
 import shutil
 from pathlib import Path
 
+
 class Settings:
     @staticmethod
     def MakeListFromExtensionString(extensions):

@@ -58,7 +58,9 @@ class Prowlarr(SourceBase):
         r = self.session.get(self.Url + "/api/v1/indexer").json()
         for t in r:
             self.loaded_indexers[t["name"]] = t
-        logger.info("Loaded indexers from prowlarr: %s", list(self.loaded_indexers.keys()))
+        logger.info(
+            "Loaded indexers from prowlarr: %s", list(self.loaded_indexers.keys())
+        )
 
     def PrepareDownload(self, logger, releaseInfo):
         logger.info(f"Processing '{releaseInfo.AnnouncementId}' with prowlarr")
