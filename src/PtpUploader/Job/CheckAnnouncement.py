@@ -1,6 +1,7 @@
 import datetime
 import os
 import threading
+import logging
 
 from PtpUploader.InformationSource.Imdb import Imdb
 from PtpUploader.InformationSource.MoviePoster import MoviePoster
@@ -13,6 +14,8 @@ from PtpUploader.ReleaseInfo import ReleaseInfo
 from PtpUploader.Settings import Settings
 
 from PtpUploader import Ptp
+
+logger = logging.getLogger(__name__)
 
 
 class CheckAnnouncement(WorkerBase):
@@ -51,7 +54,7 @@ class CheckAnnouncement(WorkerBase):
         self.TorrentClient = Settings.GetTorrentClient()
 
     def __CheckAnnouncementSource(self):
-        self.ReleaseInfo.Logger.info(
+        logger.info(
             "Working on announcement from '%s' with id '%s' and name '%s'."
             % (
                 self.ReleaseInfo.AnnouncementSourceName,
@@ -78,9 +81,7 @@ class CheckAnnouncement(WorkerBase):
             )
 
     def __PrepareDownload(self):
-        self.ReleaseInfo.AnnouncementSource.PrepareDownload(
-            self.ReleaseInfo.Logger, self.ReleaseInfo
-        )
+        self.ReleaseInfo.AnnouncementSource.PrepareDownload(logger, self.ReleaseInfo)
 
     def __CheckSizeLimit(self):
         if (
@@ -152,17 +153,13 @@ class CheckAnnouncement(WorkerBase):
 
         # This could be before the Ptp.Login() line, but this way we can hopefully avoid some logging out errors.
         if self.ReleaseInfo.IsZeroImdbId():
-            self.ReleaseInfo.Logger.info(
-                "IMDb ID is set zero, ignoring the check for existing release."
-            )
+            logger.info("IMDb ID is set zero, ignoring the check for existing release.")
             return
 
         movieOnPtpResult = None
 
         if self.ReleaseInfo.PtpId:
-            movieOnPtpResult = Ptp.GetMoviePageOnPtp(
-                self.ReleaseInfo.Logger, self.ReleaseInfo.PtpId
-            )
+            movieOnPtpResult = Ptp.GetMoviePageOnPtp(logger, self.ReleaseInfo.PtpId)
 
             # If IMDb ID is not set, then store it, because it is needed for renaming releases coming from Cinemageddon and Cinematik.
             if (not self.ReleaseInfo.ImdbId) and len(movieOnPtpResult.ImdbId) > 0:
@@ -170,7 +167,7 @@ class CheckAnnouncement(WorkerBase):
         else:
             # Try to get a PTP ID.
             movieOnPtpResult = Ptp.GetMoviePageOnPtpByImdbId(
-                self.ReleaseInfo.Logger, self.ReleaseInfo.ImdbId
+                logger, self.ReleaseInfo.ImdbId
             )
             self.ReleaseInfo.PtpId = movieOnPtpResult.PtpId
 
@@ -197,7 +194,7 @@ class CheckAnnouncement(WorkerBase):
 
         # Title
         if len(self.ReleaseInfo.Title) > 0:
-            self.ReleaseInfo.Logger.info(
+            logger.info(
                 "Title '%s' is already set, not getting from PTP's movie info."
                 % self.ReleaseInfo.Title
             )
@@ -210,7 +207,7 @@ class CheckAnnouncement(WorkerBase):
 
         # Year
         if len(self.ReleaseInfo.Year) > 0:
-            self.ReleaseInfo.Logger.info(
+            logger.info(
                 "Year '%s' is already set, not getting from PTP's movie info."
                 % self.ReleaseInfo.Year
             )
@@ -223,7 +220,7 @@ class CheckAnnouncement(WorkerBase):
 
         # Movie description
         if len(self.ReleaseInfo.MovieDescription) > 0:
-            self.ReleaseInfo.Logger.info(
+            logger.info(
                 "Movie description is already set, not getting from PTP's movie info."
             )
         else:
@@ -231,7 +228,7 @@ class CheckAnnouncement(WorkerBase):
 
         # Tags
         if len(self.ReleaseInfo.Tags) > 0:
-            self.ReleaseInfo.Logger.info(
+            logger.info(
                 "Tags '%s' are already set, not getting from PTP's movie info."
                 % self.ReleaseInfo.Tags
             )
@@ -245,7 +242,7 @@ class CheckAnnouncement(WorkerBase):
 
         # Cover art URL
         if self.ReleaseInfo.CoverArtUrl:
-            self.ReleaseInfo.Logger.info(
+            logger.info(
                 "Cover art URL '%s' is already set, not getting from PTP's movie info."
                 % self.ReleaseInfo.CoverArtUrl
             )
@@ -255,7 +252,7 @@ class CheckAnnouncement(WorkerBase):
         # Ignore adult movies (if force upload is not set).
         if "adult" in self.ReleaseInfo.Tags:
             if self.ReleaseInfo.IsForceUpload():
-                self.ReleaseInfo.Logger.info(
+                logger.info(
                     "Movie's genre is adult, but continuing due to force upload."
                 )
             else:
@@ -268,12 +265,12 @@ class CheckAnnouncement(WorkerBase):
         if self.ReleaseInfo.PtpId or self.ReleaseInfo.IsZeroImdbId():
             return
 
-        imdbInfo = Imdb.GetInfo(self.ReleaseInfo.Logger, self.ReleaseInfo.ImdbId)
+        imdbInfo = Imdb.GetInfo(logger, self.ReleaseInfo.ImdbId)
 
         # Ignore series (if force upload is not set).
         if imdbInfo.IsSeries:
             if self.ReleaseInfo.IsForceUpload():
-                self.ReleaseInfo.Logger.info(
+                logger.info(
                     "The release is a series, but continuing due to force upload."
                 )
             else:
@@ -297,7 +294,7 @@ class CheckAnnouncement(WorkerBase):
             self.ReleaseInfo.CoverArtUrl = imdbInfo.PosterUrl
             if not self.ReleaseInfo.CoverArtUrl:
                 self.ReleaseInfo.CoverArtUrl = MoviePoster.Get(
-                    self.ReleaseInfo.Logger, self.ReleaseInfo.ImdbId
+                    logger, self.ReleaseInfo.ImdbId
                 )
 
         self.ReleaseInfo.ImdbRating = imdbInfo.ImdbRating
@@ -305,15 +302,11 @@ class CheckAnnouncement(WorkerBase):
 
     def __CheckSynopsis(self):
         if Settings.StopIfSynopsisIsMissing.lower() == "beforedownloading":
-            self.ReleaseInfo.AnnouncementSource.CheckSynopsis(
-                self.ReleaseInfo.Logger, self.ReleaseInfo
-            )
+            self.ReleaseInfo.AnnouncementSource.CheckSynopsis(logger, self.ReleaseInfo)
 
     def __CheckCoverArt(self):
         if Settings.StopIfCoverArtIsMissing.lower() == "beforedownloading":
-            self.ReleaseInfo.AnnouncementSource.CheckCoverArt(
-                self.ReleaseInfo.Logger, self.ReleaseInfo
-            )
+            self.ReleaseInfo.AnnouncementSource.CheckCoverArt(logger, self.ReleaseInfo)
 
     def __IsAllowedImdbRating(self):
         if len(Settings.StopIfImdbRatingIsLessThan) <= 0:
@@ -367,15 +360,13 @@ class CheckAnnouncement(WorkerBase):
         if self.ReleaseInfo.IsJobPhaseFinished(
             FinishedJobPhase.Download_CreateReleaseDirectory
         ):
-            self.ReleaseInfo.Logger.info(
+            logger.info(
                 "Release root path creation phase has been reached previously, not creating it again."
             )
             return
 
         releaseRootPath = self.ReleaseInfo.GetReleaseRootPath()
-        self.ReleaseInfo.Logger.info(
-            "Creating release root directory at '%s'." % releaseRootPath
-        )
+        logger.info("Creating release root directory at '%s'." % releaseRootPath)
 
         if os.path.exists(releaseRootPath):
             raise PtpUploaderException(
@@ -391,7 +382,7 @@ class CheckAnnouncement(WorkerBase):
 
     def __DownloadTorrentFile(self):
         if self.ReleaseInfo.SourceTorrentFilePath:
-            self.ReleaseInfo.Logger.info(
+            logger.info(
                 "Source torrent file path is set, not downloading the file again."
             )
             return
@@ -406,7 +397,7 @@ class CheckAnnouncement(WorkerBase):
             self.ReleaseInfo.GetReleaseRootPath(), torrentName
         )
         self.ReleaseInfo.AnnouncementSource.DownloadTorrent(
-            self.ReleaseInfo.Logger, self.ReleaseInfo, sourceTorrentFilePath
+            logger, self.ReleaseInfo, sourceTorrentFilePath
         )
 
         # Local variable is used temporarily to make sure that SourceTorrentFilePath is only gets stored in the database if DownloadTorrent succeeded.
@@ -441,15 +432,13 @@ class CheckAnnouncement(WorkerBase):
 
     def __DownloadTorrent(self):
         if len(self.ReleaseInfo.SourceTorrentInfoHash) > 0:
-            self.ReleaseInfo.Logger.info(
-                "Source torrent info hash is set, not starting torent again."
-            )
+            logger.info("Source torrent info hash is set, not starting torent again.")
         else:
             self.TorrentClient.CleanTorrentFile(
-                self.ReleaseInfo.Logger, self.ReleaseInfo.SourceTorrentFilePath
+                logger, self.ReleaseInfo.SourceTorrentFilePath
             )
             self.ReleaseInfo.SourceTorrentInfoHash = self.TorrentClient.AddTorrent(
-                self.ReleaseInfo.Logger,
+                logger,
                 self.ReleaseInfo.SourceTorrentFilePath,
                 self.ReleaseInfo.GetReleaseDownloadPath(),
             )

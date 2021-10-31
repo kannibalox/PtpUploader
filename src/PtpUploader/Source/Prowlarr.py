@@ -117,7 +117,7 @@ class Prowlarr(SourceBase):
 
     # fileList must be an instance of IncludedFileList.
     def CheckFileList(self, releaseInfo, fileList):
-        releaseInfo.Logger.info("Checking the contents of the release.")
+        logger.info("Checking the contents of the release.")
 
         if releaseInfo.IsDvdImage():
             return
@@ -149,7 +149,7 @@ class Prowlarr(SourceBase):
     # Must returns with a tuple consisting of the list of video files and the list of additional files.
     def ValidateExtractedRelease(self, releaseInfo, includedFileList):
         videoFiles, additionalFiles = ReleaseExtractor.ValidateDirectory(
-            releaseInfo.Logger, releaseInfo.GetReleaseUploadPath(), includedFileList
+            logger, releaseInfo.GetReleaseUploadPath(), includedFileList
         )
         if len(videoFiles) < 1:
             raise PtpUploaderException(

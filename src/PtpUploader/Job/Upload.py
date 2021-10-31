@@ -2,6 +2,7 @@ import datetime
 import os
 import subprocess
 import threading
+import logging
 
 from PtpUploader.Helper import GetIdxSubtitleLanguages, TimeDifferenceToText
 from PtpUploader.ImageHost.ImageUploader import ImageUploader
@@ -16,6 +17,8 @@ from PtpUploader.Settings import Settings
 from PtpUploader.Tool import Mktor
 
 from PtpUploader import Ptp
+
+logger = logging.getLogger(__name__)
 
 
 class Upload(WorkerBase):
@@ -77,14 +80,14 @@ class Upload(WorkerBase):
         if self.ReleaseInfo.IsJobPhaseFinished(
             FinishedJobPhase.Upload_CreateUploadPath
         ):
-            self.ReleaseInfo.Logger.info(
+            logger.info(
                 "Upload path creation phase has been reached previously, not creating it again."
             )
             return
 
         uploadPath = self.ReleaseInfo.GetReleaseUploadPath()
         customUploadPath = self.ReleaseInfo.AnnouncementSource.GetCustomUploadPath(
-            self.ReleaseInfo.Logger, self.ReleaseInfo
+            logger, self.ReleaseInfo
         )
         if len(customUploadPath) > 0:
             uploadPath = customUploadPath
@@ -101,12 +104,12 @@ class Upload(WorkerBase):
         )
 
         if len(self.ReleaseInfo.IncludedFiles) > 0:
-            self.ReleaseInfo.Logger.info(
+            logger.info(
                 "There are %s files in the file list. Customized: '%s'."
                 % (len(self.IncludedFileList.Files), self.ReleaseInfo.IncludedFiles)
             )
         else:
-            self.ReleaseInfo.Logger.info(
+            logger.info(
                 "There are %s files in the file list."
                 % (len(self.IncludedFileList.Files))
             )
@@ -115,13 +118,13 @@ class Upload(WorkerBase):
 
     def __ExtractRelease(self):
         if self.ReleaseInfo.IsJobPhaseFinished(FinishedJobPhase.Upload_ExtractRelease):
-            self.ReleaseInfo.Logger.info(
+            logger.info(
                 "Extract release phase has been reached previously, not extracting release again."
             )
             return
 
         self.ReleaseInfo.AnnouncementSource.ExtractRelease(
-            self.ReleaseInfo.Logger, self.ReleaseInfo, self.IncludedFileList
+            logger, self.ReleaseInfo, self.IncludedFileList
         )
 
         self.ReleaseInfo.SetJobPhaseFinished(FinishedJobPhase.Upload_ExtractRelease)
@@ -150,7 +153,7 @@ class Upload(WorkerBase):
         if self.ReleaseInfo.Container:
             if container != self.ReleaseInfo.Container:
                 if self.ReleaseInfo.IsForceUpload():
-                    self.ReleaseInfo.Logger.info(
+                    logger.info(
                         "Container is set to '%s', detected MediaInfo container is '%s' ('%s'). Ignoring mismatch because of force upload."
                         % (self.ReleaseInfo.Container, container, mediaInfo.Container)
                     )
@@ -205,13 +208,13 @@ class Upload(WorkerBase):
                 if Upload.__CanIgnoreDetectedAndSetCodecDifference(
                     codec, self.ReleaseInfo.Codec
                 ):
-                    self.ReleaseInfo.Logger.info(
+                    logger.info(
                         "Codec is set to '%s', detected MediaInfo codec is '%s' ('%s'). Using the detected codec."
                         % (self.ReleaseInfo.Codec, codec, mediaInfo.Codec)
                     )
                     self.ReleaseInfo.Codec = codec
                 elif self.ReleaseInfo.IsForceUpload():
-                    self.ReleaseInfo.Logger.info(
+                    logger.info(
                         "Codec is set to '%s', detected MediaInfo codec is '%s' ('%s'). Ignoring mismatch because of force upload."
                         % (self.ReleaseInfo.Codec, codec, mediaInfo.Codec)
                     )
@@ -239,7 +242,7 @@ class Upload(WorkerBase):
         if len(self.ReleaseInfo.Resolution) > 0:
             if resolution != self.ReleaseInfo.Resolution:
                 if self.ReleaseInfo.IsForceUpload():
-                    self.ReleaseInfo.Logger.info(
+                    logger.info(
                         "Resolution is set to '%s', detected MediaInfo resolution is '%s' ('%sx%s'). Ignoring mismatch because of force upload."
                         % (
                             self.ReleaseInfo.Resolution,
@@ -294,9 +297,7 @@ class Upload(WorkerBase):
         id = MyGlobals.PtpSubtitle.GetId(languageName)
         if id is None:
             # TODO: show warning on the WebUI
-            self.ReleaseInfo.Logger.warning(
-                "Unknown subtitle language: '%s'." % languageName
-            )
+            logger.warning("Unknown subtitle language: '%s'." % languageName)
             return True
 
         id = str(id)
@@ -308,12 +309,10 @@ class Upload(WorkerBase):
     def __DetectSubtitles(self):
         subtitleIds = self.ReleaseInfo.GetSubtitles()
         if subtitleIds:
-            self.ReleaseInfo.Logger.info(
-                "Subtitle list is not empty. Skipping subtitle detection."
-            )
+            logger.info("Subtitle list is not empty. Skipping subtitle detection.")
             return
 
-        self.ReleaseInfo.Logger.info("Detecting subtitles.")
+        logger.info("Detecting subtitles.")
 
         # We can't do anything with DVD images.
         if self.ReleaseInfo.IsDvdImage():
@@ -362,9 +361,7 @@ class Upload(WorkerBase):
 
     def __MakeTorrent(self):
         if self.ReleaseInfo.UploadTorrentFilePath:
-            self.ReleaseInfo.Logger.info(
-                "Upload torrent file path is set, not making torrent again."
-            )
+            logger.info("Upload torrent file path is set, not making torrent again.")
             return
 
         # We save it into a separate folder to make sure it won't end up in the upload somehow. :)
@@ -390,9 +387,7 @@ class Upload(WorkerBase):
         else:  # Create the torrent including only the single video file.
             uploadTorrentCreatePath = self.MainMediaInfo.Path
 
-        Mktor.Make(
-            self.ReleaseInfo.Logger, uploadTorrentCreatePath, uploadTorrentFilePath
-        )
+        Mktor.Make(logger, uploadTorrentCreatePath, uploadTorrentFilePath)
 
         # Local variables are used temporarily to make sure that values only get stored in the database if MakeTorrent.Make succeeded.
         self.ReleaseInfo.UploadTorrentFilePath = uploadTorrentFilePath
@@ -406,20 +401,16 @@ class Upload(WorkerBase):
 
         # This could be before the Ptp.Login() line, but this way we can hopefully avoid some logging out errors.
         if self.ReleaseInfo.IsZeroImdbId():
-            self.ReleaseInfo.Logger.info(
-                "IMDb ID is set zero, ignoring the check for existing release."
-            )
+            logger.info("IMDb ID is set zero, ignoring the check for existing release.")
             return
 
         movieOnPtpResult = None
 
         if self.ReleaseInfo.PtpId:
-            movieOnPtpResult = Ptp.GetMoviePageOnPtp(
-                self.ReleaseInfo.Logger, self.ReleaseInfo.PtpId
-            )
+            movieOnPtpResult = Ptp.GetMoviePageOnPtp(logger, self.ReleaseInfo.PtpId)
         else:
             movieOnPtpResult = Ptp.GetMoviePageOnPtpByImdbId(
-                self.ReleaseInfo.Logger, self.ReleaseInfo.ImdbId
+                logger, self.ReleaseInfo.ImdbId
             )
             self.ReleaseInfo.PtpId = movieOnPtpResult.PtpId
 
@@ -434,15 +425,11 @@ class Upload(WorkerBase):
 
     def __CheckSynopsis(self):
         if Settings.StopIfSynopsisIsMissing.lower() == "beforeuploading":
-            self.ReleaseInfo.AnnouncementSource.CheckSynopsis(
-                self.ReleaseInfo.Logger, self.ReleaseInfo
-            )
+            self.ReleaseInfo.AnnouncementSource.CheckSynopsis(logger, self.ReleaseInfo)
 
     def __CheckCoverArt(self):
         if Settings.StopIfCoverArtIsMissing.lower() == "beforeuploading":
-            self.ReleaseInfo.AnnouncementSource.CheckCoverArt(
-                self.ReleaseInfo.Logger, self.ReleaseInfo
-            )
+            self.ReleaseInfo.AnnouncementSource.CheckCoverArt(logger, self.ReleaseInfo)
 
     def __RehostPoster(self):
         # If this movie has no page yet on PTP then we will need the cover, so we rehost the image to an image hoster.
@@ -454,13 +441,9 @@ class Upload(WorkerBase):
         if url.find("ptpimg.me") != -1 or url.find("picload.org") != -1:
             return
 
-        self.ReleaseInfo.Logger.info("Rehosting poster from '%s'." % url)
-        self.ReleaseInfo.CoverArtUrl = ImageUploader.Upload(
-            self.ReleaseInfo.Logger, imageUrl=url
-        )
-        self.ReleaseInfo.Logger.info(
-            "Rehosted poster to '%s'." % self.ReleaseInfo.CoverArtUrl
-        )
+        logger.info("Rehosting poster from '%s'." % url)
+        self.ReleaseInfo.CoverArtUrl = ImageUploader.Upload(logger, imageUrl=url)
+        logger.info("Rehosted poster to '%s'." % self.ReleaseInfo.CoverArtUrl)
 
     def __StopBeforeUploading(self):
         if self.ReleaseInfo.IsStopBeforeUploading():
@@ -468,15 +451,13 @@ class Upload(WorkerBase):
 
     def __StartTorrent(self):
         if len(self.ReleaseInfo.UploadTorrentInfoHash) > 0:
-            self.ReleaseInfo.Logger.info(
-                "Upload torrent info hash is set, not starting torrent again."
-            )
+            logger.info("Upload torrent info hash is set, not starting torrent again.")
             return
 
         # Add torrent without hash checking.
         self.ReleaseInfo.UploadTorrentInfoHash = (
             self.TorrentClient.AddTorrentSkipHashCheck(
-                self.ReleaseInfo.Logger,
+                logger,
                 self.ReleaseInfo.UploadTorrentFilePath,
                 self.ReleaseInfo.GetReleaseUploadPath(),
             )
@@ -486,13 +467,13 @@ class Upload(WorkerBase):
     def __UploadMovie(self):
         # This is not possible because finished jobs can't be restarted.
         if self.ReleaseInfo.IsJobPhaseFinished(FinishedJobPhase.Upload_UploadMovie):
-            self.ReleaseInfo.Logger.info(
+            logger.info(
                 "Upload movie phase has been reached previously, not uploading it again."
             )
             return
 
         Ptp.UploadMovie(
-            self.ReleaseInfo.Logger,
+            logger,
             self.ReleaseInfo,
             self.ReleaseInfo.UploadTorrentFilePath,
             self.ReleaseDescription,
@@ -515,7 +496,7 @@ class Upload(WorkerBase):
         jobDuration = TimeDifferenceToText(
             datetime.datetime.utcnow() - self.ReleaseInfo.JobStartTimeUtc, 10, "", "0s"
         )
-        self.ReleaseInfo.Logger.info(
+        logger.info(
             "'%s' has been successfully uploaded to PTP. Time taken: %s."
             % (self.ReleaseInfo.ReleaseName, jobDuration)
         )

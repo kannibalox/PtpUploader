@@ -1,6 +1,11 @@
+import logging
+
 from guessit import guessit
+
 from PtpUploader.PtpUploaderException import PtpUploaderException
 from PtpUploader.Settings import Settings
+
+logger = logging.getLogger()
 
 
 class ReleaseNameParser:
@@ -18,7 +23,7 @@ class ReleaseNameParser:
 
     def GetSourceAndFormat(self, releaseInfo):
         if releaseInfo.Codec:
-            releaseInfo.Logger.info(
+            logger.info(
                 "Codec '%s' is already set, not getting from release name."
                 % releaseInfo.Codec
             )
@@ -35,7 +40,7 @@ class ReleaseNameParser:
             )
 
         if releaseInfo.Source:
-            releaseInfo.Logger.info(
+            logger.info(
                 "Source '%s' is already set, not getting from release name."
                 % releaseInfo.Source
             )
@@ -52,7 +57,7 @@ class ReleaseNameParser:
             )
 
         if releaseInfo.ResolutionType:
-            releaseInfo.Logger.info(
+            logger.info(
                 "Resolution type '%s' is already set, not getting from release name."
                 % releaseInfo.ResolutionType
             )

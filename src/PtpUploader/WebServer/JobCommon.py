@@ -12,8 +12,6 @@ from PtpUploader.MyGlobals import MyGlobals
 from PtpUploader.NfoParser import NfoParser
 from PtpUploader.ReleaseInfo import ReleaseInfo
 from PtpUploader.Settings import Settings
-from PtpUploader.WebServer import app
-from PtpUploader.WebServer.Authentication import requires_auth
 from werkzeug.utils import secure_filename
 
 from PtpUploader import Ptp
@@ -322,8 +320,6 @@ def MakeIncludedFilesTreeJson(includedFileList):
     return list
 
 
-@app.route("/ajaxgetincludedfilelist/", methods=["POST"])
-@requires_auth
 def ajaxGetIncludedFileList():
     includedFileList = IncludedFileList()
     jobId = request.values.get("JobId")
@@ -353,41 +349,3 @@ def ajaxGetIncludedFileList():
     includedFileList.ApplyCustomizationFromJson(includedFilesCustomizedList)
 
     return jsonify(result="OK", files=MakeIncludedFilesTreeJson(includedFileList))
-
-
-@app.route("/ajaxgetlatesttorrent/", methods=["GET"])
-@requires_auth
-def ajaxGetLatestTorrent():
-    releaseInfo = ReleaseInfo()
-    releaseInfo.Logger = MyGlobals.Logger
-    JobCommon.GetPtpOrImdbId(releaseInfo, request.values.get("PtpOrImdbLink"))
-
-    torrentId = 0
-    uploadedAgo = ""
-
-    if releaseInfo.ImdbId != "0":
-        Ptp.Login()
-
-        movieOnPtpResult = None
-        if releaseInfo.PtpId:
-            movieOnPtpResult = Ptp.GetMoviePageOnPtp(
-                releaseInfo.Logger, releaseInfo.PtpId
-            )
-        else:
-            movieOnPtpResult = Ptp.GetMoviePageOnPtpByImdbId(
-                releaseInfo.Logger, releaseInfo.ImdbId
-            )
-
-        if movieOnPtpResult:
-            torrent = movieOnPtpResult.GetLatestTorrent()
-            if torrent:
-                torrentId = torrent.TorrentId
-
-                difference = datetime.utcnow() - torrent.GetUploadTimeAsDateTimeUtc()
-                uploadedAgo = (
-                    "(Latest torrent uploaded: "
-                    + TimeDifferenceToText(difference).lower()
-                    + ")"
-                )
-
-    return jsonify(Result="OK", TorrentId=torrentId, UploadedAgo=uploadedAgo)

@@ -1,10 +1,12 @@
+import logging
 import threading
 
-from PtpUploader.Logger import Logger
 from PtpUploader.MyGlobals import MyGlobals
 from PtpUploader.ReleaseInfo import ReleaseInfo
 from PtpUploader.Settings import Settings
 from PtpUploader.Job.WorkerBase import WorkerBase
+
+logger = logging.getLogger(__name__)
 
 
 class Delete(WorkerBase):
@@ -28,9 +30,6 @@ class Delete(WorkerBase):
             )
 
         if announcementSource is not None:  # Still possibly not there
-            if self.ReleaseInfo.Logger is None:
-                self.ReleaseInfo.Logger = Logger(self.ReleaseInfo.GetLogFilePath())
-
             announcementSource.Delete(
                 self.ReleaseInfo,
                 Settings.GetTorrentClient(),

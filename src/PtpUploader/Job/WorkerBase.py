@@ -1,9 +1,14 @@
 import threading
 import traceback
+import logging
+import os
 
 from PtpUploader.Job.JobRunningState import JobRunningState
 from PtpUploader.PtpUploaderException import *
 from PtpUploader.ReleaseInfo import ReleaseInfo
+from PtpUploader.Settings import Settings
+
+logger = logging.getLogger()
 
 
 class WorkerBase:
@@ -11,6 +16,8 @@ class WorkerBase:
         self.Phases = []
         self.stop_requested: threading.Event = stop_requested
         self.ReleaseInfo = ReleaseInfo.objects.get(Id=release_id)
+        path = os.path.join(Settings.GetJobLogPath(), str(release_id))
+        logging.basicConfig(filename=path, level=logging.DEBUG)
 
     def __WorkInternal(self):
         if not self.Phases:
@@ -37,6 +44,6 @@ class WorkerBase:
             self.ReleaseInfo.ErrorMessage = str(e)
             self.ReleaseInfo.save()
 
-            self.ReleaseInfo.Logger.error(traceback.format_exc())
-            e.Logger = self.ReleaseInfo.Logger
+            logger.error(traceback.format_exc())
+            e.Logger = logger
             raise

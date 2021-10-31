@@ -7,7 +7,6 @@ from django.utils import timezone
 
 from PtpUploader.Job.FinishedJobPhase import FinishedJobPhase
 from PtpUploader.Job.JobStartMode import JobStartMode
-from PtpUploader.Logger import Logger
 from PtpUploader.MyGlobals import MyGlobals
 from PtpUploader.PtpUploaderException import PtpUploaderException
 from PtpUploader.Settings import Settings
@@ -313,8 +312,8 @@ class ReleaseInfo(models.Model):
         self.FinishedJobPhase |= jobPhase
 
     # Eg.: "working directory/log/job/1"
-    def GetLogFilePath(self):
-        return os.path.join(Settings.GetJobLogPath(), str(self.Id))
+    # def GetLogFilePath(self):
+    #    return os.path.join(Settings.GetJobLogPath(), str(self.Id))
 
     # Eg.: "working directory/release/Dark.City.1998.Directors.Cut.720p.BluRay.x264-SiNNERS/"
     def GetReleaseRootPath(self):
@@ -340,10 +339,6 @@ class ReleaseInfo(models.Model):
 
     def IsZeroImdbId(self):
         return self.ImdbId == "0"
-
-    @property
-    def Logger(self):
-        return Logger(self.GetLogFilePath())
 
     @property
     def AnnouncementSource(self):

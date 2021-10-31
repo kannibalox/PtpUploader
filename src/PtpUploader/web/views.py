@@ -1,5 +1,6 @@
 import json
 import os
+import logging
 from datetime import datetime
 from typing import Any, Dict
 
@@ -20,6 +21,8 @@ from PtpUploader.Settings import Settings
 from PtpUploader import Ptp
 
 from . import forms
+
+logger = logging.getLogger(__name__)
 
 
 def GetStateIcon(state: int) -> str:
@@ -48,10 +51,10 @@ def jobs(request):
 
 
 def log(request, r_id: int):
-    releaseInfo = ReleaseInfo.objects.get(Id=r_id)
+    get_object_or_404(ReleaseInfo, Id=r_id)
 
-    logFilePath = releaseInfo.GetLogFilePath()
     log_msg = ""
+    logFilePath = os.path.join(Settings.GetJobLogPath(), str(r_id))
 
     if os.path.isfile(logFilePath):
         with open(logFilePath, "r") as fh:
@@ -76,13 +79,9 @@ def jobs_get_latest(request):
 
         movieOnPtpResult = None
         if releaseInfo.PtpId:
-            movieOnPtpResult = Ptp.GetMoviePageOnPtp(
-                releaseInfo.Logger, releaseInfo.PtpId
-            )
+            movieOnPtpResult = Ptp.GetMoviePageOnPtp(logger, releaseInfo.PtpId)
         else:
-            movieOnPtpResult = Ptp.GetMoviePageOnPtpByImdbId(
-                releaseInfo.Logger, releaseInfo.ImdbId
-            )
+            movieOnPtpResult = Ptp.GetMoviePageOnPtpByImdbId(logger, releaseInfo.ImdbId)
 
         if movieOnPtpResult:
             torrent = movieOnPtpResult.GetLatestTorrent()

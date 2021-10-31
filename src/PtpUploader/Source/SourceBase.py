@@ -1,6 +1,7 @@
 import os
 import re
 import shutil
+import logging
 
 from PtpUploader.IncludedFileList import IncludedFileList
 from PtpUploader.Job.FinishedJobPhase import FinishedJobPhase
@@ -8,6 +9,8 @@ from PtpUploader.NfoParser import NfoParser
 from PtpUploader.PtpUploaderException import PtpUploaderException
 from PtpUploader.ReleaseExtractor import ReleaseExtractor
 from PtpUploader.Settings import Settings
+
+logger = logging.getLogger(__name__)
 
 
 class SourceBase:
@@ -83,7 +86,7 @@ class SourceBase:
 
     # fileList must be an instance of IncludedFileList.
     def CheckFileList(self, releaseInfo, fileList):
-        releaseInfo.Logger.info("Checking the contents of the release.")
+        logger.info("Checking the contents of the release.")
 
         if releaseInfo.IsDvdImage():
             return
@@ -122,7 +125,7 @@ class SourceBase:
 
     def CreateUploadDirectory(self, releaseInfo):
         uploadDirectory = releaseInfo.GetReleaseUploadPath()
-        releaseInfo.Logger.info("Creating upload directory at '%s'." % uploadDirectory)
+        logger.info("Creating upload directory at '%s'." % uploadDirectory)
 
         if os.path.exists(uploadDirectory):
             raise PtpUploaderException(
@@ -147,7 +150,7 @@ class SourceBase:
     # Must returns with a tuple consisting of the list of video files and the list of additional files.
     def ValidateExtractedRelease(self, releaseInfo, includedFileList):
         videoFiles, additionalFiles = ReleaseExtractor.ValidateDirectory(
-            releaseInfo.Logger, releaseInfo.GetReleaseUploadPath(), includedFileList
+            logger, releaseInfo.GetReleaseUploadPath(), includedFileList
         )
         if len(videoFiles) < 1:
             raise PtpUploaderException(
@@ -193,9 +196,7 @@ class SourceBase:
 
             # Delete the source torrent from the torrent client.
             if len(releaseInfo.SourceTorrentInfoHash) > 0:
-                torrentClient.DeleteTorrent(
-                    releaseInfo.Logger, releaseInfo.SourceTorrentInfoHash
-                )
+                torrentClient.DeleteTorrent(logger, releaseInfo.SourceTorrentInfoHash)
 
             # Delete the data of the source torrent.
             if os.path.isdir(releaseInfo.GetReleaseDownloadPath()):
@@ -210,9 +211,7 @@ class SourceBase:
 
             # Delete the uploaded torrent from the torrent client.
             if len(releaseInfo.UploadTorrentInfoHash) > 0:
-                torrentClient.DeleteTorrent(
-                    releaseInfo.Logger, releaseInfo.UploadTorrentInfoHash
-                )
+                torrentClient.DeleteTorrent(logger, releaseInfo.UploadTorrentInfoHash)
 
             # Delete the data of the uploaded torrent.
             if os.path.isdir(releaseInfo.GetReleaseUploadPath()):

@@ -1,5 +1,6 @@
 import os
 import shutil
+import logging
 
 from PtpUploader.Helper import GetPathSize
 from PtpUploader.IncludedFileList import IncludedFileList
@@ -8,6 +9,8 @@ from PtpUploader.PtpUploaderException import PtpUploaderException
 from PtpUploader.ReleaseExtractor import ReleaseExtractor
 from PtpUploader.ReleaseNameParser import ReleaseNameParser
 from PtpUploader.Source.SourceBase import SourceBase
+
+logger = logging.getLogger(__name__)
 
 
 class File(SourceBase):
@@ -137,9 +140,7 @@ class File(SourceBase):
 
             # Delete the uploaded torrent from the torrent client.
             if len(releaseInfo.UploadTorrentInfoHash) > 0:
-                torrentClient.DeleteTorrent(
-                    releaseInfo.Logger, releaseInfo.UploadTorrentInfoHash
-                )
+                torrentClient.DeleteTorrent(logger, releaseInfo.UploadTorrentInfoHash)
 
             # Delete the data of the uploaded torrent.
             # If it is a single file then upload path is its parent directory, so it would be unfortunate to delete. (See GetCustomUploadPath.)
