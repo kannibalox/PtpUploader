@@ -19,6 +19,7 @@
   <script>
    function FinishSkipDuplicateCheckingAjaxCall(torrentId, uploadedAgo) {
      $("html").removeClass('busy');
+     $("#id_DuplicateCheckCanIgnore").val(torrentId);
      $("#SkipDuplicateCheckingButton").val(torrentId);
      $("#SkipDuplicateCheckingMessage").html(uploadedAgo);
 
@@ -67,11 +68,10 @@
          $("html").addClass('busy');
 
          $.ajax({
-           type: "GET",
            url: "{% url "jobs_get_latest" %}",
            dataType: "json",
            data: {
-             "PtpOrImdbLink": $("#imdb").val()
+             "PtpOrImdbLink": $("#id_ImdbId").val()
            },
            success: function(data) {
              if (data.Result == "OK")
@@ -423,6 +423,7 @@
               >
               <label for="SkipDuplicateCheckingButton">Skip duplicate checking</label>
               <span id="SkipDuplicateCheckingMessage"></span>
+              {{ form.DuplicateCheckCanIgnore }}
             </td>
           </tr>
 

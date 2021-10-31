@@ -63,8 +63,7 @@ class PtpImdbInfo:
         movieDescription = self.JsonMovie["plot"]
         if movieDescription is None:
             return ""
-        else:
-            return movieDescription
+        return movieDescription
 
     def GetTags(self):
         self.__LoadmdbInfo()

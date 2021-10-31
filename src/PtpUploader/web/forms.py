@@ -1,4 +1,5 @@
 from django.forms import (
+    HiddenInput,
     BooleanField,
     CharField,
     ChoiceField,
@@ -88,7 +89,6 @@ class ReleaseForm(ModelForm):
             "ScheduleTimeUtc",
             "FinishedJobPhase",
             "Size",
-            "DuplicateCheckCanIgnore",
             "Trumpable",
         ]
         widgets = {
@@ -103,6 +103,7 @@ class ReleaseForm(ModelForm):
             "MovieDescription": Textarea(attrs={"cols": "60", "rows": "8"}),
             "ReleaseNotes": Textarea(attrs={"cols": "60", "rows": "8"}),
             "ReleaseName": TextInput(attrs={"size": "60"}),
+            "DuplicateCheckCanIgnore": HiddenInput(),
         }
 
     def clean(self):

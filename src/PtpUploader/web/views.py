@@ -1,5 +1,6 @@
 import json
 import os
+from datetime import datetime
 from typing import Any, Dict
 
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
@@ -12,9 +13,11 @@ from PtpUploader.Helper import SizeToText, TimeDifferenceToText
 from PtpUploader.Job.JobRunningState import JobRunningState
 from PtpUploader.Job.JobStartMode import JobStartMode
 from PtpUploader.MyGlobals import MyGlobals
+from PtpUploader.WebServer.JobCommon import JobCommon
 from PtpUploader.PtpUploaderMessage import *
 from PtpUploader.ReleaseInfo import ReleaseInfo
 from PtpUploader.Settings import Settings
+from PtpUploader import Ptp
 
 from . import forms
 
@@ -59,6 +62,43 @@ def log(request, r_id: int):
     log_msg = log_msg.replace("\n", r"<br>")
 
     return HttpResponse(log_msg)
+
+
+def jobs_get_latest(request):
+    releaseInfo = ReleaseInfo()
+    JobCommon.GetPtpOrImdbId(releaseInfo, request.GET["PtpOrImdbLink"])
+
+    torrentId = 0
+    uploadedAgo = ""
+
+    if releaseInfo.ImdbId != "0":
+        Ptp.Login()
+
+        movieOnPtpResult = None
+        if releaseInfo.PtpId:
+            movieOnPtpResult = Ptp.GetMoviePageOnPtp(
+                releaseInfo.Logger, releaseInfo.PtpId
+            )
+        else:
+            movieOnPtpResult = Ptp.GetMoviePageOnPtpByImdbId(
+                releaseInfo.Logger, releaseInfo.ImdbId
+            )
+
+        if movieOnPtpResult:
+            torrent = movieOnPtpResult.GetLatestTorrent()
+            if torrent:
+                torrentId = torrent.TorrentId
+
+                difference = datetime.utcnow() - torrent.GetUploadTimeAsDateTimeUtc()
+                uploadedAgo = (
+                    "(Latest torrent uploaded: "
+                    + TimeDifferenceToText(difference).lower()
+                    + ")"
+                )
+
+    return JsonResponse(
+        {"Result": "OK", "TorrentId": torrentId, "UploadedAgo": uploadedAgo}
+    )
 
 
 def jobs_json(request):
@@ -220,10 +260,10 @@ def edit_job(request, r_id: int = -1):
     else:
         job["Screenshots"] = {}
         if release.Screenshots:
-            for f in json.loads(release.Screenshots):
-                path = f[0].replace(release.UploadTorrentCreatePath, "").strip("/")
+            for f, shots in json.loads(release.Screenshots):
+                path = f.replace(release.UploadTorrentCreatePath, "").strip("/")
                 job["Screenshots"][path] = ""
-                for s in f[1]:
+                for s in shots:
                     job["Screenshots"][path] += f'<img src="{s}"/>'
         source = MyGlobals.SourceFactory.GetSource(release.AnnouncementSourceName)
         if source is not None:
