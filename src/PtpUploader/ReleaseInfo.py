@@ -143,7 +143,7 @@ class ReleaseInfo(models.Model):
     ReleaseDownloadPath = models.TextField(blank=True, default="")
     ReleaseUploadPath = models.TextField(blank=True, default="")
     ReleaseNotes = models.TextField(blank=True, default="")
-    Screenshots = models.TextField(blank=True, default="")
+    Screenshots = models.JSONField(blank=True, default=dict)
     LastModificationTime = models.DateTimeField(auto_now=True)
     Size = models.IntegerField(default=0)
     Subtitles = models.JSONField(blank=True, default=list)  # CSV of subtitle IDs

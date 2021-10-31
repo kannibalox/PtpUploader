@@ -1,7 +1,6 @@
 import os
 
 from PtpUploader.PtpUploaderException import *
-from PtpUploader.ScreenshotList import ScreenshotList
 from PtpUploader.Settings import Settings
 from PtpUploader.Tool.MediaInfo import MediaInfo
 from PtpUploader.Tool.ScreenshotMaker import ScreenshotMaker
@@ -126,37 +125,28 @@ class ReleaseDescriptionFormatter:
         else:
             self.__GetMediaInfoHandleNonDvdImage()
 
-    def __TakeAndUploadScreenshotsForEntry(self, screenshotList, videoEntry):
-        if videoEntry.NumberOfScreenshotsToTake <= 0:
-            return
-
-        screenshotMaker = ScreenshotMaker(
-            self.ReleaseInfo.Logger, videoEntry.MediaInfo.Path
-        )
-        videoEntry.ScaleSize = screenshotMaker.GetScaleSize()
-
-        screenshots = screenshotList.GetScreenshotsByName(videoEntry.MediaInfo.Path)
-        if screenshots is None:
-            screenshots = screenshotMaker.TakeAndUploadScreenshots(
-                self.OutputImageDirectory,
-                videoEntry.MediaInfo.DurationInSec,
-                videoEntry.NumberOfScreenshotsToTake,
-            )
-            screenshotList.SetScreenshots(videoEntry.MediaInfo.Path, screenshots)
-
-        videoEntry.Screenshots = screenshots
-
     def __TakeAndUploadScreenshots(self):
         if not self.MakeScreenshots:
             return
 
-        screenshotList = ScreenshotList()
-        screenshotList.LoadFromString(self.ReleaseInfo.Screenshots)
-
         for videoEntry in self.VideoEntries:
-            self.__TakeAndUploadScreenshotsForEntry(screenshotList, videoEntry)
+            path = videoEntry.MediaInfo.Path
+            if videoEntry.NumberOfScreenshotsToTake <= 0:
+                return
 
-        self.ReleaseInfo.Screenshots = screenshotList.GetAsString()
+            screenshotMaker = ScreenshotMaker(self.ReleaseInfo.Logger, path)
+            videoEntry.ScaleSize = screenshotMaker.GetScaleSize()
+
+            if not self.ReleaseInfo.Screenshots[path]:
+                self.ReleaseInfo.Screenshots[
+                    path
+                ] = screenshotMaker.TakeAndUploadScreenshots(
+                    self.OutputImageDirectory,
+                    videoEntry.MediaInfo.DurationInSec,
+                    videoEntry.NumberOfScreenshotsToTake,
+                )
+                self.ReleaseInfo.save()
+            videoEntry.Screenshots = self.ReleaseInfo.Screenshots[path]
 
     def Format(self, includeReleaseName):
         self.ReleaseInfo.Logger.info("Making release description")
