@@ -14,12 +14,7 @@ from django.utils import autoreload
 from django.utils.regex_helper import _lazy_re_compile
 from django.contrib.staticfiles.handlers import StaticFilesHandler
 
-from PtpUploader.Database import InitDb
 from PtpUploader.MyGlobals import MyGlobals
-from PtpUploader.PtpUploaderRunner import PtpUploaderRunner
-from PtpUploader.Settings import Settings
-from PtpUploader.Source.SourceFactory import SourceFactory
-from PtpUploader.WebServer.MyWebServer import MyWebServer
 
 from PtpUploader.Job import Supervisor
 
