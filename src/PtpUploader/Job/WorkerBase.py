@@ -1,4 +1,5 @@
 import threading
+import traceback
 
 from PtpUploader.Job.JobRunningState import JobRunningState
 from PtpUploader.PtpUploaderException import *
@@ -20,6 +21,8 @@ class WorkerBase:
                 self.ReleaseInfo.save()
                 return
 
+            self.ReleaseInfo.JobRunningState = JobRunningState.InProgress
+            self.ReleaseInfo.save()
             phase()
 
     def Work(self):
@@ -34,5 +37,6 @@ class WorkerBase:
             self.ReleaseInfo.ErrorMessage = str(e)
             self.ReleaseInfo.save()
 
+            self.ReleaseInfo.Logger.error(traceback.format_exc())
             e.Logger = self.ReleaseInfo.Logger
             raise

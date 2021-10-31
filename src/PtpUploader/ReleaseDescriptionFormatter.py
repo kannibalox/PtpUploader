@@ -137,7 +137,10 @@ class ReleaseDescriptionFormatter:
             screenshotMaker = ScreenshotMaker(self.ReleaseInfo.Logger, path)
             videoEntry.ScaleSize = screenshotMaker.GetScaleSize()
 
-            if not self.ReleaseInfo.Screenshots[path]:
+            if (
+                path not in self.ReleaseInfo.Screenshots
+                or not self.ReleaseInfo.Screenshots[path]
+            ):
                 self.ReleaseInfo.Screenshots[
                     path
                 ] = screenshotMaker.TakeAndUploadScreenshots(
