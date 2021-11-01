@@ -25,6 +25,7 @@ class Upload(WorkerBase):
     def __init__(self, release_id: int, stop_requested: threading.Event):
         super().__init__(release_id, stop_requested)
         self.Phases = [
+            self.__SetInProgress,
             self.__StopAutomaticJobBeforeExtracting,
             self.__StopAutomaticJobIfThereAreMultipleVideosBeforeExtracting,
             self.__CreateUploadPath,
@@ -50,6 +51,11 @@ class Upload(WorkerBase):
         self.AdditionalFiles = []
         self.MainMediaInfo = None
         self.ReleaseDescription = ""
+
+    def __SetInProgress(self):
+        self.ReleaseInfo.JobRunningState = JobRunningState.InProgress
+        self.ReleaseInfo.save()
+
 
     def __StopAutomaticJobBeforeExtracting(self):
         if (

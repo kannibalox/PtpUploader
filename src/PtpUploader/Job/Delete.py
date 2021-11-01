@@ -17,7 +17,8 @@ class Delete(WorkerBase):
 
     def __delete(self):
         if not self.ReleaseInfo.CanDeleted():
-            return "The job is currently running and can't be deleted!"
+            logger.error("The job is currently running and can't be deleted!")
+            return
 
         deleteMode = self.mode.lower()
         deleteSourceData = deleteMode in ["job_source", "job_all"]
@@ -38,5 +39,6 @@ class Delete(WorkerBase):
             )
 
         self.ReleaseInfo.delete()
+        logger.info("Release deleted")
 
         return "OK"

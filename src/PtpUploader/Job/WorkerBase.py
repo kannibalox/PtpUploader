@@ -28,8 +28,6 @@ class WorkerBase:
                 self.ReleaseInfo.save()
                 return
 
-            self.ReleaseInfo.JobRunningState = JobRunningState.InProgress
-            self.ReleaseInfo.save()
             phase()
 
     def Work(self):
