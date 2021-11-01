@@ -1,9 +1,12 @@
 import os
+import logging
 
 from PtpUploader.PtpUploaderException import *
 from PtpUploader.Settings import Settings
 from PtpUploader.Tool.MediaInfo import MediaInfo
 from PtpUploader.Tool.ScreenshotMaker import ScreenshotMaker
+
+logger = logging.getLogger(__name__)
 
 
 class ReleaseDescriptionVideoEntry:
@@ -53,7 +56,7 @@ class ReleaseDescriptionFormatter:
         for file in self.AdditionalFiles:
             if file.lower().endswith(".ifo"):
                 mediaInfo = MediaInfo(
-                    self.ReleaseInfo.Logger,
+                    logger,
                     file,
                     self.ReleaseInfo.GetReleaseUploadPath(),
                 )
@@ -89,7 +92,7 @@ class ReleaseDescriptionFormatter:
             )
 
         vobMediaInfo = MediaInfo(
-            self.ReleaseInfo.Logger, vobPath, self.ReleaseInfo.GetReleaseUploadPath()
+            logger, vobPath, self.ReleaseInfo.GetReleaseUploadPath()
         )
         self.MainMediaInfo = vobMediaInfo
         self.VideoEntries.append(
@@ -100,7 +103,7 @@ class ReleaseDescriptionFormatter:
     def __GetMediaInfoHandleNonDvdImage(self):
         self.VideoFiles = ScreenshotMaker.SortVideoFiles(self.VideoFiles)
         mediaInfos = MediaInfo.ReadAndParseMediaInfos(
-            self.ReleaseInfo.Logger,
+            logger,
             self.VideoFiles,
             self.ReleaseInfo.GetReleaseUploadPath(),
         )
@@ -134,7 +137,7 @@ class ReleaseDescriptionFormatter:
             if videoEntry.NumberOfScreenshotsToTake <= 0:
                 return
 
-            screenshotMaker = ScreenshotMaker(self.ReleaseInfo.Logger, path)
+            screenshotMaker = ScreenshotMaker(logger, path)
             videoEntry.ScaleSize = screenshotMaker.GetScaleSize()
 
             if (
@@ -152,7 +155,7 @@ class ReleaseDescriptionFormatter:
             videoEntry.Screenshots = self.ReleaseInfo.Screenshots[path]
 
     def Format(self, includeReleaseName):
-        self.ReleaseInfo.Logger.info("Making release description")
+        logger.info("Making release description")
         releaseDescription = ""
 
         if includeReleaseName:
