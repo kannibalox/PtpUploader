@@ -7,7 +7,7 @@ Non-exhaustive list of other changes:
 - Update UI
 - Allow viewing screenshots in edit page
 - TODO: Bulk uploads
-- TOOD: Prowlarr integration
+- Prowlarr integration
 
 ##### About
 
