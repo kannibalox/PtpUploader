@@ -1,6 +1,7 @@
 import html
 import os
 import re
+import logging
 
 from PtpUploader.Helper import (
     GetSizeFromText,
@@ -13,6 +14,7 @@ from PtpUploader.MyGlobals import MyGlobals
 from PtpUploader.PtpUploaderException import PtpUploaderException
 from PtpUploader.Source.SourceBase import SourceBase
 
+logger = logging.getLogger(__name__)
 
 class Cinemageddon(SourceBase):
     def __init__(self):
@@ -175,7 +177,7 @@ class Cinemageddon(SourceBase):
         formatType = formatType.lower()
 
         if releaseInfo.Source:
-            releaseInfo.Logger.info(
+            logger.info(
                 "Source '%s' is already set, not getting from the torrent page."
                 % releaseInfo.Source
             )
@@ -194,7 +196,7 @@ class Cinemageddon(SourceBase):
             )
 
         if releaseInfo.Codec:
-            releaseInfo.Logger.info(
+            logger.info(
                 "Codec '%s' is already set, not getting from the torrent page."
                 % releaseInfo.Codec
             )
@@ -219,7 +221,7 @@ class Cinemageddon(SourceBase):
         # Maybe we could use the resolution and file size. But what about the oversized and upscaled releases?
 
         if releaseInfo.ResolutionType:
-            releaseInfo.Logger.info(
+            logger.info(
                 "Resolution type '%s' is already set, not getting from the torrent page."
                 % releaseInfo.ResolutionType
             )
@@ -229,7 +231,7 @@ class Cinemageddon(SourceBase):
             elif re.search(rb"Standard +: PAL", html):
                 releaseInfo.ResolutionType = "PAL"
             else:
-                releaseInfo.Logger.info("DVD detected but could not find resolution")
+                logger.info("DVD detected but could not find resolution")
         else:
             releaseInfo.ResolutionType = "Other"
 
@@ -239,7 +241,7 @@ class Cinemageddon(SourceBase):
             elif re.search(rb"\.iso</td>", html, re.IGNORECASE):
                 releaseInfo.Container = "ISO"
             else:
-                releaseInfo.Logger.info("DVD detected but could not find container")
+                logger.info("DVD detected but could not find container")
 
     def PrepareDownload(self, logger, releaseInfo):
         if releaseInfo.IsUserCreatedJob():
