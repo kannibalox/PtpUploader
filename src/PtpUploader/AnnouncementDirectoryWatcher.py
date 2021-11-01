@@ -4,13 +4,13 @@ from watchdog.events import FileSystemEventHandler
 from watchdog.observers import Observer
 
 from PtpUploader.MyGlobals import MyGlobals
-from PtpUploader.PtpUploaderMessage import *
+from PtpUploader.PtpUploaderMessage import PtpUploaderMessageNewAnnouncementFile
 from PtpUploader.Settings import Settings
 
 
 class MyWatchdogEventHandler(FileSystemEventHandler):
     def on_moved(self, event):
-        super(MyWatchdogEventHandler, self).on_moved(event)
+        super().on_moved(event)
 
         if not event.is_directory:
             path = event.dest_path.decode(sys.getfilesystemencoding())
@@ -19,7 +19,7 @@ class MyWatchdogEventHandler(FileSystemEventHandler):
             )
 
     def on_created(self, event):
-        super(MyWatchdogEventHandler, self).on_created(event)
+        super().on_created(event)
 
         if not event.is_directory:
             path = event.src_path.decode(sys.getfilesystemencoding())
@@ -28,7 +28,7 @@ class MyWatchdogEventHandler(FileSystemEventHandler):
             )
 
     def on_modified(self, event):
-        super(MyWatchdogEventHandler, self).on_modified(event)
+        super().on_modified(event)
 
         if not event.is_directory:
             path = event.src_path.decode(sys.getfilesystemencoding())

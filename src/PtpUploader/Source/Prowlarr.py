@@ -2,15 +2,12 @@ import os
 import re
 from urllib.parse import urlparse
 import html
-import shutil
 import logging
 import xml.etree.ElementTree as ET
 
 import requests
 
 from PtpUploader.IncludedFileList import IncludedFileList
-from PtpUploader.Job.FinishedJobPhase import FinishedJobPhase
-from PtpUploader.NfoParser import NfoParser
 from PtpUploader.PtpUploaderException import PtpUploaderException
 from PtpUploader.ReleaseExtractor import ReleaseExtractor
 from PtpUploader.Settings import Settings
@@ -53,7 +50,7 @@ class Prowlarr(SourceBase):
         return bool(self.ApiKey)
 
     def Login(self):
-        logger.info("Logging into " + self.Name)
+        logger.info("Logging into %s", self.Name)
         self.session = requests.Session()
         self.session.headers.update({"X-Api-Key": self.ApiKey})
         r = self.session.get(self.Url + "/api/v1/indexer").json()
@@ -63,8 +60,8 @@ class Prowlarr(SourceBase):
             "Loaded indexers from prowlarr: %s", list(self.loaded_indexers.keys())
         )
 
-    def PrepareDownload(self, logger, releaseInfo):
-        logger.info(f"Processing '{releaseInfo.AnnouncementId}' with prowlarr")
+    def PrepareDownload(self, _, releaseInfo):
+        logger.info("Processing '%s' with prowlarr", releaseInfo.AnnouncementId)
         if not releaseInfo.ImdbId:
             return
         match = self.match_imdb(releaseInfo)
@@ -101,10 +98,7 @@ class Prowlarr(SourceBase):
                     return t
         return None
 
-    def ParsePageForExternalCreateJob(self, logger, releaseInfo, html):
-        pass
-
-    def DownloadTorrent(self, logger, releaseInfo, path):
+    def DownloadTorrent(self, _, releaseInfo, path):
         match = self.match_imdb(releaseInfo)
         link = None
         for field in match:
@@ -186,6 +180,7 @@ class Prowlarr(SourceBase):
                     return url
         return ""
 
-    # Unique situation, the ID is a full URL, since that's what the newznab API works with
+    # Unique situation, the ID is a full URL, since that's what prowlarr's
+    # newznab API uses as a guid
     def GetUrlFromId(self, id: str) -> str:
         return id

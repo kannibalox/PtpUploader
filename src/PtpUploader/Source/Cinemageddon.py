@@ -46,7 +46,7 @@ class Cinemageddon(SourceBase):
             )
 
     def __ParsePage(
-        self, logger, releaseInfo, raw_html: bytes, parseForExternalCreateJob=False
+        self, _, releaseInfo, raw_html: bytes, parseForExternalCreateJob=False
     ):
         # Make sure we only get information from the description and not from the comments.
         descriptionEndIndex = raw_html.find(b'<p><a name="startcomments"></a></p>')
@@ -157,12 +157,12 @@ class Cinemageddon(SourceBase):
                 JobRunningState.Ignored_NotSupported, "Wrongly categorized DVDR."
             )
 
-    def __DownloadNfo(self, logger, releaseInfo):
+    def __DownloadNfo(self, _, releaseInfo):
         url = (
             "https://cinemageddon.net/details.php?id=%s&filelist=1"
             % releaseInfo.AnnouncementId
         )
-        logger.info("Collecting info from torrent page '%s'." % url)
+        logger.info("Collecting info from torrent page '%s'.", url)
 
         result = MyGlobals.session.get(url)
         result.raise_for_status()
@@ -172,15 +172,15 @@ class Cinemageddon(SourceBase):
         self.__ParsePage(logger, releaseInfo, response)
 
     def __MapSourceAndFormatToPtp(
-        self, releaseInfo, sourceType, formatType, html: bytes
+        self, releaseInfo, sourceType, formatType, raw_html: bytes
     ):
         sourceType = sourceType.lower()
         formatType = formatType.lower()
 
         if releaseInfo.Source:
             logger.info(
-                "Source '%s' is already set, not getting from the torrent page."
-                % releaseInfo.Source
+                "Source '%s' is already set, not getting from the torrent page.",
+                releaseInfo.Source,
             )
         elif sourceType in ["dvdrip", "dvd-r"]:
             releaseInfo.Source = "DVD"
@@ -198,8 +198,8 @@ class Cinemageddon(SourceBase):
 
         if releaseInfo.Codec:
             logger.info(
-                "Codec '%s' is already set, not getting from the torrent page."
-                % releaseInfo.Codec
+                "Codec '%s' is already set, not getting from the torrent page.",
+                releaseInfo.Codec,
             )
         elif formatType == "x264":
             releaseInfo.Codec = "x264"
@@ -223,13 +223,13 @@ class Cinemageddon(SourceBase):
 
         if releaseInfo.ResolutionType:
             logger.info(
-                "Resolution type '%s' is already set, not getting from the torrent page."
-                % releaseInfo.ResolutionType
+                "Resolution type '%s' is already set, not getting from the torrent page.",
+                releaseInfo.ResolutionType,
             )
         elif releaseInfo.IsDvdImage():
-            if re.search(rb"Standard +: NTSC", html):
+            if re.search(rb"Standard +: NTSC", raw_html):
                 releaseInfo.ResolutionType = "NTSC"
-            elif re.search(rb"Standard +: PAL", html):
+            elif re.search(rb"Standard +: PAL", raw_html):
                 releaseInfo.ResolutionType = "PAL"
             else:
                 logger.info("DVD detected but could not find resolution")
@@ -237,14 +237,14 @@ class Cinemageddon(SourceBase):
             releaseInfo.ResolutionType = "Other"
 
         if releaseInfo.IsDvdImage() and not releaseInfo.Container:
-            if re.search(rb"\.vob</td>", html, re.IGNORECASE):
+            if re.search(rb"\.vob</td>", raw_html, re.IGNORECASE):
                 releaseInfo.Container = "VOB IFO"
-            elif re.search(rb"\.iso</td>", html, re.IGNORECASE):
+            elif re.search(rb"\.iso</td>", raw_html, re.IGNORECASE):
                 releaseInfo.Container = "ISO"
             else:
                 logger.info("DVD detected but could not find container")
 
-    def PrepareDownload(self, logger, releaseInfo):
+    def PrepareDownload(self, _, releaseInfo):
         if releaseInfo.IsUserCreatedJob():
             self.__DownloadNfo(logger, releaseInfo)
         else:
@@ -256,12 +256,12 @@ class Cinemageddon(SourceBase):
             #    return None
             self.__DownloadNfo(logger, releaseInfo)
 
-    def ParsePageForExternalCreateJob(self, logger, releaseInfo, html):
+    def ParsePageForExternalCreateJob(self, _, releaseInfo, html):
         self.__ParsePage(logger, releaseInfo, html, parseForExternalCreateJob=True)
 
-    def DownloadTorrent(self, logger, releaseInfo, path):
+    def DownloadTorrent(self, _, releaseInfo, path):
         url = "https://cinemageddon.net/download.php?id=%s" % releaseInfo.AnnouncementId
-        logger.info("Downloading torrent file from '%s' to '%s'." % (url, path))
+        logger.info("Downloading torrent file from '%s' to '%s'.", url, path)
 
         result = MyGlobals.session.get(url)
         result.raise_for_status()
@@ -279,7 +279,7 @@ class Cinemageddon(SourceBase):
 
     # Because some of the releases on CG do not contain the full name of the movie, we have to rename them because of the uploading rules on PTP.
     # The new name will be formatted like this: Movie Name Year
-    def GetCustomUploadPath(self, logger, releaseInfo):
+    def GetCustomUploadPath(self, _, releaseInfo):
         # TODO: if the user forced a release name, then let it upload by that name.
         if releaseInfo.ImdbId == "0":
             raise PtpUploaderException(
@@ -311,8 +311,9 @@ class Cinemageddon(SourceBase):
         name = RemoveDisallowedCharactersFromPath(name)
 
         logger.info(
-            "Upload directory will be named '%s' instead of '%s'."
-            % (name, releaseInfo.ReleaseName)
+            "Upload directory will be named '%s' instead of '%s'.",
+            name,
+            releaseInfo.ReleaseName,
         )
 
         newUploadPath = releaseInfo.GetReleaseUploadPath()
@@ -327,8 +328,7 @@ class Cinemageddon(SourceBase):
         result = re.match(r".*cinemageddon\.net/details.php\?id=(\d+).*", url)
         if result is None:
             return ""
-        else:
-            return result.group(1)
+        return result.group(1)
 
     def GetUrlFromId(self, id):
         return "https://cinemageddon.net/details.php?id=" + id

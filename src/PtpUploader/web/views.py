@@ -1,15 +1,15 @@
-import json
 import os
 import logging
+import urllib
 from pathlib import Path
 from datetime import datetime
 from typing import Any, Dict
 
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
-from django.shortcuts import redirect, render, get_object_or_404
+from django.shortcuts import render, get_object_or_404
 from django.templatetags.static import static
 from django.urls import reverse
-from django.utils import html, timezone
+from django.utils import timezone
 
 from PtpUploader.Helper import SizeToText, TimeDifferenceToText
 from PtpUploader.Job.JobRunningState import JobRunningState
@@ -18,6 +18,7 @@ from PtpUploader.MyGlobals import MyGlobals
 from PtpUploader.PtpUploaderMessage import *
 from PtpUploader.ReleaseInfo import ReleaseInfo
 from PtpUploader.Settings import Settings
+from PtpUploader.NfoParser import NfoParser
 from PtpUploader import Ptp
 
 from . import forms
@@ -75,18 +76,18 @@ def GetPtpOrImdbId(releaseInfo, text):
     imdbId = NfoParser.GetImdbId(text)
     if len(imdbId) > 0:
         releaseInfo.ImdbId = imdbId
-    elif text == "0" or text == "-":
+    elif text in ["0", "-"]:
         releaseInfo.ImdbId = "0"
     else:
         # Using urlparse because of torrent permalinks:
         # https://passthepopcorn.me/torrents.php?id=9730&torrentid=72322
-        url = urllib.parse.urlparse(JobCommon.__AddHttpToUrl(text))
+        url = urllib.parse.urlparse(text)
         if (
             url.netloc == "passthepopcorn.me"
             or url.netloc == "www.passthepopcorn.me"
             or url.netloc == "tls.passthepopcorn.me"
         ):
-            params = parse_qs(url.query)
+            params = urllib.parse.parse_qs(url.query)
             ptpIdList = params.get("id")
             if ptpIdList is not None:
                 releaseInfo.PtpId = ptpIdList[0]

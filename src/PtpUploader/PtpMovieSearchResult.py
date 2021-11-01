@@ -181,8 +181,7 @@ class PtpMovieSearchResult:
         )
         if len(existingReleases) > 0:
             return existingReleases[0]
-        else:
-            return None
+        return None
 
     @staticmethod
     def __IsInListUsingSourceScore(
@@ -201,7 +200,7 @@ class PtpMovieSearchResult:
 
     @staticmethod
     def __IsFineSource(source):
-        return source == "DVD" or source == "Blu-ray" or source == "HD-DVD"
+        return source in ["DVD", "Blu-ray", "HD-DVD"]
 
     def __IsHdFineSourceReleaseExists(self, releaseInfo):
         if releaseInfo.IsRemux():
@@ -209,19 +208,18 @@ class PtpMovieSearchResult:
                 return PtpMovieSearchResult.__IsInList(
                     self.HdList, None, ["Blu-ray", "HD-DVD"], ["1080i", "1080p"], True
                 )
-        else:
-            if (
-                releaseInfo.Source == "Blu-ray" or releaseInfo.Source == "HD-DVD"
-            ) and releaseInfo.ResolutionType == "1080p":
-                return PtpMovieSearchResult.__IsInList(
-                    self.HdList, ["x264", "H.264"], ["Blu-ray", "HD-DVD"], ["1080p"]
-                )
-            elif (
-                releaseInfo.Source == "Blu-ray" or releaseInfo.Source == "HD-DVD"
-            ) and releaseInfo.ResolutionType == "720p":
-                return PtpMovieSearchResult.__IsInList(
-                    self.HdList, ["x264", "H.264"], ["Blu-ray", "HD-DVD"], ["720p"]
-                )
+        elif (
+            releaseInfo.Source == "Blu-ray" or releaseInfo.Source == "HD-DVD"
+        ) and releaseInfo.ResolutionType == "1080p":
+            return PtpMovieSearchResult.__IsInList(
+                self.HdList, ["x264", "H.264"], ["Blu-ray", "HD-DVD"], ["1080p"]
+            )
+        elif (
+            releaseInfo.Source == "Blu-ray" or releaseInfo.Source == "HD-DVD"
+        ) and releaseInfo.ResolutionType == "720p":
+            return PtpMovieSearchResult.__IsInList(
+                self.HdList, ["x264", "H.264"], ["Blu-ray", "HD-DVD"], ["720p"]
+            )
 
         raise PtpUploaderException(
             "Can't check whether the release exist on PTP because its type is unsupported."
@@ -232,27 +230,25 @@ class PtpMovieSearchResult:
             return PtpMovieSearchResult.__IsInListUsingSourceScore(
                 self.HdList, None, releaseSourceScore, ["1080i", "1080p"], True
             )
-        else:
-            if releaseInfo.Source == "WEB":
-                return PtpMovieSearchResult.__IsInListUsingSourceScore(
-                    self.HdList,
-                    ["x264", "H.264"],
-                    releaseSourceScore,
-                    ["720p", "1080p"],
-                )
-            else:
-                if releaseInfo.ResolutionType == "1080p":
-                    return PtpMovieSearchResult.__IsInListUsingSourceScore(
-                        self.HdList,
-                        ["x264", "H.264"],
-                        releaseSourceScore,
-                        ["1080p"],
-                        releaseInfo.IsRemux(),
-                    )
-                elif releaseInfo.ResolutionType == "720p":
-                    return PtpMovieSearchResult.__IsInListUsingSourceScore(
-                        self.HdList, ["x264", "H.264"], releaseSourceScore, ["720p"]
-                    )
+        if releaseInfo.Source == "WEB":
+            return PtpMovieSearchResult.__IsInListUsingSourceScore(
+                self.HdList,
+                ["x264", "H.264"],
+                releaseSourceScore,
+                ["720p", "1080p"],
+            )
+        if releaseInfo.ResolutionType == "1080p":
+            return PtpMovieSearchResult.__IsInListUsingSourceScore(
+                self.HdList,
+                ["x264", "H.264"],
+                releaseSourceScore,
+                ["1080p"],
+                releaseInfo.IsRemux(),
+            )
+        if releaseInfo.ResolutionType == "720p":
+            return PtpMovieSearchResult.__IsInListUsingSourceScore(
+                self.HdList, ["x264", "H.264"], releaseSourceScore, ["720p"]
+            )
 
         raise PtpUploaderException(
             "Can't check whether the release exist on PTP because its type is unsupported."
@@ -264,14 +260,13 @@ class PtpMovieSearchResult:
                 return PtpMovieSearchResult.__IsInList(
                     self.UhdList, None, ["Blu-ray"], ["4K"], True
                 )
-        else:
-            if releaseInfo.Source == "Blu-ray" and releaseInfo.ResolutionType == "4K":
-                return PtpMovieSearchResult.__IsInList(
-                    self.UhdList,
-                    ["x264", "x265", "H.264", "H.265"],
-                    ["Blu-ray"],
-                    ["4K"],
-                )
+        elif releaseInfo.Source == "Blu-ray" and releaseInfo.ResolutionType == "4K":
+            return PtpMovieSearchResult.__IsInList(
+                self.UhdList,
+                ["x264", "x265", "H.264", "H.265"],
+                ["Blu-ray"],
+                ["4K"],
+            )
 
         raise PtpUploaderException(
             "Can't check whether the release exist on PTP because its type is unsupported."
@@ -282,23 +277,21 @@ class PtpMovieSearchResult:
             return PtpMovieSearchResult.__IsInListUsingSourceScore(
                 self.UhdList, None, releaseSourceScore, ["4K"], True
             )
-        else:
-            if releaseInfo.Source == "WEB":
-                return PtpMovieSearchResult.__IsInListUsingSourceScore(
-                    self.UhdList,
-                    ["x264", "x265", "H.264", "H.265"],
-                    releaseSourceScore,
-                    ["4K"],
-                )
-            else:
-                if releaseInfo.ResolutionType == "4K":
-                    return PtpMovieSearchResult.__IsInListUsingSourceScore(
-                        self.UhdList,
-                        ["x264", "x265", "H.264", "H.265"],
-                        releaseSourceScore,
-                        ["4K"],
-                        releaseInfo.IsRemux(),
-                    )
+        if releaseInfo.Source == "WEB":
+            return PtpMovieSearchResult.__IsInListUsingSourceScore(
+                self.UhdList,
+                ["x264", "x265", "H.264", "H.265"],
+                releaseSourceScore,
+                ["4K"],
+            )
+        if releaseInfo.ResolutionType == "4K":
+            return PtpMovieSearchResult.__IsInListUsingSourceScore(
+                self.UhdList,
+                ["x264", "x265", "H.264", "H.265"],
+                releaseSourceScore,
+                ["4K"],
+                releaseInfo.IsRemux(),
+            )
 
         raise PtpUploaderException(
             "Can't check whether the release exist on PTP because its type is unsupported."
@@ -308,7 +301,7 @@ class PtpMovieSearchResult:
     def __CanCoExist(existingReleases, releaseInfo, minimumSizeDifferenceToCoExist):
         if len(existingReleases) <= 0:
             return None
-        elif len(existingReleases) >= 2:
+        if len(existingReleases) >= 2:
             return existingReleases[0]
 
         existingRelease = existingReleases[0]
@@ -320,8 +313,7 @@ class PtpMovieSearchResult:
         # If the current release is significantly larger than the existing one then we don't treat it as a duplicate.
         if releaseInfo.Size > (existingRelease.Size + minimumSizeDifferenceToCoExist):
             return None
-        else:
-            return existingRelease
+        return existingRelease
 
     # From the rules:
     # "In general terms, 1CD (700MB) and 2CD (1400MB) XviD rips may always co-exist, same as 2CD (1400MB) and 3CD (2100MB) in the case of longer movies (2 hours+). Those sizes should only be used as general indicators as many rips may fall above or below them."
@@ -340,14 +332,14 @@ class PtpMovieSearchResult:
                 return PtpMovieSearchResult.__IsInList(
                     self.SdList, ["x264", "H.264"], ["Blu-ray", "HD-DVD", "DVD"]
                 )
-            elif releaseInfo.Codec == "XviD" or releaseInfo.Codec == "DivX":
+            if releaseInfo.Codec == "XviD" or releaseInfo.Codec == "DivX":
                 list = PtpMovieSearchResult.__GetListOfMatches(
                     self.SdList, ["XviD", "DivX"], ["Blu-ray", "HD-DVD", "DVD"]
                 )
                 return PtpMovieSearchResult.__CanCoExist(
                     list, releaseInfo, minimumSizeDifferenceToCoExist
                 )
-            elif releaseInfo.IsDvdImage():
+            if releaseInfo.IsDvdImage():
                 if (
                     releaseInfo.ResolutionType == "NTSC"
                     or releaseInfo.ResolutionType == "PAL"
@@ -358,10 +350,9 @@ class PtpMovieSearchResult:
                         ["DVD"],
                         [releaseInfo.ResolutionType],
                     )
-                else:
-                    raise PtpUploaderException(
-                        "Can't check whether the DVD image exist on PTP because resolution (NTSC or PAL) is not set."
-                    )
+                raise PtpUploaderException(
+                    "Can't check whether the DVD image exist on PTP because resolution (NTSC or PAL) is not set."
+                )
 
         raise PtpUploaderException(
             "Can't check whether the release exist on PTP because its type is unsupported."

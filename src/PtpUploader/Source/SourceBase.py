@@ -65,23 +65,23 @@ class SourceBase:
     def Login(self):
         pass
 
-    def PrepareDownload(self, logger, releaseInfo):
+    def PrepareDownload(self, _, releaseInfo):
         pass
 
-    def ParsePageForExternalCreateJob(self, logger, releaseInfo, html):
+    def ParsePageForExternalCreateJob(self, _, releaseInfo, html):
         pass
 
-    def CheckSynopsis(self, logger, releaseInfo):
+    def CheckSynopsis(self, _, releaseInfo):
         # If it exists on PTP then we don't need a synopsis.
         if (not releaseInfo.Synopsis) and (not releaseInfo.PtpId):
             raise PtpUploaderException("Synopsis is not set.")
 
-    def CheckCoverArt(self, logger, releaseInfo):
+    def CheckCoverArt(self, _, releaseInfo):
         # If it exists on PTP then we don't need a cover.
         if (not releaseInfo.CoverArtUrl) and (not releaseInfo.PtpId):
             raise PtpUploaderException("Cover art is not set.")
 
-    def DownloadTorrent(self, logger, releaseInfo, path):
+    def DownloadTorrent(self, _, releaseInfo, path):
         pass
 
     # fileList must be an instance of IncludedFileList.
@@ -115,12 +115,12 @@ class SourceBase:
                 releaseInfo.SetSceneRelease()
                 break
 
-    def IsDownloadFinished(self, logger, releaseInfo):
+    def IsDownloadFinished(self, _, releaseInfo):
         return Settings.GetTorrentClient().IsTorrentFinished(
             logger, releaseInfo.SourceTorrentInfoHash
         )
 
-    def GetCustomUploadPath(self, logger, releaseInfo):
+    def GetCustomUploadPath(self, _, releaseInfo):
         return ""
 
     def CreateUploadDirectory(self, releaseInfo):
@@ -134,7 +134,7 @@ class SourceBase:
 
         os.makedirs(uploadDirectory)
 
-    def ExtractRelease(self, logger, releaseInfo, includedFileList):
+    def ExtractRelease(self, _, releaseInfo, includedFileList):
         ReleaseExtractor.Extract(
             logger,
             releaseInfo.GetReleaseDownloadPath(),

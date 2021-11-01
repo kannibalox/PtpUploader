@@ -10,7 +10,7 @@ from PtpUploader.Job.FinishedJobPhase import FinishedJobPhase
 from PtpUploader.Job.JobRunningState import JobRunningState
 from PtpUploader.Job.WorkerBase import WorkerBase
 from PtpUploader.MyGlobals import MyGlobals
-from PtpUploader.PtpSubtitle import *
+from PtpUploader.PtpSubtitle import PtpSubtitleId
 from PtpUploader.PtpUploaderException import *
 from PtpUploader.ReleaseDescriptionFormatter import ReleaseDescriptionFormatter
 from PtpUploader.Settings import Settings
@@ -90,12 +90,10 @@ class Upload(WorkerBase):
             )
             return
 
-        uploadPath = self.ReleaseInfo.GetReleaseUploadPath()
         customUploadPath = self.ReleaseInfo.AnnouncementSource.GetCustomUploadPath(
             logger, self.ReleaseInfo
         )
         if len(customUploadPath) > 0:
-            uploadPath = customUploadPath
             self.ReleaseInfo.ReleaseUploadPath = customUploadPath
 
         self.ReleaseInfo.AnnouncementSource.CreateUploadDirectory(self.ReleaseInfo)
@@ -110,13 +108,13 @@ class Upload(WorkerBase):
 
         if len(self.ReleaseInfo.IncludedFiles) > 0:
             logger.info(
-                "There are %s files in the file list. Customized: '%s'."
-                % (len(self.IncludedFileList.Files), self.ReleaseInfo.IncludedFiles)
+                "There are %s files in the file list. Customized: '%s'.",
+                len(self.IncludedFileList.Files),
+                self.ReleaseInfo.IncludedFiles,
             )
         else:
             logger.info(
-                "There are %s files in the file list."
-                % (len(self.IncludedFileList.Files))
+                "There are %s files in the file list.", len(self.IncludedFileList.Files)
             )
 
         self.IncludedFileList.ApplyCustomizationFromJson(self.ReleaseInfo.IncludedFiles)
@@ -159,21 +157,22 @@ class Upload(WorkerBase):
             if container != self.ReleaseInfo.Container:
                 if self.ReleaseInfo.IsForceUpload():
                     logger.info(
-                        "Container is set to '%s', detected MediaInfo container is '%s' ('%s'). Ignoring mismatch because of force upload."
-                        % (self.ReleaseInfo.Container, container, mediaInfo.Container)
+                        "Container is set to '%s', detected MediaInfo container is '%s' ('%s'). Ignoring mismatch because of force upload.",
+                        self.ReleaseInfo.Container,
+                        container,
+                        mediaInfo.Container,
                     )
                 else:
                     raise PtpUploaderException(
                         "Container is set to '%s', detected MediaInfo container is '%s' ('%s')."
                         % (self.ReleaseInfo.Container, container, mediaInfo.Container)
                     )
+        elif len(container) > 0:
+            self.ReleaseInfo.Container = container
         else:
-            if len(container) > 0:
-                self.ReleaseInfo.Container = container
-            else:
-                raise PtpUploaderException(
-                    "Unsupported container: '%s'." % mediaInfo.Container
-                )
+            raise PtpUploaderException(
+                "Unsupported container: '%s'." % mediaInfo.Container
+            )
 
     @staticmethod
     def __CanIgnoreDetectedAndSetCodecDifference(detected, set):
@@ -214,25 +213,28 @@ class Upload(WorkerBase):
                     codec, self.ReleaseInfo.Codec
                 ):
                     logger.info(
-                        "Codec is set to '%s', detected MediaInfo codec is '%s' ('%s'). Using the detected codec."
-                        % (self.ReleaseInfo.Codec, codec, mediaInfo.Codec)
+                        "Codec is set to '%s', detected MediaInfo codec is '%s' ('%s'). Using the detected codec.",
+                        self.ReleaseInfo.Codec,
+                        codec,
+                        mediaInfo.Codec,
                     )
                     self.ReleaseInfo.Codec = codec
                 elif self.ReleaseInfo.IsForceUpload():
                     logger.info(
-                        "Codec is set to '%s', detected MediaInfo codec is '%s' ('%s'). Ignoring mismatch because of force upload."
-                        % (self.ReleaseInfo.Codec, codec, mediaInfo.Codec)
+                        "Codec is set to '%s', detected MediaInfo codec is '%s' ('%s'). Ignoring mismatch because of force upload.",
+                        self.ReleaseInfo.Codec,
+                        codec,
+                        mediaInfo.Codec,
                     )
                 else:
                     raise PtpUploaderException(
                         "Codec is set to '%s', detected MediaInfo codec is '%s' ('%s')."
                         % (self.ReleaseInfo.Codec, codec, mediaInfo.Codec)
                     )
+        elif len(codec) > 0:
+            self.ReleaseInfo.Codec = codec
         else:
-            if len(codec) > 0:
-                self.ReleaseInfo.Codec = codec
-            else:
-                raise PtpUploaderException("Unsupported codec: '%s'." % mediaInfo.Codec)
+            raise PtpUploaderException("Unsupported codec: '%s'." % mediaInfo.Codec)
 
     def __GetMediaInfoResolution(self, mediaInfo):
         resolution = ""
@@ -248,23 +250,19 @@ class Upload(WorkerBase):
             if resolution != self.ReleaseInfo.Resolution:
                 if self.ReleaseInfo.IsForceUpload():
                     logger.info(
-                        "Resolution is set to '%s', detected MediaInfo resolution is '%s' ('%sx%s'). Ignoring mismatch because of force upload."
-                        % (
-                            self.ReleaseInfo.Resolution,
-                            resolution,
-                            mediaInfo.Width,
-                            mediaInfo.Height,
-                        )
+                        "Resolution is set to '%s', detected MediaInfo resolution is '%s' ('%sx%s'). Ignoring mismatch because of force upload.",
+                        self.ReleaseInfo.Resolution,
+                        resolution,
+                        mediaInfo.Width,
+                        mediaInfo.Height,
                     )
                 else:
                     raise PtpUploaderException(
-                        "Resolution is set to '%s', detected MediaInfo resolution is '%s' ('%sx%s')."
-                        % (
-                            self.ReleaseInfo.Resolution,
-                            resolution,
-                            mediaInfo.Width,
-                            mediaInfo.Height,
-                        )
+                        "Resolution is set to '%s', detected MediaInfo resolution is '%s' ('%sx%s').",
+                        self.ReleaseInfo.Resolution,
+                        resolution,
+                        mediaInfo.Width,
+                        mediaInfo.Height,
                     )
         else:
             self.ReleaseInfo.Resolution = resolution
@@ -299,15 +297,15 @@ class Upload(WorkerBase):
 
     # Returns with true if failed to detect the language.
     def __DetectSubtitlesAddOne(self, subtitleIds, languageName):
-        id = MyGlobals.PtpSubtitle.GetId(languageName)
-        if id is None:
+        s_id = MyGlobals.PtpSubtitle.GetId(languageName)
+        if s_id is None:
             # TODO: show warning on the WebUI
-            logger.warning("Unknown subtitle language: '%s'." % languageName)
+            logger.warning("Unknown subtitle language: '%s'.", languageName)
             return True
 
-        id = str(id)
+        s_id = str(s_id)
         if id not in subtitleIds:
-            subtitleIds.append(id)
+            subtitleIds.append(s_id)
 
         return False
 
@@ -334,7 +332,7 @@ class Upload(WorkerBase):
             )
 
         # Try to read from IDX with the same name as the main video file.
-        idxPath, extension = os.path.splitext(self.MainMediaInfo.Path)
+        idxPath, _ = os.path.splitext(self.MainMediaInfo.Path)
         idxPath += ".idx"
         if os.path.isfile(idxPath):
             idxLanguages = GetIdxSubtitleLanguages(idxPath)
@@ -446,9 +444,9 @@ class Upload(WorkerBase):
         if url.find("ptpimg.me") != -1 or url.find("picload.org") != -1:
             return
 
-        logger.info("Rehosting poster from '%s'." % url)
+        logger.info("Rehosting poster from '%s'.", url)
         self.ReleaseInfo.CoverArtUrl = ImageUploader.Upload(logger, imageUrl=url)
-        logger.info("Rehosted poster to '%s'." % self.ReleaseInfo.CoverArtUrl)
+        logger.info("Rehosted poster to '%s'.", self.ReleaseInfo.CoverArtUrl)
 
     def __StopBeforeUploading(self):
         if self.ReleaseInfo.IsStopBeforeUploading():
@@ -502,8 +500,9 @@ class Upload(WorkerBase):
             datetime.datetime.utcnow() - self.ReleaseInfo.JobStartTimeUtc, 10, "", "0s"
         )
         logger.info(
-            "'%s' has been successfully uploaded to PTP. Time taken: %s."
-            % (self.ReleaseInfo.ReleaseName, jobDuration)
+            "'%s' has been successfully uploaded to PTP. Time taken: %s.",
+            self.ReleaseInfo.ReleaseName,
+            jobDuration,
         )
 
         self.ReleaseInfo.SetJobPhaseFinished(FinishedJobPhase.Upload_UploadMovie)
@@ -529,8 +528,8 @@ class Upload(WorkerBase):
             subprocess.Popen(command, shell=True)
         except (KeyboardInterrupt, SystemExit):
             raise
-        except Exception as e:
+        except Exception:
             logger.exception(
-                "Got exception while trying to run command '%s' after successful upload."
-                % command
+                "Got exception while trying to run command '%s' after successful upload.",
+                command,
             )
