@@ -8,11 +8,28 @@ from PtpUploader.Settings import Settings
 
 def Initialize():
     from PtpUploader.Source.SourceFactory import SourceFactory
+    from PtpUploader.Job.JobRunningState import JobRunningState
+    from PtpUploader.MyGlobals import MyGlobals
+    from PtpUploader.ReleaseInfo import ReleaseInfo
+
+
 
     Settings.LoadSettings()
 
     MyGlobals.InitializeGlobals(Settings.WorkingPath)
     MyGlobals.SourceFactory = SourceFactory()
+    MyGlobals.Logger.info("Initializing database.")
+
+    # Reset any possibling interrupted jobs
+    for releaseInfo in ReleaseInfo.objects.filter(
+        JobRunningState__in=[
+            JobRunningState.WaitingForStart,
+            JobRunningState.Scheduled,
+            JobRunningState.InProgress,
+        ]
+    ):
+        releaseInfo.JobRunningState = JobRunningState.Paused
+        releaseInfo.save()
 
     if not Settings.VerifyPaths():
         return False
