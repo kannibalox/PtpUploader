@@ -8,6 +8,7 @@ urlpatterns = [
     path("", lambda r: redirect("/jobs"), name="index"),
     path("jobs", views.jobs, name="jobs"),
     path("ajax/jobs", views.jobs_json, name="jobs_json"),
+    path("ajax/localdir", views.local_dir, name="local_dir"),
     path("ajax/getlatest", views.jobs_get_latest, name="jobs_get_latest"),
     path("upload", views.edit_job, name="upload"),
     path("movieAvailabilityCheck", views.jobs, name="movieAvailabilityCheck"),

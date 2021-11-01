@@ -103,7 +103,7 @@
              keyboard: false, // Support keyboard navigation
              selectMode: 1, // 1:single, 2:multi, 3:multi-hier
              tabindex: "", // Whole tree behaves as one single control
-             source: {url: "/ajax/localdir/", cache: false},
+             source: {url: "{% url "local_dir" %}", cache: false},
              lazyLoad: function(event, data){
                var node = data.node;
                // Load child nodes via Ajax GET
@@ -192,7 +192,7 @@
             <tr>
               <td class="label">Or select an existing file or folder</td>
               <td>
-                <input id="existingfile" type="text" name="existingfile_input" size="60" title="Path of the directory or the file to upload.">
+                {{ form.LocalFile }}
                 <input type="button" id="DirectorySelectorToggle" value="Browse..." title="Directory selector.">
               </td>
             </tr>

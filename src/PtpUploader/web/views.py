@@ -1,6 +1,7 @@
 import json
 import os
 import logging
+from pathlib import Path
 from datetime import datetime
 from typing import Any, Dict
 
@@ -206,6 +207,24 @@ def jobs_json(request):
     return JsonResponse({"data": entries, "settings": settings})
 
 
+def local_dir(request):
+    d: Path
+    if "dir" not in request.GET:
+        d = Path(Settings.WebServerFileTreeInitRoot)
+    else:
+        d = Path(request.GET["dir"])
+    val = []
+    for child in sorted(d.iterdir()):
+        c = {"title": child.name, "key": str(child)}
+        if child.is_dir():
+            c["folder"] = True
+            c["lazy"] = True
+        elif child.suffix.lower() in [".mkv", ".avi", ".mp4", ".vob", ".ifo", ".bup"]:
+            c["icon"] = "film"
+        val.append(c)
+    return JsonResponse(val, safe=False)  # It's just a list, probably safe
+
+
 def start_job(request, r_id):
     # TODO: This is very far from perfect. There is no guarantee that the job didn't start meanwhile.
     # Probably only the WorkerThread should change the running state.
@@ -271,7 +290,8 @@ def edit_job(request, r_id: int = -1):
 
                     release.AnnouncementSourceName = source.Name
                     release.AnnouncementId = id
-
+                elif request.POST["TorrentLink"]:
+                    pass
             if "post_stop_before" in request.POST:
                 release.StopBeforeUploading = True
             else:
