@@ -14,7 +14,6 @@ from PtpUploader.Helper import SizeToText, TimeDifferenceToText
 from PtpUploader.Job.JobRunningState import JobRunningState
 from PtpUploader.Job.JobStartMode import JobStartMode
 from PtpUploader.MyGlobals import MyGlobals
-from PtpUploader.WebServer.JobCommon import JobCommon
 from PtpUploader.PtpUploaderMessage import *
 from PtpUploader.ReleaseInfo import ReleaseInfo
 from PtpUploader.Settings import Settings
@@ -67,9 +66,30 @@ def log(request, r_id: int):
     return HttpResponse(log_msg)
 
 
+def GetPtpOrImdbId(releaseInfo, text):
+    imdbId = NfoParser.GetImdbId(text)
+    if len(imdbId) > 0:
+        releaseInfo.ImdbId = imdbId
+    elif text == "0" or text == "-":
+        releaseInfo.ImdbId = "0"
+    else:
+        # Using urlparse because of torrent permalinks:
+        # https://passthepopcorn.me/torrents.php?id=9730&torrentid=72322
+        url = urllib.parse.urlparse(JobCommon.__AddHttpToUrl(text))
+        if (
+            url.netloc == "passthepopcorn.me"
+            or url.netloc == "www.passthepopcorn.me"
+            or url.netloc == "tls.passthepopcorn.me"
+        ):
+            params = parse_qs(url.query)
+            ptpIdList = params.get("id")
+            if ptpIdList is not None:
+                releaseInfo.PtpId = ptpIdList[0]
+
+
 def jobs_get_latest(request):
     releaseInfo = ReleaseInfo()
-    JobCommon.GetPtpOrImdbId(releaseInfo, request.GET["PtpOrImdbLink"])
+    GetPtpOrImdbId(releaseInfo, request.GET["PtpOrImdbLink"])
 
     torrentId = 0
     uploadedAgo = ""
