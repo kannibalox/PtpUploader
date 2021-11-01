@@ -246,11 +246,7 @@ class Karagarga(SourceBase):
         if subtitlesText.find("none") != -1 or subtitlesText.find("sorry") != -1:
             return
 
-        if (
-            subtitlesText == "no"
-            or subtitlesText == "no subtitles"
-            or subtitlesText == "unknown if subtitles included"
-        ):
+        if subtitlesText in ["no", "no subtitles", "unknown if subtitles included"]:
             return
 
         # We don't want to add hardcoded subtitles.
@@ -446,8 +442,7 @@ class Karagarga(SourceBase):
         result = re.match(r".*karagarga\.in/details.php\?id=(\d+).*", url)
         if result is None:
             return ""
-        else:
-            return result.group(1)
+        return result.group(1)
 
     def GetUrlFromId(self, id):
         return "https://karagarga.in/details.php?id=" + id
@@ -457,5 +452,4 @@ class Karagarga(SourceBase):
         matches = re.match(r"https?://karagarga\.in/down\.php/(\d+)/.+?\.torrent", url)
         if matches is None:
             return ""
-        else:
-            return matches.group(1)
+        return matches.group(1)
