@@ -25,6 +25,10 @@ logger = logging.getLogger(__name__)
 
 
 def GetStateIcon(state: int) -> str:
+    if state == ReleaseInfo.JobState.InDownload:
+        return '<div class="download-spinner"></div>'
+    if state == ReleaseInfo.JobState.InProgress:
+        return '<div class="inprogress-spinner"></div>'
     if state in [
         ReleaseInfo.JobState.Ignored,
         ReleaseInfo.JobState.Ignored_AlreadyExists,
@@ -32,7 +36,7 @@ def GetStateIcon(state: int) -> str:
         ReleaseInfo.JobState.Ignored_MissingInfo,
         ReleaseInfo.JobState.Ignored_NotSupported,
     ]:
-        return "fa-exclamation-triangle has-text-warning"
+        return '<span class="icon"><i class="fas fa-exclamation-triangle has-text-warning"></i></span>'
     i = {
         ReleaseInfo.JobState.Finished: "fa-check has-text-success",
         ReleaseInfo.JobState.Failed: "fa-exclamation-circle has-text-danger",
@@ -40,9 +44,9 @@ def GetStateIcon(state: int) -> str:
         ReleaseInfo.JobState.Paused: "fa-pause has-text-info",
         ReleaseInfo.JobState.DownloadedAlreadyExists: "fa-frown has-text-warning",
         ReleaseInfo.JobState.InProgress: "fa-spinner fa-pulse has-text-info",
-        ReleaseInfo.JobState.InDownload: "fa-circle-notch fa-spin fa-pulse has-text-info",
+        ReleaseInfo.JobState.InDownload: "spinner",
     }
-    return i[state]
+    return f'<span class="icon"><i class="fas {i[state]}"></i></span>'
 
 
 def jobs(request):
@@ -168,7 +172,7 @@ def jobs_json(request):
         logUrl = reverse("log", args=[release.Id])
         entry["JobRunningState"] = {
             "sort": release.JobRunningState,
-            "_": f'<a href="{logUrl}" title="{release.get_JobRunningState_display()}"><span class="icon"><i class="fas {icon}"></i></span></a>',
+            "_": f'<a href="{logUrl}" title="{release.get_JobRunningState_display()}">{icon}</a>',
         }
 
         # Build actions
