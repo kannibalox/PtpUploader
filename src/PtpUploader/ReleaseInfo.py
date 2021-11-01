@@ -33,12 +33,12 @@ class ReleaseInfo(models.Model):
         Scheduled = 11
         InDownload = 12, "Downloading"
 
-    class MediaType(models.TextChoices):
+    class TypeChoices(models.TextChoices):
         feature = ("Feature Film", "Feature Film")
         short = ("Short Film", "Short Film")
-        miniseries = "Miniseries"
+        miniseries = ("Miniseries", "Miniseries")
         standup = ("Stand-up Comedy", "Stand-up Comedy")
-        concert = "Concert"
+        concert = ("Concert", "Concert")
         live = ("Live Performance", "Live Performance")
         collection = ("Movie Collection", "Movie Collection")
 
@@ -56,6 +56,7 @@ class ReleaseInfo(models.Model):
         BD66 = ("BD66", "BD66")
         BD100 = ("BD100", "BD100")
         Other = ("Other", "Other")
+        __empty__ = "---"
 
     class ContainerChoices(models.TextChoices):
         AVI = ("AVI", "AVI")
@@ -66,6 +67,7 @@ class ReleaseInfo(models.Model):
         ISO = ("ISO", "ISO")
         M2TS = ("m2ts", "m2ts")
         Other = ("Other", "Other")
+        __empty__ = "---"
 
     class ResolutionChoices(models.TextChoices):
         NTSC = ("NTSC", "NTSC")
@@ -77,6 +79,7 @@ class ReleaseInfo(models.Model):
         r1080p = ("1080p", "1080p")
         r2160p = ("2160p", "2160p")
         Other = ("Other", "Other")
+        __empty__ = "---"
 
     class SourceChoices(models.TextChoices):
         Bluray = ("Blu-ray", "Blu-ray")
@@ -87,12 +90,13 @@ class ReleaseInfo(models.Model):
         TV = ("TV", "TV")
         VHS = ("VHS", "VHS")
         Other = ("Other", "Other")
+        __empty__ = "---"
 
     class TrumpableReasons(models.IntegerChoices):
         NO_ENGLISH_SUBS = 14
         HARDCODED_SUBS = 4
 
-    objects: models.manager.Manager
+    objects: models.manager.Manager  # helps to find some typing errors
 
     Id = models.AutoField(primary_key=True)
 

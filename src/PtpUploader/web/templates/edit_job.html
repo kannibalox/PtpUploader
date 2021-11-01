@@ -317,7 +317,7 @@
             <td>
               {{ form.Codec }}
               <span id="other_codec_span">
-                <input name="other_codec" size="5" id="other_codec" type="text">
+                {{ form.CodecOther }}
               </span>
             </td>
           </tr>
@@ -327,7 +327,7 @@
             <td>
               {{ form.Container }}
               <span id="other_container_span">
-                <input name="other_container" size="5" id="other_container" type="text">
+                {{ form.ContainerOther }}
               </span>
             </td>
           </tr>
@@ -337,7 +337,7 @@
             <td>
               {{ form.ResolutionType }}
               <span id="other_resolution_span">
-                <input name="other_resolution" size="10" id="other_resolution" value="{{ job.other_resolution }}" type="text">
+                {{ form.Resolution }}
               </span>
             </td>
           </tr>
@@ -347,7 +347,7 @@
             <td>
               {{ form.Source }}
               <span id="other_source_span">
-                <input name="other_source" size="5" id="other_source" type="text">
+                {{ form.SourceOther }}
               </span>
             </td>
           </tr>
@@ -389,7 +389,8 @@
               <td class="label">Screenshots</td>
               <td>
                 {% for file, links in job.Screenshots.items %}
-                  <button type="button" data-target="{{forloop.counter0}}_images" class="show_images">Show</button>{{file}}<span id="{{forloop.counter0}}_images" style="display:none;">{{links|safe}}</span>
+                  <button type="button" data-target="{{forloop.counter0}}_images" class="show_images">Show</button>{{file}}
+                  <span id="{{forloop.counter0}}_images" style="display:none;"><br/>{{links|safe}}</span>
                 {% endfor %}
               </td>
             </tr>

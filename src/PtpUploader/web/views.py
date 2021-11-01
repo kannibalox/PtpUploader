@@ -303,8 +303,8 @@ def edit_job(request, r_id: int = -1):
     else:
         job["Screenshots"] = {}
         if release.Screenshots:
-            for f, shots in json.loads(release.Screenshots):
-                path = f.replace(release.UploadTorrentCreatePath, "").strip("/")
+            for f, shots in release.Screenshots.items():
+                path = Path(f).name
                 job["Screenshots"][path] = ""
                 for s in shots:
                     job["Screenshots"][path] += f'<img src="{s}"/>'

@@ -14,18 +14,14 @@ from PtpUploader.Job.JobStartMode import JobStartMode
 
 
 class ReleaseForm(ModelForm):
-    Type = ChoiceField(choices=ReleaseInfo.MediaType.choices, required=False)
-    Codec = ChoiceField(
-        choices=[("---", "---")] + ReleaseInfo.CodecChoices.choices, required=False
-    )
+    Type = ChoiceField(choices=ReleaseInfo.TypeChoices.choices, required=False)
+    Codec = ChoiceField(choices=ReleaseInfo.CodecChoices.choices, required=False)
     Container = ChoiceField(
-        choices=[("---", "---")] + ReleaseInfo.ContainerChoices.choices, required=False
+        choices=ReleaseInfo.ContainerChoices.choices, required=False
     )
-    Source = ChoiceField(
-        choices=[("---", "---")] + ReleaseInfo.SourceChoices.choices, required=False
-    )
+    Source = ChoiceField(choices=ReleaseInfo.SourceChoices.choices, required=False)
     ResolutionType = ChoiceField(
-        choices=[("---", "---")] + ReleaseInfo.ResolutionChoices.choices, required=False
+        choices=ReleaseInfo.ResolutionChoices.choices, required=False
     )
     Subtitles = MultipleChoiceField(
         choices=[
@@ -80,6 +76,7 @@ class ReleaseForm(ModelForm):
     TrumpableNoEnglish = BooleanField(required=False, initial=False)
     TrumpableHardSubs = BooleanField(required=False, initial=False)
     TorrentLink = CharField(required=False)
+    LocalFile = CharField(required=False)
 
     class Meta:
         model = ReleaseInfo
@@ -104,6 +101,10 @@ class ReleaseForm(ModelForm):
             "ReleaseNotes": Textarea(attrs={"cols": "60", "rows": "8"}),
             "ReleaseName": TextInput(attrs={"size": "60"}),
             "DuplicateCheckCanIgnore": HiddenInput(),
+            "SourceOther": TextInput(attrs={"size": "5"}),
+            "Resolution": TextInput(attrs={"size": "8"}),
+            "ContainerOther": TextInput(attrs={"size": "5"}),
+            "CodecOther": TextInput(attrs={"size": "5"}),
         }
 
     def clean(self):
