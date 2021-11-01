@@ -4,6 +4,7 @@ from typing import Iterator
 
 from django.db import models
 from django.utils import timezone
+from django.core.validators import URLValidator
 
 from PtpUploader.Job.FinishedJobPhase import FinishedJobPhase
 from PtpUploader.Job.JobStartMode import JobStartMode
@@ -101,8 +102,10 @@ class ReleaseInfo(models.Model):
     ReleaseName = models.TextField(blank=True, default="")
 
     # For PTP
-    Type = models.TextField(blank=True, default="Feature Film")
-    ImdbId = models.TextField(blank=True, default="")
+    Type = models.TextField(
+        blank=True, default=TypeChoices.feature, choices=TypeChoices.choices
+    )
+    ImdbId = models.TextField(blank=True, default="", validators=[URLValidator()])
     Directors = models.TextField(blank=True, default="")
     Title = models.TextField(blank=True, default="")
     Year = models.TextField(blank=True, default="")
