@@ -56,7 +56,6 @@ class Upload(WorkerBase):
         self.ReleaseInfo.JobRunningState = JobRunningState.InProgress
         self.ReleaseInfo.save()
 
-
     def __StopAutomaticJobBeforeExtracting(self):
         if (
             self.ReleaseInfo.IsUserCreatedJob()

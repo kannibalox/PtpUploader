@@ -86,7 +86,6 @@ class ReleaseForm(ModelForm):
             "ScheduleTimeUtc",
             "FinishedJobPhase",
             "Size",
-            "Trumpable",
         ]
         widgets = {
             "ImdbId": TextInput(attrs={"size": "60"}),

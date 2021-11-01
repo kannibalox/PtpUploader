@@ -16,6 +16,7 @@ from PtpUploader.Source.SourceBase import SourceBase
 
 logger = logging.getLogger(__name__)
 
+
 class Cinemageddon(SourceBase):
     def __init__(self):
         SourceBase.__init__(self)
