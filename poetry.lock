@@ -141,11 +141,15 @@ version = "1.0.0"
 description = ""
 category = "main"
 optional = false
-python-versions = ">=3.8"
+python-versions = ">3.6,<4"
 
 [package.dependencies]
 "bencode.py" = ">=4.0.0,<5.0.0"
 Tempita = ">=0.5.2,<0.6.0"
+
+[package.source]
+type = "url"
+url = "https://github.com/kannibalox/pyrosimple/archive/refs/heads/main.tar.gz"
 
 [[package]]
 name = "python-dateutil"
@@ -269,7 +273,7 @@ socks = ["PySocks (>=1.5.6,!=1.5.7,<2.0)"]
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.8.0,<4.0"
-content-hash = "9306624de0c2ed52bb4b7d1fd6ee8d72459000168bbc528d7e22f114b2bd88ba"
+content-hash = "cf17bccf9279d4e80d9c465f86d3fb68b6244f92b9bf92a4b5a0bc6ed35dfcbe"
 
 [metadata.files]
 asgiref = [

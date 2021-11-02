@@ -5,14 +5,21 @@ description = "A small uploader for a mildly popular movie site"
 authors = ["kannibalox <kannibalox@gmail.com>"]
 
 [tool.poetry.dependencies]
-python = ">=3.8.0,<4.0"
+python = "~3.8"
 requests = "^2.26.0"
 Django = "^3.2.8"
-pyrosimple = "^1.0.0"
 guessit = "^3.3.1"
 imdbpy = {git = "https://github.com/alberanid/imdbpy"}
+pyrosimple = {url = "https://github.com/kannibalox/pyrosimple/archive/refs/heads/main.tar.gz"}
 
-[tool.poetry.dev-dependencies]
+[tool.isort]
+profile = "black"
+force_single_line = true
+atomic = true
+include_trailing_comma = true
+lines_after_imports = 2
+lines_between_types = 1
+use_parentheses = true
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
