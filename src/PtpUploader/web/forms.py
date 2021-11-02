@@ -1,16 +1,17 @@
 from django.forms import (
-    HiddenInput,
     BooleanField,
     CharField,
     ChoiceField,
+    HiddenInput,
     ModelForm,
     MultipleChoiceField,
     Textarea,
     TextInput,
 )
+
+from PtpUploader.Job.JobStartMode import JobStartMode
 from PtpUploader.PtpSubtitle import PtpSubtitleId
 from PtpUploader.ReleaseInfo import ReleaseInfo
-from PtpUploader.Job.JobStartMode import JobStartMode
 
 
 class ReleaseForm(ModelForm):

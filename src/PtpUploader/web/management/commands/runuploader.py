@@ -3,22 +3,19 @@ import os
 import re
 import socket
 import sys
+
 from datetime import datetime
 
 from django.conf import settings
+from django.contrib.staticfiles.handlers import StaticFilesHandler
 from django.core.management.base import BaseCommand, CommandError
-from django.core.servers.basehttp import (
-    WSGIServer,
-    get_internal_wsgi_application,
-    run,
-)
+from django.core.servers.basehttp import WSGIServer, get_internal_wsgi_application, run
 from django.utils import autoreload
 from django.utils.regex_helper import _lazy_re_compile
-from django.contrib.staticfiles.handlers import StaticFilesHandler
-
-from PtpUploader.MyGlobals import MyGlobals
 
 from PtpUploader.Job import Supervisor
+from PtpUploader.MyGlobals import MyGlobals
+
 
 naiveip_re = _lazy_re_compile(
     r"""^(?:

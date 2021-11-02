@@ -1,8 +1,9 @@
 import os
 
+from pyrosimple.util import metafile
+
 from PtpUploader.PtpUploaderException import PtpUploaderException
 from PtpUploader.Settings import Settings
-from pyrosimple.util import metafile
 
 
 def Make(logger, path, torrentPath):

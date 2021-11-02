@@ -4,10 +4,12 @@ import time
 import xmlrpc.client
 
 import bencode
-from PtpUploader.MyGlobals import MyGlobals
-from PtpUploader.PtpUploaderException import PtpUploaderException
+
 from pyrosimple import config
 from pyrosimple.util import load_config, metafile
+
+from PtpUploader.MyGlobals import MyGlobals
+from PtpUploader.PtpUploaderException import PtpUploaderException
 
 
 class Rtorrent:

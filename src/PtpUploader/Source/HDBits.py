@@ -2,6 +2,7 @@ import json
 import re
 
 import requests
+
 from PtpUploader.Helper import RemoveDisallowedCharactersFromPath
 from PtpUploader.Job.JobRunningState import JobRunningState
 from PtpUploader.MyGlobals import MyGlobals

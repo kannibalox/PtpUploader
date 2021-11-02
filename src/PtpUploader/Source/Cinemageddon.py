@@ -1,7 +1,7 @@
 import html
+import logging
 import os
 import re
-import logging
 
 from PtpUploader.Helper import (
     GetSizeFromText,
@@ -13,6 +13,7 @@ from PtpUploader.Job.JobRunningState import JobRunningState
 from PtpUploader.MyGlobals import MyGlobals
 from PtpUploader.PtpUploaderException import PtpUploaderException
 from PtpUploader.Source.SourceBase import SourceBase
+
 
 logger = logging.getLogger(__name__)
 

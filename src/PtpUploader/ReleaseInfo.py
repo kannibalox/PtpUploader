@@ -1,10 +1,11 @@
 import datetime
 import os
+
 from typing import Iterator
 
+from django.core.validators import URLValidator
 from django.db import models
 from django.utils import timezone
-from django.core.validators import URLValidator
 
 from PtpUploader.Job.FinishedJobPhase import FinishedJobPhase
 from PtpUploader.Job.JobStartMode import JobStartMode

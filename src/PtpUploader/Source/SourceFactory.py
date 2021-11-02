@@ -10,10 +10,10 @@ from PtpUploader.Source.Gft import Gft
 from PtpUploader.Source.HDBits import HDBits
 from PtpUploader.Source.HDTorrents import HDTorrents
 from PtpUploader.Source.Karagarga import Karagarga
+from PtpUploader.Source.Prowlarr import Prowlarr
 from PtpUploader.Source.Torrent import Torrent
 from PtpUploader.Source.TorrentBytes import TorrentBytes
 from PtpUploader.Source.TorrentLeech import TorrentLeech
-from PtpUploader.Source.Prowlarr import Prowlarr
 
 
 class SourceFactory:

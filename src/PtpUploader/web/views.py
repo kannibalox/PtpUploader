@@ -1,27 +1,29 @@
-import os
 import logging
+import os
 import urllib
-from pathlib import Path
+
 from datetime import datetime
+from pathlib import Path
 from typing import Any, Dict
 
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import get_object_or_404, render
 from django.templatetags.static import static
 from django.urls import reverse
 from django.utils import timezone
 
+from PtpUploader import Ptp
 from PtpUploader.Helper import SizeToText, TimeDifferenceToText
 from PtpUploader.Job.JobRunningState import JobRunningState
 from PtpUploader.Job.JobStartMode import JobStartMode
 from PtpUploader.MyGlobals import MyGlobals
+from PtpUploader.NfoParser import NfoParser
 from PtpUploader.PtpUploaderMessage import *
 from PtpUploader.ReleaseInfo import ReleaseInfo
 from PtpUploader.Settings import Settings
-from PtpUploader.NfoParser import NfoParser
-from PtpUploader import Ptp
 
 from . import forms
+
 
 logger = logging.getLogger(__name__)
 

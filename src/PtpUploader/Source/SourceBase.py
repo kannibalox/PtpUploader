@@ -1,7 +1,7 @@
+import logging
 import os
 import re
 import shutil
-import logging
 
 from PtpUploader.IncludedFileList import IncludedFileList
 from PtpUploader.Job.FinishedJobPhase import FinishedJobPhase
@@ -9,6 +9,7 @@ from PtpUploader.NfoParser import NfoParser
 from PtpUploader.PtpUploaderException import PtpUploaderException
 from PtpUploader.ReleaseExtractor import ReleaseExtractor
 from PtpUploader.Settings import Settings
+
 
 logger = logging.getLogger(__name__)
 

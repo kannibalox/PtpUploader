@@ -1,18 +1,20 @@
-import os
-import re
-from urllib.parse import urlparse
 import html
 import logging
+import os
+import re
 import xml.etree.ElementTree as ET
+
+from urllib.parse import urlparse
 
 import requests
 
 from PtpUploader.IncludedFileList import IncludedFileList
+from PtpUploader.NfoParser import NfoParser
 from PtpUploader.PtpUploaderException import PtpUploaderException
 from PtpUploader.ReleaseExtractor import ReleaseExtractor
 from PtpUploader.Settings import Settings
 from PtpUploader.Source.SourceBase import SourceBase
-from PtpUploader.NfoParser import NfoParser
+
 
 logger = logging.getLogger()
 

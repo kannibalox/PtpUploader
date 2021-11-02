@@ -1,9 +1,10 @@
 import datetime
+import logging
 import os
 import subprocess
 import threading
-import logging
 
+from PtpUploader import Ptp
 from PtpUploader.Helper import GetIdxSubtitleLanguages, TimeDifferenceToText
 from PtpUploader.ImageHost.ImageUploader import ImageUploader
 from PtpUploader.Job.FinishedJobPhase import FinishedJobPhase
@@ -16,7 +17,6 @@ from PtpUploader.ReleaseDescriptionFormatter import ReleaseDescriptionFormatter
 from PtpUploader.Settings import Settings
 from PtpUploader.Tool import Mktor
 
-from PtpUploader import Ptp
 
 logger = logging.getLogger(__name__)
 

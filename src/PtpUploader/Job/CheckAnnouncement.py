@@ -1,8 +1,9 @@
 import datetime
+import logging
 import os
 import threading
-import logging
 
+from PtpUploader import Ptp
 from PtpUploader.InformationSource.Imdb import Imdb
 from PtpUploader.InformationSource.MoviePoster import MoviePoster
 from PtpUploader.Job.FinishedJobPhase import FinishedJobPhase
@@ -13,7 +14,6 @@ from PtpUploader.PtpUploaderException import *
 from PtpUploader.ReleaseInfo import ReleaseInfo
 from PtpUploader.Settings import Settings
 
-from PtpUploader import Ptp
 
 logger = logging.getLogger(__name__)
 

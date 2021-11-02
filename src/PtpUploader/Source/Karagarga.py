@@ -1,4 +1,5 @@
 import re
+
 from html import unescape
 
 from PtpUploader.Helper import GetSizeFromText, ValidateTorrentFile

@@ -1,12 +1,13 @@
-import threading
-import traceback
 import logging
 import os
+import threading
+import traceback
 
 from PtpUploader.Job.JobRunningState import JobRunningState
 from PtpUploader.PtpUploaderException import *
 from PtpUploader.ReleaseInfo import ReleaseInfo
 from PtpUploader.Settings import Settings
+
 
 logger = logging.getLogger()
 

@@ -18,16 +18,18 @@ It's called the JobSupervisor because supervisors are better than managers.
 
 import logging
 import queue
-import traceback
 import threading
+import traceback
+
 from concurrent import futures
 from typing import Dict, List
 
 from PtpUploader.Job.CheckAnnouncement import CheckAnnouncement
-from PtpUploader.Job.Upload import Upload
 from PtpUploader.Job.Delete import Delete
+from PtpUploader.Job.Upload import Upload
 from PtpUploader.PtpUploaderMessage import *
 from PtpUploader.ReleaseInfo import ReleaseInfo
+
 
 logger = logging.getLogger(__name__)
 

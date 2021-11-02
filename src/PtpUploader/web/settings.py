@@ -14,6 +14,7 @@ from pathlib import Path
 
 from PtpUploader.Settings import Settings
 
+
 Settings.LoadSettings()
 
 X_FRAME_OPTIONS = "SAMEORIGIN"

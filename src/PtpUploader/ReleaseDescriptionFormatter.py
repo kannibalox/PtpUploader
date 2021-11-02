@@ -1,10 +1,11 @@
-import os
 import logging
+import os
 
 from PtpUploader.PtpUploaderException import *
 from PtpUploader.Settings import Settings
 from PtpUploader.Tool.MediaInfo import MediaInfo
 from PtpUploader.Tool.ScreenshotMaker import ScreenshotMaker
+
 
 logger = logging.getLogger(__name__)
 

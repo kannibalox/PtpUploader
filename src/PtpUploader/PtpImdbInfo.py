@@ -1,10 +1,9 @@
 import json
 import re
 
+from PtpUploader import Ptp
 from PtpUploader.MyGlobals import MyGlobals
 from PtpUploader.PtpUploaderException import *
-
-from PtpUploader import Ptp
 
 
 class PtpImdbInfo:

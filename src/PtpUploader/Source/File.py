@@ -1,6 +1,6 @@
+import logging
 import os
 import shutil
-import logging
 
 from PtpUploader.Helper import GetPathSize
 from PtpUploader.IncludedFileList import IncludedFileList
@@ -9,6 +9,7 @@ from PtpUploader.PtpUploaderException import PtpUploaderException
 from PtpUploader.ReleaseExtractor import ReleaseExtractor
 from PtpUploader.ReleaseNameParser import ReleaseNameParser
 from PtpUploader.Source.SourceBase import SourceBase
+
 
 logger = logging.getLogger(__name__)
 

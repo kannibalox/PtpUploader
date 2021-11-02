@@ -1,10 +1,11 @@
 import logging
 import threading
 
+from PtpUploader.Job.WorkerBase import WorkerBase
 from PtpUploader.MyGlobals import MyGlobals
 from PtpUploader.ReleaseInfo import ReleaseInfo
 from PtpUploader.Settings import Settings
-from PtpUploader.Job.WorkerBase import WorkerBase
+
 
 logger = logging.getLogger(__name__)
 
