@@ -192,6 +192,7 @@ def __UploadMovieGetParamsCommon(releaseInfo, releaseDescription):
         "nfo_text": releaseInfo.Nfo,
         "AntiCsrfToken": Settings.AntiCsrfToken,
         "subtitles[]": releaseInfo.GetSubtitles(),
+        "trumpable[]": releaseInfo.Trumpable,
     }
 
     # personal rip only needed if it is specified
@@ -207,10 +208,6 @@ def __UploadMovieGetParamsCommon(releaseInfo, releaseDescription):
     # remaster is only needed if it is specified
     if len(releaseInfo.RemasterYear) > 0 or len(releaseInfo.RemasterTitle) > 0:
         paramList.update({"remaster": "on"})
-    # Trumpable for no English subtitles is only needed if it is specified.
-    for t_id in releaseInfo.Trumpable.split(","):
-        if t_id in ["14", "4"]:
-            paramList.update({"trumpable[]": t_id})
     return paramList
 
 

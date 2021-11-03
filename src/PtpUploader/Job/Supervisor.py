@@ -29,6 +29,7 @@ from PtpUploader.Job.Delete import Delete
 from PtpUploader.Job.Upload import Upload
 from PtpUploader.PtpUploaderMessage import *
 from PtpUploader.ReleaseInfo import ReleaseInfo
+from PtpUploader.Job import LoadFile
 
 
 logger = logging.getLogger(__name__)
@@ -61,7 +62,7 @@ class JobSupervisor(threading.Thread):
                 ]
 
     def load_announcements(self):
-        pass
+        LoadFile.scan_dir()
 
     def add_message(self, message):
         if isinstance(message, PtpUploaderMessageBase):
@@ -110,7 +111,7 @@ class JobSupervisor(threading.Thread):
 
     def reap_finished(self):
         for key, val in list(self.futures.items()):
-            flag, result = val
+            _, result = val
             if result.done():
                 if result.exception():
                     logger.info(  # Exceptions are used as messengers, hence info

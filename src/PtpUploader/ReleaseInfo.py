@@ -1,9 +1,8 @@
 import datetime
 import os
 
-from typing import Iterator
+from typing import Iterator, List
 
-from django.core.validators import URLValidator
 from django.db import models
 from django.utils import timezone
 
@@ -110,7 +109,7 @@ class ReleaseInfo(models.Model):
     Type = models.TextField(
         blank=True, default=TypeChoices.feature, choices=TypeChoices.choices
     )
-    ImdbId = models.TextField(blank=True, default="", validators=[URLValidator()])
+    ImdbId = models.TextField(blank=True, default="")
     Directors = models.TextField(blank=True, default="")
     Title = models.TextField(blank=True, default="")
     Year = models.TextField(blank=True, default="")
@@ -157,7 +156,7 @@ class ReleaseInfo(models.Model):
     IncludedFiles = models.TextField(blank=True, default="")
     DuplicateCheckCanIgnore = models.IntegerField(default=0)
     ScheduleTimeUtc = models.DateTimeField(default=timezone.now, null=True)
-    Trumpable = models.JSONField(blank=True, default=list)  # CSV of trump IDs
+    Trumpable: List[int] = models.JSONField(blank=True, default=list)  # CSV of trump IDs
     SpecialRelease = models.BooleanField(default=False)
     # Release made by a scene group.
     SceneRelease = models.BooleanField(default=False)
@@ -201,7 +200,7 @@ class ReleaseInfo(models.Model):
                     "Director name '%s' contains a comma." % name
                 )
 
-        self.Directors = ", ".join(list)
+        self.Directors = ", ".join(names)
 
     def GetSubtitles(self):
         return self.Subtitles

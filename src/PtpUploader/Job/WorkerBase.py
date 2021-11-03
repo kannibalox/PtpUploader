@@ -34,6 +34,7 @@ class WorkerBase:
     def Work(self):
         try:
             self.__WorkInternal()
+            self.ReleaseInfo.clean()
         except Exception as e:
             if hasattr(e, "JobRunningState"):
                 self.ReleaseInfo.JobRunningState = e.JobRunningState

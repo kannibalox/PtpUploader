@@ -2,6 +2,7 @@ import logging
 import os
 import re
 import shutil
+from pathlib import Path
 
 from PtpUploader.IncludedFileList import IncludedFileList
 from PtpUploader.Job.FinishedJobPhase import FinishedJobPhase
@@ -223,12 +224,14 @@ class SourceBase:
                 releaseInfo.GetReleaseRootPath()
             )
 
-        os.remove(releaseInfo.GetLogFilePath())
+        log = Path(Settings.GetJobLogPath(), str(releaseInfo.Id))
+        if log.is_file():
+            log.unlink()
 
     def GetTemporaryFolderForImagesAndTorrent(self, releaseInfo):
         return releaseInfo.GetReleaseRootPath()
 
-    def IsSingleFileTorrentNeedsDirectory(self, releaseInfo) -> bool:
+    def IsSingleFileTorrentNeedsDirectory(self, _) -> bool:
         return True
 
     def IncludeReleaseNameInReleaseDescription(self):
