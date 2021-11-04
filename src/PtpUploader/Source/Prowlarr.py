@@ -16,7 +16,7 @@ from PtpUploader.Settings import Settings
 from PtpUploader.Source.SourceBase import SourceBase
 
 
-logger = logging.getLogger()
+logger = logging.getLogger(__name__)
 
 
 class Prowlarr(SourceBase):

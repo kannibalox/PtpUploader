@@ -6,7 +6,7 @@ from PtpUploader.PtpUploaderException import PtpUploaderException
 from PtpUploader.Settings import Settings
 
 
-logger = logging.getLogger()
+logger = logging.getLogger(__name__)
 
 
 class ReleaseNameParser:
@@ -82,6 +82,9 @@ class ReleaseNameParser:
             and "Remux" in self.guess["other"]
         ):
             releaseInfo.RemasterTitle = "Remux"
+
+        if "other" in self.guess and "Reencoded" in self.guess["other"]:
+            logger.warning("Re-encoded rip detected from name %s", releaseInfo.ReleaseName)
 
     @staticmethod
     def __IsTagListContainAnythingFromListOfTagList(tagList, listOfTagList):
