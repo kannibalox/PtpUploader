@@ -329,7 +329,7 @@ def edit_job(request, r_id: int = -1):
                 in release.Trumpable,
                 "TrumpableHardSubs": release.TrumpableReasons.HARDCODED_SUBS
                 in release.Trumpable,
-                "ImdbId": f"https://imdb.com/title/tt{release.ImdbId}"
+                "ImdbId": f"https://imdb.com/title/tt{release.ImdbId}",
             },
         )
     return render(request, "edit_job.html", {"form": form, "settings": {}, "job": job})

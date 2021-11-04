@@ -423,7 +423,7 @@ class Upload(WorkerBase):
             raise PtpUploaderException(
                 JobRunningState.DownloadedAlreadyExists,
                 "Got uploaded to PTP while we were working on it. Skipping upload because of format '%s'."
-                % existingRelease,
+                % existingRelease["FullTitle"],
             )
 
     def __CheckSynopsis(self):

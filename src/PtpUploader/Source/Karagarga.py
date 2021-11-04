@@ -14,6 +14,7 @@ from PtpUploader.Source.SourceBase import SourceBase
 
 logger = logging.getLogger(__name__)
 
+
 class Karagarga(SourceBase):
     def __init__(self):
         super().__init__()
