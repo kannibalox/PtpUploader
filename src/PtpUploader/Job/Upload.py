@@ -419,7 +419,7 @@ class Upload(WorkerBase):
 
         # Check (again) if is it already on PTP.
         existingRelease = movieOnPtpResult.IsReleaseExists(self.ReleaseInfo)
-        if existingRelease is not None:
+        if existingRelease is not None and int(existingRelease["Id"]) > self.ReleaseInfo.DuplicateCheckCanIgnore:
             raise PtpUploaderException(
                 JobRunningState.DownloadedAlreadyExists,
                 "Got uploaded to PTP while we were working on it. Skipping upload because of format '%s'."

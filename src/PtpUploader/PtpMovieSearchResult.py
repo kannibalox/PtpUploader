@@ -93,7 +93,7 @@ class PtpMovieSearchResult:
             self.__ParseMoviePageMakeItems(self.Torrents, torrent)
 
     def GetLatestTorrent(self):
-        return sorted(self.Torrents, key=lambda t: int(t['Id']))[0]
+        return sorted(self.Torrents, key=lambda t: int(t['Id']), reverse=True)[0]
 
     def IsReleaseExists(self, release):
         if self.PtpId == "":

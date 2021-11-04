@@ -172,7 +172,7 @@ class CheckAnnouncement(WorkerBase):
             self.ReleaseInfo.PtpId = movieOnPtpResult.PtpId
 
         existingRelease = movieOnPtpResult.IsReleaseExists(self.ReleaseInfo)
-        if existingRelease is not None:
+        if existingRelease is not None and int(existingRelease["Id"]) > self.ReleaseInfo.DuplicateCheckCanIgnore:
             raise PtpUploaderException(
                 ReleaseInfo.JobState.Ignored_AlreadyExists,
                 "Already exists on PTP: '%s'." % existingRelease["FullTitle"],
