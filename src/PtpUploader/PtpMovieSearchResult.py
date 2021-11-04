@@ -127,46 +127,29 @@ class PtpMovieSearchResult:
         ]:
             return self.Torrents[0]
 
-        # TODO: Refactor into one big loop (where possible)
-        # PTP wouldn't let us upload something with the same name anyway
-        matched_name = [
-            t for t in self.Torrents if t["ReleaseName"] == release.ReleaseName
-        ]
-        if matched_name:
-            return matched_name[0]
-
-        # Find any really obvious duplicates
         for t in self.Torrents:
+            # PTP wouldn't let us upload something with the same name anyway
+            if t["ReleaseName"] == release.ReleaseName:
+                return t
+            # Most likely not coincedence
+            if t["Size"] == release.Size:
+                return t
+
+            # Find any really close duplicates
             if t["Source"] == release.Source and t["Codec"] == release.Codec:
                 if abs((release.Size / t["Size"]) - 1) * 100 < 3:
                     return t
 
-        # 4.4.1 One slot per untouched DVD format
-        if release.Resolution == "PAL":
-            if "PAL" in [t["Resolution"] for t in self.Torrents]:
-                return [t for t in self.Torrents if t["Resolution"] == "PAL"][0]
-            return None
-
-        if release.Resolution == "NTSC":
-            if "NTSC" in [t["Resolution"] for t in self.Torrents]:
-                return [t for t in self.Torrents if t["Resolution"] == "NTSC"][0]
-            return None
-
-        # Two slots for SD
-        if release.ResolutionType in [Resolutions.Other, "480p"]:
-            print("bleh")
-            for t in self.Torrents:
-                print(t)
-                if t["Quality"] == "Standard Definition":
-                    # 4.1.1.1 40% difference to be able to coexist
-                    print(abs((release.Size / t["Size"]) - 1) * 100)
-                    if abs((release.Size / t["Size"]) - 1) * 100 < 40:
-                        return t
-        # One slot for  576
-        if release.Resolution == "576p":
-            # Check for any other 576p
-            for t in self.Torrents:
-                if t["Resolution"] == "576p":
+            # 4.4.1 One slot per untouched DVD format, and screen them out early
+            if release.Resolution == "PAL" and t["Resolution"] == "PAL":
+                return t
+            if release.Resolution == "NTSC" and t["Resolution"] == "NTSC":
+                return t
+            # Two slots are available, first check if we can coexist with any of them
+            if release.ResolutionType in [Resolutions.Other, "480p"] and t["Quality"] == "Standard Definition":
+                if abs((release.Size / t["Size"]) - 1) * 100 < 40: # 4.1.1.1 40% size difference to be able to coexist
                     return t
+            if release.ResolutionType == "576p" and t["Resolution"] == "576p":
+                return t
 
-        return None
+        return {"FullTitle": "Passed duplicate checking"}
