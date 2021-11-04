@@ -237,7 +237,7 @@ class Cinemageddon(SourceBase):
             else:
                 logger.info("DVD detected but could not find resolution")
         else:
-            releaseInfo.ResolutionType = "Other"
+            logger.info("Could not detect resolution")
 
         if releaseInfo.IsDvdImage() and not releaseInfo.Container:
             if re.search(rb"\.vob</td>", raw_html, re.IGNORECASE):
