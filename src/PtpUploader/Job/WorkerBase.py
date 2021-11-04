@@ -9,7 +9,7 @@ from PtpUploader.ReleaseInfo import ReleaseInfo
 from PtpUploader.Settings import Settings
 
 
-logger = logging.getLogger()
+logger = logging.getLogger(__name__)
 
 
 class WorkerBase:
@@ -19,6 +19,7 @@ class WorkerBase:
         self.ReleaseInfo = ReleaseInfo.objects.get(Id=release_id)
         path = os.path.join(Settings.GetJobLogPath(), str(release_id))
         logging.basicConfig(filename=path, level=logging.DEBUG)
+        logger.info("Opening log file at %s", path)
 
     def __WorkInternal(self):
         if not self.Phases:
