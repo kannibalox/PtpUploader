@@ -102,6 +102,8 @@ class PtpMovieSearchResult:
         return latestTorrent
 
     def IsReleaseExists(self, release):
+        if self.PtpId == '':
+            return None
         # Flag un-checkable fields
         if release.Codec == Codecs.Other:
             raise PtpUploaderException(

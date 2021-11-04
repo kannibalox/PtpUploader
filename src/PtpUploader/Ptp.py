@@ -162,11 +162,11 @@ def GetMoviePageOnPtpByImdbId(logger, imdbId):
         response.find("<h2>Error 404</h2>") != -1
     ):  # For some deleted movies PTP return with this error.
         logger.info(
-            "Movie with IMDb id '%s' doesn't exists on PTP. (Got error 404.)" % imdbId
+            "Movie with IMDb id '%s' doesn't exist on PTP. (Got error 404.)" % imdbId
         )
         return PtpMovieSearchResult(ptpId="", moviePageJsonText=None)
     elif response.find("<h2>Your search did not match anything.</h2>") != -1:
-        logger.info("Movie with IMDb id '%s' doesn't exists on PTP." % imdbId)
+        logger.info("Movie with IMDb id '%s' doesn't exist on PTP." % imdbId)
         return PtpMovieSearchResult(ptpId="", moviePageJsonText=None)
     else:  # Multiple movies with the same IMDb id.
         raise PtpUploaderException(

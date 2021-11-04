@@ -1,4 +1,5 @@
 import re
+import logging
 
 from html import unescape
 
@@ -11,6 +12,7 @@ from PtpUploader.PtpUploaderException import (
 )
 from PtpUploader.Source.SourceBase import SourceBase
 
+logger = logging.getLogger(__name__)
 
 class Karagarga(SourceBase):
     def __init__(self):
@@ -50,7 +52,7 @@ class Karagarga(SourceBase):
                 "Couldn't log in to Karagarga. Your password is not specified.."
             )
 
-        MyGlobals.Logger.info("Logging in to Karagarga.")
+        logger.info("Logging in to Karagarga.")
 
         if "karagarga.in" not in MyGlobals.session.cookies.list_domains():
             postData = {"username": self.Username, "password": self.Password}
@@ -72,7 +74,7 @@ class Karagarga(SourceBase):
 
     def __DownloadNfoParseSourceType(self, releaseInfo, description):
         if releaseInfo.Source:
-            releaseInfo.Logger.info(
+            logger.info(
                 "Source '%s' is already set, not getting from the torrent page."
                 % releaseInfo.Source
             )
@@ -160,7 +162,7 @@ class Karagarga(SourceBase):
 
     def __DownloadNfoParseFormatType(self, releaseInfo, description):
         if releaseInfo.Codec:
-            releaseInfo.Logger.info(
+            logger.info(
                 "Codec '%s' is already set, not getting from the torrent page."
                 % releaseInfo.Codec
             )
@@ -196,7 +198,7 @@ class Karagarga(SourceBase):
 
     def __DownloadNfoParseResolution(self, releaseInfo, description):
         if releaseInfo.ResolutionType:
-            releaseInfo.Logger.info(
+            logger.info(
                 "Resolution type '%s' is already set, not getting from the torrent page."
                 % releaseInfo.ResolutionType
             )
