@@ -61,7 +61,7 @@ class PtpMovieSearchResult:
         fullTitle = f'{torrent["ReleaseName"]} / {torrent["Container"]} / {torrent["Codec"]} / {torrent["Resolution"]}'
         if len(torrent["RemasterTitle"]) > 0:
             fullTitle += " / " + torrent["RemasterTitle"]
-            if torrent["RemasterYear"] > 0:
+            if len(torrent["RemasterYear"]) > 0:
                 fullTitle += " (%s)" % torrent["RemasterYear"]
         torrent["FullTitle"] = fullTitle
 

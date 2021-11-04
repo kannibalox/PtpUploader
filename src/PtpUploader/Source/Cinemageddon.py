@@ -191,6 +191,8 @@ class Cinemageddon(SourceBase):
             releaseInfo.Source = "TV"
         elif sourceType in ["webrip", "web-dl"]:
             releaseInfo.Source = "WEB"
+        elif sourceType == "bdrip": # brrips exist but aren't allowed on PTP
+            releaseInfo.Source = "Blu-ray"
         else:
             raise PtpUploaderException(
                 JobRunningState.Ignored_NotSupported,
