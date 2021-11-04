@@ -293,8 +293,11 @@ def edit_job(request, r_id: int = -1):
 
                     release.AnnouncementSourceName = source.Name
                     release.AnnouncementId = id
-                elif request.POST["TorrentLink"]:
-                    pass
+                elif request.POST["LocalFile"]:
+                    path = Path(request.POST["LocalFile"])
+                    release.AnnouncementSourceName = "file"
+                    release.ReleaseDownloadPath = path
+                    release.ReleaseName = path.name
             if "post_stop_before" in request.POST:
                 release.StopBeforeUploading = True
             else:
