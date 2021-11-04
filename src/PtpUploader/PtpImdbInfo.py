@@ -34,7 +34,10 @@ class PtpImdbInfo:
                 "Bad PTP movie info JSON response: array length is not one.\nFull response:\n%s"
                 % self.JsonResponse
             )
-
+        if not jsonResult[0]:
+            raise PtpUploaderException(
+                "Bad PTP movie info JSON response: no movie info. Perhaps the IMDb ID has been moved?"
+            )
         self.JsonMovie = jsonResult[0]
 
     def GetTitle(self):
