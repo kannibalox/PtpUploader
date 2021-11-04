@@ -14,6 +14,7 @@ Resolutions = ReleaseInfo.ResolutionChoices
 
 logger = logging.getLogger(__name__)
 
+
 def GetSourceScore(source):
     scores = {
         "VHS": 3,
@@ -102,7 +103,7 @@ class PtpMovieSearchResult:
         return latestTorrent
 
     def IsReleaseExists(self, release):
-        if self.PtpId == '':
+        if self.PtpId == "":
             return None
         # Flag un-checkable fields
         if release.Codec == Codecs.Other:
@@ -128,7 +129,9 @@ class PtpMovieSearchResult:
 
         # TODO: Refactor into one big loop (where possible)
         # PTP wouldn't let us upload something with the same name anyway
-        matched_name = [t for t in self.Torrents if t["ReleaseName"] == release.ReleaseName]
+        matched_name = [
+            t for t in self.Torrents if t["ReleaseName"] == release.ReleaseName
+        ]
         if matched_name:
             return matched_name[0]
 
@@ -137,7 +140,7 @@ class PtpMovieSearchResult:
             if t["Source"] == release.Source and t["Codec"] == release.Codec:
                 if abs((release.Size / t["Size"]) - 1) * 100 < 3:
                     return t
-        
+
         # 4.4.1 One slot per untouched DVD format
         if release.Resolution == "PAL":
             if "PAL" in [t["Resolution"] for t in self.Torrents]:
