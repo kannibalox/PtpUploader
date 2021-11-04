@@ -151,12 +151,14 @@ class ReleaseInfo(models.Model):
     ReleaseNotes = models.TextField(blank=True, default="")
     Screenshots = models.JSONField(blank=True, default=dict)
     LastModificationTime = models.DateTimeField(auto_now=True)
-    Size = models.IntegerField(default=0)
+    Size = models.BigIntegerField(default=0)
     Subtitles = models.JSONField(blank=True, default=list)  # CSV of subtitle IDs
     IncludedFiles = models.TextField(blank=True, default="")
     DuplicateCheckCanIgnore = models.IntegerField(default=0)
     ScheduleTimeUtc = models.DateTimeField(default=timezone.now, null=True)
-    Trumpable: List[int] = models.JSONField(blank=True, default=list)  # CSV of trump IDs
+    Trumpable: List[int] = models.JSONField(
+        blank=True, default=list
+    )  # CSV of trump IDs
     SpecialRelease = models.BooleanField(default=False)
     # Release made by a scene group.
     SceneRelease = models.BooleanField(default=False)
