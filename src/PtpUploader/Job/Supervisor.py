@@ -45,6 +45,20 @@ class JobSupervisor(threading.Thread):
             max_workers=2
         )
 
+    def __repr__(self):
+        running = []
+        done = []
+        waiting = []
+        for key, val in self.futures.items():
+            _, future = val
+            if future.running():
+                running.append(key)
+            elif future.done():
+                done.append(key)
+            else:
+                waiting.append(key)
+        return f"running: {running}, waiting: {waiting}, done: {done}"
+
     def check_pending_downloads(self):
         for release in ReleaseInfo.objects.filter(
             JobRunningState=ReleaseInfo.JobState.InDownload
@@ -121,7 +135,7 @@ class JobSupervisor(threading.Thread):
 
     def work(self):
         if self.futures.keys():
-            print(self.futures)
+            logger.info(self.__repr__())
         try:
             message = self.message_queue.get(timeout=3)
             if isinstance(message, PtpUploaderMessageStopJob):
