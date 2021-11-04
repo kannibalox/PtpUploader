@@ -175,7 +175,7 @@ class CheckAnnouncement(WorkerBase):
         if existingRelease is not None:
             raise PtpUploaderException(
                 ReleaseInfo.JobState.Ignored_AlreadyExists,
-                "Already exists on PTP: '%s'." % existingRelease,
+                "Already exists on PTP: '%s'." % existingRelease["FullTitle"],
             )
 
         self.ReleaseInfo.ImdbRating = movieOnPtpResult.ImdbRating
