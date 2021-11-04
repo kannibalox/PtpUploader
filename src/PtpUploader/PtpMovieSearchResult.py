@@ -155,4 +155,4 @@ class PtpMovieSearchResult:
             if release.ResolutionType == "576p" and t["Resolution"] == "576p":
                 return t
 
-        return {"FullTitle": "Passed duplicate checking"}
+        return None
