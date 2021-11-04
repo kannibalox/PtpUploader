@@ -114,9 +114,9 @@ def jobs_get_latest(request):
         if movieOnPtpResult:
             torrent = movieOnPtpResult.GetLatestTorrent()
             if torrent:
-                torrentId = torrent.TorrentId
+                torrentId = torrent['Id']
 
-                difference = datetime.utcnow() - torrent.GetUploadTimeAsDateTimeUtc()
+                difference = datetime.now() - torrent['UploadTime']
                 uploadedAgo = (
                     "(Latest torrent uploaded: "
                     + TimeDifferenceToText(difference).lower()
@@ -124,7 +124,7 @@ def jobs_get_latest(request):
                 )
 
     return JsonResponse(
-        {"Result": "OK", "TorrentId": torrentId, "UploadedAgo": uploadedAgo}
+        {"Result": "OK", "TorrentId": torrentId, "UploadedAgo": TimeDifferenceToText(difference).lower()}
     )
 
 
@@ -320,16 +320,15 @@ def edit_job(request, r_id: int = -1):
         job["SkipDuplicateCheckingButton"] = release.DuplicateCheckCanIgnore
         job["CanEdited"] = release.CanEdited
 
-        form = forms.ReleaseForm(
-            instance=release,
-            initial={
-                "Subtitles": release.Subtitles,
-                "Tags": release.Tags.split(","),
-                "TrumpableNoEnglish": release.TrumpableReasons.NO_ENGLISH_SUBS
-                in release.Trumpable,
-                "TrumpableHardSubs": release.TrumpableReasons.HARDCODED_SUBS
-                in release.Trumpable,
-                "ImdbId": f"https://imdb.com/title/tt{release.ImdbId}",
-            },
-        )
+        initial = {
+            "Subtitles": release.Subtitles,
+            "Tags": release.Tags.split(","),
+            "TrumpableNoEnglish": release.TrumpableReasons.NO_ENGLISH_SUBS
+            in release.Trumpable,
+            "TrumpableHardSubs": release.TrumpableReasons.HARDCODED_SUBS
+            in release.Trumpable,
+        }
+        if release.ImdbId:
+            initial["ImdbId"] = f"https://imdb.com/title/tt{release.ImdbId}"
+        form = forms.ReleaseForm(instance=release, initial=initial)
     return render(request, "edit_job.html", {"form": form, "settings": {}, "job": job})

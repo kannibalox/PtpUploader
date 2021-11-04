@@ -5,6 +5,7 @@ import logging
 from PtpUploader.Helper import SizeToText, TimeDifferenceToText
 from PtpUploader.PtpUploaderException import PtpUploaderException
 from PtpUploader.ReleaseInfo import ReleaseInfo
+from PtpUploader.NfoParser import NfoParser
 
 # Shortcuts for reference
 Codecs = ReleaseInfo.CodecChoices
@@ -92,15 +93,7 @@ class PtpMovieSearchResult:
             self.__ParseMoviePageMakeItems(self.Torrents, torrent)
 
     def GetLatestTorrent(self):
-        latestTorrent = None
-        latestTorrentId = 0
-
-        for item in self.Torrents:
-            if item["Id"] > latestTorrentId:
-                latestTorrentId = item.TorrentId
-                latestTorrent = item
-
-        return latestTorrent
+        return sorted(self.Torrents, key=lambda t: int(t['Id']))[0]
 
     def IsReleaseExists(self, release):
         if self.PtpId == "":
@@ -127,6 +120,16 @@ class PtpMovieSearchResult:
         ]:
             return self.Torrents[0]
 
+        # 4.4.1 One slot per untouched DVD format, and screen them out early
+        if release.ResolutionType in ["PAL", "NTSC"]:
+            if release.ResolutionType in [t["Resolution"] for t in self.Torrents]:
+                return [
+                    t
+                    for t in self.Torrents
+                    if t["Resolution"] == release.ResolutionType
+                ][0]
+            return None
+
         for t in self.Torrents:
             # PTP wouldn't let us upload something with the same name anyway
             if t["ReleaseName"] == release.ReleaseName:
@@ -140,14 +143,14 @@ class PtpMovieSearchResult:
                 if abs((release.Size / t["Size"]) - 1) * 100 < 3:
                     return t
 
-            # 4.4.1 One slot per untouched DVD format, and screen them out early
-            if release.Resolution == "PAL" and t["Resolution"] == "PAL":
-                return t
-            if release.Resolution == "NTSC" and t["Resolution"] == "NTSC":
-                return t
             # Two slots are available, first check if we can coexist with any of them
-            if release.ResolutionType in [Resolutions.Other, "480p"] and t["Quality"] == "Standard Definition":
-                if abs((release.Size / t["Size"]) - 1) * 100 < 40: # 4.1.1.1 40% size difference to be able to coexist
+            if (
+                release.ResolutionType in [Resolutions.Other, "480p"]
+                and t["Quality"] == "Standard Definition"
+            ):
+                if (
+                    abs((release.Size / t["Size"]) - 1) * 100 < 40
+                ):  # 4.1.1.1 40% size difference to be able to coexist
                     return t
             if release.ResolutionType == "576p" and t["Resolution"] == "576p":
                 return t

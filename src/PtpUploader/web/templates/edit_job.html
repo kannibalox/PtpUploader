@@ -21,7 +21,7 @@
      $("html").removeClass('busy');
      $("#id_DuplicateCheckCanIgnore").val(torrentId);
      $("#SkipDuplicateCheckingButton").val(torrentId);
-     $("#SkipDuplicateCheckingMessage").html(uploadedAgo);
+     $("#SkipDuplicateCheckingMessage").html("(Last upload was " + uploadedAgo + ")");
 
      if (torrentId <= 0) {
        alert("Error!");
@@ -122,7 +122,7 @@
            var tree = $.ui.fancytree.getTree("#tree"),
                selNode = tree.getActiveNode();
            if( btnName === "ok" ) {
-             $('#existingfile').val(selNode.key);
+             $('#id_LocalFile').val(selNode.key);
            }
          }
        });
