@@ -299,6 +299,7 @@ def edit_job(request, r_id: int = -1):
                 release.StopBeforeUploading = True
             else:
                 release.StopBeforeUploading = False
+            GetPtpOrImdbId(release, release.ImdbId)
             release.save()
             MyGlobals.PtpUploader.add_message(PtpUploaderMessageStartJob(release.Id))
             return HttpResponseRedirect("/jobs")
@@ -328,6 +329,7 @@ def edit_job(request, r_id: int = -1):
                 in release.Trumpable,
                 "TrumpableHardSubs": release.TrumpableReasons.HARDCODED_SUBS
                 in release.Trumpable,
+                "ImdbId": f"https://imdb.com/title/tt{release.ImdbId}"
             },
         )
     return render(request, "edit_job.html", {"form": form, "settings": {}, "job": job})
