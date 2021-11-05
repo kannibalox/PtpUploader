@@ -93,9 +93,10 @@ class PtpMovieSearchResult:
             self.__ParseMoviePageMakeItems(self.Torrents, torrent)
 
     def GetLatestTorrent(self):
-        return sorted(self.Torrents, key=lambda t: int(t['Id']), reverse=True)[0]
+        return sorted(self.Torrents, key=lambda t: int(t["Id"]), reverse=True)[0]
 
     def IsReleaseExists(self, release):
+        candidates = [t.copy for t in self.Torrents]  # Semi-shallow copy
         if self.PtpId == "":
             return None
         # Flag un-checkable fields
@@ -118,19 +119,23 @@ class PtpMovieSearchResult:
             Codecs.XVID,
             Codecs.DIVX,
         ]:
-            return self.Torrents[0]
+            return candidates[0]
+        candidates = [
+            t for t in candidates if t["Codec"] not in [Codecs.XVID, Codecs.DIVX]
+        ]
 
         # 4.4.1 One slot per untouched DVD format, and screen them out early
         if release.ResolutionType in ["PAL", "NTSC"]:
-            if release.ResolutionType in [t["Resolution"] for t in self.Torrents]:
+            if release.ResolutionType in [t["Resolution"] for t in candidates]:
                 return [
-                    t
-                    for t in self.Torrents
-                    if t["Resolution"] == release.ResolutionType
+                    t for t in candidates if t["Resolution"] == release.ResolutionType
                 ][0]
             return None
+        candidates = [
+            t for t in candidates if t["Resolution"] not in ["PAL", "NTSC"]
+        ]
 
-        for t in self.Torrents:
+        for t in candidates:
             # PTP wouldn't let us upload something with the same name anyway
             if t["ReleaseName"] == release.ReleaseName:
                 return t
