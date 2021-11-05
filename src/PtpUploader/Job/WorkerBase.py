@@ -12,14 +12,26 @@ from PtpUploader.Settings import Settings
 logger = logging.getLogger(__name__)
 
 
+class WorkLogFilter(logging.Filter):
+    def __init__(self, release_id, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.release_id = release_id
+
+    def filter(self, record):
+        if "release_id" in record.__dict__:
+            return self.release_id == record.release_id
+        return False
+
+
 class WorkerBase:
     def __init__(self, release_id: int, stop_requested: threading.Event):
         self.Phases = []
         self.stop_requested: threading.Event = stop_requested
         self.ReleaseInfo = ReleaseInfo.objects.get(Id=release_id)
-        path = os.path.join(Settings.GetJobLogPath(), str(release_id))
-        logging.basicConfig(filename=path, level=logging.DEBUG)
-        logger.info("Opening log file at %s", path)
+        self.logHandler = (
+            self.start_worker_logging()
+        )  # needed to clean up after job is finished
+        self.logger = self.ReleaseInfo.logger(logger)  # Just a nice shortcut
 
     def __WorkInternal(self):
         if not self.Phases:
@@ -28,9 +40,34 @@ class WorkerBase:
             if self.stop_requested.is_set():
                 self.ReleaseInfo.JobRunningState = JobRunningState.Paused
                 self.ReleaseInfo.save()
-                return
+                break
 
             phase()
+        self.stop_worker_logging()
+
+    def stop_worker_logging(self):
+        logging.getLogger().removeHandler(self.logHandler)
+
+    def start_worker_logging(self):
+        """
+        Add a log handler to separate file for current thread
+        """
+        path = os.path.join(Settings.GetJobLogPath(), str(self.ReleaseInfo.Id))
+        log_handler = logging.FileHandler(path)
+
+        log_handler.setLevel(logging.DEBUG)
+
+        formatter = logging.Formatter(
+            "%(asctime)-15s" " %(name)-11s" " %(levelname)-5s" " %(message)s"
+        )
+        log_handler.setFormatter(formatter)
+
+        log_filter = WorkLogFilter(self.ReleaseInfo.Id)
+        log_handler.addFilter(log_filter)
+
+        log = logging.getLogger()
+        log.addHandler(log_handler)
+        return log_handler
 
     def Work(self):
         try:
@@ -45,6 +82,6 @@ class WorkerBase:
             self.ReleaseInfo.ErrorMessage = str(e)
             self.ReleaseInfo.save()
 
-            logger.error(traceback.format_exc())
+            self.logger.error(traceback.format_exc())
             e.Logger = logger
             raise
