@@ -237,7 +237,7 @@ class ReleaseInfo(models.Model):
         return "Remux" in str(self.RemasterTitle)
 
     def IsDvdImage(self):
-        return self.Codec == "DVD5" or self.Codec == "DVD9"
+        return self.Codec in ["DVD5", "DVD9"]
 
     # See the description at the flag.
     def IsSpecialRelease(self):

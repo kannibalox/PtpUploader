@@ -12,7 +12,6 @@ import requests
 from PtpUploader.MyGlobals import MyGlobals
 from PtpUploader.PtpUploaderException import PtpUploaderException
 
-
 def GetIdxSubtitleLanguages(path: str):
     languages = []
 

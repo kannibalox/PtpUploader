@@ -136,7 +136,7 @@ class ReleaseDescriptionFormatter:
         for videoEntry in self.VideoEntries:
             path = videoEntry.MediaInfo.Path
             if videoEntry.NumberOfScreenshotsToTake <= 0:
-                return
+                continue
 
             screenshotMaker = ScreenshotMaker(logger, path)
             videoEntry.ScaleSize = screenshotMaker.GetScaleSize()
