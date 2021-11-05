@@ -1,5 +1,6 @@
 import datetime
 import os
+import logging
 
 from typing import Iterator, List
 
@@ -352,3 +353,9 @@ class ReleaseInfo(models.Model):
     @property
     def AnnouncementSource(self):
         return MyGlobals.SourceFactory.GetSource(self.AnnouncementSourceName)
+
+    def logger(self, logger=None):
+        if logger is None:
+            logger = logging.getLogger()
+        logger_with_id = logging.LoggerAdapter(logger, {'release_id': self.Id})
+        return logger_with_id

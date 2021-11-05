@@ -11,6 +11,8 @@
   <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.9.2/css/bulma.min.css"/>
   <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/bm/dt-1.11.3/datatables.min.css"/>
   <script type="text/javascript" src="https://cdn.datatables.net/v/bm/dt-1.11.3/datatables.min.js"></script>
+  <script src="{% static "script/select2.min.js" %}"></script>
+  <link href="{% static "script/select2.min.css" %}" rel="stylesheet" type="text/css" />
   <script type="text/javascript">
    var jobsTable;
 
@@ -56,6 +58,7 @@
 
 
    $(document).ready(function() {
+     $("#state_filter").select2();
      jobsTable = $('#jobs').DataTable({
        "pageLength": 50,
        "ajax": "/ajax/jobs",
@@ -156,6 +159,16 @@
 
 {% block body %}
   <div class="column dt-bulma is-10 is-offset-1">
+    <div class="columns">
+      <div class="column is-half">
+        <select multiple=multiple class="select2" id="state_filter">
+          {% for key, val in state %}
+            <option value="{{key}}">{{val}}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="column is-half">test2</div>
+    </div>
     <table id="jobs" class="jobs table is-hoverable is-striped
                is-fullwidth" border="0" cellpadding="3" cellspacing="1">
       <thead>

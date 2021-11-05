@@ -54,7 +54,7 @@ def GetStateIcon(state: int) -> str:
 
 
 def jobs(request):
-    return render(request, "jobs.html")
+    return render(request, "jobs.html", {"state": ReleaseInfo.JobState.choices})
 
 
 def log(request, r_id: int):
