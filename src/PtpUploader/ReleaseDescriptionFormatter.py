@@ -1,5 +1,6 @@
 import logging
 import os
+from pathlib import Path
 
 from PtpUploader.PtpUploaderException import *
 from PtpUploader.Settings import Settings
@@ -55,7 +56,7 @@ class ReleaseDescriptionFormatter:
         # Get all IFOs.
         ifos = []
         for file in self.AdditionalFiles:
-            if file.lower().endswith(".ifo"):
+            if file.suffix == ".IFO":
                 mediaInfo = MediaInfo(
                     logger,
                     file,
@@ -70,23 +71,15 @@ class ReleaseDescriptionFormatter:
                 "None of the IFOs have duration. MediaInfo is probably too old."
             )
 
-        ifoPathLower = ifo.Path.lower()
-        if not ifoPathLower.endswith("_0.ifo"):
+        if not ifo.Path.name.endswith("_0.IFO"):
             raise PtpUploaderException(
                 "Unsupported VIDEO_TS layout. The longest IFO is '%s' with duration '%s'."
                 % (ifo.Path, ifo.DurationInSec)
             )
 
         # Get the next VOB.
-        # (This could be a simple replace but Linux's filesystem is case-sensitive...)
-        vobPath = None
-        ifoPathLower = ifoPathLower.replace("_0.ifo", "_1.vob")
-        for file in self.VideoFiles:
-            if file.lower() == ifoPathLower:
-                vobPath = file
-                break
-
-        if vobPath is None:
+        vobPath = Path(str(ifo.Path).replace("_0.IFO", "_1.VOB"))
+        if not vobPath.is_file():
             raise PtpUploaderException(
                 "Unsupported VIDEO_TS layout. Can't find the next VOB for IFO '%s'."
                 % ifo.Path
@@ -134,7 +127,7 @@ class ReleaseDescriptionFormatter:
             return
 
         for videoEntry in self.VideoEntries:
-            path = videoEntry.MediaInfo.Path
+            path = str(videoEntry.MediaInfo.Path) # Need to make sure any Path objects can be used as keys
             if videoEntry.NumberOfScreenshotsToTake <= 0:
                 continue
 
@@ -164,9 +157,7 @@ class ReleaseDescriptionFormatter:
                 "[size=4][b]%s[/b][/size]\n\n" % self.ReleaseInfo.ReleaseName
             )
 
-        for i in range(len(self.VideoEntries)):
-            entry = self.VideoEntries[i]
-
+        for i, entry in enumerate(self.VideoEntries):
             if i > 0:
                 releaseDescription += "\n\n"
 

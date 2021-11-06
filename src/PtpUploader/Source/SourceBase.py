@@ -8,7 +8,7 @@ from PtpUploader.IncludedFileList import IncludedFileList
 from PtpUploader.Job.FinishedJobPhase import FinishedJobPhase
 from PtpUploader.NfoParser import NfoParser
 from PtpUploader.PtpUploaderException import PtpUploaderException
-from PtpUploader.ReleaseExtractor import ReleaseExtractor
+from PtpUploader.ReleaseExtractor import ReleaseExtractor, validate_directory
 from PtpUploader.Settings import Settings
 
 
@@ -151,7 +151,8 @@ class SourceBase:
 
     # Must returns with a tuple consisting of the list of video files and the list of additional files.
     def ValidateExtractedRelease(self, releaseInfo, includedFileList):
-        videoFiles, additionalFiles = ReleaseExtractor.ValidateDirectory(
+        videoFiles, additionalFiles = validate_directory(releaseInfo)
+        ReleaseExtractor.ValidateDirectory(
             logger, releaseInfo.GetReleaseUploadPath(), includedFileList
         )
         if len(videoFiles) < 1:
