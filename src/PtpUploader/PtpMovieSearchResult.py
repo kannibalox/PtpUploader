@@ -96,7 +96,7 @@ class PtpMovieSearchResult:
         return sorted(self.Torrents, key=lambda t: int(t["Id"]), reverse=True)[0]
 
     def IsReleaseExists(self, release):
-        candidates = [t.copy for t in self.Torrents]  # Semi-shallow copy
+        candidates = [t.copy() for t in self.Torrents]  # Semi-shallow copy
         if self.PtpId == "":
             return None
         # Flag un-checkable fields
