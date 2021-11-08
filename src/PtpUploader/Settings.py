@@ -10,6 +10,7 @@ from pathlib import Path
 
 logger = logging.getLogger(__name__)
 
+
 class Settings:
     @staticmethod
     def MakeListFromExtensionString(extensions):
@@ -24,7 +25,10 @@ class Settings:
     # Eg.: "A B, C, D E" will become [ [ "A", "B" ], [ "C" ], [ "D", "E" ] ]
     @staticmethod
     def MakeListOfListsFromString(extensions: str):
-        return [i.split(" ") for i in Settings.MakeListFromExtensionString(extensions)]
+        return [
+            i.split(" ")
+            for i in Settings.MakeListFromExtensionString(extensions)
+        ]
 
     @staticmethod
     def __HasValidExtensionToUpload(path, extensions):
@@ -38,14 +42,12 @@ class Settings:
     @staticmethod
     def HasValidVideoExtensionToUpload(path):
         return Settings.__HasValidExtensionToUpload(
-            path, Settings.VideoExtensionsToUpload
-        )
+            path, Settings.VideoExtensionsToUpload)
 
     @staticmethod
     def HasValidAdditionalExtensionToUpload(path):
         return Settings.__HasValidExtensionToUpload(
-            path, Settings.AdditionalExtensionsToUpload
-        )
+            path, Settings.AdditionalExtensionsToUpload)
 
     @staticmethod
     def IsFileOnIgnoreList(path):
@@ -153,10 +155,13 @@ class Settings:
 
         Settings.FfmpegPath = Settings.__GetPath("Settings", "FfmpegPath")
         Settings.MediaInfoPath = Settings.__GetPath("Settings",
-                                                    "MediaInfoPath", "mediainfo")
-        Settings.MplayerPath = Settings.__GetPath("Settings", "MplayerPath", "mplayer")
+                                                    "MediaInfoPath",
+                                                    "mediainfo")
+        Settings.MplayerPath = Settings.__GetPath("Settings", "MplayerPath",
+                                                  "mplayer")
         Settings.MpvPath = Settings.__GetPath("Settings", "MpvPath", "mpv")
-        Settings.UnrarPath = Settings.__GetPath("Settings", "UnrarPath", "unrar")
+        Settings.UnrarPath = Settings.__GetPath("Settings", "UnrarPath",
+                                                "unrar")
         Settings.ImageMagickConvertPath = Settings.__GetPath(
             "Settings", "ImageMagickConvertPath", "convert")
 
@@ -176,23 +181,13 @@ class Settings:
         Settings.IgnoreReleaserGroup = Settings.MakeListFromExtensionString(
             Settings.__GetDefault(configParser, "Settings",
                                   "IgnoreReleaserGroup", ""))
+
         scene_file = Path(os.path.expanduser("~/.config/ptpuploader"),
                           "scene_groups.txt")
         if not scene_file.exists():
             scene_file = Path(settingsDirectory, "SceneGroups.txt")
         Settings.SceneReleaserGroup = Settings.__LoadSceneGroups(scene_file)
 
-        Settings.WebServerAddress = Settings.__GetDefault(
-            configParser, "Settings", "WebServerAddress", "")
-        Settings.WebServerAddress = Settings.WebServerAddress.replace(
-            "http://", "")
-        Settings.WebServerAddress = Settings.WebServerAddress.replace(
-            "https://", "")
-
-        Settings.WebServerUsername = Settings.__GetDefault(
-            configParser, "Settings", "WebServerUsername", "admin")
-        Settings.WebServerPassword = Settings.__GetDefault(
-            configParser, "Settings", "WebServerPassword", "")
         Settings.WebServerSslCertificatePath = Settings.__GetPath(
             "Settings", "WebServerSslCertificatePath")
         Settings.WebServerSslPrivateKeyPath = Settings.__GetPath(
@@ -280,17 +275,24 @@ class Settings:
         print("Checking paths")
 
         if shutil.which(Settings.MediaInfoPath) is None:
-            logger.critical("Mediainfo not found with command '%s'!", Settings.MediaInfoPath)
+            logger.critical("Mediainfo not found with command '%s'!",
+                            Settings.MediaInfoPath)
             return False
 
-        if shutil.which(Settings.MpvPath) is None and shutil.which(Settings.MplayerPath) is None and shutil.which(Settings.FfmpegPath) is None:
-            logger.critical("At least one of mpv, mplayer or ffmpeg is required!")
+        if shutil.which(Settings.MpvPath) is None and shutil.which(
+                Settings.MplayerPath) is None and shutil.which(
+                    Settings.FfmpegPath) is None:
+            logger.critical(
+                "At least one of mpv, mplayer or ffmpeg is required!")
             return False
 
         # Optional
         if Settings.UnrarPath and shutil.which(Settings.UnrarPath):
-            logger.error("Unrar path is set but not found: %s", Settings.UnrarPath)
-        if Settings.ImageMagickConvertPath and shutil.which(Settings.ImageMagickConvertPath):
-            logger.error("ImageMagick path is set but not found: %s", Settings.ImageMagickConvertPath)
+            logger.error("Unrar path is set but not found: %s",
+                         Settings.UnrarPath)
+        if Settings.ImageMagickConvertPath and shutil.which(
+                Settings.ImageMagickConvertPath):
+            logger.error("ImageMagick path is set but not found: %s",
+                         Settings.ImageMagickConvertPath)
 
         return True
