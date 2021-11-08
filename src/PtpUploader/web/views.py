@@ -11,6 +11,7 @@ from django.shortcuts import get_object_or_404, render
 from django.templatetags.static import static
 from django.urls import reverse
 from django.utils import timezone
+from django.contrib.auth.decorators import login_required
 
 from PtpUploader import Ptp
 from PtpUploader.Helper import SizeToText, TimeDifferenceToText
@@ -53,10 +54,12 @@ def GetStateIcon(state: int) -> str:
     return f'<span class="icon"><i class="fas {i[state]}"></i></span>'
 
 
+@login_required
 def jobs(request):
     return render(request, "jobs.html", {"state": ReleaseInfo.JobState.choices})
 
 
+@login_required
 def log(request, r_id: int):
     get_object_or_404(ReleaseInfo, Id=r_id)
 
@@ -95,12 +98,12 @@ def GetPtpOrImdbId(releaseInfo, text):
                 releaseInfo.PtpId = ptpIdList[0]
 
 
+@login_required
 def jobs_get_latest(request):
     releaseInfo = ReleaseInfo()
     GetPtpOrImdbId(releaseInfo, request.GET["PtpOrImdbLink"])
 
     torrentId = 0
-    uploadedAgo = ""
 
     if releaseInfo.ImdbId != "0":
         Ptp.Login()
@@ -132,7 +135,8 @@ def jobs_get_latest(request):
     )
 
 
-def jobs_json(request):
+@login_required
+def jobs_json(_):
     settings = {}
     if Settings.OpenJobPageLinksInNewTab == "0":
         settings["OpenJobPageLinksInNewTab"] = ""
@@ -206,6 +210,7 @@ def jobs_json(request):
     return JsonResponse({"data": entries, "settings": settings})
 
 
+@login_required
 def local_dir(request):
     d: Path
     if "dir" not in request.GET:
@@ -224,7 +229,8 @@ def local_dir(request):
     return JsonResponse(val, safe=False)  # It's just a list, probably safe
 
 
-def start_job(request, r_id):
+@login_required
+def start_job(_, r_id):
     # TODO: This is very far from perfect. There is no guarantee that the job didn't start meanwhile.
     # Probably only the WorkerThread should change the running state.
     releaseInfo = ReleaseInfo.objects.get(Id=r_id)
@@ -246,7 +252,8 @@ def start_job(request, r_id):
     return HttpResponse("OK")
 
 
-def stop_job(request, r_id: int):
+@login_required
+def stop_job(_, r_id: int):
     releaseInfo = ReleaseInfo.objects.get(Id=r_id)
     if not releaseInfo.CanStopped():
         return HttpResponse("The job is already stopped!")
@@ -255,7 +262,8 @@ def stop_job(request, r_id: int):
     return HttpResponse("OK")
 
 
-def delete_job(request, r_id: int, mode: str):
+@login_required
+def delete_job(_, r_id: int, mode: str):
     releaseInfo = ReleaseInfo.objects.get(Id=r_id)
     if not releaseInfo.CanDeleted():
         return HttpResponse("The job cannot be deleted!")
@@ -264,6 +272,7 @@ def delete_job(request, r_id: int, mode: str):
     return HttpResponse("OK")
 
 
+@login_required
 def edit_job(request, r_id: int = -1):
     job: Dict[str, Any] = {
         "id": r_id
@@ -307,7 +316,7 @@ def edit_job(request, r_id: int = -1):
         job["Screenshots"] = {}
         if release.Screenshots:
             for f, shots in release.Screenshots.items():
-                path = Path(f).name
+                path = f.name
                 job["Screenshots"][path] = ""
                 for s in shots:
                     job["Screenshots"][path] += f'<img src="{s}"/>'
