@@ -79,9 +79,8 @@ class Settings:
         groups = []
         with open(path, "r") as handle:
             for line in handle.readlines():
-                groupName = line.strip()
-                if len(groupName) > 0:
-                    groupName = groupName.lower()
+                groupName = line.strip().lower()
+                if groupName:
                     groups.append(groupName)
         return groups
 
@@ -120,8 +119,8 @@ class Settings:
         if not os.path.isfile(settingsPath):
             settingsPath = os.path.expanduser(
                 "~/.config/ptpuploader/settings.ini")
-        print(("Loading settings from '%s'." %
-               settingsPath))  # MyGlobals.Logger is not initalized yet.
+        logger.info("Loading settings from '%s'." ,
+               settingsPath)  # MyGlobals.Logger is not initalized yet.
         configParser.read(settingsPath)
 
         Settings.VideoExtensionsToUpload = Settings.MakeListFromExtensionString(
@@ -266,7 +265,7 @@ class Settings:
 
     @staticmethod
     def VerifyPaths():
-        print("Checking paths")
+        logger.info("Checking paths")
 
         if shutil.which(Settings.MediaInfoPath) is None:
             logger.critical("Mediainfo not found with command '%s'!",
