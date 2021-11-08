@@ -55,24 +55,24 @@ class Settings:
         return False
 
     @staticmethod
-    def GetAnnouncementWatchPath():
-        return os.path.join(Settings.WorkingPath, "announcement")
+    def GetAnnouncementWatchPath() -> Path:
+        return Path(Settings.WorkingPath, "announcement")
 
     @staticmethod
-    def GetAnnouncementInvalidPath():
-        return os.path.join(Settings.WorkingPath, "announcement/invalid")
+    def GetAnnouncementInvalidPath() -> Path:
+        return Path(Settings.WorkingPath, "announcement/invalid")
 
     @staticmethod
-    def GetJobLogPath():
-        return os.path.join(Settings.WorkingPath, "log/job")
+    def GetJobLogPath() -> Path:
+        return Path(Settings.WorkingPath, "log/job")
 
     @staticmethod
-    def GetTemporaryPath():
-        return os.path.join(Settings.WorkingPath, "temporary")
+    def GetTemporaryPath() -> Path:
+        return Path(Settings.WorkingPath, "temporary")
 
     @staticmethod
-    def GetDatabaseFilePath():
-        return os.path.join(Settings.WorkingPath, "database.sqlite")
+    def GetDatabaseFilePath() -> Path:
+        return Path(Settings.WorkingPath, "database.sqlite")
 
     @staticmethod
     def __LoadSceneGroups(path):
@@ -232,22 +232,10 @@ class Settings:
         Settings.TorrentClientPort = Settings.__GetDefault(
             configParser, "Settings", "TorrentClientPort", "9091")
 
-        # Create the announcement directory.
-        # Invalid announcement directory is within the announcement directory, so we don't have to make the announcement directory separately.
-        announcementPath = Settings.GetAnnouncementInvalidPath()
-        if not os.path.exists(announcementPath):
-            os.makedirs(announcementPath)
-
-        # Create the log directory.
-        # Job log directory is within the log directory, so we don't have to make the log directory separately.
-        jobLogPath = Settings.GetJobLogPath()
-        if not os.path.exists(jobLogPath):
-            os.makedirs(jobLogPath)
-
-        # Create the temporary directory.
-        temporaryPath = Settings.GetTemporaryPath()
-        if not os.path.exists(temporaryPath):
-            os.makedirs(temporaryPath)
+        # Create required directories.
+        Settings.GetAnnouncementInvalidPath().mkdir(parents=True, exist_ok=True)
+        Settings.GetJobLogPath().mkdir(parents=True, exist_ok=True)
+        Settings.GetTemporaryPath().mkdir(parents=True, exist_ok=True)
 
     @staticmethod
     def GetTorrentClient():
