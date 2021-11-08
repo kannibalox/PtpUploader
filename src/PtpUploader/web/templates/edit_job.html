@@ -7,15 +7,15 @@
   <script src="{% static "script/jquery-3.6.0.min.js" %}"></script>
   <script src="{% static "script/select2.min.js" %}"></script>
   <link href="{% static "script/select2.min.css" %}" rel="stylesheet" type="text/css" />
-  <link href="//cdn.jsdelivr.net/npm/jquery.fancytree@2.27/dist/skin-win8/ui.fancytree.min.css" rel="stylesheet">
-  <script src="//cdn.jsdelivr.net/npm/jquery.fancytree@2.27/dist/jquery.fancytree-all-deps.min.js"></script>
-  <script src="//code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-confirm/3.3.2/jquery-confirm.min.css">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-confirm/3.3.2/jquery-confirm.min.js"></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-contextmenu/2.7.1/jquery.contextMenu.min.css">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-contextmenu/2.7.1/jquery.contextMenu.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-contextmenu/2.7.1/jquery.ui.position.js"></script>
-  <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.9.2/css/bulma.min.css"/>
+  <link href="{% static "script/ui.fancytree.min.css" %}" rel="stylesheet">
+  <script src="{% static "script/jquery.fancytree-all-deps.min.js" %}"></script>
+  <script src="{% static "script/jquery-ui.min.js" %}"></script>
+  <link rel="stylesheet" href="{% static "script/jquery-confirm.min.css" %}"/>
+  <script src="{% static "script/jquery-confirm.min.js" %}"></script>
+  <link rel="stylesheet" href="{% static "script/jquery.contextMenu.min.css" %}"/>
+  <script src="{% static "script/jquery.contextMenu.min.js" %}"></script>
+  <script src="{% static "script/jquery.ui.position.min.js" %}"></script>
+  <link rel="stylesheet" type="text/css" href="{% static "script/bulma.min.css" %}"/>
   <script>
    function FinishSkipDuplicateCheckingAjaxCall(torrentId, uploadedAgo) {
      $("html").removeClass('busy');
