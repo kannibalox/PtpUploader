@@ -124,7 +124,24 @@
          "data": "Actions",
          "orderable": false,
          className: "nowrap jobbuttons dt-right",
-         width: "60px"
+         width: "60px",
+         "render": function(data, type, row) {
+           html = '';
+           actions = data.split(",");
+           if (actions.includes("start")) {
+             html += '<a href="#" onclick=\'executeJobCommand( this, ' + row['Id'] + ', "/start" ); jobsTable.ajax.reload(null, false); return false;\'><span class="icon is-small"><i class="fas fa-play-circle"></i></span></a>'
+           }
+           if (actions.includes("stop")) {
+             html += '<a href="#" onclick=\'executeJobCommand( this, ' + row['Id'] + ', "/stop" ); jobsTable.ajax.reload(null, false); return false;\'><span class="icon is-small"><i class="fas fa-stop-circle"></i></span></a>'
+           }
+           if (actions.includes("edit")) {
+             html += '<a href="/edit/' + row['Id'] + '"><span class="icon"><i class="fas fa-edit"></i></span></a>';
+           }
+           if (actions.includes("delete")) {
+             html += '<a href="#" class="delete_job_context_menu" PtpUploaderJobId="' + row['Id'] + '"><span class="icon is-small"><i class="fas fa-trash has-text-danger"></i></span></a>';
+           }
+           return html;
+         }
        },
        ]
      });

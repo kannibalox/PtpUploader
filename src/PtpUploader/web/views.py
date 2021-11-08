@@ -180,31 +180,16 @@ def jobs_json(request):
         }
 
         # Build actions
-        entry["Actions"] = "<span>"
+        entry["Actions"] = []
         if release.CanResumed():
-            url = reverse("start_job", args=[release.Id])
-            icon = static("start.png")
-            entry[
-                "Actions"
-            ] += f'<a href="#" onclick=\'executeJobCommand( this, {release.Id}, "/start" ); jobsTable.ajax.reload(null, false); return false;\'><span class="icon is-small"><i class="fas fa-play-circle"></i></span></a>'
+            entry["Actions"] += ["start"]
         if release.CanStopped():
-            url = reverse("stop_job", args=[release.Id])
-            icon = static("stop.png")
-            entry[
-                "Actions"
-            ] += f'<a href="#" onclick=\'executeJobCommand( this, {release.Id}, "/stop" ); jobsTable.ajax.reload(null, false); return false;\'><span class="icon is-small"><i class="fas fa-stop-circle"></i></span></a>'
+            entry["Actions"] += ["stop"]
         if release.CanEdited():
-            url = reverse("edit_job", args=[release.Id])
-            icon = static("edit.png")
-            entry[
-                "Actions"
-            ] += f'<a href="{url}"><span class="icon"><i class="fas fa-edit"></i></span></a>'
+            entry["Actions"] += ["edit"]
         if release.CanDeleted():
-            icon = static("delete.png")
-            entry[
-                "Actions"
-            ] += f'<a href="#" class="delete_job_context_menu" PtpUploaderJobId="{release.Id}"><span class="icon is-small"><i class="fas fa-trash has-text-danger"></i></span></a>'
-        entry["Actions"] += "</span>"
+            entry["Actions"] += ["delete"]
+        entry["Actions"] = (",").join(entry["Actions"])
         entries.append(entry)
 
     return JsonResponse({"data": entries, "settings": settings})
