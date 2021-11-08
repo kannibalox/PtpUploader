@@ -4,9 +4,11 @@ import os
 import os.path
 import re
 import shutil
+import logging
 
 from pathlib import Path
 
+logger = logging.getLogger(__name__)
 
 class Settings:
     @staticmethod
@@ -73,14 +75,6 @@ class Settings:
     @staticmethod
     def GetDatabaseFilePath():
         return os.path.join(Settings.WorkingPath, "database.sqlite")
-
-    @staticmethod
-    def IsMplayerEnabled():
-        return len(Settings.MplayerPath) > 0
-
-    @staticmethod
-    def IsMpvEnabled():
-        return len(Settings.MpvPath) > 0
 
     @staticmethod
     def __LoadSceneGroups(path):
@@ -159,12 +153,12 @@ class Settings:
 
         Settings.FfmpegPath = Settings.__GetPath("Settings", "FfmpegPath")
         Settings.MediaInfoPath = Settings.__GetPath("Settings",
-                                                    "MediaInfoPath")
-        Settings.MplayerPath = Settings.__GetPath("Settings", "MplayerPath")
-        Settings.MpvPath = Settings.__GetPath("Settings", "MpvPath")
-        Settings.UnrarPath = Settings.__GetPath("Settings", "UnrarPath")
+                                                    "MediaInfoPath", "mediainfo")
+        Settings.MplayerPath = Settings.__GetPath("Settings", "MplayerPath", "mplayer")
+        Settings.MpvPath = Settings.__GetPath("Settings", "MpvPath", "mpv")
+        Settings.UnrarPath = Settings.__GetPath("Settings", "UnrarPath", "unrar")
         Settings.ImageMagickConvertPath = Settings.__GetPath(
-            "Settings", "ImageMagickConvertPath")
+            "Settings", "ImageMagickConvertPath", "convert")
 
         Settings.WorkingPath = os.getenv(
             'PTPUP_WORKDIR') or os.path.expanduser(
@@ -274,8 +268,7 @@ class Settings:
                 from PtpUploader.Tool.Transmission import Transmission
 
                 Settings.TorrentClient = Transmission(
-                    Settings.TorrentClientAddress, Settings.TorrentClientPort
-                )
+                    Settings.TorrentClientAddress, Settings.TorrentClientPort)
             else:
                 from PtpUploader.Tool.Rtorrent import Rtorrent
 
@@ -283,48 +276,21 @@ class Settings:
         return Settings.TorrentClient
 
     @staticmethod
-    def __VerifyProgramPath(programName, arguments):
-        if shutil.which(arguments[0]) is None:
-            print(
-                "%s isn't set properly in the settings or isn't in the path!",
-                programName,
-            )
-            return False
-
-        return True
-
-    @staticmethod
     def VerifyPaths():
         print("Checking paths")
 
-        if not Settings.__VerifyProgramPath(
-            "MediaInfo", [Settings.MediaInfoPath, "--version"]
-        ):
+        if shutil.which(Settings.MediaInfoPath) is None:
+            logger.critical("Mediainfo not found with command '%s'!", Settings.MediaInfoPath)
             return False
 
-        if Settings.IsMpvEnabled():
-            if not Settings.__VerifyProgramPath("mpv", [Settings.MpvPath]):
-                return False
-        elif Settings.IsMplayerEnabled():
-            if not Settings.__VerifyProgramPath("mplayer", [Settings.MplayerPath]):
-                return False
-        elif not Settings.__VerifyProgramPath(
-            "ffmpeg", [Settings.FfmpegPath, "--help"]
-        ):
+        if shutil.which(Settings.MpvPath) is None and shutil.which(Settings.MplayerPath) is None and shutil.which(Settings.FfmpegPath) is None:
+            logger.critical("At least one of mpv, mplayer or ffmpeg is required!")
             return False
 
         # Optional
-        if len(Settings.UnrarPath) > 0 and (
-            not Settings.__VerifyProgramPath("unrar", [Settings.UnrarPath])
-        ):
-            return False
-
-        # Optional
-        if len(Settings.ImageMagickConvertPath) > 0 and (
-            not Settings.__VerifyProgramPath(
-                "ImageMagick Convert", [Settings.ImageMagickConvertPath, "--version"]
-            )
-        ):
-            return False
+        if Settings.UnrarPath and shutil.which(Settings.UnrarPath):
+            logger.error("Unrar path is set but not found: %s", Settings.UnrarPath)
+        if Settings.ImageMagickConvertPath and shutil.which(Settings.ImageMagickConvertPath):
+            logger.error("ImageMagick path is set but not found: %s", Settings.ImageMagickConvertPath)
 
         return True
