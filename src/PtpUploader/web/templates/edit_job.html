@@ -5,16 +5,16 @@
 {% block head %}
   <title>{% if job.id > 0 %}{{ form.ReleaseName.value }}{% else %}Upload{% endif %} - PtpUploader</title>
   <script src="{% static "script/jquery-3.6.0.min.js" %}"></script>
-  <script src="{% static "script/select2.min.js" %}"></script>
+  <script defer src="{% static "script/select2.min.js" %}"></script>
   <link href="{% static "script/select2.min.css" %}" rel="stylesheet" type="text/css" />
   <link href="{% static "script/ui.fancytree.min.css" %}" rel="stylesheet">
-  <script src="{% static "script/jquery.fancytree-all-deps.min.js" %}"></script>
-  <script src="{% static "script/jquery-ui.min.js" %}"></script>
+  <script defer src="{% static "script/jquery.fancytree-all-deps.min.js" %}"></script>
+  <script defer src="{% static "script/jquery-ui.min.js" %}"></script>
   <link rel="stylesheet" href="{% static "script/jquery-confirm.min.css" %}"/>
-  <script src="{% static "script/jquery-confirm.min.js" %}"></script>
+  <script defer src="{% static "script/jquery-confirm.min.js" %}"></script>
   <link rel="stylesheet" href="{% static "script/jquery.contextMenu.min.css" %}"/>
-  <script src="{% static "script/jquery.contextMenu.min.js" %}"></script>
-  <script src="{% static "script/jquery.ui.position.min.js" %}"></script>
+  <script defer src="{% static "script/jquery.contextMenu.min.js" %}"></script>
+  <script defer src="{% static "script/jquery.ui.position.min.js" %}"></script>
   <link rel="stylesheet" type="text/css" href="{% static "script/bulma.min.css" %}"/>
   <script>
    function FinishSkipDuplicateCheckingAjaxCall(torrentId, uploadedAgo) {
