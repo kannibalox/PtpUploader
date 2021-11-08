@@ -73,8 +73,16 @@ input[type="text"], input[type="search"], textarea, button, select, textarea, sp
     color: white;
 }
 
-span.select2-selection__choice__display {
+span.select2-selection__choice__display, span.select2-dropdown, #uploader li.select2-selection__choice {
     background-color: #242424;
+}
+
+/* .select2-container--default li.select2-results__option--highlighted.select2-results__option--selectable { */
+/*     background-color: #202020; */
+/* } */
+
+.select2-container--default li.select2-results__option--selected.select2-results__option--selectable {
+    background-color: #303030;
 }
 
 table#editjob_table, table#jobs
