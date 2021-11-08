@@ -231,54 +231,13 @@ class ReleaseInfo(models.Model):
         return (not self.IsHighDefinition()) and (not self.IsUltraHighDefinition())
 
     def IsUltraHighDefinition(self):
-        return self.ResolutionType == "4K" or self.ResolutionType == "2160p"
+        return self.ResolutionType in ["4K", "2160p"]
 
     def IsRemux(self):
         return "Remux" in str(self.RemasterTitle)
 
     def IsDvdImage(self):
         return self.Codec in ["DVD5", "DVD9"]
-
-    # See the description at the flag.
-    def IsSpecialRelease(self):
-        return self.SpecialRelease
-
-    # See the description at the flag.
-    def SetSpecialRelease(self):
-        self.SpecialRelease = True
-
-    # See the description at the flag.
-    def IsForceDirectorylessSingleFileTorrent(self):
-        return self.ForceDirectorylessSingleFileTorrent
-
-    # See the description at the flag.
-    def SetForceDirectorylessSingleFileTorrent(self):
-        self.ForceDirectorylessSingleFileTorrent = True
-
-    # See the description at the flag.
-    def IsStartImmediately(self):
-        return self.StartImmediately
-
-    # See the description at the flag.
-    def SetStartImmediately(self):
-        self.StartImmediately = True
-
-    def IsStopBeforeUploading(self):
-        return self.StopBeforeUploading
-
-    def IsTrumpableForNoEnglishSubtitles(self):
-        return self.TrumpableReasons.NO_ENGLISH_SUBS in self.Trumpable
-
-    def SetTrumpableForNoEnglishSubtitles(self):
-        if self.TrumpableReasons.NO_ENGLISH_SUBS not in self.Trumpable:
-            self.Trumpable += [self.TrumpableReasons.NO_ENGLISH_SUBS]
-
-    def IsTrumpableForHardcodedSubtitles(self):
-        return self.TrumpableReasons.HARDCODED_SUBS in self.Trumpable
-
-    def SetTrumpableForHardcodedSubtitles(self):
-        if self.TrumpableReasons.HARDCODED_SUBS not in self.Trumpable:
-            self.Trumpable += [self.TrumpableReasons.HARDCODED_SUBS]
 
     def SetOverrideScreenshots(self, override: bool):
         self.OverrideScreenshots = override
@@ -320,10 +279,6 @@ class ReleaseInfo(models.Model):
 
     def SetJobPhaseFinished(self, jobPhase):
         self.FinishedJobPhase |= jobPhase
-
-    # Eg.: "working directory/log/job/1"
-    # def GetLogFilePath(self):
-    #    return os.path.join(Settings.GetJobLogPath(), str(self.Id))
 
     # Eg.: "working directory/release/Dark.City.1998.Directors.Cut.720p.BluRay.x264-SiNNERS/"
     def GetReleaseRootPath(self):

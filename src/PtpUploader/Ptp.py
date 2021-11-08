@@ -203,7 +203,7 @@ def __UploadMovieGetParamsCommon(releaseInfo, releaseDescription):
     if releaseInfo.SceneRelease:
         paramList.update({"scene": "on"})
     # other category is only needed if it is specified
-    if releaseInfo.IsSpecialRelease():
+    if releaseInfo.SpecialRelease:
         paramList.update({"special": "on"})
     # remaster is only needed if it is specified
     if len(releaseInfo.RemasterYear) > 0 or len(releaseInfo.RemasterTitle) > 0:

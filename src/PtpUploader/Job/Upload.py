@@ -384,7 +384,7 @@ class Upload(WorkerBase):
             self.ReleaseInfo.AnnouncementSource.IsSingleFileTorrentNeedsDirectory(
                 self.ReleaseInfo
             )
-            and not self.ReleaseInfo.IsForceDirectorylessSingleFileTorrent()
+            and not self.ReleaseInfo.ForceDirectorylessSingleFileTorrent
         ):
             uploadTorrentCreatePath = self.ReleaseInfo.GetReleaseUploadPath()
         else:  # Create the torrent including only the single video file.
@@ -449,7 +449,7 @@ class Upload(WorkerBase):
         self.logger.info("Rehosted poster to '%s'.", self.ReleaseInfo.CoverArtUrl)
 
     def __StopBeforeUploading(self):
-        if self.ReleaseInfo.IsStopBeforeUploading():
+        if self.ReleaseInfo.StopBeforeUploading:
             raise PtpUploaderException("Stopping before uploading.")
 
     def __StartTorrent(self):
