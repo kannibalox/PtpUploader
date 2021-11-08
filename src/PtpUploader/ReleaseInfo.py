@@ -1,6 +1,7 @@
 import datetime
 import os
 import logging
+from pathlib import Path
 
 from typing import Iterator, List
 
@@ -183,10 +184,7 @@ class ReleaseInfo(models.Model):
         self.JobStartTimeUtc = datetime.datetime.utcnow()
 
     def IsUserCreatedJob(self):
-        return (
-            self.JobStartMode == JobStartMode.Manual
-            or self.JobStartMode == JobStartMode.ManualForced
-        )
+        return self.JobStartMode in [JobStartMode.Manual, JobStartMode.ManualForced]
 
     def IsForceUpload(self):
         return self.JobStartMode == JobStartMode.ManualForced
@@ -221,11 +219,7 @@ class ReleaseInfo(models.Model):
         self.SceneRelease = True
 
     def IsHighDefinition(self):
-        return (
-            self.ResolutionType == "720p"
-            or self.ResolutionType == "1080i"
-            or self.ResolutionType == "1080p"
-        )
+        return self.ResolutionType in ["720p", "1080i", "1080p"]
 
     def IsStandardDefinition(self):
         return (not self.IsHighDefinition()) and (not self.IsUltraHighDefinition())
@@ -282,8 +276,7 @@ class ReleaseInfo(models.Model):
 
     # Eg.: "working directory/release/Dark.City.1998.Directors.Cut.720p.BluRay.x264-SiNNERS/"
     def GetReleaseRootPath(self):
-        releasesPath = os.path.join(Settings.WorkingPath, "release")
-        return os.path.join(releasesPath, self.ReleaseName)
+        return Path(Settings.WorkingPath, "release", self.ReleaseName)
 
     # Eg.: "working directory/release/Dark.City.1998.Directors.Cut.720p.BluRay.x264-SiNNERS/download/"
     def GetReleaseDownloadPath(self):
@@ -311,5 +304,5 @@ class ReleaseInfo(models.Model):
     def logger(self, logger=None):
         if logger is None:
             logger = logging.getLogger()
-        logger_with_id = logging.LoggerAdapter(logger, {'release_id': self.Id})
+        logger_with_id = logging.LoggerAdapter(logger, {"release_id": self.Id})
         return logger_with_id
