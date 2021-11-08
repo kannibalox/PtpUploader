@@ -1,3 +1,22 @@
+# PtpUploader
+A small uploader for a mildly popular movie site
+
+## Quick start
+
+### Docker
+
+1. Start the daemon in the background
+```bash
+sudo docker build -t ptpuploader .
+sudo docker run ptpuploader -d \
+    -v $PWD/data:/data -p 8000:8000 \
+    -e PTP_USERNAME=<fill this in> \
+    -e PTP_PASSWORD=<fill this in> \
+    -e PTP_PASSKEY=<fill this in> \
+```
+2. Add an admin user.
+3. Navigate to [https://localhost:8000] and log in.
+
 ##### Changelog
 
 Many things have changed in version 1.0. Most importantly, only python 3+ is supported.
