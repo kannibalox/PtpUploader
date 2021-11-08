@@ -13,13 +13,9 @@ logger = logging.getLogger(__name__)
 
 class Settings:
     @staticmethod
-    def MakeListFromExtensionString(extensions):
+    def MakeListFromExtensionString(extensions: str):
         # Make sure everything is in lower case in the settings.
-        extensions = extensions.lower().strip()
-
-        if extensions:
-            return [i.strip() for i in extensions.split(",")]
-        return []
+        return [i.strip().lower() for i in extensions.split(",")]
 
     # This makes a list of TagList.
     # Eg.: "A B, C, D E" will become [ [ "A", "B" ], [ "C" ], [ "D", "E" ] ]
@@ -131,11 +127,9 @@ class Settings:
         Settings.VideoExtensionsToUpload = Settings.MakeListFromExtensionString(
             configParser.get("Settings", "VideoExtensionsToUpload"))
         Settings.AdditionalExtensionsToUpload = Settings.MakeListFromExtensionString(
-            Settings.__GetDefault(
-                configParser,
+            configParser.get(
                 "Settings",
                 "AdditionalExtensionsToUpload",
-                "bup, idx, ifo, srt, sub",
             ))
         Settings.TorrentClient = None
         Settings.IgnoreFile = Settings.MakeListFromExtensionString(
