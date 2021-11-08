@@ -121,171 +121,134 @@ class Settings:
             __file__
         )  # __file__ contains the full path of the current running module
         settingsPath = os.path.join(settingsDirectory, "Settings.ini")
+        defaultSettingsPath = os.path.join(settingsDirectory,
+                                           "Settings.example.ini")
+        configParser.read(defaultSettingsPath)
+
         if not os.path.isfile(settingsPath):
-            settingsPath = os.path.expanduser("~/.config/ptpuploader/settings.ini")
-        print(
-            ("Loading settings from '%s'." % settingsPath)
-        )  # MyGlobals.Logger is not initalized yet.
+            settingsPath = os.path.expanduser(
+                "~/.config/ptpuploader/settings.ini")
+        print(("Loading settings from '%s'." %
+               settingsPath))  # MyGlobals.Logger is not initalized yet.
         configParser.read(settingsPath)
 
         Settings.VideoExtensionsToUpload = Settings.MakeListFromExtensionString(
-            configParser.get("Settings", "VideoExtensionsToUpload")
-        )
+            configParser.get("Settings", "VideoExtensionsToUpload"))
         Settings.AdditionalExtensionsToUpload = Settings.MakeListFromExtensionString(
             Settings.__GetDefault(
                 configParser,
                 "Settings",
                 "AdditionalExtensionsToUpload",
                 "bup, idx, ifo, srt, sub",
-            )
-        )
+            ))
         Settings.TorrentClient = None
         Settings.IgnoreFile = Settings.MakeListFromExtensionString(
-            Settings.__GetDefault(configParser, "Settings", "IgnoreFile", "")
-        )
-        Settings.PtpAnnounceUrl = configParser.get("Settings", "PtpAnnounceUrl")
+            Settings.__GetDefault(configParser, "Settings", "IgnoreFile", ""))
+        Settings.PtpAnnounceUrl = configParser.get("Settings",
+                                                   "PtpAnnounceUrl")
         Settings.PtpUserName = configParser.get("Settings", "PtpUserName")
         Settings.PtpPassword = configParser.get("Settings", "PtpPassword")
 
-        Settings.ImageHost = Settings.__GetDefault(
-            configParser, "Settings", "ImageHost", "ptpimg.me"
-        ).lower()
-        Settings.PtpImgApiKey = Settings.__GetDefault(
-            configParser, "Settings", "PtpImgApiKey", ""
-        )
+        Settings.ImageHost = Settings.__GetDefault(configParser, "Settings",
+                                                   "ImageHost",
+                                                   "ptpimg.me").lower()
+        Settings.PtpImgApiKey = Settings.__GetDefault(configParser, "Settings",
+                                                      "PtpImgApiKey", "")
         Settings.OnSuccessfulUpload = Settings.__GetDefault(
-            configParser, "Settings", "OnSuccessfulUpload", "", raw=True
-        )
+            configParser, "Settings", "OnSuccessfulUpload", "", raw=True)
 
         Settings.FfmpegPath = Settings.__GetPath("Settings", "FfmpegPath")
-        Settings.MediaInfoPath = Settings.__GetPath("Settings", "MediaInfoPath")
+        Settings.MediaInfoPath = Settings.__GetPath("Settings",
+                                                    "MediaInfoPath")
         Settings.MplayerPath = Settings.__GetPath("Settings", "MplayerPath")
         Settings.MpvPath = Settings.__GetPath("Settings", "MpvPath")
         Settings.UnrarPath = Settings.__GetPath("Settings", "UnrarPath")
         Settings.ImageMagickConvertPath = Settings.__GetPath(
-            "Settings", "ImageMagickConvertPath"
-        )
+            "Settings", "ImageMagickConvertPath")
 
-        Settings.WorkingPath = os.path.expanduser(
-            configParser.get("Settings", "WorkingPath")
-        )
+        Settings.WorkingPath = os.getenv(
+            'PTPUP_WORKDIR') or os.path.expanduser(
+                configParser.get("Settings", "WorkingPath"))
 
         Settings.AllowReleaseTag = Settings.MakeListOfListsFromString(
-            Settings.__GetDefault(configParser, "Settings", "AllowReleaseTag", "")
-        )
+            Settings.__GetDefault(configParser, "Settings", "AllowReleaseTag",
+                                  ""))
         Settings.IgnoreReleaseTag = Settings.MakeListOfListsFromString(
-            Settings.__GetDefault(configParser, "Settings", "IgnoreReleaseTag", "")
-        )
+            Settings.__GetDefault(configParser, "Settings", "IgnoreReleaseTag",
+                                  ""))
         Settings.IgnoreReleaseTagAfterYear = Settings.MakeListOfListsFromString(
-            Settings.__GetDefault(
-                configParser, "Settings", "IgnoreReleaseTagAfterYear", ""
-            )
-        )
+            Settings.__GetDefault(configParser, "Settings",
+                                  "IgnoreReleaseTagAfterYear", ""))
         Settings.IgnoreReleaserGroup = Settings.MakeListFromExtensionString(
-            Settings.__GetDefault(configParser, "Settings", "IgnoreReleaserGroup", "")
-        )
-        Settings.SceneReleaserGroup = Settings.__LoadSceneGroups(
-            os.path.join(
-                os.path.expanduser("~/.config/ptpuploader"), "scene_groups.txt"
-            )
-        )
+            Settings.__GetDefault(configParser, "Settings",
+                                  "IgnoreReleaserGroup", ""))
+        scene_file = Path(os.path.expanduser("~/.config/ptpuploader"),
+                          "scene_groups.txt")
+        if not scene_file.exists():
+            scene_file = Path(settingsDirectory, "SceneGroups.txt")
+        Settings.SceneReleaserGroup = Settings.__LoadSceneGroups(scene_file)
 
         Settings.WebServerAddress = Settings.__GetDefault(
-            configParser, "Settings", "WebServerAddress", ""
-        )
-        Settings.WebServerAddress = Settings.WebServerAddress.replace("http://", "")
-        Settings.WebServerAddress = Settings.WebServerAddress.replace("https://", "")
+            configParser, "Settings", "WebServerAddress", "")
+        Settings.WebServerAddress = Settings.WebServerAddress.replace(
+            "http://", "")
+        Settings.WebServerAddress = Settings.WebServerAddress.replace(
+            "https://", "")
 
         Settings.WebServerUsername = Settings.__GetDefault(
-            configParser, "Settings", "WebServerUsername", "admin"
-        )
+            configParser, "Settings", "WebServerUsername", "admin")
         Settings.WebServerPassword = Settings.__GetDefault(
-            configParser, "Settings", "WebServerPassword", ""
-        )
+            configParser, "Settings", "WebServerPassword", "")
         Settings.WebServerSslCertificatePath = Settings.__GetPath(
-            "Settings", "WebServerSslCertificatePath"
-        )
+            "Settings", "WebServerSslCertificatePath")
         Settings.WebServerSslPrivateKeyPath = Settings.__GetPath(
-            "Settings", "WebServerSslPrivateKeyPath"
-        )
+            "Settings", "WebServerSslPrivateKeyPath")
         Settings.WebServerFileTreeInitRoot = Settings.__GetPath(
-            "Settings", "WebServerFileTreeInitRoot", "~"
-        )
+            "Settings", "WebServerFileTreeInitRoot", "~")
 
         Settings.GreasemonkeyTorrentSenderPassword = Settings.__GetDefault(
-            configParser, "Settings", "GreasemonkeyTorrentSenderPassword", ""
-        )
+            configParser, "Settings", "GreasemonkeyTorrentSenderPassword", "")
         Settings.OpenJobPageLinksInNewTab = Settings.__GetDefault(
-            configParser, "Settings", "OpenJobPageLinksInNewTab", "0"
-        )
-        Settings.OverrideScreenshots = (
-            int(
-                Settings.__GetDefault(
-                    configParser, "Settings", "OverrideScreenshots", "0"
-                )
-            )
-            != 0
-        )
-        Settings.ForceDirectorylessSingleFileTorrent = (
-            int(
-                Settings.__GetDefault(
-                    configParser, "Settings", "MakeTorrentWithoutDirectory", "0"
-                )
-            )
-            != 0
-        )
-        Settings.PersonalRip = (
-            int(Settings.__GetDefault(configParser, "Settings", "PersonalRip", "0"))
-            != 0
-        )
-        Settings.ReleaseNotes = Settings.__GetDefault(
-            configParser, "Settings", "ReleaseNotes", ""
-        ).strip()
-        Settings.SkipDuplicateChecking = (
-            int(
-                Settings.__GetDefault(
-                    configParser, "Settings", "SkipDuplicateChecking", "0"
-                )
-            )
-            != 0
-        )
+            configParser, "Settings", "OpenJobPageLinksInNewTab", "0")
+        Settings.OverrideScreenshots = (int(
+            Settings.__GetDefault(configParser, "Settings",
+                                  "OverrideScreenshots", "0")) != 0)
+        Settings.ForceDirectorylessSingleFileTorrent = (int(
+            Settings.__GetDefault(configParser, "Settings",
+                                  "MakeTorrentWithoutDirectory", "0")) != 0)
+        Settings.PersonalRip = (int(
+            Settings.__GetDefault(configParser, "Settings", "PersonalRip",
+                                  "0")) != 0)
+        Settings.ReleaseNotes = Settings.__GetDefault(configParser, "Settings",
+                                                      "ReleaseNotes",
+                                                      "").strip()
+        Settings.SkipDuplicateChecking = (int(
+            Settings.__GetDefault(configParser, "Settings",
+                                  "SkipDuplicateChecking", "0")) != 0)
 
         Settings.AntiCsrfToken = None  # Stored after logging in
-        Settings.SizeLimitForAutoCreatedJobs = (
-            float(
-                Settings.__GetDefault(
-                    configParser, "Settings", "SizeLimitForAutoCreatedJobs", "0"
-                )
-            )
-            * 1024
-            * 1024
-            * 1024
-        )
+        Settings.SizeLimitForAutoCreatedJobs = (float(
+            Settings.__GetDefault(configParser, "Settings",
+                                  "SizeLimitForAutoCreatedJobs", "0")) * 1024 *
+                                                1024 * 1024)
         Settings.StopIfSynopsisIsMissing = Settings.__GetDefault(
-            configParser, "Settings", "StopIfSynopsisIsMissing", ""
-        )
+            configParser, "Settings", "StopIfSynopsisIsMissing", "")
         Settings.StopIfCoverArtIsMissing = Settings.__GetDefault(
-            configParser, "Settings", "StopIfCoverArtIsMissing", ""
-        )
+            configParser, "Settings", "StopIfCoverArtIsMissing", "")
         Settings.StopIfImdbRatingIsLessThan = Settings.__GetDefault(
-            configParser, "Settings", "StopIfImdbRatingIsLessThan", ""
-        )
+            configParser, "Settings", "StopIfImdbRatingIsLessThan", "")
         Settings.StopIfImdbVoteCountIsLessThan = Settings.__GetDefault(
-            configParser, "Settings", "StopIfImdbVoteCountIsLessThan", ""
-        )
+            configParser, "Settings", "StopIfImdbVoteCountIsLessThan", "")
         Settings.MediaInfoTimeOut = int(
-            Settings.__GetDefault(configParser, "Settings", "MediaInfoTimeOut", "60")
-        )
+            Settings.__GetDefault(configParser, "Settings", "MediaInfoTimeOut",
+                                  "60"))
 
         Settings.TorrentClientName = Settings.__GetDefault(
-            configParser, "Settings", "TorrentClient", "rTorrent"
-        )
+            configParser, "Settings", "TorrentClient", "rTorrent")
         Settings.TorrentClientAddress = Settings.__GetDefault(
-            configParser, "Settings", "TorrentClientAddress", "127.0.0.1"
-        )
+            configParser, "Settings", "TorrentClientAddress", "127.0.0.1")
         Settings.TorrentClientPort = Settings.__GetDefault(
-            configParser, "Settings", "TorrentClientPort", "9091"
-        )
+            configParser, "Settings", "TorrentClientPort", "9091")
 
         # Create the announcement directory.
         # Invalid announcement directory is within the announcement directory, so we don't have to make the announcement directory separately.

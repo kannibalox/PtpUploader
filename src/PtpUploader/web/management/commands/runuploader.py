@@ -59,10 +59,10 @@ class Command(BaseCommand):
             help="Tells Django to NOT use threading.",
         )
         parser.add_argument(
-            "--noreload",
-            action="store_false",
+            "--reload",
+            action="store_true",
             dest="use_reloader",
-            help="Tells Django to NOT use the auto-reloader.",
+            help="Tells Django to use the auto-reloader.",
         )
         parser.add_argument(
             "--nostatic",
