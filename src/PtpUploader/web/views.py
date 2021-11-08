@@ -114,9 +114,9 @@ def jobs_get_latest(request):
         if movieOnPtpResult:
             torrent = movieOnPtpResult.GetLatestTorrent()
             if torrent:
-                torrentId = torrent['Id']
+                torrentId = torrent["Id"]
 
-                difference = datetime.now() - torrent['UploadTime']
+                difference = datetime.now() - torrent["UploadTime"]
                 uploadedAgo = (
                     "(Latest torrent uploaded: "
                     + TimeDifferenceToText(difference).lower()
@@ -124,7 +124,11 @@ def jobs_get_latest(request):
                 )
 
     return JsonResponse(
-        {"Result": "OK", "TorrentId": torrentId, "UploadedAgo": TimeDifferenceToText(difference).lower()}
+        {
+            "Result": "OK",
+            "TorrentId": torrentId,
+            "UploadedAgo": TimeDifferenceToText(difference).lower(),
+        }
     )
 
 
@@ -139,7 +143,14 @@ def jobs_json(request):
     for release in ReleaseInfo.objects.all():
         # Preprocess some values for consistent formatting
         entry = {}
-        for field in ("PtpId", "ImdbId", "ErrorMessage", "ReleaseName", "PtpTorrentId"):
+        for field in (
+            "Id",
+            "PtpId",
+            "ImdbId",
+            "ErrorMessage",
+            "ReleaseName",
+            "PtpTorrentId",
+        ):
             entry[field] = getattr(release, field)
         entry["Size"] = {
             "sort": int(release.Size),

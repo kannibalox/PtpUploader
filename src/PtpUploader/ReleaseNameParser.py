@@ -84,7 +84,9 @@ class ReleaseNameParser:
             releaseInfo.RemasterTitle = "Remux"
 
         if "other" in self.guess and "Reencoded" in self.guess["other"]:
-            logger.warning("Re-encoded rip detected from name %s", releaseInfo.ReleaseName)
+            logger.warning(
+                "Re-encoded rip detected from name %s", releaseInfo.ReleaseName
+            )
 
     @staticmethod
     def __IsTagListContainAnythingFromListOfTagList(tagList, listOfTagList):
