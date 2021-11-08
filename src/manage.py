@@ -31,8 +31,7 @@ def Initialize():
         releaseInfo.JobRunningState = JobRunningState.Paused
         releaseInfo.save()
 
-    if not Settings.VerifyPaths():
-        return False
+    Settings.VerifyPaths()
 
     return True
 
