@@ -2,6 +2,16 @@
   to { transform: rotate(360deg); }
 }
 
+div#tree {
+    height: 500px;
+}
+
+.jconfirm-content-pane ul.fancytree-container {
+    border: 0;
+    outline: 0;
+}
+
+
 .download-spinner::before {
 	content: '';
 	box-sizing: border-box;
