@@ -174,43 +174,37 @@ class JobSupervisor(threading.Thread):
         pass
 
     def config_root_logger(self):
-        log_file = '/tmp/perThreadLogging.log'
+        log_file = "/tmp/perThreadLogging.log"
 
-        formatter = "%(asctime)-15s" \
-                    " %(levelname)-5s" \
-                    " %(name)-11s" \
-                    " %(message)s"
+        formatter = "%(asctime)-15s" " %(levelname)-5s" " %(name)-11s" " %(message)s"
 
-        logging.config.dictConfig({
-            'version': 1,
-            'disable_existing_loggers': True,
-            'formatters': {
-                'root_formatter': {
-                    'format': formatter
-                }
-            },
-            'handlers': {
-                'console': {
-                    'level': 'INFO',
-                    'class': 'logging.StreamHandler',
-                    'formatter': 'root_formatter'
+        logging.config.dictConfig(
+            {
+                "version": 1,
+                "disable_existing_loggers": True,
+                "formatters": {"root_formatter": {"format": formatter}},
+                "handlers": {
+                    "console": {
+                        "level": "INFO",
+                        "class": "logging.StreamHandler",
+                        "formatter": "root_formatter",
+                    },
+                    "log_file": {
+                        "class": "logging.FileHandler",
+                        "level": "DEBUG",
+                        "filename": log_file,
+                        "formatter": "root_formatter",
+                    },
                 },
-                'log_file': {
-                    'class': 'logging.FileHandler',
-                    'level': 'DEBUG',
-                    'filename': log_file,
-                    'formatter': 'root_formatter',
-                }
-            },
-            'loggers': {
-                '': {
-                    'handlers': [
-                        'console',
-                        'log_file',
-                    ],
-                    'level': 'DEBUG',
-                    'propagate': True
-                }
+                "loggers": {
+                    "": {
+                        "handlers": [
+                            "console",
+                            "log_file",
+                        ],
+                        "level": "DEBUG",
+                        "propagate": True,
+                    }
+                },
             }
-        })
-
+        )

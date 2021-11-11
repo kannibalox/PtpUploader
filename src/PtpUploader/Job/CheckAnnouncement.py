@@ -153,7 +153,9 @@ class CheckAnnouncement(WorkerBase):
 
         # This could be before the Ptp.Login() line, but this way we can hopefully avoid some logging out errors.
         if self.ReleaseInfo.IsZeroImdbId():
-            self.logger.info("IMDb ID is set zero, ignoring the check for existing release.")
+            self.logger.info(
+                "IMDb ID is set zero, ignoring the check for existing release."
+            )
             return
 
         movieOnPtpResult = None
@@ -172,7 +174,10 @@ class CheckAnnouncement(WorkerBase):
             self.ReleaseInfo.PtpId = movieOnPtpResult.PtpId
 
         existingRelease = movieOnPtpResult.IsReleaseExists(self.ReleaseInfo)
-        if existingRelease is not None and int(existingRelease["Id"]) > self.ReleaseInfo.DuplicateCheckCanIgnore:
+        if (
+            existingRelease is not None
+            and int(existingRelease["Id"]) > self.ReleaseInfo.DuplicateCheckCanIgnore
+        ):
             raise PtpUploaderException(
                 ReleaseInfo.JobState.Ignored_AlreadyExists,
                 "Already exists on PTP: '%s'." % existingRelease["FullTitle"],
@@ -432,7 +437,9 @@ class CheckAnnouncement(WorkerBase):
 
     def __DownloadTorrent(self):
         if len(self.ReleaseInfo.SourceTorrentInfoHash) > 0:
-            self.logger.info("Source torrent info hash is set, not starting torent again.")
+            self.logger.info(
+                "Source torrent info hash is set, not starting torent again."
+            )
         else:
             self.TorrentClient.CleanTorrentFile(
                 self.logger, self.ReleaseInfo.SourceTorrentFilePath

@@ -127,7 +127,9 @@ class ReleaseDescriptionFormatter:
             return
 
         for videoEntry in self.VideoEntries:
-            path = str(videoEntry.MediaInfo.Path) # Need to make sure any Path objects can be used as keys
+            path = str(
+                videoEntry.MediaInfo.Path
+            )  # Need to make sure any Path objects can be used as keys
             if videoEntry.NumberOfScreenshotsToTake <= 0:
                 continue
 

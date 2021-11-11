@@ -364,7 +364,9 @@ class Upload(WorkerBase):
 
     def __MakeTorrent(self):
         if self.ReleaseInfo.UploadTorrentFilePath:
-            self.logger.info("Upload torrent file path is set, not making torrent again.")
+            self.logger.info(
+                "Upload torrent file path is set, not making torrent again."
+            )
             return
 
         # We save it into a separate folder to make sure it won't end up in the upload somehow. :)
@@ -404,13 +406,17 @@ class Upload(WorkerBase):
 
         # This could be before the Ptp.Login() line, but this way we can hopefully avoid some logging out errors.
         if self.ReleaseInfo.IsZeroImdbId():
-            self.logger.info("IMDb ID is set zero, ignoring the check for existing release.")
+            self.logger.info(
+                "IMDb ID is set zero, ignoring the check for existing release."
+            )
             return
 
         movieOnPtpResult = None
 
         if self.ReleaseInfo.PtpId:
-            movieOnPtpResult = Ptp.GetMoviePageOnPtp(self.logger, self.ReleaseInfo.PtpId)
+            movieOnPtpResult = Ptp.GetMoviePageOnPtp(
+                self.logger, self.ReleaseInfo.PtpId
+            )
         else:
             movieOnPtpResult = Ptp.GetMoviePageOnPtpByImdbId(
                 self.logger, self.ReleaseInfo.ImdbId
@@ -419,7 +425,10 @@ class Upload(WorkerBase):
 
         # Check (again) if is it already on PTP.
         existingRelease = movieOnPtpResult.IsReleaseExists(self.ReleaseInfo)
-        if existingRelease is not None and int(existingRelease["Id"]) > self.ReleaseInfo.DuplicateCheckCanIgnore:
+        if (
+            existingRelease is not None
+            and int(existingRelease["Id"]) > self.ReleaseInfo.DuplicateCheckCanIgnore
+        ):
             raise PtpUploaderException(
                 JobRunningState.DownloadedAlreadyExists,
                 "Got uploaded to PTP while we were working on it. Skipping upload because of format '%s'."
@@ -428,11 +437,15 @@ class Upload(WorkerBase):
 
     def __CheckSynopsis(self):
         if Settings.StopIfSynopsisIsMissing.lower() == "beforeuploading":
-            self.ReleaseInfo.AnnouncementSource.CheckSynopsis(self.logger, self.ReleaseInfo)
+            self.ReleaseInfo.AnnouncementSource.CheckSynopsis(
+                self.logger, self.ReleaseInfo
+            )
 
     def __CheckCoverArt(self):
         if Settings.StopIfCoverArtIsMissing.lower() == "beforeuploading":
-            self.ReleaseInfo.AnnouncementSource.CheckCoverArt(self.logger, self.ReleaseInfo)
+            self.ReleaseInfo.AnnouncementSource.CheckCoverArt(
+                self.logger, self.ReleaseInfo
+            )
 
     def __RehostPoster(self):
         # If this movie has no page yet on PTP then we will need the cover, so we rehost the image to an image hoster.
@@ -454,7 +467,9 @@ class Upload(WorkerBase):
 
     def __StartTorrent(self):
         if len(self.ReleaseInfo.UploadTorrentInfoHash) > 0:
-            self.logger.info("Upload torrent info hash is set, not starting torrent again.")
+            self.logger.info(
+                "Upload torrent info hash is set, not starting torrent again."
+            )
             return
 
         # Add torrent without hash checking.

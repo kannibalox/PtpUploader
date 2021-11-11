@@ -7,17 +7,21 @@ from PtpUploader.PtpUploaderException import PtpUploaderException
 from PtpUploader.Settings import Settings
 from PtpUploader.Tool.Unrar import Unrar
 
+
 def validate_directory(releaseInfo):
     path = Path(releaseInfo.GetReleaseUploadPath())
     video_files = []
     addtl_files = []
-    for child in path.rglob('*'):
+    for child in path.rglob("*"):
         if child.is_file():
-            if child.suffix.lower().strip('.') in Settings.VideoExtensionsToUpload:
+            if child.suffix.lower().strip(".") in Settings.VideoExtensionsToUpload:
                 video_files.append(child)
-            elif child.suffix.lower().strip('.') in Settings.AdditionalExtensionsToUpload:
+            elif (
+                child.suffix.lower().strip(".") in Settings.AdditionalExtensionsToUpload
+            ):
                 addtl_files.append(child)
     return video_files, addtl_files
+
 
 class ReleaseExtractorInternal:
     def __init__(

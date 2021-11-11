@@ -131,9 +131,7 @@ class PtpMovieSearchResult:
                     t for t in candidates if t["Resolution"] == release.ResolutionType
                 ][0]
             return None
-        candidates = [
-            t for t in candidates if t["Resolution"] not in ["PAL", "NTSC"]
-        ]
+        candidates = [t for t in candidates if t["Resolution"] not in ["PAL", "NTSC"]]
 
         for t in candidates:
             # PTP wouldn't let us upload something with the same name anyway
