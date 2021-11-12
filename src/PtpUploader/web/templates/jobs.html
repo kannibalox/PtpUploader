@@ -152,7 +152,11 @@
          vals = state_filter.select2('data').map(function(e){
            return e.id;
          }).join("|")
-         jobsTable.columns(0).search("^("+vals+")$", true, false, false).draw();
+         if (vals == "") {
+           jobsTable.columns(0).search("").draw();
+         } else {
+           jobsTable.columns(0).search("^("+vals+")$", true, false, false).draw();
+         }
        }
      );
      $.contextMenu({
