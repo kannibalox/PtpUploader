@@ -31,7 +31,7 @@ class Cinemageddon(SourceBase):
         self.Password = self.settings.username
 
     def Login(self):
-        MyGlobals.Logger.info("Logging in to Cinemageddon.")
+        logger.info("Logging in to Cinemageddon.")
 
         if "cinemageddon.net" not in MyGlobals.session.cookies.list_domains():
             postData = {"username": self.Username, "password": self.Password}
@@ -138,7 +138,7 @@ class Cinemageddon(SourceBase):
             description,
         )
         if matches is None:
-            logger.warning("Size not found on torrent page.")
+            releaseInfo.logger().warning("Size not found on torrent page.")
         else:
             size: bytes = matches.group(1)
             releaseInfo.Size = GetSizeFromText(size.decode())
@@ -165,14 +165,14 @@ class Cinemageddon(SourceBase):
             "https://cinemageddon.net/details.php?id=%s&filelist=1"
             % releaseInfo.AnnouncementId
         )
-        logger.info("Collecting info from torrent page '%s'.", url)
+        releaseInfo.logger().info("Collecting info from torrent page '%s'.", url)
 
         result = MyGlobals.session.get(url)
         result.raise_for_status()
         response = result.content
         self.__CheckIfLoggedInFromResponse(response)
 
-        self.__ParsePage(logger, releaseInfo, response)
+        self.__ParsePage(releaseInfo.logger(), releaseInfo, response)
 
     def __MapSourceAndFormatToPtp(
         self, releaseInfo, sourceType, formatType, raw_html: bytes
@@ -181,7 +181,7 @@ class Cinemageddon(SourceBase):
         formatType = formatType.lower()
 
         if releaseInfo.Source:
-            logger.info(
+            releaseInfo.logger().info(
                 "Source '%s' is already set, not getting from the torrent page.",
                 releaseInfo.Source,
             )
@@ -202,7 +202,7 @@ class Cinemageddon(SourceBase):
             )
 
         if releaseInfo.Codec:
-            logger.info(
+            releaseInfo.logger().info(
                 "Codec '%s' is already set, not getting from the torrent page.",
                 releaseInfo.Codec,
             )
@@ -227,7 +227,7 @@ class Cinemageddon(SourceBase):
         # Maybe we could use the resolution and file size. But what about the oversized and upscaled releases?
 
         if releaseInfo.ResolutionType:
-            logger.info(
+            releaseInfo.logger().info(
                 "Resolution type '%s' is already set, not getting from the torrent page.",
                 releaseInfo.ResolutionType,
             )
@@ -237,9 +237,11 @@ class Cinemageddon(SourceBase):
             elif re.search(rb"Standard +: PAL", raw_html):
                 releaseInfo.ResolutionType = "PAL"
             else:
-                logger.info("DVD detected but could not find resolution")
+                releaseInfo.logger().info("DVD detected but could not find resolution")
+        elif releaseInfo.Source not in ["Blu-ray", "WEB"]:
+            releaseInfo.ResolutionType = "Other"
         else:
-            logger.info("Could not detect resolution")
+            releaseInfo.logger().info("Could not detect resolution")
 
         if releaseInfo.IsDvdImage() and not releaseInfo.Container:
             if re.search(rb"\.vob</td>", raw_html, re.IGNORECASE):
@@ -247,11 +249,11 @@ class Cinemageddon(SourceBase):
             elif re.search(rb"\.iso</td>", raw_html, re.IGNORECASE):
                 releaseInfo.Container = "ISO"
             else:
-                logger.info("DVD detected but could not find container")
+                releaseInfo.logger().info("DVD detected but could not find container")
 
     def PrepareDownload(self, _, releaseInfo):
         if releaseInfo.IsUserCreatedJob():
-            self.__DownloadNfo(logger, releaseInfo)
+            self.__DownloadNfo(releaseInfo.logger(), releaseInfo)
         else:
             # TODO: add filtering support for Cinemageddon
             # In case of automatic announcement we have to check the release name if it is valid.
@@ -259,14 +261,14 @@ class Cinemageddon(SourceBase):
             # if not ReleaseFilter.IsValidReleaseName( releaseInfo.ReleaseName ):
             #    logger.info( "Ignoring release '%s' because of its name." % releaseInfo.ReleaseName )
             #    return None
-            self.__DownloadNfo(logger, releaseInfo)
+            self.__DownloadNfo(releaseInfo.logger(), releaseInfo)
 
     def ParsePageForExternalCreateJob(self, _, releaseInfo, html):
-        self.__ParsePage(logger, releaseInfo, html, parseForExternalCreateJob=True)
+        self.__ParsePage(releaseInfo.logger(), releaseInfo, html, parseForExternalCreateJob=True)
 
     def DownloadTorrent(self, _, releaseInfo, path):
         url = "https://cinemageddon.net/download.php?id=%s" % releaseInfo.AnnouncementId
-        logger.info("Downloading torrent file from '%s' to '%s'.", url, path)
+        releaseInfo.logger().info("Downloading torrent file from '%s' to '%s'.", url, path)
 
         result = MyGlobals.session.get(url)
         result.raise_for_status()
@@ -315,7 +317,7 @@ class Cinemageddon(SourceBase):
         )
         name = RemoveDisallowedCharactersFromPath(name)
 
-        logger.info(
+        releaseInfo.logger().info(
             "Upload directory will be named '%s' instead of '%s'.",
             name,
             releaseInfo.ReleaseName,
