@@ -20,8 +20,6 @@ config = Dynaconf(
     load_dotenv=True,
 )
 config.validators.register(
-    # Must there be a NAME defined
-    # under [development] env (run mode) the name should be equal to "Bruno"
     Validator("work_dir", must_exist=True),
     Validator("ptp.username", must_exist=True),
     Validator("ptp.password", must_exist=True),
@@ -74,23 +72,23 @@ class Settings:
 
     @staticmethod
     def GetAnnouncementWatchPath() -> Path:
-        return Path(Settings.WorkingPath, "announcement")
+        return Path(config.work_dir, "announcement")
 
     @staticmethod
     def GetAnnouncementInvalidPath() -> Path:
-        return Path(Settings.WorkingPath, "announcement/invalid")
+        return Path(config.work_dir, "announcement/invalid")
 
     @staticmethod
     def GetJobLogPath() -> Path:
-        return Path(Settings.WorkingPath, "log/job")
+        return Path(config.work_dir, "log/job")
 
     @staticmethod
     def GetTemporaryPath() -> Path:
-        return Path(Settings.WorkingPath, "temporary")
+        return Path(config.work_dir, "temporary")
 
     @staticmethod
     def GetDatabaseFilePath() -> Path:
-        return Path(Settings.WorkingPath, "database.sqlite")
+        return Path(config.work_dir, "database.sqlite")
 
     @staticmethod
     def __LoadSceneGroups(path):

@@ -45,9 +45,9 @@ tools:
     timeout: 60
   # Entirely optional, but useful for losslessly compressing screenshots
   imagemagick:
-    path: convert
+    path:
   unrar:
-    path: unrar
+    path:
 image_host:
   use: ptpimg
   ptpimg:
