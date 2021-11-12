@@ -54,8 +54,7 @@ class File(SourceBase):
         if releaseInfo.SourceIsAFile:
             # In case of single files the parent directory of the file will be the upload directory.
             return os.path.split(path)[0]
-        else:
-            return os.path.join(path, File.UploadDirectoryName, releaseInfo.ReleaseName)
+        return os.path.join(path, File.UploadDirectoryName, releaseInfo.ReleaseName)
 
     def CreateUploadDirectory(self, releaseInfo):
         if not releaseInfo.SourceIsAFile:
