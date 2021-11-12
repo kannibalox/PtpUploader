@@ -58,7 +58,6 @@
 
 
    $(document).ready(function() {
-     $("#state_filter").select2();
      jobsTable = $('#jobs').DataTable({
        "pageLength": 50,
        "ajax": "/ajax/jobs",
@@ -75,6 +74,7 @@
          "render": {
            _: '_',
            sort: 'sort',
+           filter: 'sort'
          },
          className: "dt-right"
        }, {
@@ -145,6 +145,16 @@
        },
        ]
      });
+     state_filter = $("#state_filter").select2({placeholder: 'Filter states'});
+     state_filter.on(
+       "change.select2",
+       function (e) {
+         vals = state_filter.select2('data').map(function(e){
+           return e.id;
+         }).join("|")
+         jobsTable.columns(0).search("^("+vals+")$", true, false, false).draw();
+       }
+     );
      $.contextMenu({
        selector: '.delete_job_context_menu',
        trigger: 'left',
@@ -184,7 +194,7 @@
           {% endfor %}
         </select>
       </div>
-      <div class="column is-half">test2</div>
+      <div class="column is-half"></div>
     </div>
     <table id="jobs" class="jobs table is-hoverable is-striped
                is-fullwidth" border="0" cellpadding="3" cellspacing="1">
