@@ -14,6 +14,7 @@ Django = "^3.2.8"
 guessit = "^3.3.1"
 imdbpy = {git = "https://github.com/alberanid/imdbpy"}
 pyrosimple = {url = "https://github.com/kannibalox/pyrosimple/archive/refs/heads/main.tar.gz"}
+dynaconf = "^3.1.7"
 
 [tool.isort]
 profile = "black"
