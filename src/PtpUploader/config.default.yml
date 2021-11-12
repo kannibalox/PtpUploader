@@ -1,0 +1,90 @@
+---
+# Required, used for storing data
+work_dir:
+# Required, needed to correctly upload
+ptp:
+  username:
+  password:
+  passkey:
+
+web:
+  username:
+  password:
+  address:
+  # This is used for various scripts to send jobs to PtpUploader remotely
+  api_key:
+# Settings for the upload forms and workers
+uploader:
+  video_files: [avi, divx, mkv, mp4, vob]
+  additional_files: [bup, idx, ifo, srt, sub]
+  ignore_files: ['.*sample.*', '.*d-z0n3\.assistant\.rar']
+  override_screenshots: false
+  force_directoryless_single_file: false
+  is_personal: false
+  release_notes: ''
+  skip_duplicate_checking: false
+# rTorrent is preferred, although transmission is also supported
+client:
+  use: rtorrent
+  rtorrent:
+    address: # This is optional for rTorrent, PtpUploader will attempt to automatically determine the SCGI port.
+  transmission:
+    address:
+# Optional, can be used to set settings for specific programs
+tools:
+  # Only one of mpv, ffmpeg or mplayer is required. MPV is preferred, but PtpUploader will attempt to auto-detect
+  # whichever one is available.
+  mpv:
+    path: mpv
+  ffmpeg:
+    path: ffmpeg
+  mplayer:
+    path: mplayer
+  mediainfo:
+    path: mediainfo
+    timeout: 60
+  # Entirely optional, but useful for losslessly compressing screenshots
+  imagemagick:
+    path: convert
+  unrar:
+    path: unrar
+image_host:
+  use: ptpimg
+  ptpimg:
+    # If you want to use PtpImg, the API key needs to be set
+    # It can be found by first logging into https://ptpimg.me/. Then in the browser bar type 'javascript:', and then paste the following line:
+    # (function()%7Balert(document.getElementById('api_key').value)%7D)()
+    api_key:
+source:
+  # Anything set in _default is applied to all sources (including file) unless overridden in the source-specific section.
+  _default:
+    # Set to zero (the default) to disable
+    job_start_delay: 0
+    max_size: 0
+    min_size: 0
+    min_imdb_rating: 0
+    min_imdb_votes: 0
+    max_active_downloads: 0
+
+    # Possible values: default (no effect), only, ignore
+    scene: default
+    
+    # Possible values: false (don't stop), before_downloading, before_extracting, before_uploading
+    always_stop_before: false
+    
+    # Possible values: false (don't stop), before_downloading, before_extracting
+    stop_if_multiple_videos: false
+
+    # Possible values: false (don't stop, but it will throw an error before uploading), before_downloading
+    stop_if_art_missing: false
+
+    # Possible values: false (don't stop), before_downloading
+    stop_if_synopsis_missing: false
+
+    # FiCO is here because they release a quite a few adult(ish) movies that are miscategorized on IMDb.
+    ignore_release_group: [aXXo, CrEwSaDe, DNL, EVO, FaNGDiNG0, FiCO, HDTime, iPlanet, KiNGDOM, nHD, nSD, NhaNc3, PRODJi, SANTi, ViSION, WAF, YIFY]
+    allow_tags: ''
+    ignore_tags: ''
+  file:
+hook:
+  on_upload:
