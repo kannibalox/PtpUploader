@@ -76,8 +76,8 @@ class ReleaseForm(ModelForm):
     ForceUpload = BooleanField(required=False, initial=False)
     TrumpableNoEnglish = BooleanField(required=False, initial=False)
     TrumpableHardSubs = BooleanField(required=False, initial=False)
-    TorrentLink = CharField(required=False)
-    LocalFile = CharField(required=False)
+    TorrentLink = CharField(required=False, widget=TextInput(attrs={"size": "60"}))
+    LocalFile = CharField(required=False, widget=TextInput(attrs={"size": "60"}))
 
     class Meta:
         model = ReleaseInfo
