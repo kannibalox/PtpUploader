@@ -120,11 +120,6 @@ def jobs_get_latest(request):
                 torrentId = torrent["Id"]
 
                 difference = datetime.now() - torrent["UploadTime"]
-                uploadedAgo = (
-                    "(Latest torrent uploaded: "
-                    + TimeDifferenceToText(difference).lower()
-                    + ")"
-                )
 
     return JsonResponse(
         {
@@ -312,7 +307,7 @@ def edit_job(request, r_id: int = -1):
         job["Screenshots"] = {}
         if release.Screenshots:
             for f, shots in release.Screenshots.items():
-                path = f.name
+                path = Path(f).name
                 job["Screenshots"][path] = ""
                 for s in shots:
                     job["Screenshots"][path] += f'<img src="{s}"/>'

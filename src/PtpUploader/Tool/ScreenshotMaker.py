@@ -96,7 +96,7 @@ class ScreenshotMaker:
         class SortItem:
             def __init__(self, path):
                 self.Path = path
-                self.LowerPath = path.lower()
+                self.LowerPath = str(path).lower()
                 self.Size = os.path.getsize(path)
 
             @staticmethod

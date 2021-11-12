@@ -347,7 +347,7 @@ class Upload(WorkerBase):
         # If everything went successfully so far, then check if there are any SRT files in the release.
         if not containsUnknownSubtitle:
             for file in self.AdditionalFiles:
-                if file.lower().endswith(".srt"):
+                if str(file).lower().endswith(".srt"):
                     # TODO: show warning on the WebUI
                     containsUnknownSubtitle = True
                     break
@@ -436,16 +436,15 @@ class Upload(WorkerBase):
             )
 
     def __CheckSynopsis(self):
-        if Settings.StopIfSynopsisIsMissing.lower() == "beforeuploading":
+        if Settings.StopIfSynopsisIsMissing and Settings.StopIfSynopsisIsMissing.lower() == "beforeuploading":
             self.ReleaseInfo.AnnouncementSource.CheckSynopsis(
                 self.logger, self.ReleaseInfo
             )
 
     def __CheckCoverArt(self):
-        if Settings.StopIfCoverArtIsMissing.lower() == "beforeuploading":
-            self.ReleaseInfo.AnnouncementSource.CheckCoverArt(
-                self.logger, self.ReleaseInfo
-            )
+        self.ReleaseInfo.AnnouncementSource.CheckCoverArt(
+            self.logger, self.ReleaseInfo
+        )
 
     def __RehostPoster(self):
         # If this movie has no page yet on PTP then we will need the cover, so we rehost the image to an image hoster.
@@ -526,7 +525,7 @@ class Upload(WorkerBase):
 
     def __ExecuteCommandOnSuccessfulUpload(self):
         # Execute command on successful upload.
-        if len(Settings.OnSuccessfulUpload) <= 0:
+        if Settings.OnSuccessfulUpload is None or len(Settings.OnSuccessfulUpload) <= 0:
             return
 
         uploadedTorrentUrl = (

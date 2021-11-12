@@ -162,8 +162,8 @@ class SourceBase:
         if not os.path.isdir(path):
             return
 
-        for (dirPath, dirNames, fileNames) in os.walk(path):
-            for file in fileNames:
+        for (_, _, fileNames) in os.walk(path):
+            for _ in fileNames:
                 return
 
         shutil.rmtree(path)

@@ -135,7 +135,7 @@
              html += '<a href="#" onclick=\'executeJobCommand( this, ' + row['Id'] + ', "/stop" ); jobsTable.ajax.reload(null, false); return false;\'><span class="icon is-small"><i class="fas fa-stop-circle"></i></span></a>'
            }
            if (actions.includes("edit")) {
-             html += '<a href="/edit/' + row['Id'] + '"><span class="icon"><i class="fas fa-edit"></i></span></a>';
+             html += '<a href="/job/' + row['Id'] + '/edit"><span class="icon"><i class="fas fa-edit"></i></span></a>';
            }
            if (actions.includes("delete")) {
              html += '<a href="#" class="delete_job_context_menu" PtpUploaderJobId="' + row['Id'] + '"><span class="icon is-small"><i class="fas fa-trash has-text-danger"></i></span></a>';
