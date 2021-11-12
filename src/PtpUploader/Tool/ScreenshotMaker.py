@@ -17,6 +17,7 @@ class ScreenshotMaker:
 
         self.InternalScreenshotMaker = None
 
+        # TODO: Why is this conditional being done up here just to repeat it further down?
         if shutil.which(Settings.MpvPath):
             self.InternalScreenshotMaker = Mpv(logger, inputVideoPath)
         elif shutil.which(Settings.MplayerPath):
@@ -48,22 +49,26 @@ class ScreenshotMaker:
     def __TakeAndUploadScreenshot(self, timeInSeconds, outputImageDirectory):
         screenshotPath = None
 
-        if shutil.which(Settings.MpvPath):
-            screenshotPath = self.__MakeUsingMpv(timeInSeconds, outputImageDirectory)
-        elif shutil.which(Settings.MplayerPath):
-            screenshotPath = self.__MakeUsingMplayer(
-                timeInSeconds, outputImageDirectory
-            )
-        elif shutil.which(Settings.FfmpegPath):
-            screenshotPath = self.__MakeUsingFfmpeg(timeInSeconds, outputImageDirectory)
-
-        if shutil.which(Settings.ImageMagickConvertPath):
-            ImageMagick.OptimizePng(self.Logger, screenshotPath)
-
         try:
+            if shutil.which(Settings.MpvPath):
+                screenshotPath = self.__MakeUsingMpv(timeInSeconds, outputImageDirectory)
+            elif shutil.which(Settings.MplayerPath):
+                screenshotPath = self.__MakeUsingMplayer(
+                    timeInSeconds, outputImageDirectory
+                )
+            elif shutil.which(Settings.FfmpegPath):
+                screenshotPath = self.__MakeUsingFfmpeg(timeInSeconds, outputImageDirectory)
+
+            if Settings.ImageMagickConvertPath and shutil.which(Settings.ImageMagickConvertPath):
+                ImageMagick.OptimizePng(self.Logger, screenshotPath)
+
             imageUrl = ImageUploader.Upload(self.Logger, imagePath=screenshotPath)
         finally:
-            os.remove(screenshotPath)
+            try:
+                if screenshotPath is not None:
+                    os.remove(screenshotPath)
+            except FileNotFoundError:
+                pass
 
         return imageUrl
 
