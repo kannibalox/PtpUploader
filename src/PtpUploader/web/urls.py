@@ -12,6 +12,7 @@ urlpatterns = [
     path("ajax/localdir", views.local_dir, name="local_dir"),
     path("ajax/getlatest", views.jobs_get_latest, name="jobs_get_latest"),
     path("upload", views.edit_job, name="upload"),
+    path("upload/bulk", views.bulk_upload, name="bulk_upload"),
     path("movieAvailabilityCheck", views.jobs, name="movieAvailabilityCheck"),
     path("quit", views.jobs, name="quit"),
     path("job/<int:r_id>/log", views.log, name="log"),

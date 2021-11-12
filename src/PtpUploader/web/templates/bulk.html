@@ -1,0 +1,37 @@
+﻿{% extends "layout.html" %}
+
+{% block head %}
+  <title>Bulk Upload - PtpUploader</title>
+{% endblock %}
+
+{% block body %}
+  <div class="columns is-centered">
+    <div class="column is-half">
+      <form action="" enctype="multipart/form-data" method="post" id="bulk_upload">
+        {% csrf_token %}
+        {{ form.errors }}
+        <div class="file is-boxed has-name">
+          <label class="file-label">
+            {{ form.Files }}
+            <span class="file-cta">
+              <span class="file-icon">
+                <i class="fas fa-upload"></i>
+              </span>
+              <span class="file-label">
+                Choose files…
+              </span>
+            </span>
+            <span class="file-name">
+            </span>
+          </label>
+        </div>
+        {{ form.Links }}
+        <br/>
+        {{ form.Paths }}
+        <br/>
+        <input class="is-primary button is-dark is-light" id="post" name="post" type="submit" value="Upload">
+        <input class="is-primary button" id="post" name="post_stop_before" type="submit" value="Upload but stop before uploading" title="The job will be stopped after everything has completed and the only remaining thing to do is the uploading to PTP.">
+      </form>
+    </div>
+  </div>
+{% endblock %}

@@ -6,13 +6,20 @@ from django.forms import (
     ModelForm,
     MultipleChoiceField,
     Textarea,
+    Form,
     TextInput,
+    FileField,
+    ClearableFileInput,
 )
 
 from PtpUploader.Job.JobStartMode import JobStartMode
 from PtpUploader.PtpSubtitle import PtpSubtitleId
 from PtpUploader.ReleaseInfo import ReleaseInfo
 
+class BulkReleaseForm(Form):
+    Links = CharField(widget=Textarea(attrs={'placeholder': 'Links'}), required=False)
+    Paths = CharField(widget=Textarea(attrs={'placeholder': 'Paths'}), required=False)
+    Files = FileField(widget=ClearableFileInput(attrs={'class': 'file-input'}), required=False)
 
 class ReleaseForm(ModelForm):
     Type = ChoiceField(choices=ReleaseInfo.TypeChoices.choices, required=False)
