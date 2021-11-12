@@ -1,15 +1,29 @@
-import configparser
 import fnmatch
 import os
 import os.path
 import re
 import shutil
 import logging
-
 from pathlib import Path
 
-logger = logging.getLogger(__name__)
+from dynaconf import Dynaconf, Validator
 
+logger = logging.getLogger(__name__)
+config = Dynaconf(
+    envvar_prefix="PTPUP",
+    settings_files=[Path(Path(__file__).parent, "config.default.yml"), Path("~/.config/ptpuploader/config.yml").expanduser(), ".secrets.yaml"],
+    environments=False,
+    load_dotenv=True,
+)
+config.validators.register(
+    # Must there be a NAME defined
+    # under [development] env (run mode) the name should be equal to "Bruno"
+    Validator("work_dir", must_exist=True),
+    Validator("ptp.username", must_exist=True),
+    Validator("ptp.password", must_exist=True),
+    Validator("ptp.announce", must_exist=True),
+)
+config.validators.validate()
 
 class Settings:
     @staticmethod
@@ -84,191 +98,66 @@ class Settings:
         return groups
 
     @staticmethod
-    def __GetDefault(configParser, section, option, default, raw=False):
-        try:
-            return configParser.get(section, option, raw=raw)
-        except configparser.NoOptionError:
-            return default
-
-    @staticmethod
-    def GetDefault(section, option, default, raw=False):
-        try:
-            return Settings.configParser.get(section, option, raw=raw)
-        except (configparser.NoOptionError, configparser.NoSectionError):
-            return default
-
-    @staticmethod
-    def __GetPath(section, option, default=""):
-        path = Settings.GetDefault(section, option, default)
-        return os.path.expanduser(path)
-
-    @staticmethod
     def LoadSettings():
-        Settings.configParser = configParser = configparser.ConfigParser()
-
-        # Load Settings.ini from the same directory where PtpUploader is.
-        settingsDirectory, _ = os.path.split(
-            __file__
-        )  # __file__ contains the full path of the current running module
-        settingsPath = os.path.join(settingsDirectory, "Settings.ini")
-        defaultSettingsPath = os.path.join(settingsDirectory, "Settings.example.ini")
-        configParser.read(defaultSettingsPath)
-
-        if not os.path.isfile(settingsPath):
-            settingsPath = os.path.expanduser("~/.config/ptpuploader/settings.ini")
-        logger.info(
-            "Loading settings from '%s'.", settingsPath
-        )  # MyGlobals.Logger is not initalized yet.
-        configParser.read(settingsPath)
-
-        Settings.VideoExtensionsToUpload = Settings.MakeListFromExtensionString(
-            configParser.get("Settings", "VideoExtensionsToUpload")
-        )
-        Settings.AdditionalExtensionsToUpload = Settings.MakeListFromExtensionString(
-            configParser.get(
-                "Settings",
-                "AdditionalExtensionsToUpload",
-            )
-        )
+        Settings.VideoExtensionsToUpload = config.uploader.video_files
+        Settings.AdditionalExtensionsToUpload = config.uploader.additional_files
         Settings.TorrentClient = None
-        Settings.IgnoreFile = Settings.MakeListFromExtensionString(
-            configParser.get("Settings", "IgnoreFile")
-        )
-        Settings.PtpAnnounceUrl = configParser.get("Settings", "PtpAnnounceUrl")
-        Settings.PtpUserName = configParser.get("Settings", "PtpUserName")
-        Settings.PtpPassword = configParser.get("Settings", "PtpPassword")
+        Settings.IgnoreFile = config.uploader.ignore_files
+        Settings.PtpAnnounceUrl = config.ptp.announce
+        Settings.PtpUserName = config.ptp.username
+        Settings.PtpPassword = config.ptp.password
 
-        Settings.ImageHost = Settings.__GetDefault(
-            configParser, "Settings", "ImageHost", "ptpimg.me"
-        ).lower()
-        Settings.PtpImgApiKey = Settings.__GetDefault(
-            configParser, "Settings", "PtpImgApiKey", ""
-        )
-        Settings.OnSuccessfulUpload = Settings.__GetDefault(
-            configParser, "Settings", "OnSuccessfulUpload", "", raw=True
-        )
+        Settings.ImageHost = config.image_host.use
+        Settings.PtpImgApiKey = config.image_host.ptpimg.api_key
+        Settings.OnSuccessfulUpload = config.hook.on_upload
 
-        Settings.FfmpegPath = Settings.__GetPath("Settings", "FfmpegPath")
-        Settings.MediaInfoPath = Settings.__GetPath(
-            "Settings", "MediaInfoPath", "mediainfo"
-        )
-        Settings.MplayerPath = Settings.__GetPath("Settings", "MplayerPath", "mplayer")
-        Settings.MpvPath = Settings.__GetPath("Settings", "MpvPath", "mpv")
-        Settings.UnrarPath = Settings.__GetPath("Settings", "UnrarPath", "unrar")
-        Settings.ImageMagickConvertPath = Settings.__GetPath(
-            "Settings", "ImageMagickConvertPath", "convert"
-        )
+        Settings.FfmpegPath = config.tools.ffmpeg.path
+        Settings.MediaInfoPath = config.tools.mediainfo.path
+        Settings.MplayerPath = config.tools.mplayer.path
+        Settings.MpvPath = config.tools.mpv.path
+        Settings.UnrarPath = config.tools.unrar.path
+        Settings.ImageMagickConvertPath = config.tools.imagemagick.path
 
-        Settings.WorkingPath = os.getenv("PTPUP_WORKDIR") or os.path.expanduser(
-            configParser.get("Settings", "WorkingPath")
-        )
+        Settings.WorkingPath = config.work_dir
 
         Settings.AllowReleaseTag = Settings.MakeListOfListsFromString(
-            Settings.__GetDefault(configParser, "Settings", "AllowReleaseTag", "")
+            config.source._default.allow_tags
         )
         Settings.IgnoreReleaseTag = Settings.MakeListOfListsFromString(
-            Settings.__GetDefault(configParser, "Settings", "IgnoreReleaseTag", "")
+            config.source._default.ignore_tags
         )
-        Settings.IgnoreReleaseTagAfterYear = Settings.MakeListOfListsFromString(
-            Settings.__GetDefault(
-                configParser, "Settings", "IgnoreReleaseTagAfterYear", ""
-            )
-        )
-        Settings.IgnoreReleaserGroup = Settings.MakeListFromExtensionString(
-            Settings.__GetDefault(configParser, "Settings", "IgnoreReleaserGroup", "")
-        )
+        Settings.IgnoreReleaserGroup = config.source._default.ignore_release_group
 
         scene_file = Path(
             os.path.expanduser("~/.config/ptpuploader"), "scene_groups.txt"
         )
         if not scene_file.exists():
-            scene_file = Path(settingsDirectory, "SceneGroups.txt")
+            scene_file = Path(Path(__name__).parent, "SceneGroups.txt")
         Settings.SceneReleaserGroup = Settings.__LoadSceneGroups(scene_file)
 
-        Settings.WebServerSslCertificatePath = Settings.__GetPath(
-            "Settings", "WebServerSslCertificatePath"
-        )
-        Settings.WebServerSslPrivateKeyPath = Settings.__GetPath(
-            "Settings", "WebServerSslPrivateKeyPath"
-        )
-        Settings.WebServerFileTreeInitRoot = Settings.__GetPath(
-            "Settings", "WebServerFileTreeInitRoot", "~"
-        )
+        Settings.GreasemonkeyTorrentSenderPassword = config.web.api_key
+        Settings.OverrideScreenshots = config.uploader.override_screenshots
+        Settings.ForceDirectorylessSingleFileTorrent = config.uploader.force_directoryless_single_file
+        Settings.PersonalRip = config.uploader.is_personal
+        Settings.ReleaseNotes = config.uploader.release_notes
+        Settings.SkipDuplicateChecking = config.uploader.skip_duplicate_checking
 
-        Settings.GreasemonkeyTorrentSenderPassword = Settings.__GetDefault(
-            configParser, "Settings", "GreasemonkeyTorrentSenderPassword", ""
-        )
-        Settings.OpenJobPageLinksInNewTab = Settings.__GetDefault(
-            configParser, "Settings", "OpenJobPageLinksInNewTab", "0"
-        )
-        Settings.OverrideScreenshots = (
-            int(
-                Settings.__GetDefault(
-                    configParser, "Settings", "OverrideScreenshots", "0"
-                )
-            )
-            != 0
-        )
-        Settings.ForceDirectorylessSingleFileTorrent = (
-            int(
-                Settings.__GetDefault(
-                    configParser, "Settings", "MakeTorrentWithoutDirectory", "0"
-                )
-            )
-            != 0
-        )
-        Settings.PersonalRip = (
-            int(Settings.__GetDefault(configParser, "Settings", "PersonalRip", "0"))
-            != 0
-        )
-        Settings.ReleaseNotes = Settings.__GetDefault(
-            configParser, "Settings", "ReleaseNotes", ""
-        ).strip()
-        Settings.SkipDuplicateChecking = (
-            int(
-                Settings.__GetDefault(
-                    configParser, "Settings", "SkipDuplicateChecking", "0"
-                )
-            )
-            != 0
-        )
-
-        Settings.AntiCsrfToken = None  # Stored after logging in
         Settings.SizeLimitForAutoCreatedJobs = (
             float(
-                Settings.__GetDefault(
-                    configParser, "Settings", "SizeLimitForAutoCreatedJobs", "0"
-                )
+                config.source._default.max_size
             )
             * 1024
             * 1024
             * 1024
         )
-        Settings.StopIfSynopsisIsMissing = Settings.__GetDefault(
-            configParser, "Settings", "StopIfSynopsisIsMissing", ""
-        )
-        Settings.StopIfCoverArtIsMissing = Settings.__GetDefault(
-            configParser, "Settings", "StopIfCoverArtIsMissing", ""
-        )
-        Settings.StopIfImdbRatingIsLessThan = Settings.__GetDefault(
-            configParser, "Settings", "StopIfImdbRatingIsLessThan", ""
-        )
-        Settings.StopIfImdbVoteCountIsLessThan = Settings.__GetDefault(
-            configParser, "Settings", "StopIfImdbVoteCountIsLessThan", ""
-        )
-        Settings.MediaInfoTimeOut = int(
-            Settings.__GetDefault(configParser, "Settings", "MediaInfoTimeOut", "60")
-        )
+        Settings.StopIfSynopsisIsMissing = config.source._default.stop_if_synopsis_missing
+        Settings.StopIfCoverArtIsMissing = config.source._default.stop_if_art_missing
+        Settings.StopIfImdbRatingIsLessThan = config.source._default.min_imdb_rating
+        Settings.StopIfImdbVoteCountIsLessThan = config.source._default.min_imdb_votes
+        Settings.MediaInfoTimeOut = config.tools.mediainfo.timeout
 
-        Settings.TorrentClientName = Settings.__GetDefault(
-            configParser, "Settings", "TorrentClient", "rTorrent"
-        )
-        Settings.TorrentClientAddress = Settings.__GetDefault(
-            configParser, "Settings", "TorrentClientAddress", "127.0.0.1"
-        )
-        Settings.TorrentClientPort = Settings.__GetDefault(
-            configParser, "Settings", "TorrentClientPort", "9091"
-        )
+        Settings.TorrentClientName = config.client.use
+        Settings.TorrentClientAddress = config["client"][config.client.use]["address"]
 
         # Create required directories.
         Settings.GetAnnouncementInvalidPath().mkdir(parents=True, exist_ok=True)
@@ -282,7 +171,7 @@ class Settings:
                 from PtpUploader.Tool.Transmission import Transmission
 
                 Settings.TorrentClient = Transmission(
-                    Settings.TorrentClientAddress, Settings.TorrentClientPort
+                    Settings.TorrentClientAddress.split(':')[0], Settings.TorrentClientAddress.split(':')[1]
                 )
             else:
                 from PtpUploader.Tool.Rtorrent import Rtorrent

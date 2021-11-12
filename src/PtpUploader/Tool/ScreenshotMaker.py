@@ -1,4 +1,5 @@
 import functools
+import shutil
 import os
 
 from PtpUploader.ImageHost.ImageUploader import ImageUploader
@@ -7,6 +8,7 @@ from PtpUploader.Tool.Ffmpeg import Ffmpeg
 from PtpUploader.Tool.ImageMagick import ImageMagick
 from PtpUploader.Tool.Mplayer import Mplayer
 from PtpUploader.Tool.Mpv import Mpv
+from PtpUploader.PtpUploaderException import PtpUploaderException
 
 
 class ScreenshotMaker:
@@ -15,12 +17,14 @@ class ScreenshotMaker:
 
         self.InternalScreenshotMaker = None
 
-        if Settings.IsMpvEnabled():
+        if shutil.which(Settings.MpvPath):
             self.InternalScreenshotMaker = Mpv(logger, inputVideoPath)
-        elif Settings.IsMplayerEnabled():
+        elif shutil.which(Settings.MplayerPath):
             self.InternalScreenshotMaker = Mplayer(logger, inputVideoPath)
-        else:
+        elif shutil.which(Settings.FfmpegPath):
             self.InternalScreenshotMaker = Ffmpeg(logger, inputVideoPath)
+        if self.InternalScreenshotMaker is None:
+            raise PtpUploaderException("No screenshot tool found")
 
     def GetScaleSize(self):
         return self.InternalScreenshotMaker.ScaleSize
@@ -44,16 +48,16 @@ class ScreenshotMaker:
     def __TakeAndUploadScreenshot(self, timeInSeconds, outputImageDirectory):
         screenshotPath = None
 
-        if Settings.IsMpvEnabled():
+        if shutil.which(Settings.MpvPath):
             screenshotPath = self.__MakeUsingMpv(timeInSeconds, outputImageDirectory)
-        elif Settings.IsMplayerEnabled():
+        elif shutil.which(Settings.MplayerPath):
             screenshotPath = self.__MakeUsingMplayer(
                 timeInSeconds, outputImageDirectory
             )
-        else:
+        elif shutil.which(Settings.FfmpegPath):
             screenshotPath = self.__MakeUsingFfmpeg(timeInSeconds, outputImageDirectory)
 
-        if ImageMagick.IsEnabled():
+        if shutil.which(Settings.ImageMagickConvertPath):
             ImageMagick.OptimizePng(self.Logger, screenshotPath)
 
         try:

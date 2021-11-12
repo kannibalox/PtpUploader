@@ -22,25 +22,14 @@ class Karagarga(SourceBase):
         self.Name = "kg"
         self.NameInSettings = "Karagarga"
 
-    def LoadSettings(self, settings):
-        SourceBase.LoadSettings(self, settings)
+    def LoadSettings(self, _):
+        super().LoadSettings(_)
 
-        self.AutoUploadSd = (
-            int(settings.GetDefault(self.NameInSettings, "AutoUploadSd", "1")) != 0
-        )
         self.AutoUploadDvdImage = (
-            int(settings.GetDefault(self.NameInSettings, "AutoUploadDvdImage", "0"))
-            != 0
+            self.settings.get("auto_upload_dvd", False)
         )
-        self.AutoUpload720p = (
-            int(settings.GetDefault(self.NameInSettings, "AutoUpload720p", "0")) != 0
-        )
-        self.AutoUpload1080p = (
-            int(settings.GetDefault(self.NameInSettings, "AutoUpload1080p", "0")) != 0
-        )
-
-    def IsEnabled(self):
-        return len(self.Username) > 0 and len(self.Password) > 0
+        self.Username = self.settings.username
+        self.Password = self.settings.username
 
     def Login(self):
         if len(self.Username) <= 0:
@@ -387,21 +376,6 @@ class Karagarga(SourceBase):
             if not self.AutoUploadDvdImage:
                 raise PtpUploaderException(
                     JobRunningState.Ignored, "DVD image is on your ignore list."
-                )
-        elif releaseInfo.ResolutionType == "720":
-            if not self.AutoUpload720p:
-                raise PtpUploaderException(
-                    JobRunningState.Ignored, "720p is on your ignore list."
-                )
-        elif releaseInfo.ResolutionType == "1080":
-            if not self.AutoUpload1080p:
-                raise PtpUploaderException(
-                    JobRunningState.Ignored, "1080p is on your ignore list."
-                )
-        elif releaseInfo.ResolutionType == "Other":
-            if not self.AutoUploadSd:
-                raise PtpUploaderException(
-                    JobRunningState.Ignored, "SD is on your ignore list."
                 )
 
         # TODO: add filtering support for Karagarga

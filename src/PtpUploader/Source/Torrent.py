@@ -10,6 +10,9 @@ class Torrent(SourceBase):
         self.Name = "torrent"
         self.NameInSettings = "TorrentFileSource"
 
+    def IsEnabled(self):
+        return True
+
     def PrepareDownload(self, logger, releaseInfo):
         # TODO: support for uploads from torrent without specifying IMDb id and reading it from NFO. (We only get IMDb id when the download is finished.)
 

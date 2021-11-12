@@ -23,24 +23,24 @@ class SourceFactory:
         self.__AddSource(File())
         self.__AddSource(Torrent())
 
-        self.__AddSource(AlphaRatio())
+        # self.__AddSource(AlphaRatio())
         self.__AddSource(Cinemageddon())
-        self.__AddSource(Cinematik())
-        self.__AddSource(DigitalHive())
-        self.__AddSource(FunFile())
-        self.__AddSource(Gft())
-        self.__AddSource(HDBits())
-        self.__AddSource(HDTorrents())
+        # self.__AddSource(Cinematik())
+        # self.__AddSource(DigitalHive())
+        # self.__AddSource(FunFile())
+        # self.__AddSource(Gft())
+        # self.__AddSource(HDBits())
+        # self.__AddSource(HDTorrents())
         self.__AddSource(Karagarga())
-        self.__AddSource(TorrentBytes())
-        self.__AddSource(TorrentLeech())
+        # self.__AddSource(TorrentBytes())
+        # self.__AddSource(TorrentLeech())
         self.__AddSource(Prowlarr())
 
         MyGlobals.Logger.info("Sources initialized.")
 
     def __AddSource(self, source):
-        source.LoadSettings(Settings)
         if source.IsEnabled():
+            source.LoadSettings(Settings)
             source.Login()
         self.Sources[source.Name] = source
 

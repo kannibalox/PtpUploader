@@ -19,7 +19,7 @@ class ImageUploader:
 
         # TODO: fall back to secondary host if the upload to ptpimg wasn't successful. Also start a 1 hour countdown and doesn't use ptpimg till it gets to 0.
 
-        if Settings.ImageHost == "ptpimg.me":
+        if Settings.ImageHost == "ptpimg":
             return PtpImg.Upload(logger, imagePath, imageUrl)
         elif Settings.ImageHost == "picload.org":
             return Picload.Upload(logger, imagePath, imageUrl)

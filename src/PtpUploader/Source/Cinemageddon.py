@@ -25,8 +25,10 @@ class Cinemageddon(SourceBase):
         self.Name = "cg"
         self.NameInSettings = "Cinemageddon"
 
-    def IsEnabled(self):
-        return len(self.Username) > 0 and len(self.Password) > 0
+    def LoadSettings(self, _):
+        super().LoadSettings(_)
+        self.Username = self.settings.username
+        self.Password = self.settings.username
 
     def Login(self):
         MyGlobals.Logger.info("Logging in to Cinemageddon.")

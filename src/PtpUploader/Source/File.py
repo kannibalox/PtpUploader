@@ -23,6 +23,9 @@ class File(SourceBase):
         self.Name = "file"
         self.NameInSettings = "FileSource"
 
+    def IsEnabled(self) -> bool:
+        return True
+
     def PrepareDownload(self, logger, releaseInfo):
         path = releaseInfo.GetReleaseDownloadPath()
 

@@ -9,7 +9,7 @@ from PtpUploader.Job.FinishedJobPhase import FinishedJobPhase
 from PtpUploader.NfoParser import NfoParser
 from PtpUploader.PtpUploaderException import PtpUploaderException
 from PtpUploader.ReleaseExtractor import ReleaseExtractor, validate_directory
-from PtpUploader.Settings import Settings
+from PtpUploader.Settings import Settings, config
 
 
 logger = logging.getLogger(__name__)
@@ -21,48 +21,34 @@ class SourceBase:
         self.Name = None
         self.NameInSettings = None
 
-    def LoadSettings(self, settings):
-        self.Username = settings.GetDefault(self.NameInSettings, "Username", "")
-        self.Password = settings.GetDefault(self.NameInSettings, "Password", "")
-        self.AutomaticJobFilter = settings.GetDefault(
-            self.NameInSettings, "AutomaticJobFilter", ""
-        )
+
+    def LoadSettingOrDefault(self, key: str):
+        if key in self.settings.keys():
+            return self.settings.get(key)
+        return config.source._default.get(key)
+
+    def LoadSettings(self, _):
+        self.settings = config.source.get(self.NameInSettings, {})
+        self.AutomaticJobFilter = self.LoadSettingOrDefault("scene")
+        # self.Username = settings.GetDefault(self.NameInSettings, "Username", "")
+        # self.Password = settings.GetDefault(self.NameInSettings, "Password", "")
 
         # Do not allow bogus settings.
         maximumParallelDownloads = int(
-            settings.GetDefault(self.NameInSettings, "MaximumParallelDownloads", "1")
+            self.LoadSettingOrDefault("max_active_downloads")
         )
         if maximumParallelDownloads > 0:
             self.MaximumParallelDownloads = maximumParallelDownloads
 
         self.AutomaticJobStartDelay = int(
-            settings.GetDefault(self.NameInSettings, "AutomaticJobStartDelay", "0")
-        )
-        self.AutomaticJobCooperationMemberCount = int(
-            settings.GetDefault(
-                self.NameInSettings, "AutomaticJobCooperationMemberCount", "0"
-            )
-        )
-        self.AutomaticJobCooperationMemberId = int(
-            settings.GetDefault(
-                self.NameInSettings, "AutomaticJobCooperationMemberId", "0"
-            )
-        )
-        self.AutomaticJobCooperationDelay = int(
-            settings.GetDefault(
-                self.NameInSettings, "AutomaticJobCooperationDelay", "0"
-            )
+            self.LoadSettingOrDefault("job_start_delay")
         )
 
-        self.StopAutomaticJob = settings.GetDefault(
-            self.NameInSettings, "StopAutomaticJob", ""
-        ).lower()
-        self.StopAutomaticJobIfThereAreMultipleVideos = settings.GetDefault(
-            self.NameInSettings, "StopAutomaticJobIfThereAreMultipleVideos", ""
-        ).lower()
+        self.StopAutomaticJob: bool = self.LoadSettingOrDefault("always_stop_before")
+        self.StopAutomaticJobIfThereAreMultipleVideos: bool = self.LoadSettingOrDefault("stop_if_multiple_videos")
 
     def IsEnabled(self) -> bool:
-        return True
+        return config.source.get(self.NameInSettings) is not None
 
     def Login(self):
         pass

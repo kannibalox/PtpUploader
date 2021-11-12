@@ -138,10 +138,6 @@ def jobs_get_latest(request):
 @login_required
 def jobs_json(_):
     settings = {}
-    if Settings.OpenJobPageLinksInNewTab == "0":
-        settings["OpenJobPageLinksInNewTab"] = ""
-    else:
-        settings["OpenJobPageLinksInNewTab"] = ' target="_blank"'
 
     entries = []
     for release in ReleaseInfo.objects.all():

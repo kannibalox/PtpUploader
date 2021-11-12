@@ -26,30 +26,11 @@ class Prowlarr(SourceBase):
         self.Name = "prowlarr"
         self.NameInSettings = "Prowlarr"
 
-    def LoadSettings(self, settings):
-        self.ApiKey = settings.GetDefault(self.NameInSettings, "ApiKey", "")
-        self.Url = settings.GetDefault(self.NameInSettings, "Url", "")
-        self.AutomaticJobFilter = settings.GetDefault(
-            self.NameInSettings, "AutomaticJobFilter", ""
-        )
-
-        # Do not allow bogus settings.
-        maximumParallelDownloads = int(
-            settings.GetDefault(self.NameInSettings, "MaximumParallelDownloads", "1")
-        )
-        if maximumParallelDownloads > 0:
-            self.MaximumParallelDownloads = maximumParallelDownloads
-
-        self.StopAutomaticJob = settings.GetDefault(
-            self.NameInSettings, "StopAutomaticJob", ""
-        ).lower()
-        self.StopAutomaticJobIfThereAreMultipleVideos = settings.GetDefault(
-            self.NameInSettings, "StopAutomaticJobIfThereAreMultipleVideos", ""
-        ).lower()
+    def LoadSettings(self, _):
+        super().LoadSettings(_)
+        self.ApiKey = self.settings.api_key
+        self.Url = self.settings.url
         self.loaded_indexers = {}
-
-    def IsEnabled(self) -> bool:
-        return bool(self.ApiKey)
 
     def Login(self):
         logger.info("Logging into %s", self.Name)
