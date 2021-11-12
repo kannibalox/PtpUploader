@@ -306,11 +306,17 @@ class CheckAnnouncement(WorkerBase):
         self.ReleaseInfo.ImdbVoteCount = imdbInfo.ImdbVoteCount
 
     def __CheckSynopsis(self):
-        if Settings.StopIfSynopsisIsMissing and Settings.StopIfSynopsisIsMissing.lower() == "beforedownloading":
+        if (
+            Settings.StopIfSynopsisIsMissing
+            and Settings.StopIfSynopsisIsMissing.lower() == "beforedownloading"
+        ):
             self.ReleaseInfo.AnnouncementSource.CheckSynopsis(logger, self.ReleaseInfo)
 
     def __CheckCoverArt(self):
-        if Settings.StopIfCoverArtIsMissing and Settings.StopIfCoverArtIsMissing.lower() == "beforedownloading":
+        if (
+            Settings.StopIfCoverArtIsMissing
+            and Settings.StopIfCoverArtIsMissing.lower() == "beforedownloading"
+        ):
             self.ReleaseInfo.AnnouncementSource.CheckCoverArt(logger, self.ReleaseInfo)
 
     def __IsAllowedImdbRating(self):

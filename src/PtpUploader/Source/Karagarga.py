@@ -25,9 +25,7 @@ class Karagarga(SourceBase):
     def LoadSettings(self, _):
         super().LoadSettings(_)
 
-        self.AutoUploadDvdImage = (
-            self.settings.get("auto_upload_dvd", False)
-        )
+        self.AutoUploadDvdImage = self.settings.get("auto_upload_dvd", False)
         self.Username = self.settings.username
         self.Password = self.settings.username
 

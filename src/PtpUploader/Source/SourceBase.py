@@ -21,7 +21,6 @@ class SourceBase:
         self.Name = None
         self.NameInSettings = None
 
-
     def LoadSettingOrDefault(self, key: str):
         if key in self.settings.keys():
             return self.settings.get(key)
@@ -40,12 +39,12 @@ class SourceBase:
         if maximumParallelDownloads > 0:
             self.MaximumParallelDownloads = maximumParallelDownloads
 
-        self.AutomaticJobStartDelay = int(
-            self.LoadSettingOrDefault("job_start_delay")
-        )
+        self.AutomaticJobStartDelay = int(self.LoadSettingOrDefault("job_start_delay"))
 
         self.StopAutomaticJob: bool = self.LoadSettingOrDefault("always_stop_before")
-        self.StopAutomaticJobIfThereAreMultipleVideos: bool = self.LoadSettingOrDefault("stop_if_multiple_videos")
+        self.StopAutomaticJobIfThereAreMultipleVideos: bool = self.LoadSettingOrDefault(
+            "stop_if_multiple_videos"
+        )
 
     def IsEnabled(self) -> bool:
         return config.source.get(self.NameInSettings) is not None

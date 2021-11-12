@@ -11,7 +11,11 @@ from dynaconf import Dynaconf, Validator
 logger = logging.getLogger(__name__)
 config = Dynaconf(
     envvar_prefix="PTPUP",
-    settings_files=[Path(Path(__file__).parent, "config.default.yml"), Path("~/.config/ptpuploader/config.yml").expanduser(), ".secrets.yaml"],
+    settings_files=[
+        Path(Path(__file__).parent, "config.default.yml"),
+        Path("~/.config/ptpuploader/config.yml").expanduser(),
+        ".secrets.yaml",
+    ],
     environments=False,
     load_dotenv=True,
 )
@@ -24,6 +28,7 @@ config.validators.register(
     Validator("ptp.announce", must_exist=True),
 )
 config.validators.validate()
+
 
 class Settings:
     @staticmethod
@@ -137,20 +142,19 @@ class Settings:
 
         Settings.GreasemonkeyTorrentSenderPassword = config.web.api_key
         Settings.OverrideScreenshots = config.uploader.override_screenshots
-        Settings.ForceDirectorylessSingleFileTorrent = config.uploader.force_directoryless_single_file
+        Settings.ForceDirectorylessSingleFileTorrent = (
+            config.uploader.force_directoryless_single_file
+        )
         Settings.PersonalRip = config.uploader.is_personal
         Settings.ReleaseNotes = config.uploader.release_notes
         Settings.SkipDuplicateChecking = config.uploader.skip_duplicate_checking
 
         Settings.SizeLimitForAutoCreatedJobs = (
-            float(
-                config.source._default.max_size
-            )
-            * 1024
-            * 1024
-            * 1024
+            float(config.source._default.max_size) * 1024 * 1024 * 1024
         )
-        Settings.StopIfSynopsisIsMissing = config.source._default.stop_if_synopsis_missing
+        Settings.StopIfSynopsisIsMissing = (
+            config.source._default.stop_if_synopsis_missing
+        )
         Settings.StopIfCoverArtIsMissing = config.source._default.stop_if_art_missing
         Settings.StopIfImdbRatingIsLessThan = config.source._default.min_imdb_rating
         Settings.StopIfImdbVoteCountIsLessThan = config.source._default.min_imdb_votes
@@ -171,7 +175,8 @@ class Settings:
                 from PtpUploader.Tool.Transmission import Transmission
 
                 Settings.TorrentClient = Transmission(
-                    Settings.TorrentClientAddress.split(':')[0], Settings.TorrentClientAddress.split(':')[1]
+                    Settings.TorrentClientAddress.split(":")[0],
+                    Settings.TorrentClientAddress.split(":")[1],
                 )
             else:
                 from PtpUploader.Tool.Rtorrent import Rtorrent

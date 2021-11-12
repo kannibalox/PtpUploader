@@ -436,15 +436,16 @@ class Upload(WorkerBase):
             )
 
     def __CheckSynopsis(self):
-        if Settings.StopIfSynopsisIsMissing and Settings.StopIfSynopsisIsMissing.lower() == "beforeuploading":
+        if (
+            Settings.StopIfSynopsisIsMissing
+            and Settings.StopIfSynopsisIsMissing.lower() == "beforeuploading"
+        ):
             self.ReleaseInfo.AnnouncementSource.CheckSynopsis(
                 self.logger, self.ReleaseInfo
             )
 
     def __CheckCoverArt(self):
-        self.ReleaseInfo.AnnouncementSource.CheckCoverArt(
-            self.logger, self.ReleaseInfo
-        )
+        self.ReleaseInfo.AnnouncementSource.CheckCoverArt(self.logger, self.ReleaseInfo)
 
     def __RehostPoster(self):
         # If this movie has no page yet on PTP then we will need the cover, so we rehost the image to an image hoster.
