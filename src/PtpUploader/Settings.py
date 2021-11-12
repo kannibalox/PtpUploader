@@ -201,9 +201,9 @@ class Settings:
             return False
 
         # Optional
-        if Settings.UnrarPath and shutil.which(Settings.UnrarPath):
+        if Settings.UnrarPath and not shutil.which(Settings.UnrarPath):
             logger.error("Unrar path is set but not found: %s", Settings.UnrarPath)
-        if Settings.ImageMagickConvertPath and shutil.which(
+        if Settings.ImageMagickConvertPath and not shutil.which(
             Settings.ImageMagickConvertPath
         ):
             logger.error(
