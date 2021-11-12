@@ -54,7 +54,7 @@ class CheckAnnouncement(WorkerBase):
         self.TorrentClient = Settings.GetTorrentClient()
 
     def __CheckAnnouncementSource(self):
-        self.logger.info(
+        self.ReleaseInfo.logger().info(
             "Working on announcement from '%s' with id '%s' and name '%s'."
             % (
                 self.ReleaseInfo.AnnouncementSourceName,
@@ -68,6 +68,12 @@ class CheckAnnouncement(WorkerBase):
         self.ReleaseInfo.ErrorMessage = ""
         self.ReleaseInfo.save()
 
+        if self.ReleaseInfo.AnnouncementSource is None and self.ReleaseInfo.AnnouncementId is not None:
+            source, id = MyGlobals.SourceFactory.GetSourceAndIdByUrl(self.ReleaseInfo.AnnouncementId)
+            if source is not None:
+                self.ReleaseInfo.AnnouncementSourceName = source.Name
+                self.ReleaseInfo.AnnouncementId = id
+                self.ReleaseInfo.save()
         if self.ReleaseInfo.AnnouncementSource is None:
             raise PtpUploaderException(
                 "Announcement source '%s' is unknown."
