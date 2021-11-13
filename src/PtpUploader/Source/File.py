@@ -29,11 +29,7 @@ class File(SourceBase):
     def PrepareDownload(self, logger, releaseInfo):
         path = releaseInfo.GetReleaseDownloadPath()
 
-        if os.path.isdir(path):
-            releaseInfo.SourceIsAFile = False
-        elif os.path.isfile(path):
-            releaseInfo.SourceIsAFile = True
-        else:
+        if not os.path.exists(path):
             raise PtpUploaderException("Source '%s' doesn't exist." % path)
 
         releaseInfo.Size = GetPathSize(path)
@@ -51,17 +47,17 @@ class File(SourceBase):
 
     def GetCustomUploadPath(self, logger, releaseInfo):
         path = releaseInfo.GetReleaseDownloadPath()
-        if releaseInfo.SourceIsAFile:
+        if releaseInfo.SourceIsAFile():
             # In case of single files the parent directory of the file will be the upload directory.
             return os.path.split(path)[0]
         return os.path.join(path, File.UploadDirectoryName, releaseInfo.ReleaseName)
 
     def CreateUploadDirectory(self, releaseInfo):
-        if not releaseInfo.SourceIsAFile:
+        if not releaseInfo.SourceIsAFile():
             SourceBase.CreateUploadDirectory(self, releaseInfo)
 
     def ExtractRelease(self, logger, releaseInfo, includedFileList):
-        if not releaseInfo.SourceIsAFile:
+        if not releaseInfo.SourceIsAFile():
             # Add the top level PTP directory to the ignore list because that is where we extract the release.
             topLevelDirectoriesToIgnore = [File.UploadDirectoryName.lower()]
             ReleaseExtractor.Extract(
@@ -73,7 +69,7 @@ class File(SourceBase):
             )
 
     def ReadNfo(self, releaseInfo):
-        if releaseInfo.SourceIsAFile:
+        if releaseInfo.SourceIsAFile():
             # Try to read the NFO with the same name as the video file but with nfo extension.
             basePath, fileName = os.path.split(releaseInfo.GetReleaseDownloadPath())
             fileName, _ = os.path.splitext(fileName)
@@ -84,7 +80,7 @@ class File(SourceBase):
             SourceBase.ReadNfo(self, releaseInfo)
 
     def ValidateExtractedRelease(self, releaseInfo, includedFileList):
-        if releaseInfo.SourceIsAFile:
+        if releaseInfo.SourceIsAFile():
             return [releaseInfo.GetReleaseDownloadPath()], []
         else:
             return SourceBase.ValidateExtractedRelease(
@@ -155,7 +151,7 @@ class File(SourceBase):
                 os.remove(releaseInfo.GetReleaseDownloadPath())
 
     def GetTemporaryFolderForImagesAndTorrent(self, releaseInfo):
-        if releaseInfo.SourceIsAFile:
+        if releaseInfo.SourceIsAFile():
             return releaseInfo.GetReleaseUploadPath()
         else:
             return os.path.join(
@@ -163,4 +159,4 @@ class File(SourceBase):
             )
 
     def IsSingleFileTorrentNeedsDirectory(self, releaseInfo):
-        return not releaseInfo.SourceIsAFile
+        return not releaseInfo.SourceIsAFile()

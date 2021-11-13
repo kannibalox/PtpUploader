@@ -178,7 +178,6 @@ class ReleaseInfo(models.Model):
         super().__init__(*args, **kwargs)
 
         self.SceneAccessDownloadUrl = ""  # Temporary store for FunFile.
-        self.SourceIsAFile = False  # Used by Source.File class.
         self.ImdbRating = ""  # Not saved in the database.
         self.ImdbVoteCount = ""  # Not saved in the database.
         self.JobStartTimeUtc = datetime.datetime.utcnow()
@@ -277,6 +276,9 @@ class ReleaseInfo(models.Model):
     # Eg.: "working directory/release/Dark.City.1998.Directors.Cut.720p.BluRay.x264-SiNNERS/"
     def GetReleaseRootPath(self):
         return Path(Settings.WorkingPath, "release", self.ReleaseName)
+
+    def SourceIsAFile(self):
+        return Path(self.GetReleaseDownloadPath()).is_file()
 
     # Eg.: "working directory/release/Dark.City.1998.Directors.Cut.720p.BluRay.x264-SiNNERS/download/"
     def GetReleaseDownloadPath(self):
