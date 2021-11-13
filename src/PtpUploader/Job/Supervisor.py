@@ -159,7 +159,6 @@ class JobSupervisor(threading.Thread):
 
     def run(self):
         logger.info("Starting supervisors")
-        self.config_root_logger()
         while True:
             try:
                 if self.work() is not None:
@@ -173,30 +172,3 @@ class JobSupervisor(threading.Thread):
 
     def cleanup_futures(self):
         pass
-
-    def config_root_logger(self):
-        formatter = "%(asctime)-15s %(levelname)-5s %(name)-11s %(message)s"
-
-        logging.config.dictConfig(
-            {
-                "version": 1,
-                "disable_existing_loggers": True,
-                "formatters": {"root_formatter": {"format": formatter}},
-                "handlers": {
-                    "console": {
-                        "level": "INFO",
-                        "class": "logging.StreamHandler",
-                        "formatter": "root_formatter",
-                    },
-                },
-                "loggers": {
-                    "": {
-                        "handlers": [
-                            "console",
-                        ],
-                        "level": "DEBUG",
-                        "propagate": True,
-                    }
-                },
-            }
-        )

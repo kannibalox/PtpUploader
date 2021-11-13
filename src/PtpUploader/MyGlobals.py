@@ -49,31 +49,7 @@ class MyGlobalsClass:
     # workingPath from Settings.WorkingPath.
     def InitializeLogger(self, workingPath):
         # This will create the log directory too.
-        announcementLogDirPath = Path(os.path.join(workingPath, "log/announcement"))
-        if not announcementLogDirPath.is_dir():
-            announcementLogDirPath.mkdir(parents=True, exist_ok=True)
-
-        logDirPath = os.path.join(workingPath, "log")
-
-        logDate = datetime.datetime.now().strftime("%Y.%m.%d. - %H_%M_%S")
-        logPath = os.path.join(logDirPath, logDate + ".txt")
-
-        self.Logger = logging.getLogger("PtpUploader")
-
-        # file
-        handler = logging.FileHandler(logPath)
-        formatter = logging.Formatter(
-            "[%(asctime)s] %(levelname)-8s %(message)s", "%Y-%m-%d %H:%M:%S"
-        )
-        handler.setFormatter(formatter)
-        self.Logger.addHandler(handler)
-
-        # stdout
-        console = logging.StreamHandler(sys.stdout)
-        console.setFormatter(formatter)
-        self.Logger.addHandler(console)
-
-        self.Logger.setLevel(logging.INFO)
+        self.Logger = logging.getLogger(__name__)
 
     # Inline imports are used here to avoid unnecessary dependencies.
     def GetTorrentClient(self):
