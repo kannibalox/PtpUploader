@@ -30,8 +30,13 @@
         <div id="navbarBasicExample" class="navbar-menu">
           <div class="navbar-start">
 	    <a class="navbar-item" href="{% url "jobs" %}">Jobs</a>
-	    <a class="navbar-item" href="{% url "upload" %}">Upload</a>
-	    <a class="navbar-item" href="{% url "bulk_upload" %}">Bulk</a>
+            <div class="navbar-item has-dropdown is-hoverable">
+	      <a class="navbar-link" href="{% url "upload" %}">Upload</a>
+              <div class="navbar-dropdown">
+	        <a class="navbar-item" href="{% url "bulk_upload" %}">Bulk</a>
+                <a class="navbar-item" href="{% url "upload" %}">Single</a>
+              </div>
+            </div>
 	    <a class="navbar-item" href="{% url "movieAvailabilityCheck" %}">Availability check</a>
 	    <a class="navbar-item" href="{% url "quit" %}">Shutdown</a>
           </div>
