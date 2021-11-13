@@ -169,14 +169,13 @@ class JobSupervisor(threading.Thread):
                 self.add_message(PtpUploaderMessageQuit())
             except Exception as e:
                 print(traceback.print_exc())
+                logger.info("Received exception, attempting to continue")
 
     def cleanup_futures(self):
         pass
 
     def config_root_logger(self):
-        log_file = "/tmp/perThreadLogging.log"
-
-        formatter = "%(asctime)-15s" " %(levelname)-5s" " %(name)-11s" " %(message)s"
+        formatter = "%(asctime)-15s %(levelname)-5s %(name)-11s %(message)s"
 
         logging.config.dictConfig(
             {
@@ -189,18 +188,11 @@ class JobSupervisor(threading.Thread):
                         "class": "logging.StreamHandler",
                         "formatter": "root_formatter",
                     },
-                    "log_file": {
-                        "class": "logging.FileHandler",
-                        "level": "DEBUG",
-                        "filename": log_file,
-                        "formatter": "root_formatter",
-                    },
                 },
                 "loggers": {
                     "": {
                         "handlers": [
                             "console",
-                            "log_file",
                         ],
                         "level": "DEBUG",
                         "propagate": True,
