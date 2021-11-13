@@ -1,10 +1,12 @@
 import json
 import logging
+
 from pathlib import Path
 from typing import Dict, List
 
 from PtpUploader.ReleaseInfo import ReleaseInfo
 from PtpUploader.Settings import Settings
+
 
 logger = logging.getLogger(__name__)
 

@@ -1,14 +1,14 @@
 import functools
-import shutil
 import os
+import shutil
 
 from PtpUploader.ImageHost.ImageUploader import ImageUploader
+from PtpUploader.PtpUploaderException import PtpUploaderException
 from PtpUploader.Settings import Settings
 from PtpUploader.Tool.Ffmpeg import Ffmpeg
 from PtpUploader.Tool.ImageMagick import ImageMagick
 from PtpUploader.Tool.Mplayer import Mplayer
 from PtpUploader.Tool.Mpv import Mpv
-from PtpUploader.PtpUploaderException import PtpUploaderException
 
 
 class ScreenshotMaker:

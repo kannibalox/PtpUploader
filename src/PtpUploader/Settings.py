@@ -1,12 +1,14 @@
 import fnmatch
+import logging
 import os
 import os.path
 import re
 import shutil
-import logging
+
 from pathlib import Path
 
 from dynaconf import Dynaconf, Validator
+
 
 logger = logging.getLogger(__name__)
 config = Dynaconf(

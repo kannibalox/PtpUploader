@@ -2,6 +2,7 @@ import logging
 import os
 import re
 import shutil
+
 from pathlib import Path
 
 from PtpUploader.IncludedFileList import IncludedFileList

@@ -1,5 +1,5 @@
-import re
 import logging
+import re
 
 from html import unescape
 
@@ -11,6 +11,7 @@ from PtpUploader.PtpUploaderException import (
     PtpUploaderInvalidLoginException,
 )
 from PtpUploader.Source.SourceBase import SourceBase
+
 
 logger = logging.getLogger(__name__)
 

@@ -1,5 +1,6 @@
 import logging
 import os
+
 from pathlib import Path
 
 from PtpUploader.PtpUploaderException import *

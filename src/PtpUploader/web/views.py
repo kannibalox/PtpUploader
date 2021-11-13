@@ -6,12 +6,12 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict
 
+from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.shortcuts import get_object_or_404, render
 from django.templatetags.static import static
 from django.urls import reverse
 from django.utils import timezone
-from django.contrib.auth.decorators import login_required
 
 from PtpUploader import Ptp
 from PtpUploader.Helper import SizeToText, TimeDifferenceToText

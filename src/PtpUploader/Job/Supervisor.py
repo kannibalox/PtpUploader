@@ -24,12 +24,12 @@ import traceback
 from concurrent import futures
 from typing import Dict, List
 
+from PtpUploader.Job import LoadFile
 from PtpUploader.Job.CheckAnnouncement import CheckAnnouncement
 from PtpUploader.Job.Delete import Delete
 from PtpUploader.Job.Upload import Upload
 from PtpUploader.PtpUploaderMessage import *
 from PtpUploader.ReleaseInfo import ReleaseInfo
-from PtpUploader.Job import LoadFile
 
 
 logger = logging.getLogger(__name__)

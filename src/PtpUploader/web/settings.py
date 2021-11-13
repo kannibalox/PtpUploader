@@ -140,7 +140,7 @@ LOGGING = {
     "disable_existing_loggers": True,
     "formatters": {
         "root_formatter": {
-            "format": ">> %(asctime)-15s %(levelname)-5s %(name)-11s %(message)s"
+            "format": "%(asctime)-15s %(levelname)-5s %(name)-11s %(message)s"
         }
     },
     "handlers": {

@@ -2,14 +2,14 @@ from django.forms import (
     BooleanField,
     CharField,
     ChoiceField,
+    ClearableFileInput,
+    FileField,
+    Form,
     HiddenInput,
     ModelForm,
     MultipleChoiceField,
     Textarea,
-    Form,
     TextInput,
-    FileField,
-    ClearableFileInput,
 )
 
 from PtpUploader.Job.JobStartMode import JobStartMode

@@ -18,7 +18,7 @@ dynaconf = "^3.1.7"
 
 [tool.isort]
 profile = "black"
-force_single_line = true
+force_single_line = false
 atomic = true
 include_trailing_comma = true
 lines_after_imports = 2
