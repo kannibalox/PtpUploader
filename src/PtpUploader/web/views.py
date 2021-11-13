@@ -129,21 +129,22 @@ def jobs_get_latest(request):
         }
     )
 
+
 @login_required
 def bulk_upload(request):
-    if request.method == 'POST':
+    if request.method == "POST":
         # create a form instance and populate it with data from the request:
         form = forms.BulkReleaseForm(request.POST)
         # check whether it's valid:
         if form.is_valid():
-            for link in form.cleaned_data['Links'].split("\n"):
+            for link in form.cleaned_data["Links"].split("\n"):
                 release = ReleaseInfo(AnnouncementId=link)
                 if "post_stop_before" in request.POST:
                     release.StopBeforeUploading = True
                 else:
                     release.StopBeforeUploading = False
                 release.save()
-            for path in form.cleaned_data['Paths'].split("\n"):
+            for path in form.cleaned_data["Paths"].split("\n"):
                 if not path.strip():
                     continue
                 path = Path(path)
@@ -159,13 +160,14 @@ def bulk_upload(request):
             # process the data in form.cleaned_data as required
             # ...
             # redirect to a new URL:
-            return HttpResponseRedirect('/jobs')
+            return HttpResponseRedirect("/jobs")
 
     # if a GET (or any other method) we'll create a blank form
     else:
         form = forms.BulkReleaseForm()
 
-    return render(request, 'bulk.html', {'form': form})
+    return render(request, "bulk.html", {"form": form})
+
 
 @login_required
 def jobs_json(_):

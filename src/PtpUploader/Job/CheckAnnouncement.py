@@ -68,8 +68,13 @@ class CheckAnnouncement(WorkerBase):
         self.ReleaseInfo.ErrorMessage = ""
         self.ReleaseInfo.save()
 
-        if self.ReleaseInfo.AnnouncementSource is None and self.ReleaseInfo.AnnouncementId is not None:
-            source, id = MyGlobals.SourceFactory.GetSourceAndIdByUrl(self.ReleaseInfo.AnnouncementId)
+        if (
+            self.ReleaseInfo.AnnouncementSource is None
+            and self.ReleaseInfo.AnnouncementId is not None
+        ):
+            source, id = MyGlobals.SourceFactory.GetSourceAndIdByUrl(
+                self.ReleaseInfo.AnnouncementId
+            )
             if source is not None:
                 self.ReleaseInfo.AnnouncementSourceName = source.Name
                 self.ReleaseInfo.AnnouncementId = id

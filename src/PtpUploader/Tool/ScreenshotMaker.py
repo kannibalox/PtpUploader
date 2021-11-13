@@ -51,15 +51,21 @@ class ScreenshotMaker:
 
         try:
             if shutil.which(Settings.MpvPath):
-                screenshotPath = self.__MakeUsingMpv(timeInSeconds, outputImageDirectory)
+                screenshotPath = self.__MakeUsingMpv(
+                    timeInSeconds, outputImageDirectory
+                )
             elif shutil.which(Settings.MplayerPath):
                 screenshotPath = self.__MakeUsingMplayer(
                     timeInSeconds, outputImageDirectory
                 )
             elif shutil.which(Settings.FfmpegPath):
-                screenshotPath = self.__MakeUsingFfmpeg(timeInSeconds, outputImageDirectory)
+                screenshotPath = self.__MakeUsingFfmpeg(
+                    timeInSeconds, outputImageDirectory
+                )
 
-            if Settings.ImageMagickConvertPath and shutil.which(Settings.ImageMagickConvertPath):
+            if Settings.ImageMagickConvertPath and shutil.which(
+                Settings.ImageMagickConvertPath
+            ):
                 ImageMagick.OptimizePng(self.Logger, screenshotPath)
 
             imageUrl = ImageUploader.Upload(self.Logger, imagePath=screenshotPath)

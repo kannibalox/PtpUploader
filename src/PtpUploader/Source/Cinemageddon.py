@@ -264,11 +264,15 @@ class Cinemageddon(SourceBase):
             self.__DownloadNfo(releaseInfo.logger(), releaseInfo)
 
     def ParsePageForExternalCreateJob(self, _, releaseInfo, html):
-        self.__ParsePage(releaseInfo.logger(), releaseInfo, html, parseForExternalCreateJob=True)
+        self.__ParsePage(
+            releaseInfo.logger(), releaseInfo, html, parseForExternalCreateJob=True
+        )
 
     def DownloadTorrent(self, _, releaseInfo, path):
         url = "https://cinemageddon.net/download.php?id=%s" % releaseInfo.AnnouncementId
-        releaseInfo.logger().info("Downloading torrent file from '%s' to '%s'.", url, path)
+        releaseInfo.logger().info(
+            "Downloading torrent file from '%s' to '%s'.", url, path
+        )
 
         result = MyGlobals.session.get(url)
         result.raise_for_status()

@@ -135,27 +135,31 @@ STATIC_URL = "/static/"
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
-LOGGING =             {
-                "version": 1,
-                "disable_existing_loggers": True,
-                "formatters": {"root_formatter": {"format": ">> %(asctime)-15s %(levelname)-5s %(name)-11s %(message)s"}},
-                "handlers": {
-                    "console": {
-                        "level": "INFO",
-                        "class": "logging.StreamHandler",
-                        "formatter": "root_formatter",
-                    },
-                },
-                "loggers": {
-                    "": {
-                        "handlers": [
-                            "console",
-                        ],
-                        "level": "DEBUG",
-                        "propagate": True,
-                    }
-                },
-            }
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": True,
+    "formatters": {
+        "root_formatter": {
+            "format": ">> %(asctime)-15s %(levelname)-5s %(name)-11s %(message)s"
+        }
+    },
+    "handlers": {
+        "console": {
+            "level": "INFO",
+            "class": "logging.StreamHandler",
+            "formatter": "root_formatter",
+        },
+    },
+    "loggers": {
+        "": {
+            "handlers": [
+                "console",
+            ],
+            "level": "DEBUG",
+            "propagate": True,
+        }
+    },
+}
 
 
 settings = dynaconf.DjangoDynaconf(__name__)
