@@ -273,13 +273,6 @@
           </tr>
 
           <tr>
-            <td class="label">Special release year</td>
-            <td>
-              {{ form.RemasterYear }}
-            </td>
-          </tr>
-
-          <tr>
             <td class="label">Personal rip</td>
             <td>
               {{ form.PersonalRip }}
@@ -432,8 +425,8 @@
               <tr>
                 <td colspan="2" style="text-align: center; border: none;">
                   <br/><br/>
-                  <input id="post" name="post" type="submit" value="Resume">
-                  <input id="post" name="post_stop_before" type="submit" value="Resume but stop before uploading" title="The job will be stopped after everything has completed and the only remaining thing to do is the uploading to PTP.">
+                  <input class="is-primary button is-dark is-light" id="post" name="post" type="submit" value="Resume">
+                  <input class="is-primary button" id="post" name="post_stop_before" type="submit" value="Resume but stop before uploading" title="The job will be stopped after everything has completed and the only remaining thing to do is the uploading to PTP.">
                   <br/><br/><br/>
                 </td>
               </tr>
