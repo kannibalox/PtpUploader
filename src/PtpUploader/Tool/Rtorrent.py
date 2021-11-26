@@ -1,12 +1,12 @@
 import os
 import shutil
 import time
-import xmlrpc.client
+import xmlrpc.client as xmlrpc_client
 
 import bencode
 
 from pyrosimple import config
-from pyrosimple.util import load_config, metafile
+from pyrosimple.util import load_config, metafile, xmlrpc
 
 from PtpUploader.MyGlobals import MyGlobals
 from PtpUploader.PtpUploaderException import PtpUploaderException
@@ -32,23 +32,22 @@ class Rtorrent:
 
         with open(torrentPath, "rb") as fh:
             data = fh.read()
-            contents = xmlrpc.client.Binary(data)
+            contents = xmlrpc_client.Binary(data)
             torrentData = bencode.decode(data)
 
         metafile.check_meta(torrentData)
         infoHash = metafile.info_hash(torrentData)
 
-        self.proxy.load.raw("", contents)
+        self.proxy.load.raw_start("", contents, f'd.directory_base.set="{downloadPath}"', "d.custom.set=ptpuploader,true")
 
         # If load_raw is slow then set_directory_base throws an exception (Fault: <Fault -501: 'Could not find info-hash.'>),
         # so we retry adding the torrent some delay.
         maximumTries = 15
         while True:
             try:
-                self.proxy.d.directory_base.set(infoHash, downloadPath)
-                self.proxy.d.start(infoHash)
+                self.proxy.d.hash(infoHash)
                 break
-            except Exception:
+            except xmlrpc.HashNotFound:
                 if maximumTries > 1:
                     maximumTries -= 1
                     time.sleep(2)  # Two seconds.
