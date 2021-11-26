@@ -106,6 +106,8 @@ def CheckIfLoggedInFromResponse(result, responseBody: str):
         raise PtpUploaderException(
             "Looks like you are not logged in to PTP. Probably due to the bad user name or password."
         )
+    if "Your popcorn quota has been reached, come back later!" in responseBody:
+        raise PtpUploaderException("Your PTP request/popcorn quota has been reached, try again later")
 
 
 # PTP expects 7 character long IMDb IDs.
