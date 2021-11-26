@@ -89,12 +89,12 @@ class ReleaseForm(ModelForm):
     TrumpableHardSubs = BooleanField(required=False, initial=False)
     TorrentLink = CharField(required=False, widget=TextInput(attrs={"size": "60"}))
     LocalFile = CharField(required=False, widget=TextInput(attrs={"size": "60"}))
+    JobStartMode = CharField(required=False)
 
     class Meta:
         model = ReleaseInfo
         exclude = [
             "JobRunningState",
-            "JobStartMode",
             "ScheduleTimeUtc",
             "FinishedJobPhase",
             "Size",
