@@ -14,6 +14,7 @@ from PtpUploader.MyGlobals import MyGlobals
 from PtpUploader.PtpSubtitle import PtpSubtitleId
 from PtpUploader.PtpUploaderException import *
 from PtpUploader.ReleaseDescriptionFormatter import ReleaseDescriptionFormatter
+from PtpUploader.ReleaseInfo import ReleaseInfo
 from PtpUploader.Settings import Settings
 from PtpUploader.Tool import Mktor
 
@@ -150,6 +151,8 @@ class Upload(WorkerBase):
             container = "MKV"
         elif mediaInfo.IsMp4():
             container = "MP4"
+            if not self.ReleaseInfo == ReleaseInfo.SourceChoices.HDTV:
+                raise PtpUploaderException("MP4 only allowed for HDTV sources")
         elif mediaInfo.IsVob():
             container = "VOB IFO"
 
