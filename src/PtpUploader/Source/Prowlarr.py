@@ -61,7 +61,7 @@ class Prowlarr(SourceBase):
         indexer = self.get_indexer(releaseInfo)
         response = self.session.get(
             f"{self.Url}/api/v1/indexer/{indexer['id']}/newznab",
-            params={"t": "movie", "imdbid": NfoParser.GetImdbId(releaseInfo.ImdbId)},
+            params={"t": "movie", "imdbid": 'tt' + str(releaseInfo.ImdbId)},
         )
         for i in ET.fromstring(response.text)[0].findall("item"):
             for field in i:
