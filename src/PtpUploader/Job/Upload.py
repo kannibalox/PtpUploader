@@ -215,13 +215,14 @@ class Upload(WorkerBase):
                 if Upload.__CanIgnoreDetectedAndSetCodecDifference(
                     codec, self.ReleaseInfo.Codec
                 ):
-                    self.logger.info(
-                        "Codec is set to '%s', detected MediaInfo codec is '%s' ('%s'). Using the detected codec.",
-                        self.ReleaseInfo.Codec,
-                        codec,
-                        mediaInfo.Codec,
-                    )
-                    self.ReleaseInfo.Codec = codec
+                    if "Remux" not in self.ReleaseInfo.RemasterTitle:
+                        self.logger.info(
+                            "Codec is set to '%s', detected MediaInfo codec is '%s' ('%s'). Using the detected codec.",
+                            self.ReleaseInfo.Codec,
+                            codec,
+                            mediaInfo.Codec,
+                        )
+                        self.ReleaseInfo.Codec = codec
                 elif self.ReleaseInfo.IsForceUpload():
                     self.logger.info(
                         "Codec is set to '%s', detected MediaInfo codec is '%s' ('%s'). Ignoring mismatch because of force upload.",
