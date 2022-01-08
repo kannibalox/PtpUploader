@@ -103,10 +103,12 @@ class Rtorrent:
             # Even a watch dir with Pyinotify would be better probably. rTorrent could write the info hash to a directory watched by us.
             completed = self.proxy.d.complete(infoHash)
             return completed == 1
+        except xmlrpc.HashNotFound as e:
+            raise e
         except Exception:
             logger.exception(
-                "Got exception while trying to check torrent's completion status. Info hash: '%s'."
-                % infoHash
+                "Got exception while trying to check torrent's completion status. hash: '%s', error: '%s'"
+                , infoHash, e
             )
 
         return False

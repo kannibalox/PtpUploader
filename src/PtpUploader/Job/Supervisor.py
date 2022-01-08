@@ -24,6 +24,8 @@ import traceback
 from concurrent import futures
 from typing import Dict, List
 
+from pyrosimple.util import xmlrpc
+
 from PtpUploader.Job import LoadFile
 from PtpUploader.Job.CheckAnnouncement import CheckAnnouncement
 from PtpUploader.Job.Delete import Delete
@@ -63,6 +65,13 @@ class JobSupervisor(threading.Thread):
         for release in ReleaseInfo.objects.filter(
             JobRunningState=ReleaseInfo.JobState.InDownload
         ):
+            try:
+                release.AnnouncementSource.IsDownloadFinished(logger, release)
+            except xmlrpc.HashNotFound as e:
+                release.ErrorMessage = str(e)
+                release.JobRunningState = ReleaseInfo.JobState.Failed
+                release.save()
+                continue
             if (
                 release.Id not in self.futures.keys()
                 and release.AnnouncementSource.IsDownloadFinished(logger, release)
