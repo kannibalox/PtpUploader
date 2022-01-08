@@ -21,7 +21,7 @@ from PtpUploader.MyGlobals import MyGlobals
 from PtpUploader.NfoParser import NfoParser
 from PtpUploader.PtpUploaderMessage import *
 from PtpUploader.ReleaseInfo import ReleaseInfo
-from PtpUploader.Settings import Settings
+from PtpUploader.Settings import Settings, config
 
 from . import forms
 
@@ -244,7 +244,7 @@ def jobs_json(_):
 def local_dir(request):
     d: Path
     if "dir" not in request.GET:
-        d = Path(Settings.WebServerFileTreeInitRoot)
+        d = Path(config.web.file_select_root)
     else:
         d = Path(request.GET["dir"])
     val = []
@@ -346,7 +346,7 @@ def edit_job(request, r_id: int = -1):
         job["Screenshots"] = {}
         if release.Screenshots:
             for f, shots in release.Screenshots.items():
-                path = Path(f).name
+                path = str(Path(f).name)
                 job["Screenshots"][path] = ""
                 for s in shots:
                     job["Screenshots"][path] += f'<img src="{s}"/>'
