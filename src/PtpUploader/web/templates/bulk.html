@@ -1,33 +1,66 @@
 ﻿{% extends "layout.html" %}
 
+{% load static %}
+
 {% block head %}
   <title>Bulk Upload - PtpUploader</title>
+  <script type=text/javascript src="{% static "script/jquery-3.6.0.min.js" %}"></script>
+  <script type="text/javascript">
+   function showTab(tab) {
+     $('#path-tab').hide();
+     $('#link-tab').hide();
+     $('#file-tab').hide();
+     $('#path-link').removeClass('is-active');
+     $('#link-link').removeClass('is-active');
+     $('#file-link').removeClass('is-active');
+     $('#'+tab+'-tab').show();
+     $('#'+tab+'-link').addClass('is-active');
+   }
+   $(document).ready(function() {
+     $('#path-link').click(function (){showTab("path");});
+     $('#link-link').click(function (){showTab("link");});
+     $('#file-link').click(function (){showTab("file");});
+     showTab("file");
+   });
+  </script>
 {% endblock %}
 
 {% block body %}
   <div class="columns is-centered">
     <div class="column is-half">
+      <div class="tabs is-centered">
+        <ul>
+          <li id="file-link" class="is-active"><a>Files</a></li>
+          <li id="link-link"><a>Links</a></li>
+          <li id="path-link"><a>Paths</a></li>
+        </ul>
+      </div>
       <form action="" enctype="multipart/form-data" method="post" id="bulk_upload">
         {% csrf_token %}
         {{ form.errors }}
-        <div class="file is-boxed has-name">
-          <label class="file-label">
-            {{ form.Files }}
-            <span class="file-cta">
-              <span class="file-icon">
-                <i class="fas fa-upload"></i>
+        <div id="file-tab">
+          <div class="file is-boxed has-name">
+            <label class="file-label">
+              {{ form.Files }}
+              <span class="file-cta">
+                <span class="file-icon">
+                  <i class="fas fa-upload"></i>
+                </span>
+                <span class="file-label">
+                  Choose files…
+                </span>
               </span>
-              <span class="file-label">
-                Choose files…
+              <span class="file-name">
               </span>
-            </span>
-            <span class="file-name">
-            </span>
-          </label>
+            </label>
+          </div>
         </div>
-        {{ form.Links }}
-        <br/>
-        {{ form.Paths }}
+        <div id="link-tab">
+          {{ form.Links }}
+        </div>
+        <div id="path-tab">
+          {{ form.Paths }}
+        </div>
         <br/>
         <input class="is-primary button is-dark is-light" id="post" name="post" type="submit" value="Upload">
         <input class="is-primary button" id="post" name="post_stop_before" type="submit" value="Upload but stop before uploading" title="The job will be stopped after everything has completed and the only remaining thing to do is the uploading to PTP.">
