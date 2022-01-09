@@ -50,6 +50,7 @@ def GetStateIcon(state: int) -> str:
         ReleaseInfo.JobState.DownloadedAlreadyExists: "fa-frown has-text-warning",
         ReleaseInfo.JobState.InProgress: "fa-spinner fa-pulse has-text-info",
         ReleaseInfo.JobState.InDownload: "spinner",
+        ReleaseInfo.JobState.Scheduled: "fa-clock",
     }
     return f'<span class="icon"><i class="fas {i[state]}"></i></span>'
 
@@ -236,6 +237,10 @@ def jobs_json(_):
             entry["Actions"] += ["delete"]
         entry["Actions"] = (",").join(entry["Actions"])
         entries.append(entry)
+
+        # Format scheduled items with a dynamic sub-message
+        if release.JobRunningState == ReleaseInfo.JobState.Scheduled:
+            entry['ErrorMessage'] = "Scheduled to  run in " + TimeDifferenceToText(release.ScheduleTime - timezone.now(), agoText='', noDifferenceText="just a moment")
 
     return JsonResponse({"data": entries, "settings": settings})
 

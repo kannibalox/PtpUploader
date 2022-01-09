@@ -6,11 +6,10 @@ from PtpUploader.ReleaseInfo import ReleaseInfo
 def InitDb():
     MyGlobals.Logger.info("Initializing database.")
 
-    # Reset any possibling interrupted jobs
+    # Reset any possibly interrupted jobs
     for releaseInfo in ReleaseInfo.objects.filter(
         JobRunningState__in=[
             JobRunningState.WaitingForStart,
-            JobRunningState.Scheduled,
             JobRunningState.InProgress,
         ]
     ):

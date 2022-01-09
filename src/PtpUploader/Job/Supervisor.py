@@ -1,5 +1,5 @@
 """
-Replaces the artisanal python 2 threading system
+Replaces the artisanal (but impressive) python 2 threading system
 This directly handles:
 - Loading announcement files
 - Scanning the DB for work
@@ -20,11 +20,14 @@ import logging
 import queue
 import threading
 import traceback
+import datetime
 
 from concurrent import futures
 from typing import Dict, List
 
 from pyrosimple.util import xmlrpc
+from django.utils import timezone
+from django.db.models import Q
 
 from PtpUploader.Job import LoadFile
 from PtpUploader.Job.CheckAnnouncement import CheckAnnouncement
@@ -106,7 +109,7 @@ class JobSupervisor(threading.Thread):
     def scan_db(self):
         """Find releases pending work by their DB status"""
         for release in ReleaseInfo.objects.filter(
-            JobRunningState=ReleaseInfo.JobState.WaitingForStart
+                Q(JobRunningState=ReleaseInfo.JobState.WaitingForStart) | (Q(ScheduleTime__lte=timezone.now()) & Q(JobRunningState=ReleaseInfo.JobState.Scheduled))
         ):
             if release.Id not in self.futures.keys():
                 logger.info("Launching check job for %s", release.Id)
@@ -128,7 +131,7 @@ class JobSupervisor(threading.Thread):
         release = ReleaseInfo.objects.get(Id=releaseId)
         if release.Id in self.futures.keys():
             pass
-        elif release.JobRunningState == ReleaseInfo.JobState.InDownload:
+        elif release.JobRunningState in [ReleaseInfo.JobState.InDownload, ReleaseInfo.JobState.Scheduled]:
             release.JobRunningState = ReleaseInfo.JobState.Paused
             release.save()
 

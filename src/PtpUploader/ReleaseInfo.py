@@ -157,7 +157,7 @@ class ReleaseInfo(models.Model):
     Subtitles = models.JSONField(blank=True, default=list)  # CSV of subtitle IDs
     IncludedFiles = models.TextField(blank=True, default="")
     DuplicateCheckCanIgnore = models.IntegerField(default=0)
-    ScheduleTimeUtc = models.DateTimeField(default=timezone.now, null=True)
+    ScheduleTime = models.DateTimeField(default=datetime.datetime.fromtimestamp(0, timezone.get_default_timezone()), null=True)
     Trumpable: List[int] = models.JSONField(
         blank=True, default=list
     )  # CSV of trump IDs

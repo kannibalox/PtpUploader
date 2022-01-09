@@ -24,7 +24,6 @@ def Initialize():
     for releaseInfo in ReleaseInfo.objects.filter(
         JobRunningState__in=[
             JobRunningState.WaitingForStart,
-            JobRunningState.Scheduled,
             JobRunningState.InProgress,
         ]
     ):

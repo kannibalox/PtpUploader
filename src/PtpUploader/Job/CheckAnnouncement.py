@@ -3,6 +3,8 @@ import logging
 import os
 import threading
 
+from django.utils import timezone
+
 from PtpUploader import Ptp
 from PtpUploader.InformationSource.Imdb import Imdb
 from PtpUploader.InformationSource.MoviePoster import MoviePoster
@@ -26,6 +28,7 @@ class CheckAnnouncement(WorkerBase):
             self.__PrepareDownload,
             self.__CheckSizeLimit,
             self.__ValidateReleaseInfo,
+            self.__CheckSchedule,
             self.__CheckIfExistsOnPtp,
             self.__FillOutDetailsForNewMovieByPtpApi,
             self.__FillOutDetailsForNewMovieByExternalSources,
@@ -52,6 +55,20 @@ class CheckAnnouncement(WorkerBase):
             )
 
         self.TorrentClient = Settings.GetTorrentClient()
+
+    def __CheckSchedule(self):
+        # User jobs skip the schedule check
+        if self.ReleaseInfo.IsUserCreatedJob():
+            return
+        if self.ReleaseInfo.ScheduleTime == datetime.datetime.fromtimestamp(0, timezone.get_default_timezone()):
+            delay = self.ReleaseInfo.AnnouncementSource.AutomaticJobStartDelay
+            if not delay:
+                return
+            self.ReleaseInfo.ScheduleTime = timezone.now() + datetime.timedelta(minutes=delay)
+            self.ReleaseInfo.JobRunningState = ReleaseInfo.JobState.Scheduled
+            self.ReleaseInfo.ErrorMessage = ""
+            self.ReleaseInfo.save()
+            raise PtpUploaderException(ReleaseInfo.JobState.Scheduled, '')
 
     def __CheckAnnouncementSource(self):
         self.ReleaseInfo.logger().info(
