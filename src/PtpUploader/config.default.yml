@@ -13,16 +13,20 @@ web:
   address:
   # This is used for various scripts to send jobs to PtpUploader remotely
   api_key:
+  file_selector_root:
 # Settings for the upload forms and workers
 uploader:
+  # Files that are explicitly video
   video_files: [avi, divx, mkv, mp4, vob]
+  # Additional files wanted but not technically videos
   additional_files: [bup, idx, ifo, srt, sub]
   ignore_files: ['.*sample.*', '.*d-z0n3\.assistant\.rar']
+  # Controls the default settings for checkboxes on the upload form. Able to be overridden on a per-job basis.
   override_screenshots: false
   force_directoryless_single_file: false
   is_personal: false
-  release_notes: ''
   skip_duplicate_checking: false
+  release_notes: ''
 # rTorrent is preferred, although transmission is also supported
 client:
   use: rtorrent
@@ -86,5 +90,6 @@ source:
     allow_tags: ''
     ignore_tags: ''
   file:
+# Set commands to execute on specific actions
 hook:
   on_upload:
