@@ -13,13 +13,16 @@ from PtpUploader.PtpUploaderException import PtpUploaderException
 
 
 class Rtorrent:
-    def __init__(self):
+    def __init__(self, address):
         MyGlobals.Logger.info("Initializing PyroScope.")
-
-        proxy = config.engine.open()
-        if proxy is None:
-            load_config.ConfigLoader().load()
+        if address:
+            proxy = xmlrpc.RTorrentProxy(address)
+        else:
+            # Hacky singleton
             proxy = config.engine.open()
+            if proxy is None:
+                load_config.ConfigLoader().load()
+                proxy = config.engine.open()
         self.proxy = proxy
 
     # downloadPath is the final path. Suggested directory name from torrent won't be added to it.

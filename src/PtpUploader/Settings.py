@@ -161,7 +161,8 @@ class Settings:
         Settings.MediaInfoTimeOut = config.tools.mediainfo.timeout
 
         Settings.TorrentClientName = config.client.use
-        Settings.TorrentClientAddress = config["client"][config.client.use]["address"]
+        # Hack to let env var take precedence
+        Settings.TorrentClientAddress = config["client"][config.client.use.upper()]["ADDRESS"] or config["client"][config.client.use]["address"] 
 
         # Create required directories.
         Settings.GetAnnouncementInvalidPath().mkdir(parents=True, exist_ok=True)
@@ -181,7 +182,7 @@ class Settings:
             else:
                 from PtpUploader.Tool.Rtorrent import Rtorrent
 
-                Settings.TorrentClient = Rtorrent()
+                Settings.TorrentClient = Rtorrent(Settings.TorrentClientAddress)
         return Settings.TorrentClient
 
     @staticmethod
