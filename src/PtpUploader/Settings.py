@@ -12,7 +12,7 @@ from dynaconf import Dynaconf, Validator
 
 logger = logging.getLogger(__name__)
 config = Dynaconf(
-    envvar_prefix="PTPUP",
+    envvar_prefix=False,
     settings_files=[
         Path(Path(__file__).parent, "config.default.yml"),
         Path("~/.config/ptpuploader/config.yml").expanduser(),
