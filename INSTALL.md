@@ -27,40 +27,34 @@ PtpUploader has the ability to receive jobs from files placed in the announce fo
 job with some additional information. An example of using flexget and autodl-irssi to create these
 files is available in the repo.
 
-Installation details
-====================
+# Installation details
 
-PtpUploader needs Python. Only version 2.7 is supported (earlier versions may work, but no support is provided for them).
+PtpUploader needs Python 3.7+, as well as a couple other programs.
+The docker image contains all these images by default, and most distrubutions
+provide easy-to-install packages.
 
-Depends on the following Python packages:
-- PyV8: https://code.google.com/p/pyv8/
-  - Optional dependency, used by cfscrape to bypass CloudFlare.
-- transmissionrpc
-  - Optional: This is only needed for Transmission.
+Required external programs:
+- rTorrent or transmission
+  - if transmission is being used, the transmissionrpc package must be installed
+- One of: mpv (preferred), ffmpeg, mplayer
+- Mediainfo
 
-Required programs:
-- MediaInfo: http://mediainfo.sourceforge.net/
-- unrar: http://www.rarlab.com/rar_add.htm
+Optional external programs:
+- ImageMagick: Highly recommended for losslessly compressing PNG screenshots
+- FlexGet: Can be used to write announce files
+- autodl-irssi: Can	be used	to write announce files
 
-One of these is required for taking screenshots:
-- mpv: https://mpv.io/
-  - This is the recommended program
-- ffmpeg: http://www.ffmpeg.org/
-- MPlayer: http://www.mplayerhq.hu/
+## Upgrading
 
-Optional programs:
-- ImageMagick: http://www.imagemagick.org/
-  - Highly recommended for losslessly compressing the PNGs
-- FlexGet: http://flexget.com/
-- autodl-irssi: http://sourceforge.net/projects/autodl-irssi/
+For both installation methods, you can simply update the repo and follow
+the installation instructions again.
+```bash
+cd PtpUploader
+git pull
+# Re-do installation
+```
 
-One of the following torrent clients is required:
-- rTorrent: http://libtorrent.rakshasa.no/
-  - This is the recommended client. It supports fast resume.
-- Transmission: https://www.transmissionbt.com/
-
-Command line only usage
-=======================
+# Command line only usage
 
 PtpUploader can create release description (with media info and screenshots) for manual uploading from command line.
 ```
@@ -75,3 +69,10 @@ Syntax:
 
 Use the resulting torrent that starts with PTP for uploading to the tracker.
 
+# Using an external database
+
+By default PtpUploader will set up and use a SQLite database autoatically.
+For most setups, this will work perfectly fine, however if you want to
+use a separate database such as PostgreSQL or MySQL/MariaDB for
+performance (e.g. adding more workers) or conveience, that's possible
+via Django settings.

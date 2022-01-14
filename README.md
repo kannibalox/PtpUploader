@@ -16,23 +16,33 @@ There is also an automatic mode built-in that can check announcements from IRC o
 This is example is for Ubuntu, the exact command/package names may change depending on your distro
 ```bash
 sudo apt install python3 mpv imagemagick mediainfo
-## Optional but highly recommended
+```
+2. Install the python package
+```
+## Using a dedicated virtualenv is optional but highly recommended
 # sudo apt install python3-venv
 # virtualenv ~/.venv/ptpuploader/
 # source ~/.venv/ptpuploader/bin/activate
-## End optional section
-pip install https://github.com/kannibalox/PtpUploader/archive/refs/heads/main.tar.gz
+git clone https://github.com/kannibalox/PtpUploader.git
+cd PtpUploader/
+pip3 install .
 ```
-2. Create the config file
+3. Create the config file
 ```bash
 mkdir -pv ~/.config/ptpuploader/
 cp src/PtpUploader/config.default.yml ~/.config/ptpuploader/config.yml
 nano ~/.config/ptpuploader/config.yml # Edit config file as desired
 ```
-3. Start the process
+4. Start the process.
 ```bash
 python -m PtpUploader.manage runuploader 0.0.0.0:8000
 ```
+5. Add an admin user.
+```bash
+python -m PtpUploader.manage createsuperuser
+```
+6. Navigate to [http://localhost:8000/jobs] and enter the admin credentials.
+
 ### Docker
 
 1. Clone the repo
@@ -47,7 +57,7 @@ cp src/PtpUploader/config.default.yml ~/.config/ptpuploader/config.yml
 nano ~/.config/ptpuploader/config.yml # Edit config file as desired
 ```
 When running in docker, be sure to enter the address to rTorrent's SCGI port (**not** ruTorrent's port).
-2. Start the daemon in the background
+2. Build the image and start the daemon in the background
 ```bash
 sudo docker build -t ptpuploader .
 sudo docker run ptpuploader -d \
