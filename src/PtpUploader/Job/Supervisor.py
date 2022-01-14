@@ -35,6 +35,7 @@ from PtpUploader.Job.Delete import Delete
 from PtpUploader.Job.Upload import Upload
 from PtpUploader.PtpUploaderMessage import *
 from PtpUploader.ReleaseInfo import ReleaseInfo
+from PtpUploader.Settings import config
 
 
 logger = logging.getLogger(__name__)
@@ -47,7 +48,7 @@ class JobSupervisor(threading.Thread):
         self.message_queue: queue.SimpleQueue = queue.SimpleQueue()
         self.stop_requested: threading.Event = threading.Event()
         self.pool: futures.ThreadPoolExecutor = futures.ThreadPoolExecutor(
-            max_workers=2
+            max_workers=config.workers.threads
         )
 
     def __repr__(self):
