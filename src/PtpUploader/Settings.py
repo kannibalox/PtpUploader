@@ -137,7 +137,7 @@ class Settings:
             os.path.expanduser("~/.config/ptpuploader"), "scene_groups.txt"
         )
         if not scene_file.exists():
-            scene_file = Path(Path(__name__).parent, "SceneGroups.txt")
+            scene_file = Path(Path(__file__).parent, "SceneGroups.txt")
         Settings.SceneReleaserGroup = Settings.__LoadSceneGroups(scene_file)
 
         Settings.GreasemonkeyTorrentSenderPassword = config.web.api_key
