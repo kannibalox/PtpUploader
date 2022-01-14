@@ -6,13 +6,10 @@ ptp:
   username:
   password:
   passkey:
-
 web:
-  username:
-  password:
-  address:
   # This is used for various scripts to send jobs to PtpUploader remotely
   api_key:
+  # Allows controlling
   file_selector_root:
 # Settings for the upload forms and workers
 uploader:
@@ -27,16 +24,19 @@ uploader:
   is_personal: false
   skip_duplicate_checking: false
   release_notes: ''
+workers:
+  threads: 1 # With more than 1 thread, you may encounter database locks in sqlite
+  # Switching to mysql or postgres will fix those issues.
 # rTorrent is preferred, although transmission is also supported
 client:
   use: rtorrent
   rtorrent:
-    address: # This is optional for rTorrent, PtpUploader will attempt to automatically determine the SCGI port.
+    address: # If running next to rtorrent, PtpUploader will attempt to automatically determine the SCGI port.
   transmission:
     address:
 # Optional, can be used to set settings for specific programs
 tools:
-  # Only one of mpv, ffmpeg or mplayer is required. MPV is preferred, but PtpUploader will attempt to auto-detect
+  # Only one of mpv, ffmpeg or mplayer is required. mpv is preferred, but PtpUploader will attempt to auto-detect
   # whichever one is available.
   mpv:
     path: mpv
@@ -48,10 +48,8 @@ tools:
     path: mediainfo
     timeout: 60
   # Entirely optional, but useful for losslessly compressing screenshots
-  imagemagick:
-    path:
-  unrar:
-    path:
+  # imagemagick:
+  #   path: convert
 image_host:
   use: ptpimg
   ptpimg:
@@ -72,14 +70,14 @@ source:
 
     # Possible values: default (no effect), only, ignore
     scene: default
-    
+
     # Possible values: false (don't stop), before_downloading, before_extracting, before_uploading
     always_stop_before: false
-    
+
     # Possible values: false (don't stop), before_downloading, before_extracting
     stop_if_multiple_videos: false
 
-    # Possible values: false (don't stop, but it will throw an error before uploading), before_downloading
+    # Possible values: false (don't stop, but it will stil throw an error before uploading due to PTP's rules), before_downloading
     stop_if_art_missing: false
 
     # Possible values: false (don't stop), before_downloading
@@ -89,7 +87,15 @@ source:
     ignore_release_group: [aXXo, CrEwSaDe, DNL, EVO, FaNGDiNG0, FiCO, HDTime, iPlanet, KiNGDOM, nHD, nSD, NhaNc3, PRODJi, SANTi, ViSION, WAF, YIFY]
     allow_tags: ''
     ignore_tags: ''
-  file:
-# Set commands to execute on specific actions
-hook:
-  on_upload:
+  ## Example of site-specific configurations
+  # karagarga:
+  #   job_start_delay: 120
+  #   username: user
+  #   password: password
+  # cinemageddon:
+  #   username: user
+  #   password: password
+  # prowlarr:
+  #   url: https://prowlarr.example.com
+  #   api_key: apikey-apikey-apikey
+  # file:

@@ -22,10 +22,7 @@ config = Dynaconf(
     load_dotenv=True,
 )
 config.validators.register(
-    Validator("work_dir", must_exist=True),
-    Validator("ptp.username", must_exist=True),
-    Validator("ptp.password", must_exist=True),
-    Validator("ptp.announce", must_exist=True),
+    Validator("work_dir", "ptp.username", "ptp.password", "ptp.announce", must_exist=True, ne=''),
 )
 config.validators.validate()
 
