@@ -18,6 +18,7 @@ dynaconf = "^3.1.7"
 
 [tool.poetry.scripts]
 PtpUploader = "PtpUploader.manage:run"
+ReleaseInfoMaker = "PtpUploader.ReleaseInfoMaker:run"
 
 [tool.isort]
 profile = "black"

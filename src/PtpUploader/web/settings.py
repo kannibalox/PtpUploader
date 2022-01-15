@@ -88,7 +88,11 @@ DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.sqlite3",
         "NAME": Path(Settings.WorkingPath, "db.sqlite3"),
-    }
+    },
+    "memory": { # Required to trick ReleaseInfoMaker into working
+        "ENGINE": "django.db.backends.sqlite3",
+        "NAME": ":memory:"
+    },
 }
 
 

@@ -1,9 +1,9 @@
 import os
+import argparse
 
 import django
 
-
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "PtpUploader.Settings")
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "PtpUploader.web.settings")
 django.setup()
 
 from PtpUploader.IncludedFileList import IncludedFileList
@@ -15,7 +15,6 @@ from PtpUploader.ReleaseInfo import ReleaseInfo
 from PtpUploader.Settings import Settings
 from PtpUploader.Tool import Mktor
 
-
 class ReleaseInfoMaker:
     def __init__(self, path):
         self.Path = path
@@ -24,6 +23,8 @@ class ReleaseInfoMaker:
         self.TorrentDataPath = None
         self.VideoFiles = []
         self.AdditionalFiles = []
+        from django.core.management import call_command
+        call_command("migrate", database="memory", verbosity=0)
 
     def CollectVideoFiles(self):
         self.Path = os.path.abspath(self.Path)
@@ -53,10 +54,10 @@ class ReleaseInfoMaker:
             # We use same the directory where the file is as the working directory.
             # Release name will be the file's name without extension.
             self.WorkingDirectory, self.ReleaseName = os.path.split(self.Path)
-            self.ReleaseName, extension = os.path.splitext(self.ReleaseName)
+            self.ReleaseName, _ = os.path.splitext(self.ReleaseName)
             self.TorrentDataPath = self.WorkingDirectory
         else:
-            print(("Path '%s' doesn't exists!" % self.Path))
+            print(("Path '%s' doesn't exist!" % self.Path))
             return False
 
         return True
@@ -135,19 +136,15 @@ class ReleaseInfoMaker:
             )
 
 
-def Main():
-    import argparse
-
+def run():
     parser = argparse.ArgumentParser(
         description="PtpUploader Release Description Maker by TnS"
     )
 
-    group = parser.add_mutually_exclusive_group()
-
-    group.add_argument(
+    parser.add_argument(
         "--notorrent", action="store_true", help="skip creating and seeding the torrent"
     )
-    group.add_argument(
+    parser.add_argument(
         "--noscreens",
         action="store_true",
         help="skip creating and uploading screenshots",
@@ -166,4 +163,4 @@ def Main():
 
 
 if __name__ == "__main__":
-    Main()
+    run()
