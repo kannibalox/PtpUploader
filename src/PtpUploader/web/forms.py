@@ -95,7 +95,7 @@ class ReleaseForm(ModelForm):
         model = ReleaseInfo
         exclude = [
             "JobRunningState",
-            "ScheduleTimeUtc",
+            "ScheduleTime",
             "FinishedJobPhase",
             "Size",
         ]
