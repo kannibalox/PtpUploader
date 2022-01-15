@@ -12,7 +12,7 @@ from PtpUploader.Job.FinishedJobPhase import FinishedJobPhase
 from PtpUploader.Job.WorkerBase import WorkerBase
 from PtpUploader.MyGlobals import MyGlobals
 from PtpUploader.PtpImdbInfo import PtpImdbInfo, PtpZeroImdbInfo
-from PtpUploader.PtpUploaderException import *
+from PtpUploader.PtpUploaderException import PtpUploaderException
 from PtpUploader.ReleaseInfo import ReleaseInfo
 from PtpUploader.Settings import Settings
 
@@ -93,12 +93,12 @@ class CheckAnnouncement(WorkerBase):
             self.ReleaseInfo.AnnouncementSource is None
             and self.ReleaseInfo.AnnouncementId is not None
         ):
-            source, id = MyGlobals.SourceFactory.GetSourceAndIdByUrl(
+            source, source_id = MyGlobals.SourceFactory.GetSourceAndIdByUrl(
                 self.ReleaseInfo.AnnouncementId
             )
             if source is not None:
                 self.ReleaseInfo.AnnouncementSourceName = source.Name
-                self.ReleaseInfo.AnnouncementId = id
+                self.ReleaseInfo.AnnouncementId = source_id
                 self.ReleaseInfo.save()
         if self.ReleaseInfo.AnnouncementSource is None:
             raise PtpUploaderException(
@@ -164,11 +164,20 @@ class CheckAnnouncement(WorkerBase):
 
         # HD XviDs are not allowed.
         if (not self.ReleaseInfo.IsStandardDefinition()) and (
-            self.ReleaseInfo.Codec == "XviD" or self.ReleaseInfo.Codec == "DivX"
+            self.ReleaseInfo.Codec in ["XviD", "DivX"]
         ):
             raise PtpUploaderException(
                 ReleaseInfo.JobState.Ignored_Forbidden,
-                "HD XviDs and DivXs are not allowed.",
+                f"HD {self.ReleaseInfo.Codec}s are not allowed.",
+            )
+
+        # HD XviDs are not allowed.
+        if (not self.ReleaseInfo.IsStandardDefinition()) and (
+            self.ReleaseInfo.Source in ["DVD", "VHS"]
+        ):
+            raise PtpUploaderException(
+                ReleaseInfo.JobState.Ignored_Forbidden,
+                f"HD {self.ReleaseInfo.Source} rips are not allowed.",
             )
 
         # We only support VOB IFO container for DVD images.
