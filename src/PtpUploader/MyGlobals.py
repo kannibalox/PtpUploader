@@ -65,7 +65,7 @@ class MyGlobalsClass:
             else:
                 from PtpUploader.Tool.Rtorrent import Rtorrent
 
-                self.TorrentClient = Rtorrent()
+                self.TorrentClient = Rtorrent(Settings.TorrentClientAddress)
         return self.TorrentClient
 
 

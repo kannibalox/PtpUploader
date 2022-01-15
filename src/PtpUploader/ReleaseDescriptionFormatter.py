@@ -148,7 +148,7 @@ class ReleaseDescriptionFormatter:
                     videoEntry.MediaInfo.DurationInSec,
                     videoEntry.NumberOfScreenshotsToTake,
                 )
-                self.ReleaseInfo.save()
+                # self.ReleaseInfo.save() # TODO: Rework ReleaseInfoMaker to allow this
             videoEntry.Screenshots = self.ReleaseInfo.Screenshots[path]
 
     def Format(self, includeReleaseName):

@@ -23,8 +23,6 @@ class ReleaseInfoMaker:
         self.TorrentDataPath = None
         self.VideoFiles = []
         self.AdditionalFiles = []
-        from django.core.management import call_command
-        call_command("migrate", database="memory", verbosity=0)
 
     def CollectVideoFiles(self):
         self.Path = os.path.abspath(self.Path)
