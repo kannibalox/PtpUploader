@@ -63,8 +63,14 @@ Optional external programs:
 
 ## Upgrading
 
-For both installation methods, you can simply update the repo and follow
+For both installation methods, you can simply update the repo, stop the daemon and follow
 the installation instructions again.
+
+When stopping the daemon in docker, be sure to fully remove the existing container:
+```bash
+sudo docker rm ptpuploader
+```
+
 ```bash
 cd PtpUploader
 git pull
@@ -75,7 +81,7 @@ git pull
 
 PtpUploader can create release description (with media info and screenshots) for manual uploading from command line.
 ```
-source ~/.local/ptpuploader/bin/activate
+# source ~/.local/ptpuploader/bin/activate # Optional, if a virtualenv was used during installation.
 ReleaseInfoMaker --help
 ```
 
