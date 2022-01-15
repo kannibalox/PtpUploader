@@ -9,6 +9,7 @@ from pathlib import Path
 
 from dynaconf import Dynaconf, Validator
 
+from PtpUploader.PtpUploaderException import PtpUploaderException
 
 logger = logging.getLogger(__name__)
 config = Dynaconf(
@@ -21,10 +22,6 @@ config = Dynaconf(
     environments=False,
     load_dotenv=True,
 )
-config.validators.register(
-    Validator("work_dir", "ptp.username", "ptp.password", "ptp.announce", must_exist=True, ne=''),
-)
-config.validators.validate()
 
 
 class Settings:
@@ -101,11 +98,15 @@ class Settings:
 
     @staticmethod
     def LoadSettings():
+        if not (config.ptp.passkey and config.ptp.username and config.ptp.password):
+            raise PtpUploaderException("Make sure the username, password and passkey are set in the config!")
+        if not config.work_dir:
+            raise PtpUploaderException("Make sure the work directory is set in the config!")
         Settings.VideoExtensionsToUpload = config.uploader.video_files
         Settings.AdditionalExtensionsToUpload = config.uploader.additional_files
         Settings.TorrentClient = None
         Settings.IgnoreFile = config.uploader.ignore_files
-        Settings.PtpAnnounceUrl = config.ptp.announce
+        Settings.PtpAnnounceUrl = config.ptp.passkey
         Settings.PtpUserName = config.ptp.username
         Settings.PtpPassword = config.ptp.password
 
