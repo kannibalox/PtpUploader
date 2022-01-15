@@ -57,6 +57,7 @@ class ReleaseDescriptionFormatter:
         # Get all IFOs.
         ifos = []
         for file in self.AdditionalFiles:
+            file = Path(file)
             if file.suffix == ".IFO":
                 mediaInfo = MediaInfo(
                     logger,

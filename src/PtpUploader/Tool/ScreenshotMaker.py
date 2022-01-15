@@ -4,7 +4,7 @@ import shutil
 
 from PtpUploader.ImageHost.ImageUploader import ImageUploader
 from PtpUploader.PtpUploaderException import PtpUploaderException
-from PtpUploader.Settings import Settings
+from PtpUploader.Settings import Settings, config
 from PtpUploader.Tool.Ffmpeg import Ffmpeg
 from PtpUploader.Tool.ImageMagick import ImageMagick
 from PtpUploader.Tool.Mplayer import Mplayer
@@ -16,14 +16,21 @@ class ScreenshotMaker:
         self.Logger = logger
 
         self.InternalScreenshotMaker = None
+        use = config.tools.screenshot_tool
 
-        # TODO: Why is this conditional being done up here just to repeat it further down?
-        if shutil.which(Settings.MpvPath):
+        if use == "mpv":
             self.InternalScreenshotMaker = Mpv(logger, inputVideoPath)
-        elif shutil.which(Settings.MplayerPath):
-            self.InternalScreenshotMaker = Mplayer(logger, inputVideoPath)
-        elif shutil.which(Settings.FfmpegPath):
+        elif use == "ffmpeg":
             self.InternalScreenshotMaker = Ffmpeg(logger, inputVideoPath)
+        elif use == "mplayer":
+            self.InternalScreenshotMaker = Mplayer(logger, inputVideoPath)
+        else:
+            if shutil.which(Settings.MpvPath):
+                self.InternalScreenshotMaker = Mpv(logger, inputVideoPath)
+            elif shutil.which(Settings.FfmpegPath):
+                self.InternalScreenshotMaker = Ffmpeg(logger, inputVideoPath)
+            elif shutil.which(Settings.MplayerPath):
+                self.InternalScreenshotMaker = Mplayer(logger, inputVideoPath)
         if self.InternalScreenshotMaker is None:
             raise PtpUploaderException("No screenshot tool found")
 
@@ -31,8 +38,9 @@ class ScreenshotMaker:
         return self.InternalScreenshotMaker.ScaleSize
 
     def __MakeUsingMplayer(self, timeInSeconds, outputImageDirectory):
+        outputPngPath = os.path.join(outputImageDirectory, "00000001.png")
         return self.InternalScreenshotMaker.MakeScreenshotInPng(
-            timeInSeconds, outputImageDirectory
+            timeInSeconds, outputPngPath
         )
 
     def __MakeUsingMpv(self, timeInSeconds, outputImageDirectory):
@@ -41,38 +49,24 @@ class ScreenshotMaker:
         return outputPngPath
 
     def __MakeUsingFfmpeg(self, timeInSeconds, outputImageDirectory):
-        outputPngPath = os.path.join(outputImageDirectory, "00000001.png")
-        self.InternalScreenshotMaker.MakeScreenshotInPng(timeInSeconds, outputPngPath)
         return outputPngPath
 
     # Returns with the URL of the uploaded image.
     def __TakeAndUploadScreenshot(self, timeInSeconds, outputImageDirectory):
-        screenshotPath = None
-
         try:
-            if shutil.which(Settings.MpvPath):
-                screenshotPath = self.__MakeUsingMpv(
-                    timeInSeconds, outputImageDirectory
-                )
-            elif shutil.which(Settings.MplayerPath):
-                screenshotPath = self.__MakeUsingMplayer(
-                    timeInSeconds, outputImageDirectory
-                )
-            elif shutil.which(Settings.FfmpegPath):
-                screenshotPath = self.__MakeUsingFfmpeg(
-                    timeInSeconds, outputImageDirectory
-                )
+            outputPngPath = os.path.join(outputImageDirectory, "00000001.png")
+            self.InternalScreenshotMaker.MakeScreenshotInPng(timeInSeconds, outputPngPath)
 
             if Settings.ImageMagickConvertPath and shutil.which(
                 Settings.ImageMagickConvertPath
             ):
-                ImageMagick.OptimizePng(self.Logger, screenshotPath)
+                ImageMagick.OptimizePng(self.Logger, outputPngPath)
 
-            imageUrl = ImageUploader.Upload(self.Logger, imagePath=screenshotPath)
+            imageUrl = ImageUploader.Upload(self.Logger, imagePath=outputPngPath)
         finally:
             try:
-                if screenshotPath is not None:
-                    os.remove(screenshotPath)
+                if outputPngPath is not None:
+                    os.remove(outputPngPath)
             except FileNotFoundError:
                 pass
 

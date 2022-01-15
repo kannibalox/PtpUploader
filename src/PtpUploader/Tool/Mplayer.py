@@ -73,13 +73,12 @@ class Mplayer:
         if outputWidth != width or outputHeight != height:
             self.ScaleSize = "%sx%s" % (outputWidth, outputHeight)
 
-    def MakeScreenshotInPng(self, timeInSeconds, outputDirectory):
+    def MakeScreenshotInPng(self, timeInSeconds, outputPngPath):
         self.Logger.info(
             "Making screenshot with MPlayer from '%s' to '%s'."
-            % (self.InputVideoPath, outputDirectory)
+            % (self.InputVideoPath, outputPngPath)
         )
 
-        outputPngPath = os.path.join(outputDirectory, "00000001.png")
         if os.path.exists(outputPngPath):
             raise PtpUploaderException(
                 "Can't create screenshot because file '%s' already exists."

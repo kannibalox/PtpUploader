@@ -41,6 +41,7 @@ client:
 tools:
   # Only one of mpv, ffmpeg or mplayer is required. mpv is preferred, but PtpUploader will attempt to auto-detect
   # whichever one is available.
+  screenshot_tool: auto
   mpv:
     path: mpv
   ffmpeg:
