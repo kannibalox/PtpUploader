@@ -1,6 +1,8 @@
+import contextlib
 import functools
 import os
 import shutil
+import tempfile
 
 from PtpUploader.ImageHost.ImageUploader import ImageUploader
 from PtpUploader.PtpUploaderException import PtpUploaderException
@@ -10,6 +12,29 @@ from PtpUploader.Tool.ImageMagick import ImageMagick
 from PtpUploader.Tool.Mplayer import Mplayer
 from PtpUploader.Tool.Mpv import Mpv
 
+# Blatantly stolen from https://stackoverflow.com/a/57701186
+@contextlib.contextmanager
+def temporary_filename(suffix=None):
+  """Context that introduces a temporary file.
+
+  Creates a temporary file, yields its name, and upon context exit, deletes it.
+  (In contrast, tempfile.NamedTemporaryFile() provides a 'file' object and
+  deletes the file as soon as that file object is closed, so the temporary file
+  cannot be safely re-opened by another library or process.)
+
+  Args:
+    suffix: desired filename extension (e.g. '.mp4').
+
+  Yields:
+    The name of the temporary file.
+  """
+  try:
+    f = tempfile.NamedTemporaryFile(suffix=suffix, delete=False)
+    tmp_name = f.name
+    f.close()
+    yield tmp_name
+  finally:
+    os.unlink(tmp_name)
 
 class ScreenshotMaker:
     def __init__(self, logger, inputVideoPath):
@@ -37,24 +62,9 @@ class ScreenshotMaker:
     def GetScaleSize(self):
         return self.InternalScreenshotMaker.ScaleSize
 
-    def __MakeUsingMplayer(self, timeInSeconds, outputImageDirectory):
-        outputPngPath = os.path.join(outputImageDirectory, "00000001.png")
-        return self.InternalScreenshotMaker.MakeScreenshotInPng(
-            timeInSeconds, outputPngPath
-        )
-
-    def __MakeUsingMpv(self, timeInSeconds, outputImageDirectory):
-        outputPngPath = os.path.join(outputImageDirectory, "00000001.png")
-        self.InternalScreenshotMaker.MakeScreenshotInPng(timeInSeconds, outputPngPath)
-        return outputPngPath
-
-    def __MakeUsingFfmpeg(self, timeInSeconds, outputImageDirectory):
-        return outputPngPath
-
     # Returns with the URL of the uploaded image.
     def __TakeAndUploadScreenshot(self, timeInSeconds, outputImageDirectory):
-        try:
-            outputPngPath = os.path.join(outputImageDirectory, "00000001.png")
+        with temporary_filename('.png') as outputPngPath:
             self.InternalScreenshotMaker.MakeScreenshotInPng(timeInSeconds, outputPngPath)
 
             if Settings.ImageMagickConvertPath and shutil.which(
@@ -63,12 +73,6 @@ class ScreenshotMaker:
                 ImageMagick.OptimizePng(self.Logger, outputPngPath)
 
             imageUrl = ImageUploader.Upload(self.Logger, imagePath=outputPngPath)
-        finally:
-            try:
-                if outputPngPath is not None:
-                    os.remove(outputPngPath)
-            except FileNotFoundError:
-                pass
 
         return imageUrl
 

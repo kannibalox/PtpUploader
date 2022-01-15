@@ -79,12 +79,6 @@ class Mplayer:
             % (self.InputVideoPath, outputPngPath)
         )
 
-        if os.path.exists(outputPngPath):
-            raise PtpUploaderException(
-                "Can't create screenshot because file '%s' already exists."
-                % outputPngPath
-            )
-
         # mplayer -ss 101 -vo png:z=9:outdir="/home/tnsuser/temp/a b/" -frames 1 -vf scale=0:0 -nosound -nosub -noautosub -nolirc a.vob
         # outdir is not working with the Windows version of MPlayer, so for the sake of easier testing we set the output directory with by setting the current working directory.
         # -vf scale=0:0 -- use display aspect ratio

@@ -77,12 +77,6 @@ class Ffmpeg:
             % (self.InputVideoPath, outputPngPath)
         )
 
-        if os.path.exists(outputPngPath):
-            raise PtpUploaderException(
-                "Can't create screenshot because file '%s' already exists."
-                % outputPngPath
-            )
-
         # -an: disable audio
         # -sn: disable subtitle
         # There is no way to set PNG compression level. :(

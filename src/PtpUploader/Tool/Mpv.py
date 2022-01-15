@@ -17,12 +17,6 @@ class Mpv:
             % (self.InputVideoPath, outputPngPath)
         )
 
-        if os.path.exists(outputPngPath):
-            raise PtpUploaderException(
-                "Can't create screenshot because file '%s' already exists."
-                % outputPngPath
-            )
-
         args = [
             Settings.MpvPath,
             "--no-config",
