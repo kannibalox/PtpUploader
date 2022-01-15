@@ -162,4 +162,13 @@ LOGGING = {
 }
 
 
-settings = dynaconf.DjangoDynaconf(__name__)
+settings = dynaconf.DjangoDynaconf(
+    __name__,
+    SETTINGS_FILE_FOR_DYNACONF=[
+        Path(Path(__file__).parent, "config.default.yml"),
+	Path("~/.config/ptpuploader/config.yml").expanduser(),
+        ".secrets.yaml",
+    ],
+    ENVIRONMENTS_FOR_DYNACONF=False
+)
+print(settings.items())
