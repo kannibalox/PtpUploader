@@ -40,11 +40,11 @@ nano ~/.config/ptpuploader/config.yml # Edit config file as needed
 ```
 4. Start the process:
 ```bash
-python -m PtpUploader.manage runuploader 0.0.0.0:8000
+PtpUploader runuploader
 ```
 5. Add an admin user:
 ```bash
-python -m PtpUploader.manage createsuperuser
+PtpUploader createsuperuser
 ```
 6. Navigate to [http://localhost:8000/jobs] and enter the admin credentials.
 
