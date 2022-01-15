@@ -13,6 +13,7 @@ from PtpUploader.NfoParser import NfoParser
 from PtpUploader.PtpUploaderException import PtpUploaderException
 from PtpUploader.ReleaseExtractor import ReleaseExtractor
 from PtpUploader.Settings import Settings
+from PtpUploader.ReleaseNameParser import ReleaseNameParser
 from PtpUploader.Source.SourceBase import SourceBase
 
 
@@ -56,6 +57,10 @@ class Prowlarr(SourceBase):
                 releaseInfo.ReleaseName = field.text
             if field.tag == "size" and not releaseInfo.Size:
                 releaseInfo.Size = field.text
+        releaseNameParser = ReleaseNameParser(releaseInfo.ReleaseName)
+        releaseNameParser.GetSourceAndFormat(releaseInfo)
+        if releaseNameParser.Scene:
+            releaseInfo.SetSceneRelease()
 
     def match_imdb(self, releaseInfo):
         indexer = self.get_indexer(releaseInfo)
