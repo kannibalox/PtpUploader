@@ -95,6 +95,7 @@ class Command(BaseCommand):
         return get_internal_wsgi_application()
 
     def initialize(self, options):
+        from django.core.management import call_command
         from django.core.management.commands import migrate
         from django.db import DEFAULT_DB_ALIAS
 
@@ -105,23 +106,12 @@ class Command(BaseCommand):
 
         Settings.LoadSettings()
 
+        call_command('migrate')
+
         MyGlobals.InitializeGlobals(Settings.WorkingPath)
         MyGlobals.SourceFactory = SourceFactory()
         MyGlobals.Logger.info("Initializing database.")
 
-        migrate.Command().handle(
-            **options,
-            database=DEFAULT_DB_ALIAS,
-            skip_checks=False,
-            interactive=False,
-            run_syncdb=True,
-            app_label=None,
-            check_unapplied=False,
-            plan=False,
-            verbose=1,
-            fake=False,
-            fake_initial=False
-        )
 
         # Reset any possibling interrupted jobs
         for releaseInfo in ReleaseInfo.objects.filter(
