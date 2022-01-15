@@ -48,8 +48,10 @@ tools:
     path: mediainfo
     timeout: 60
   # Entirely optional, but useful for losslessly compressing screenshots
-  # imagemagick:
-  #   path: convert
+  imagemagick:
+    path: convert
+  unrar:
+    path:
 image_host:
   use: ptpimg
   ptpimg:
@@ -99,3 +101,6 @@ source:
   #   url: https://prowlarr.example.com
   #   api_key: apikey-apikey-apikey
   # file:
+# Allows running arbitrary commands after a successful run
+hook:
+  on_upload:
