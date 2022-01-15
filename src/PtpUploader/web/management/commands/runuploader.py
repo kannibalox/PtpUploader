@@ -95,13 +95,13 @@ class Command(BaseCommand):
         return get_internal_wsgi_application()
 
     def initialize(self, options):
-        from PtpUploader.Source.SourceFactory import SourceFactory
+        from django.core.management.commands import migrate
+        from django.db import DEFAULT_DB_ALIAS
+
         from PtpUploader.Job.JobRunningState import JobRunningState
         from PtpUploader.MyGlobals import MyGlobals
         from PtpUploader.ReleaseInfo import ReleaseInfo
-
-        from django.core.management.commands import migrate
-        from django.db import DEFAULT_DB_ALIAS
+        from PtpUploader.Source.SourceFactory import SourceFactory
 
         Settings.LoadSettings()
 
@@ -109,7 +109,19 @@ class Command(BaseCommand):
         MyGlobals.SourceFactory = SourceFactory()
         MyGlobals.Logger.info("Initializing database.")
 
-        migrate.Command().handle(**options, database=DEFAULT_DB_ALIAS, skip_checks=False, interactive=False, run_syncdb=True, app_label=None, check_unapplied=False, plan=False, verbose=1, fake=False, fake_initial=False)
+        migrate.Command().handle(
+            **options,
+            database=DEFAULT_DB_ALIAS,
+            skip_checks=False,
+            interactive=False,
+            run_syncdb=True,
+            app_label=None,
+            check_unapplied=False,
+            plan=False,
+            verbose=1,
+            fake=False,
+            fake_initial=False
+        )
 
         # Reset any possibling interrupted jobs
         for releaseInfo in ReleaseInfo.objects.filter(

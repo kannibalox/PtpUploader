@@ -11,6 +11,7 @@ from dynaconf import Dynaconf, Validator
 
 from PtpUploader.PtpUploaderException import PtpUploaderException
 
+
 logger = logging.getLogger(__name__)
 config = Dynaconf(
     envvar_prefix=False,
@@ -99,9 +100,13 @@ class Settings:
     @staticmethod
     def LoadSettings():
         if not (config.ptp.passkey and config.ptp.username and config.ptp.password):
-            raise PtpUploaderException("Make sure the username, password and passkey are set in the config!")
+            raise PtpUploaderException(
+                "Make sure the username, password and passkey are set in the config!"
+            )
         if not config.work_dir:
-            raise PtpUploaderException("Make sure the work directory is set in the config!")
+            raise PtpUploaderException(
+                "Make sure the work directory is set in the config!"
+            )
         Settings.VideoExtensionsToUpload = config.uploader.video_files
         Settings.AdditionalExtensionsToUpload = config.uploader.additional_files
         Settings.TorrentClient = None
@@ -160,7 +165,10 @@ class Settings:
 
         Settings.TorrentClientName = config.client.use
         # Hack to let env var take precedence
-        Settings.TorrentClientAddress = config["client"][config.client.use.upper()]["ADDRESS"] or config["client"][config.client.use]["address"] 
+        Settings.TorrentClientAddress = (
+            config["client"][config.client.use.upper()]["ADDRESS"]
+            or config["client"][config.client.use]["address"]
+        )
 
         # Create required directories.
         Settings.GetAnnouncementInvalidPath().mkdir(parents=True, exist_ok=True)

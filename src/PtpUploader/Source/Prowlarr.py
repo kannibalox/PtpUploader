@@ -12,8 +12,8 @@ from PtpUploader.IncludedFileList import IncludedFileList
 from PtpUploader.NfoParser import NfoParser
 from PtpUploader.PtpUploaderException import PtpUploaderException
 from PtpUploader.ReleaseExtractor import ReleaseExtractor
-from PtpUploader.Settings import Settings
 from PtpUploader.ReleaseNameParser import ReleaseNameParser
+from PtpUploader.Settings import Settings
 from PtpUploader.Source.SourceBase import SourceBase
 
 
@@ -66,7 +66,7 @@ class Prowlarr(SourceBase):
         indexer = self.get_indexer(releaseInfo)
         response = self.session.get(
             f"{self.Url}/api/v1/indexer/{indexer['id']}/newznab",
-            params={"t": "movie", "imdbid": 'tt' + str(releaseInfo.ImdbId)},
+            params={"t": "movie", "imdbid": "tt" + str(releaseInfo.ImdbId)},
         )
         for i in ET.fromstring(response.text)[0].findall("item"):
             for field in i:

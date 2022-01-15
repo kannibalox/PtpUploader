@@ -41,7 +41,12 @@ class Rtorrent:
         metafile.check_meta(torrentData)
         infoHash = metafile.info_hash(torrentData)
 
-        self.proxy.load.raw_start("", contents, f'd.directory_base.set="{downloadPath}"', "d.custom.set=ptpuploader,true")
+        self.proxy.load.raw_start(
+            "",
+            contents,
+            f'd.directory_base.set="{downloadPath}"',
+            "d.custom.set=ptpuploader,true",
+        )
 
         # If load_raw is slow then set_directory_base throws an exception (Fault: <Fault -501: 'Could not find info-hash.'>),
         # so we retry adding the torrent some delay.
@@ -110,8 +115,9 @@ class Rtorrent:
             raise e
         except Exception:
             logger.exception(
-                "Got exception while trying to check torrent's completion status. hash: '%s', error: '%s'"
-                , infoHash, e
+                "Got exception while trying to check torrent's completion status. hash: '%s', error: '%s'",
+                infoHash,
+                e,
             )
 
         return False

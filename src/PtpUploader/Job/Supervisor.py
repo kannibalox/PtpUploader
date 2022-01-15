@@ -16,18 +16,18 @@ holder.
 It's called the JobSupervisor because supervisors are better than managers.
 """
 
+import datetime
 import logging
 import queue
 import threading
 import traceback
-import datetime
 
 from concurrent import futures
 from typing import Dict, List
 
-from pyrosimple.util import xmlrpc
-from django.utils import timezone
 from django.db.models import Q
+from django.utils import timezone
+from pyrosimple.util import xmlrpc
 
 from PtpUploader.Job import LoadFile
 from PtpUploader.Job.CheckAnnouncement import CheckAnnouncement
@@ -110,7 +110,11 @@ class JobSupervisor(threading.Thread):
     def scan_db(self):
         """Find releases pending work by their DB status"""
         for release in ReleaseInfo.objects.filter(
-                Q(JobRunningState=ReleaseInfo.JobState.WaitingForStart) | (Q(ScheduleTime__lte=timezone.now()) & Q(JobRunningState=ReleaseInfo.JobState.Scheduled))
+            Q(JobRunningState=ReleaseInfo.JobState.WaitingForStart)
+            | (
+                Q(ScheduleTime__lte=timezone.now())
+                & Q(JobRunningState=ReleaseInfo.JobState.Scheduled)
+            )
         ):
             if release.Id not in self.futures.keys():
                 logger.info("Launching check job for %s", release.Id)
@@ -132,7 +136,10 @@ class JobSupervisor(threading.Thread):
         release = ReleaseInfo.objects.get(Id=releaseId)
         if release.Id in self.futures.keys():
             pass
-        elif release.JobRunningState in [ReleaseInfo.JobState.InDownload, ReleaseInfo.JobState.Scheduled]:
+        elif release.JobRunningState in [
+            ReleaseInfo.JobState.InDownload,
+            ReleaseInfo.JobState.Scheduled,
+        ]:
             release.JobRunningState = ReleaseInfo.JobState.Paused
             release.save()
 

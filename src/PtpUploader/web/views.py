@@ -240,7 +240,11 @@ def jobs_json(_):
 
         # Format scheduled items with a dynamic sub-message
         if release.JobRunningState == ReleaseInfo.JobState.Scheduled:
-            entry['ErrorMessage'] = "Scheduled to  run in " + TimeDifferenceToText(release.ScheduleTime - timezone.now(), agoText='', noDifferenceText="just a moment")
+            entry["ErrorMessage"] = "Scheduled to  run in " + TimeDifferenceToText(
+                release.ScheduleTime - timezone.now(),
+                agoText="",
+                noDifferenceText="just a moment",
+            )
 
     return JsonResponse({"data": entries, "settings": settings})
 
