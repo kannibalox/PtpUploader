@@ -15,6 +15,7 @@ from django.utils.regex_helper import _lazy_re_compile
 
 from PtpUploader.Job import Supervisor
 from PtpUploader.MyGlobals import MyGlobals
+from PtpUploader.Settings import Settings
 
 
 naiveip_re = _lazy_re_compile(
@@ -93,7 +94,37 @@ class Command(BaseCommand):
             return StaticFilesHandler(get_internal_wsgi_application())
         return get_internal_wsgi_application()
 
+    def initialize(self, options):
+        from PtpUploader.Source.SourceFactory import SourceFactory
+        from PtpUploader.Job.JobRunningState import JobRunningState
+        from PtpUploader.MyGlobals import MyGlobals
+        from PtpUploader.ReleaseInfo import ReleaseInfo
+
+        from django.core.management.commands import migrate
+        from django.db import DEFAULT_DB_ALIAS
+
+        Settings.LoadSettings()
+
+        MyGlobals.InitializeGlobals(Settings.WorkingPath)
+        MyGlobals.SourceFactory = SourceFactory()
+        MyGlobals.Logger.info("Initializing database.")
+
+        migrate.Command().handle(**options, database=DEFAULT_DB_ALIAS, skip_checks=False, interactive=False, run_syncdb=True, app_label=None, check_unapplied=False, plan=False, verbose=1, fake=False, fake_initial=False)
+
+        # Reset any possibling interrupted jobs
+        for releaseInfo in ReleaseInfo.objects.filter(
+            JobRunningState__in=[
+                JobRunningState.WaitingForStart,
+                JobRunningState.InProgress,
+            ]
+        ):
+            releaseInfo.JobRunningState = JobRunningState.Paused
+            releaseInfo.save()
+
+        Settings.VerifyPaths()
+
     def handle(self, *args, **options):
+        self.initialize(options)
         if not settings.DEBUG and not settings.ALLOWED_HOSTS:
             raise CommandError("You must set settings.ALLOWED_HOSTS if DEBUG is False.")
 

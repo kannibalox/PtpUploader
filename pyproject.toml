@@ -4,7 +4,7 @@ version = "0.9.0"
 description = "A small uploader for a mildly popular movie site"
 authors = ["kannibalox <kannibalox@gmail.com>"]
 packages = [
-  { include = "src/PtpUploader" }
+  { include = "PtpUploader", from = "src" }
 ]
 
 [tool.poetry.dependencies]
@@ -15,6 +15,9 @@ guessit = "^3.3.1"
 imdbpy = {git = "https://github.com/alberanid/imdbpy"}
 pyrosimple = {url = "https://github.com/kannibalox/pyrosimple/archive/refs/heads/main.tar.gz"}
 dynaconf = "^3.1.7"
+
+[tool.poetry.scripts]
+PtpUploader = "PtpUploader.manage:run"
 
 [tool.isort]
 profile = "black"
