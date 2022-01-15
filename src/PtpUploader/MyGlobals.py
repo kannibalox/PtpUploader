@@ -35,12 +35,14 @@ class MyGlobalsClass:
             pass
 
     def InitializeGlobals(self, workingPath):
+        from PtpUploader.Settings import config
         self.InitializeLogger(workingPath)
         self.PtpSubtitle = PtpSubtitle()
         self.cookie_file: Path = Path(workingPath).joinpath("cookies.pickle")
-        if self.cookie_file.exists():
+        self.cookie_file: Path = Path(config.cookie_file).expanduser()
+        if self.cookie_file.exists() and self.cookie_file.is_file():
             with self.cookie_file.open("rb") as fh:
-                self.session.cookies = pickle.load(fh)
+                    self.session.cookies = pickle.load(fh)
 
     def SaveCookies(self):
         with self.cookie_file.open("wb") as fh:

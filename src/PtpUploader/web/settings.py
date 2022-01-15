@@ -171,4 +171,3 @@ settings = dynaconf.DjangoDynaconf(
     ],
     ENVIRONMENTS_FOR_DYNACONF=False
 )
-print(settings.items())

@@ -27,6 +27,9 @@ uploader:
 workers:
   threads: 1 # With more than 1 thread, you may encounter database locks in sqlite
   # Switching to mysql or postgres will fix those issues.
+# Stores cookies to avoid multiple logins, safe to delete if you're having login issues
+# It can be set to `/dev/null`  to avoid saving cookies
+cookie_file: ~/.config/ptpuploader/cookies.pickle
 # rTorrent is preferred, although transmission is also supported
 client:
   use: rtorrent
