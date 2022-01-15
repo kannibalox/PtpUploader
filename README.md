@@ -65,14 +65,14 @@ When running in docker, be sure to enter the address to rTorrent's SCGI port (**
 2. Build the image and start the daemon in the background
 ```bash
 sudo docker build -t ptpuploader .
-sudo docker run ptpuploader -d \
-    -v "$PWD/data":/data \
-    -v $HOME/.config/ptpuploader/:/root/.config/ptpuploader/:ro
-    -p 8000:8000
+sudo docker run --name ptpuploader -d \
+    -v YOUR_WORK_DIR:YOUR_WORK_DIR \ # modify to match your work_dir in config.yml
+    -v $HOME/.config/ptpuploader/:/root/.config/ptpuploader/
+    -p 8000:8000 ptpuploader
 ```
 3. Add an admin user.
 ```bash
-sudo docker exec -it ptpuploader -d createsuperuser
+sudo docker exec -it ptpuploader PtpUploader createsuperuser
 ```
 4. Navigate to [http://localhost:8000/jobs] and enter the admin credentials.
 
