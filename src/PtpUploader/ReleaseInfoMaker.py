@@ -72,7 +72,7 @@ class ReleaseInfoMaker:
 
                 return
 
-    def SaveReleaseDescripionFile(
+    def SaveReleaseDescriptionFile(
         self, logger, releaseDescriptionFilePath, createScreens
     ):
         releaseInfo = ReleaseInfo()
@@ -122,7 +122,7 @@ class ReleaseInfoMaker:
             return
 
         # Save the release description.
-        self.SaveReleaseDescripionFile(
+        self.SaveReleaseDescriptionFile(
             logger, releaseDescriptionFilePath, createScreens
         )
 

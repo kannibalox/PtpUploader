@@ -91,7 +91,3 @@ Syntax:
 * `ReleaseInfoMaker --noscreens <target directory or filename>` creates the release description, without screenshots.
 
 Use the resulting torrent that starts with PTP for uploading to the tracker.
-
-
-
-
