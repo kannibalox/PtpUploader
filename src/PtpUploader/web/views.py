@@ -140,6 +140,7 @@ def bulk_upload(request):
         if form.is_valid():
             for link in form.cleaned_data["Links"].split("\n"):
                 release = ReleaseInfo(AnnouncementId=link)
+                release.JobStartMode = JobStartMode.Manual
                 if "post_stop_before" in request.POST:
                     release.StopBeforeUploading = True
                 else:
@@ -153,6 +154,7 @@ def bulk_upload(request):
                 release.AnnouncementSourceName = "file"
                 release.ReleaseDownloadPath = path
                 release.ReleaseName = path.name
+                release.JobStartMode = JobStartMode.Manual
                 if "post_stop_before" in request.POST:
                     release.StopBeforeUploading = True
                 else:
