@@ -41,20 +41,19 @@ class ScreenshotMaker:
         self.Logger = logger
 
         self.InternalScreenshotMaker = None
-        use = config.tools.screenshot_tool
 
-        if use == "mpv":
+        if config.tools.screenshot_tool == "mpv":
             self.InternalScreenshotMaker = Mpv(logger, inputVideoPath)
-        elif use == "ffmpeg":
+        elif config.tools.screenshot_tool == "ffmpeg":
             self.InternalScreenshotMaker = Ffmpeg(logger, inputVideoPath)
-        elif use == "mplayer":
+        elif config.tools.screenshot_tool == "mplayer":
             self.InternalScreenshotMaker = Mplayer(logger, inputVideoPath)
         else:
-            if shutil.which(Settings.MpvPath):
+            if Settings.MpvPath and shutil.which(Settings.MpvPath):
                 self.InternalScreenshotMaker = Mpv(logger, inputVideoPath)
-            elif shutil.which(Settings.FfmpegPath):
+            elif Settings.FfmpegPath and shutil.which(Settings.FfmpegPath):
                 self.InternalScreenshotMaker = Ffmpeg(logger, inputVideoPath)
-            elif shutil.which(Settings.MplayerPath):
+            elif Settings.MplayerPath and shutil.which(Settings.MplayerPath):
                 self.InternalScreenshotMaker = Mplayer(logger, inputVideoPath)
         if self.InternalScreenshotMaker is None:
             raise PtpUploaderException("No screenshot tool found")
