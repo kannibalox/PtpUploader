@@ -81,7 +81,7 @@ git pull
 
 PtpUploader can create release description (with media info and screenshots) for manual uploading from command line.
 ```
-# source ~/.local/ptpuploader/bin/activate # Optional, if a virtualenv was used during installation.
+# source ~/.venv/ptpuploader/bin/activate # Optional, if a virtualenv was used during installation.
 ReleaseInfoMaker --help
 ```
 
