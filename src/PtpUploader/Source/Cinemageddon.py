@@ -101,8 +101,10 @@ class Cinemageddon(SourceBase):
             if "/" in sourceType and not releaseInfo.ResolutionType:
                 sourceType, _, resolutionType = sourceType.partition("/")
                 resolutionType.strip("p")
-                if resolutionType in ["720", "1080"]:
+                if resolutionType in ["576", "720", "1080"]:
                     releaseInfo.ResolutionType = resolutionType
+                else:
+                    releaseInfo.ResolutionType = "Other"
 
         # Get IMDb id.
         if (not releaseInfo.ImdbId) and (not releaseInfo.PtpId):
