@@ -17,4 +17,4 @@ EXPOSE 8000
 COPY . .
 
 RUN pip install --no-cache-dir .
-CMD [ "bash", "-c", "python src/manage.py migrate && python src/manage.py runuploader 0.0.0.0:8000"]
+CMD [ "bash", "-c", "PtpUploader runuploader 0.0.0.0:8000"]
