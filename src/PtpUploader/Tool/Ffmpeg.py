@@ -95,6 +95,7 @@ class Ffmpeg:
                 "png",
                 "-vframes",
                 "1",
+                "-y",
                 outputPngPath,
             ]
         else:
@@ -116,6 +117,7 @@ class Ffmpeg:
                 "1",
                 "-s",
                 self.ScaleSize,
+                "-y",
                 outputPngPath,
             ]
 
