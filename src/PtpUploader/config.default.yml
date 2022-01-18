@@ -5,7 +5,7 @@ work_dir:
 ptp:
   username:
   password:
-  passkey:
+  announce_url:  # Can be found on the upload form
 web:
   # This is used for various scripts to send jobs to PtpUploader remotely
   api_key:

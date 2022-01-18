@@ -99,9 +99,10 @@ class Settings:
 
     @staticmethod
     def LoadSettings():
-        if not (config.ptp.passkey and config.ptp.username and config.ptp.password):
+        # TODO: These aren't actually required for ReleaseMaker, make it so
+        if not (config.ptp.announce_url and config.ptp.username and config.ptp.password):
             raise PtpUploaderException(
-                "Make sure the username, password and passkey are set in the config!"
+                "Make sure the username, password and announce URL are set in the config!"
             )
         if not config.work_dir:
             raise PtpUploaderException(
@@ -111,7 +112,7 @@ class Settings:
         Settings.AdditionalExtensionsToUpload = config.uploader.additional_files
         Settings.TorrentClient = None
         Settings.IgnoreFile = config.uploader.ignore_files
-        Settings.PtpAnnounceUrl = config.ptp.passkey
+        Settings.PtpAnnounceUrl = config.ptp.announce_url
         Settings.PtpUserName = config.ptp.username
         Settings.PtpPassword = config.ptp.password
 
