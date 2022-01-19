@@ -24,6 +24,8 @@ uploader:
   is_personal: false
   skip_duplicate_checking: false
   release_notes: ''
+  # Maximum number of screenshots to take
+  max_screenshots: 5
 workers:
   threads: 1 # With more than 1 thread, you may encounter database locks in sqlite
   # Switching to mysql or postgres will fix those issues.

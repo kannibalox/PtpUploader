@@ -82,8 +82,8 @@ class ScreenshotMaker:
     ):
         urls = []
 
-        if numberOfScreenshotsToTake > 5:
-            numberOfScreenshotsToTake = 5
+        if numberOfScreenshotsToTake > config.uploader.max_screenshots:
+            numberOfScreenshotsToTake = config.uploader.max_screenshots
 
         for i in range(numberOfScreenshotsToTake):
             position = 0.10 + (i * 0.05)

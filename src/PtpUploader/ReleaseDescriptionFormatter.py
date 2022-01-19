@@ -4,7 +4,7 @@ import os
 from pathlib import Path
 
 from PtpUploader.PtpUploaderException import *
-from PtpUploader.Settings import Settings
+from PtpUploader.Settings import Settings, config
 from PtpUploader.Tool.MediaInfo import MediaInfo
 from PtpUploader.Tool.ScreenshotMaker import ScreenshotMaker
 
@@ -13,7 +13,9 @@ logger = logging.getLogger(__name__)
 
 
 class ReleaseDescriptionVideoEntry:
-    def __init__(self, mediaInfo, numberOfScreenshotsToTake=5):
+    def __init__(self, mediaInfo, numberOfScreenshotsToTake=None):
+        if numberOfScreenshotsToTake is None:
+            numberOfScreenshotsToTake = config.uploader.max_screenshots
         self.MediaInfo = mediaInfo
         self.NumberOfScreenshotsToTake = numberOfScreenshotsToTake
         self.Screenshots = []
@@ -107,7 +109,7 @@ class ReleaseDescriptionFormatter:
 
         # Make less screenshots if there are more than one videos.
         mediaInfoCount = len(mediaInfos)
-        numberOfScreenshotsToTake = 5
+        numberOfScreenshotsToTake = config.uploader.max_screenshots
         if mediaInfoCount == 2:
             numberOfScreenshotsToTake = 3
         elif mediaInfoCount > 2:
