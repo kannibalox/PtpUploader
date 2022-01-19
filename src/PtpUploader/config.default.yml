@@ -24,7 +24,7 @@ uploader:
   is_personal: false
   skip_duplicate_checking: false
   release_notes: ''
-  # Maximum number of screenshots to take
+  # Maximum number of screenshots to take per file
   max_screenshots: 5
 workers:
   threads: 1 # With more than 1 thread, you may encounter database locks in sqlite
