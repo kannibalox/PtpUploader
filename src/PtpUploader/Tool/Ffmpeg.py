@@ -1,9 +1,9 @@
-import os
-import re
 import subprocess
+from pathlib import Path
 
 from PtpUploader.PtpUploaderException import PtpUploaderException
 from PtpUploader.Settings import Settings
+from PtpUploader.Tool.MediaInfo import MediaInfo
 
 
 class Ffmpeg:
@@ -15,33 +15,22 @@ class Ffmpeg:
         self.__CalculateSizeAccordingToAspectRatio()
 
     def __CalculateSizeAccordingToAspectRatio(self):
-        # Get resolution and pixel aspect ratio from FFmpeg.
-        args = [Settings.FfmpegPath, "-i", self.InputVideoPath]
-        proc: subprocess.CompletedProcess = subprocess.run(
-            args, capture_output=True
-        )
-        result: str = proc.stderr.decode("utf-8", "ignore")
+        # Some DVDs are badly made, so the DAR needs to be determined from the IFO
+        # rather than the VOB.
+        ifoPath = self.InputVideoPath[:-5] + "0.IFO"
+        if Path(ifoPath).exists():
+            m = MediaInfo(self.Logger, ifoPath, "")
+        else:
+            m = MediaInfo(self.Logger, self.InputVideoPath, "")
 
-        # Formatting can be one of the following. PAR can be SAR too.
-        # Stream #0.0(eng): Video: h264, yuv420p, 1280x544, PAR 1:1 DAR 40:17, 24 tbr, 1k tbn, 48 tbc
-        # Stream #0.0[0x1e0]: Video: mpeg2video, yuv420p, 720x480 [PAR 8:9 DAR 4:3], 7500 kb/s, 29.97 tbr, 90k tbn, 59.94 tbc
-        match = re.search(r"(\d+)x(\d+), [SP]AR \d+:\d+ DAR (\d+):(\d+)", result)
-        if match is None:
-            match = re.search(r"(\d+)x(\d+) \[[SP]AR \d+:\d+ DAR (\d+):(\d+)", result)
-        if match is None:
-            return
+        width = m.Width
+        height = m.Height
+        darX = int(m.DAR.split(":")[0].strip())
+        darY = int(m.DAR.split(":")[1].strip())
 
-        width = int(match.group(1))
-        height = int(match.group(2))
-        darX = int(match.group(3))
-        darY = int(match.group(4))
         # We ignore invalid resolutions, invalid aspect ratios and aspect ratio 1:1.
-        if (
-            width <= 0
-            or height <= 0
-            or darX <= 0
-            or darY <= 0
-            or (darX == 1 and darY == 1)
+        if any(i <= 0 for i in (width, height, darX, darY)) or (
+            darX == 1 and darY == 1
         ):
             return
 
@@ -80,46 +69,33 @@ class Ffmpeg:
         # -an: disable audio
         # -sn: disable subtitle
         # There is no way to set PNG compression level. :(
-        args = []
         time = str(int(timeInSeconds))
-        if self.ScaleSize is None:
-            args = [
-                Settings.FfmpegPath,
-                "-an",
-                "-sn",
-                "-ss",
-                time,
-                "-i",
-                self.InputVideoPath,
-                "-vcodec",
-                "png",
-                "-vframes",
-                "1",
-                "-y",
-                outputPngPath,
-            ]
-        else:
+        args = [
+            Settings.FfmpegPath,
+            "-an",
+            "-sn",
+            "-ss",
+            time,
+            "-i",
+            self.InputVideoPath,
+            "-vcodec",
+            "png",
+            "-vframes",
+            "1",
+            "-y",
+        ]
+        if self.ScaleSize:
             self.Logger.info(
-                "Pixel aspect ratio wasn't 1:1, scaling video to resolution: '%s'."
+                "Pixel aspect ratio isn't 1:1, scaling video to resolution: '%s'."
                 % self.ScaleSize
             )
-            args = [
-                Settings.FfmpegPath,
-                "-an",
-                "-sn",
-                "-ss",
-                time,
-                "-i",
-                self.InputVideoPath,
-                "-vcodec",
-                "png",
-                "-vframes",
-                "1",
-                "-s",
-                self.ScaleSize,
-                "-y",
-                outputPngPath,
-            ]
+            args.append(
+                [
+                    "-s",
+                    self.ScaleSize,
+                ]
+            )
+        args.append([outputPngPath])
 
         errorCode = subprocess.call(args)
         if errorCode != 0:

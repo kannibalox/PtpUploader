@@ -14,8 +14,9 @@ class MediaInfo:
         self.DurationInSec = 0
         self.Container = ""
         self.Codec = ""
-        self.Width = 0
-        self.Height = 0
+        self.Width: int = 0
+        self.Height: int = 0
+        self.DAR: str = ""
         self.VideoWritingLibrary = ""
         self.Subtitles = []
 
@@ -129,6 +130,8 @@ class MediaInfo:
                         self.Height = MediaInfo.__ParseSize(mediaPropertyValue)
                     elif mediaPropertyName == "Writing library":
                         self.VideoWritingLibrary = mediaPropertyValue.lower()
+                    elif mediaPropertyName == "Display aspect ratio":
+                        self.DAR = mediaPropertyValue.lower().strip()
                 elif section.startswith("Text #") or section == "Text":
                     if mediaPropertyName == "Language":
                         self.Subtitles.append(mediaPropertyValue)
