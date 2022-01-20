@@ -88,13 +88,13 @@ class Upload(WorkerBase):
         if self.ReleaseInfo.IsJobPhaseFinished(
             FinishedJobPhase.Upload_CreateUploadPath
         ):
-            self.logger.info(
+            self.ReleaseInfo.logger().info(
                 "Upload path creation phase has been reached previously, not creating it again."
             )
             return
 
         customUploadPath = self.ReleaseInfo.AnnouncementSource.GetCustomUploadPath(
-            self.logger, self.ReleaseInfo
+            self.ReleaseInfo.logger, self.ReleaseInfo
         )
         if len(customUploadPath) > 0:
             self.ReleaseInfo.ReleaseUploadPath = customUploadPath
@@ -110,13 +110,13 @@ class Upload(WorkerBase):
         )
 
         if len(self.ReleaseInfo.IncludedFiles) > 0:
-            self.logger.info(
+            self.ReleaseInfo.logger().info(
                 "There are %s files in the file list. Customized: '%s'.",
                 len(self.IncludedFileList.Files),
                 self.ReleaseInfo.IncludedFiles,
             )
         else:
-            self.logger.info(
+            self.ReleaseInfo.logger().info(
                 "There are %s files in the file list.", len(self.IncludedFileList.Files)
             )
 
@@ -124,7 +124,7 @@ class Upload(WorkerBase):
 
     def __ExtractRelease(self):
         if self.ReleaseInfo.IsJobPhaseFinished(FinishedJobPhase.Upload_ExtractRelease):
-            self.logger.info(
+            self.ReleaseInfo.logger().info(
                 "Extract release phase has been reached previously, not extracting release again."
             )
             return
@@ -161,7 +161,7 @@ class Upload(WorkerBase):
         if self.ReleaseInfo.Container:
             if container != self.ReleaseInfo.Container:
                 if self.ReleaseInfo.IsForceUpload():
-                    self.logger.info(
+                    self.ReleaseInfo.logger().info(
                         "Container is set to '%s', detected MediaInfo container is '%s' ('%s'). Ignoring mismatch because of force upload.",
                         self.ReleaseInfo.Container,
                         container,
@@ -218,7 +218,7 @@ class Upload(WorkerBase):
                     codec, self.ReleaseInfo.Codec
                 ):
                     if "Remux" not in self.ReleaseInfo.RemasterTitle:
-                        self.logger.info(
+                        self.ReleaseInfo.logger().info(
                             "Codec is set to '%s', detected MediaInfo codec is '%s' ('%s'). Using the detected codec.",
                             self.ReleaseInfo.Codec,
                             codec,
@@ -226,7 +226,7 @@ class Upload(WorkerBase):
                         )
                         self.ReleaseInfo.Codec = codec
                 elif self.ReleaseInfo.IsForceUpload():
-                    self.logger.info(
+                    self.ReleaseInfo.logger().info(
                         "Codec is set to '%s', detected MediaInfo codec is '%s' ('%s'). Ignoring mismatch because of force upload.",
                         self.ReleaseInfo.Codec,
                         codec,
@@ -255,7 +255,7 @@ class Upload(WorkerBase):
         if len(self.ReleaseInfo.Resolution) > 0:
             if resolution != self.ReleaseInfo.Resolution:
                 if self.ReleaseInfo.IsForceUpload():
-                    self.logger.info(
+                    self.ReleaseInfo.logger().info(
                         "Resolution is set to '%s', detected MediaInfo resolution is '%s' ('%sx%s'). Ignoring mismatch because of force upload.",
                         self.ReleaseInfo.Resolution,
                         resolution,
@@ -306,7 +306,9 @@ class Upload(WorkerBase):
         s_id = MyGlobals.PtpSubtitle.GetId(languageName)
         if s_id is None:
             # TODO: show warning on the WebUI
-            self.logger.warning("Unknown subtitle language: '%s'.", languageName)
+            self.ReleaseInfo.logger().warning(
+                "Unknown subtitle language: '%s'.", languageName
+            )
             return True
 
         s_id = str(s_id)
@@ -318,10 +320,12 @@ class Upload(WorkerBase):
     def __DetectSubtitles(self):
         subtitleIds = self.ReleaseInfo.GetSubtitles()
         if subtitleIds:
-            self.logger.info("Subtitle list is not empty. Skipping subtitle detection.")
+            self.ReleaseInfo.logger().info(
+                "Subtitle list is not empty. Skipping subtitle detection."
+            )
             return
 
-        self.logger.info("Detecting subtitles.")
+        self.ReleaseInfo.logger().info("Detecting subtitles.")
 
         # We can't do anything with DVD images.
         if self.ReleaseInfo.IsDvdImage():
