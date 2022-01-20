@@ -122,17 +122,18 @@ class Karagarga(SourceBase):
                 "DVD audio info can't be found in the rip specifications.",
             )
 
-        if (
-            ripSpecs.find("VIDEO: UNTOUCHED") < 0
-            or ripSpecs.find("AUDIO: UNTOUCHED") < 0
-            or (ripSpecs.find("MENUS: ") >= 0 and ripSpecs.find("MENUS: UNTOUCHED") < 0)
-            or (
-                ripSpecs.find("DVD EXTRAS: ") >= 0
-                and ripSpecs.find("DVD EXTRAS: UNTOUCHED") < 0
-            )
-        ):
+        untouched_fail = None
+        if "video: untouched" not in ripSpecs.lower():
+            untouched_fail = "modified video"
+        if "audio: untouched" not in ripSpecs.lower():
+            untouched_fail = "modified audio"
+        if "menus: " in ripSpecs.lower() and "menus: untouched" not in ripSpecs.lower():
+            untouched_fail = "modified menus"
+        if ("dvd extras: " in ripSpecs.lower() and "dvd extras: n/a" not in ripSpecs.lower()) and "dvd extras: untouched" not in ripSpecs.lower():
+            untouched_fail = "modified dvd extras"
+        if untouched_fail:
             raise PtpUploaderException(
-                JobRunningState.Ignored_NotSupported, "The DVD is not untouched."
+                JobRunningState.Ignored_NotSupported, "The DVD is not untouched: " + untouched_fail
             )
 
         if releaseInfo.Size <= 0:
