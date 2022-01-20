@@ -107,6 +107,8 @@ source:
   #   url: https://prowlarr.example.com
   #   api_key: apikey-apikey-apikey
   # file:
-# Allows running arbitrary commands after a successful run
+# Allows running arbitrary  commands after a successful run
+# See ReleaseInfo.py for a full list of available fields
 hook:
-  on_upload:
+  # As an example, write to a log file after an upload completes successfully
+  on_upload:  # "echo '{{ReleaseName}}: {{UploadedTorrentUrl}}' >> ~/.config/ptpuploader/finished.log"

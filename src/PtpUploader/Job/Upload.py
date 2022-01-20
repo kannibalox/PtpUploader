@@ -4,6 +4,8 @@ import os
 import subprocess
 import threading
 
+from django.template import engines
+
 from PtpUploader import Ptp
 from PtpUploader.Helper import GetIdxSubtitleLanguages, TimeDifferenceToText
 from PtpUploader.ImageHost.ImageUploader import ImageUploader
@@ -530,25 +532,25 @@ class Upload(WorkerBase):
 
     def __ExecuteCommandOnSuccessfulUpload(self):
         # Execute command on successful upload.
-        if Settings.OnSuccessfulUpload is None or len(Settings.OnSuccessfulUpload) <= 0:
+        if not Settings.OnSuccessfulUpload:
             return
 
-        uploadedTorrentUrl = (
+        django_engine = engines["django"]
+        template = django_engine.from_string(Settings.OnSuccessfulUpload)
+        context = {}
+        for field in self.ReleaseInfo._meta.fields:
+            context[field.name] = getattr(self.ReleaseInfo, field.name)
+        context["UploadedTorrentUrl"] = (
             "https://passthepopcorn.me/torrents.php?id=" + self.ReleaseInfo.PtpId
         )
-        command = Settings.OnSuccessfulUpload % {
-            "releaseName": self.ReleaseInfo.ReleaseName,
-            "uploadPath": self.ReleaseInfo.UploadTorrentCreatePath,
-            "uploadedTorrentUrl": uploadedTorrentUrl,
-        }
+        command = template.render(context=context)
 
         # We don't care if this fails. Our upload is complete anyway. :)
         try:
-            subprocess.Popen(command, shell=True)
-        except (KeyboardInterrupt, SystemExit):
-            raise
-        except Exception:
-            self.logger.exception(
-                "Got exception while trying to run command '%s' after successful upload.",
+            subprocess.call(command, shell=True)
+        except Exception as e:
+            self.ReleaseInfo.logger().exception(
+                "Got exception '%s' while trying to run command '%s' after successful upload.",
+                e,
                 command,
             )
