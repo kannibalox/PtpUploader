@@ -102,7 +102,7 @@ class Cinemageddon(SourceBase):
                 sourceType, _, resolutionType = sourceType.partition("/")
                 resolutionType.strip("p")
                 if resolutionType in ["576", "720", "1080"]:
-                    releaseInfo.ResolutionType = resolutionType
+                    releaseInfo.ResolutionType = resolutionType + "p"
                 else:
                     releaseInfo.ResolutionType = "Other"
 

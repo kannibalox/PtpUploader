@@ -130,11 +130,15 @@ class Karagarga(SourceBase):
             untouched_fail = "modified audio"
         if "menus: " in ripSpecs.lower() and "menus: untouched" not in ripSpecs.lower():
             untouched_fail = "modified menus"
-        if ("dvd extras: " in ripSpecs.lower() and "dvd extras: n/a" not in ripSpecs.lower()) and "dvd extras: untouched" not in ripSpecs.lower():
+        if (
+            "dvd extras: " in ripSpecs.lower()
+            and "dvd extras: n/a" not in ripSpecs.lower()
+        ) and "dvd extras: untouched" not in ripSpecs.lower():
             untouched_fail = "modified dvd extras"
         if untouched_fail:
             raise PtpUploaderException(
-                JobRunningState.Ignored_NotSupported, "The DVD is not untouched: " + untouched_fail
+                JobRunningState.Ignored_NotSupported,
+                "The DVD is not untouched: " + untouched_fail,
             )
 
         if releaseInfo.Size <= 0:
@@ -196,9 +200,9 @@ class Karagarga(SourceBase):
             return
 
         if description.find('"genreimages/hdrip720.png"') != -1:
-            releaseInfo.ResolutionType = "720"
+            releaseInfo.ResolutionType = "720p"
         elif description.find('"genreimages/hdrip1080.png"') != -1:
-            releaseInfo.ResolutionType = "1080"
+            releaseInfo.ResolutionType = "1080p"
         elif description.find('"genreimages/bluray.png"') != -1:
             raise PtpUploaderException(
                 JobRunningState.Ignored_NotSupported,
