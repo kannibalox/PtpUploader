@@ -353,14 +353,14 @@ class CheckAnnouncement(WorkerBase):
     def __CheckSynopsis(self):
         if (
             Settings.StopIfSynopsisIsMissing
-            and Settings.StopIfSynopsisIsMissing.lower() == "beforedownloading"
+            and Settings.StopIfSynopsisIsMissing.lower() == "before_downloading"
         ):
             self.ReleaseInfo.AnnouncementSource.CheckSynopsis(logger, self.ReleaseInfo)
 
     def __CheckCoverArt(self):
         if (
             Settings.StopIfCoverArtIsMissing
-            and Settings.StopIfCoverArtIsMissing.lower() == "beforedownloading"
+            and Settings.StopIfCoverArtIsMissing.lower() == "before_downloading"
         ):
             self.ReleaseInfo.AnnouncementSource.CheckCoverArt(logger, self.ReleaseInfo)
 
@@ -406,7 +406,7 @@ class CheckAnnouncement(WorkerBase):
         if (
             self.ReleaseInfo.IsUserCreatedJob()
             or self.ReleaseInfo.AnnouncementSource.StopAutomaticJob
-            != "beforedownloadingtorrentfile"
+            != "before_downloading"
         ):
             return
 

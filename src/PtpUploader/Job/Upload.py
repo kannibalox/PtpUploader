@@ -12,6 +12,7 @@ from PtpUploader.ImageHost.ImageUploader import ImageUploader
 from PtpUploader.Job.FinishedJobPhase import FinishedJobPhase
 from PtpUploader.Job.JobRunningState import JobRunningState
 from PtpUploader.Job.WorkerBase import WorkerBase
+from PtpUploader.Job.JobStartMode import JobStartMode
 from PtpUploader.MyGlobals import MyGlobals
 from PtpUploader.PtpSubtitle import PtpSubtitleId
 from PtpUploader.PtpUploaderException import *
@@ -63,7 +64,7 @@ class Upload(WorkerBase):
         if (
             self.ReleaseInfo.IsUserCreatedJob()
             or self.ReleaseInfo.AnnouncementSource.StopAutomaticJob
-            != "beforeextracting"
+            != "before_extracting"
         ):
             return
 
@@ -73,7 +74,7 @@ class Upload(WorkerBase):
         if (
             self.ReleaseInfo.IsUserCreatedJob()
             or self.ReleaseInfo.AnnouncementSource.StopAutomaticJobIfThereAreMultipleVideos
-            != "beforeextracting"
+            != "before_extracting"
         ):
             return
 
@@ -448,7 +449,7 @@ class Upload(WorkerBase):
     def __CheckSynopsis(self):
         if (
             Settings.StopIfSynopsisIsMissing
-            and Settings.StopIfSynopsisIsMissing.lower() == "beforeuploading"
+            and Settings.StopIfSynopsisIsMissing.lower() == "before_uploading"
         ):
             self.ReleaseInfo.AnnouncementSource.CheckSynopsis(
                 self.logger, self.ReleaseInfo
@@ -474,6 +475,11 @@ class Upload(WorkerBase):
     def __StopBeforeUploading(self):
         if self.ReleaseInfo.StopBeforeUploading:
             raise PtpUploaderException("Stopping before uploading.")
+        elif (
+            self.ReleaseInfo.JobStartMode == JobStartMode.Automatic
+            and self.ReleaseInfo.AnnouncementSource.StopAutomaticJob
+        ):
+            raise PtpUploaderException("Stopping automatic job before uploading.")
 
     def __StartTorrent(self):
         if len(self.ReleaseInfo.UploadTorrentInfoHash) > 0:
