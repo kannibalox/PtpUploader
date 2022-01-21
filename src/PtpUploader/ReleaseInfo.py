@@ -308,6 +308,6 @@ class ReleaseInfo(models.Model):
 
     def logger(self, logger=None):
         if logger is None:
-            logger = logging.getLogger()
+            logger = logging.getLogger(f"PtpUploader.ReleaseInfo.Release{self.Id}")
         logger_with_id = logging.LoggerAdapter(logger, {"release_id": self.Id})
         return logger_with_id

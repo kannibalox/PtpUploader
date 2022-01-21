@@ -82,6 +82,8 @@ class WorkerBase:
             self.ReleaseInfo.ErrorMessage = str(e)
             self.ReleaseInfo.save()
 
-            self.logger.error(traceback.format_exc())
-            e.Logger = logger
+            if isinstance(e, PtpUploaderException) and str(e).startswith("Stopping "):
+                self.ReleaseInfo.logger().info(f"Received stop: {e}")
+            else:
+                self.ReleaseInfo.logger().exception(traceback.format_exc())
             raise

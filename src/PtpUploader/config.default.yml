@@ -79,6 +79,7 @@ source:
     # Possible values: default (no effect), only, ignore
     scene: default
 
+    # The 'stop' group of settings only effect automatically created jobs
     # Possible values: false (don't stop), before_downloading, before_extracting, before_uploading
     always_stop_before: false
 
