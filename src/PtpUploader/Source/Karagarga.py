@@ -100,15 +100,16 @@ class Karagarga(SourceBase):
 
     @staticmethod
     def __DownloadNfoParseDvdImage(releaseInfo, ripSpecs: str):
-        if ripSpecs.find("DVD FORMAT: NTSC") >= 0:
-            releaseInfo.ResolutionType = "NTSC"
-        elif ripSpecs.find("DVD FORMAT: PAL") >= 0:
-            releaseInfo.ResolutionType = "PAL"
-        else:
-            raise PtpUploaderException(
-                JobRunningState.Ignored_NotSupported,
-                "Can't figure out DVD resolution type from the rip specifications.",
-            )
+        if not releaseInfo.ResolutionType:
+            if ripSpecs.find("DVD FORMAT: NTSC") >= 0:
+                releaseInfo.ResolutionType = "NTSC"
+            elif ripSpecs.find("DVD FORMAT: PAL") >= 0:
+                releaseInfo.ResolutionType = "PAL"
+            else:
+                raise PtpUploaderException(
+                    JobRunningState.Ignored_NotSupported,
+                    "Can't figure out DVD resolution type from the rip specifications.",
+                )
 
         if ripSpecs.find("VIDEO: ") < 0:
             raise PtpUploaderException(
