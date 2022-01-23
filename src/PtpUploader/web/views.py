@@ -323,6 +323,11 @@ def edit_job(request, r_id: int = -1):
     else:
         release = ReleaseInfo()
     if request.method == "POST":
+        if "delete" in request.POST:
+            if not release.CanDeleted():
+                return HttpResponse("The job cannot be deleted!")
+            MyGlobals.PtpUploader.add_message(PtpUploaderMessageDeleteJob(r_id, "job"))
+            return HttpResponseRedirect("/jobs")
         # create a form instance and populate it with data from the request:
         form = forms.ReleaseForm(request.POST, instance=release)
         # check whether it's valid:
