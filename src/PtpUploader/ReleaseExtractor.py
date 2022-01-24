@@ -2,6 +2,7 @@ import fnmatch
 import os
 
 from pathlib import Path
+from unidecode import unidecode
 
 from PtpUploader.MyGlobals import MyGlobals
 from PtpUploader.PtpUploaderException import PtpUploaderException
@@ -123,7 +124,9 @@ class ReleaseExtractorInternal:
             return
 
         # Make hard link from supported files.
-        destinationFilePath = os.path.join(self.__MakeDestinationDirectory(), entryName)
+        destinationFilePath = os.path.join(
+            self.__MakeDestinationDirectory(), unidecode(entryName)
+        )
         if os.path.exists(destinationFilePath):
             if os.path.samefile(entryPath, destinationFilePath):
                 return

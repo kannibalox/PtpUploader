@@ -7,6 +7,7 @@ from typing import Iterator, List
 
 from django.db import models
 from django.utils import timezone
+from unidecode import unidecode
 
 from PtpUploader.Job.FinishedJobPhase import FinishedJobPhase
 from PtpUploader.Job.JobStartMode import JobStartMode
@@ -294,7 +295,9 @@ class ReleaseInfo(models.Model):
     def GetReleaseUploadPath(self):
         if self.ReleaseUploadPath:
             return self.ReleaseUploadPath
-        return os.path.join(self.GetReleaseRootPath(), "upload", self.ReleaseName)
+        return os.path.join(
+            self.GetReleaseRootPath(), "upload", unidecode(self.ReleaseName)
+        )
 
     def IsTorrentNeedsDuplicateChecking(self, torrentId):
         return torrentId > self.DuplicateCheckCanIgnore
