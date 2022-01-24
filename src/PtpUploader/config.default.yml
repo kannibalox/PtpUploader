@@ -81,7 +81,7 @@ source:
 
     # The 'stop' group of settings only effect automatically created jobs
     # Possible values: false (don't stop), before_downloading, before_extracting, before_uploading
-    always_stop_before: false
+    always_stop_before: before_uploading
 
     # Possible values: false (don't stop), before_downloading, before_extracting
     stop_if_multiple_videos: false
