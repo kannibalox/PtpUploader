@@ -133,6 +133,7 @@ class Karagarga(SourceBase):
         if (
             "dvd extras: " in ripSpecs.lower()
             and "dvd extras: n/a" not in ripSpecs.lower()
+            and "dvd extras: none" not in ripSpecs.lower()
         ) and "dvd extras: untouched" not in ripSpecs.lower():
             untouched_fail = "modified dvd extras"
         if untouched_fail:
