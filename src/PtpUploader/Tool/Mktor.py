@@ -14,6 +14,11 @@ def Make(logger, path, torrentPath):
     torrent = metafile.Metafile(torrentPath, datapath=path)
 
     if os.path.exists(torrentPath):
+        # We should be safe to allow the existing torrent to be used,
+        # even when/if file selection is re-implemented, all the filesystem
+        # manipulation has to be performed before we reach this API.
+        # If it changes, at that point we can reset the torrentPath
+        # and let it get rebuilt here.
         with open(torrentPath, "rb") as fh:
             # Ignore the result of this method, we just want to check that files haven't changed/moved
             metafile.add_fast_resume(bencode.decode(fh.read()), path)
