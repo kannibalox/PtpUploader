@@ -255,7 +255,7 @@ def jobs_json(_):
 def local_dir(request):
     d: Path
     if "dir" not in request.GET:
-        d = Path(config.web.file_select_root)
+        d = Path(config.web.file_selector_root or "~").expanduser()
     else:
         d = Path(request.GET["dir"])
     val = []
