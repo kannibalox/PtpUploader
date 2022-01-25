@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.2/ref/settings/
 """
 
+import os
 from pathlib import Path
 
 import dynaconf
@@ -157,7 +158,12 @@ LOGGING = {
             ],
             "level": "DEBUG",
             "propagate": True,
-        }
+        },
+        "django": {
+            "handlers": ["console"],
+            "level": os.getenv("DJANGO_LOG_LEVEL", "ERROR"),
+            "propagate": False,
+        },
     },
 }
 
@@ -166,8 +172,8 @@ settings = dynaconf.DjangoDynaconf(
     __name__,
     SETTINGS_FILE_FOR_DYNACONF=[
         Path(Path(__file__).parent, "config.default.yml"),
-	Path("~/.config/ptpuploader/config.yml").expanduser(),
+        Path("~/.config/ptpuploader/config.yml").expanduser(),
         ".secrets.yaml",
     ],
-    ENVIRONMENTS_FOR_DYNACONF=False
+    ENVIRONMENTS_FOR_DYNACONF=False,
 )
