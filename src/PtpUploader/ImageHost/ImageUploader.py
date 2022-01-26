@@ -1,4 +1,3 @@
-from PtpUploader.ImageHost.Picload import Picload
 from PtpUploader.ImageHost.PtpImg import PtpImg
 from PtpUploader.ImageHost.ImgBB import ImgBB
 from PtpUploader.PtpUploaderException import PtpUploaderException
@@ -22,8 +21,6 @@ class ImageUploader:
 
         if Settings.ImageHost == "ptpimg":
             return PtpImg.Upload(logger, imagePath, imageUrl)
-        elif Settings.ImageHost == "picload.org":
-            return Picload.Upload(logger, imagePath, imageUrl)
         elif Settings.ImageHost == "imgbb":
             return ImgBB.Upload(logger, imagePath, imageUrl)
 
