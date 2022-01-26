@@ -1,5 +1,6 @@
 from PtpUploader.ImageHost.Picload import Picload
 from PtpUploader.ImageHost.PtpImg import PtpImg
+from PtpUploader.ImageHost.ImgBB import ImgBB
 from PtpUploader.PtpUploaderException import PtpUploaderException
 from PtpUploader.Settings import Settings
 
@@ -23,5 +24,7 @@ class ImageUploader:
             return PtpImg.Upload(logger, imagePath, imageUrl)
         elif Settings.ImageHost == "picload.org":
             return Picload.Upload(logger, imagePath, imageUrl)
+        elif Settings.ImageHost == "imgbb":
+            return ImgBB.Upload(logger, imagePath, imageUrl)
 
         raise PtpUploaderException("Unknown image host: '%s'." % Settings.ImageHost)

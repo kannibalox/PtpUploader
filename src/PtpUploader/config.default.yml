@@ -65,6 +65,8 @@ image_host:
     # It can be found by first logging into https://ptpimg.me/. Then in the browser bar type 'javascript:', and then paste the following line:
     # (function()%7Balert(document.getElementById('api_key').value)%7D)()
     api_key:
+  imgbb:
+    api_key:
 source:
   # Anything set in _default is applied to all sources (including file) unless overridden in the source-specific section.
   _default:
