@@ -68,7 +68,8 @@ disable=
     protected-access,
     too-few-public-methods,
     # handled by black
-    format
+    format,
+    no-else-return
 
 
 [REPORTS]
