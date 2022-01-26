@@ -8,7 +8,7 @@ from django.template import engines
 
 from PtpUploader import Ptp
 from PtpUploader.Helper import GetIdxSubtitleLanguages, TimeDifferenceToText
-from PtpUploader.ImageHost.ImageUploader import ImageUploader
+from PtpUploader import ImageHost
 from PtpUploader.Job.FinishedJobPhase import FinishedJobPhase
 from PtpUploader.Job.JobRunningState import JobRunningState
 from PtpUploader.Job.WorkerBase import WorkerBase
@@ -469,7 +469,7 @@ class Upload(WorkerBase):
             return
 
         self.logger.info("Rehosting poster from '%s'.", url)
-        self.ReleaseInfo.CoverArtUrl = ImageUploader.Upload(self.logger, imageUrl=url)
+        self.ReleaseInfo.CoverArtUrl = ImageHost.upload(self.logger, imageUrl=url)
         self.logger.info("Rehosted poster to '%s'.", self.ReleaseInfo.CoverArtUrl)
 
     def __StopBeforeUploading(self):

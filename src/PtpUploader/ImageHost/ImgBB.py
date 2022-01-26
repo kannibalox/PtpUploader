@@ -1,33 +1,33 @@
 import requests
 
 from PtpUploader.PtpUploaderException import PtpUploaderException
-from PtpUploader.Settings import config
+from PtpUploader.ImageHost.Base import ImageSite
 
 
-class ImgBB:
-    @staticmethod
-    def Upload(logger, imagePath=None, imageUrl=None):
-        api_key = config.image_host.imgbb.api_key
-        if not api_key:
+class ImgBB(ImageSite):
+    def __init__(self, logger=None):
+        self.name = "imgbb"
+        super().__init__(logger)
+        if not self.config.api_key:
             raise PtpUploaderException("imgbb API key is not set")
-        endpoint = f"https://api.imgbb.com/1/upload?key={api_key}"
-        data = {}
-        files = {}
-        rjson = {}
-        if imageUrl:
-            data["image"] = imageUrl
-            response = requests.post(endpoint, data=data, files=files)
-        elif imagePath:
-            with open(imagePath, "rb") as imageHandle:
-                files["image"] = imageHandle
-                response = requests.post(endpoint, data=data, files=files)
+
+    def upload_url(self, url: str):
+        return self.upload({"image": url}, {})
+
+    def upload_path(self, path: str):
+        with open(path, "rb") as imageHandle:
+            return self.upload({}, {"image": imageHandle})
+
+    def upload(self, data, files):
+        endpoint = f"https://api.imgbb.com/1/upload?key={self.config.api_key}"
+        response = requests.post(endpoint, data=data, files=files)
+        response.raise_for_status()
         try:
-            response.raise_for_status()
             rjson = response.json()
             return rjson["data"]["url"]
-        except (ValueError, KeyError, requests.exceptions.HTTPError):
-            logger.exception(
-                "Got an exception while loading JSON response from ptpimg.me. Response: '{0}'.".format(
+        except (ValueError, KeyError):
+            self.logger.exception(
+                "Got an exception while loading JSON response from imgbb. Response: '{0}'.".format(
                     response
                 )
             )
