@@ -5,7 +5,7 @@ from pathlib import Path
 
 from PtpUploader.PtpUploaderException import *
 from PtpUploader.Settings import Settings, config
-from PtpUploader.Tool.MediaInfo import MediaInfo
+from PtpUploader.Tool.MediaInfo import MediaInfo, MediaInfoException
 from PtpUploader.Tool.ScreenshotMaker import ScreenshotMaker
 
 
@@ -81,17 +81,22 @@ class ReleaseDescriptionFormatter:
                 % (ifo.Path, ifo.DurationInSec)
             )
 
-        # Get the next VOB.
-        vobPath = Path(str(ifo.Path).replace("_0.IFO", "_1.VOB"))
-        if not vobPath.is_file():
+        vobMediaInfo = None
+        for vob in sorted(ifo.Path.parent.glob(str(ifo.Path.name[:-5]) + "*.VOB")):
+            # Get the next VOB and try to parse its mediainfo
+            try:
+                vobMediaInfo = MediaInfo(
+                    logger, vob, self.ReleaseInfo.GetReleaseUploadPath()
+                )
+                break
+            except MediaInfoException:
+                pass
+
+        if vobMediaInfo is None:
             raise PtpUploaderException(
                 "Unsupported VIDEO_TS layout. Can't find the next VOB for IFO '%s'."
                 % ifo.Path
             )
-
-        vobMediaInfo = MediaInfo(
-            logger, vobPath, self.ReleaseInfo.GetReleaseUploadPath()
-        )
         self.MainMediaInfo = vobMediaInfo
         self.VideoEntries.append(
             ReleaseDescriptionVideoEntry(ifo, numberOfScreenshotsToTake=0)

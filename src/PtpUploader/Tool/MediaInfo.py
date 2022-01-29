@@ -5,6 +5,10 @@ from PtpUploader.PtpUploaderException import PtpUploaderException
 from PtpUploader.Settings import Settings
 
 
+class MediaInfoException(PtpUploaderException):
+    pass
+
+
 class MediaInfo:
     # removePathFromCompleteName: this part will be removed from the path listed at "Complete Name". If removePathFromCompleteName is empty then it will be left as it is.
     def __init__(self, logger, path, removePathFromCompleteName):
@@ -142,25 +146,25 @@ class MediaInfo:
 
     def __ValidateParsedMediaInfo(self):
         if len(self.Container) <= 0:
-            raise PtpUploaderException("MediaInfo returned with no container.")
+            raise MediaInfoException("MediaInfo returned with no container.")
 
         # IFOs and VOBs don't have codec.
         if len(self.Codec) <= 0 and (not self.IsIfo()) and (not self.IsVob()):
-            raise PtpUploaderException("MediaInfo returned with no codec.")
+            raise MediaInfoException("MediaInfo returned with no codec.")
 
         # IFOs may have zero duration.
         if self.DurationInSec <= 0 and (not self.IsIfo()):
-            raise PtpUploaderException(
+            raise MediaInfoException(
                 "MediaInfo returned with invalid duration: '%s'." % self.DurationInSec
             )
 
         if self.Width <= 0:
-            raise PtpUploaderException(
+            raise MediaInfoException(
                 "MediaInfo returned with invalid width: '%s'." % self.Width
             )
 
         if self.Height <= 0:
-            raise PtpUploaderException(
+            raise MediaInfoException(
                 "MediaInfo returned with invalid height: '%s'." % self.Height
             )
 
