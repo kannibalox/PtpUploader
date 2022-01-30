@@ -90,6 +90,10 @@ class ReleaseForm(ModelForm):
     TorrentLink = CharField(required=False, widget=TextInput(attrs={"size": "60"}))
     LocalFile = CharField(required=False, widget=TextInput(attrs={"size": "60"}))
     JobStartMode = CharField(required=False)
+    RawFile = FileField(
+        required=False,
+        widget=ClearableFileInput(attrs={"accept": "application/x-bittorrent"}),
+    )
 
     class Meta:
         model = ReleaseInfo

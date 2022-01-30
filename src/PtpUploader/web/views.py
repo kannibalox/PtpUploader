@@ -1,6 +1,7 @@
 import logging
 import os
 import urllib
+import time
 
 from datetime import datetime
 from pathlib import Path
@@ -313,7 +314,24 @@ def create(request):
         or request.POST["password"] != config.web.api_key
     ):
         raise PermissionDenied
-    releaseInfo = ReleaseInfo()
+    dest_path = Path(Settings.GetTemporaryPath(), f"{time.time()}.torrent")
+    with dest_path.open("wb") as dest:
+        for chunk in request.FILES["torrent"].chunks():
+            dest.write(chunk)
+    release = ReleaseInfo()
+    release.SourceTorrentFilePath = dest_path
+    release.AnnouncementSourceName = "torrent"
+    release.ImdbId = request.POST["imdbUrl"]
+    source, source_id = MyGlobals.SourceFactory.GetSourceAndIdByUrl(
+        request.POST["SourceUrl"]
+    )
+    if source is not None:
+        release.AnnouncementSourceName = source.Name
+        release.AnnouncementId = source_id
+    release.save()
+    response = JsonResponse({"result": "OK", "jobId": release.Id})
+    response["Access-Control-Allow-Origin"] = "*"
+    return response
 
 
 @login_required
@@ -362,6 +380,15 @@ def edit_job(request, r_id: int = -1):
                     release.AnnouncementSourceName = "file"
                     release.ReleaseDownloadPath = path
                     release.ReleaseName = path.name
+                elif request.FILES["RawFile"]:
+                    dest_path = Path(
+                        Settings.GetTemporaryPath(), f"{time.time()}.torrent"
+                    )
+                    with dest_path.open("wb") as dest:
+                        for chunk in request.FILES["RawFile"].chunks():
+                            dest.write(chunk)
+                    release.SourceTorrentFilePath = dest_path
+                    release.AnnouncementSourceName = "torrent"
             if "post_stop_before" in request.POST:
                 release.StopBeforeUploading = True
             else:
