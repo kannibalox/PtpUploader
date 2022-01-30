@@ -14,7 +14,9 @@ logger = logging.getLogger(__name__)
 
 def bdinfo_cmd() -> List[str]:
     if config.tools.bdinfo.path:
-        return list(shlex.split(config.tools.bdinfo.path))
+        return [
+            str(Path(p).expanduser()) for p in shlex.split(config.tools.bdinfo.path)
+        ]
     else:
         raise PtpUploaderException("BDInfo path not set")
 
