@@ -9,9 +9,13 @@ ptp:
 web:
   # This is used for various scripts to send jobs to PtpUploader remotely
   api_key:
-  # Allows controlling
+  # Allows controlling the pop-up on the upload page
   file_selector_root:
   address:
+  ssl:
+    enabled: false
+    key:
+    cert:
 # Settings for the upload forms and workers
 uploader:
   # Files that are explicitly video

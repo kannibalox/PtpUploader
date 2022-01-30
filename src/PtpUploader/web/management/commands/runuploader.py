@@ -3,15 +3,20 @@ import os
 import re
 import socket
 import sys
+from pathlib import Path
 
 from datetime import datetime
 
 from django.conf import settings
 from django.contrib.staticfiles.handlers import StaticFilesHandler
 from django.core.management.base import BaseCommand, CommandError
-from django.core.servers.basehttp import WSGIServer, get_internal_wsgi_application, run
+from django.core.servers.basehttp import WSGIServer, get_internal_wsgi_application
 from django.utils import autoreload
 from django.utils.regex_helper import _lazy_re_compile
+
+from werkzeug import run_simple
+from werkzeug.serving import make_ssl_devcert
+from werkzeug.serving import WSGIRequestHandler
 
 from PtpUploader.Job import Supervisor
 from PtpUploader.MyGlobals import MyGlobals
@@ -88,11 +93,7 @@ class Command(BaseCommand):
 
     def get_handler(self, *args, **options):
         """Return the default WSGI handler for the runner."""
-        use_static_handler = options["use_static_handler"]
-        insecure_serving = options["insecure_serving"]
-        if use_static_handler and (settings.DEBUG or insecure_serving):
-            return StaticFilesHandler(get_internal_wsgi_application())
-        return get_internal_wsgi_application()
+        return StaticFilesHandler(get_internal_wsgi_application())
 
     def initialize(self, options):
         from django.core.management import call_command
@@ -171,6 +172,17 @@ class Command(BaseCommand):
             MyGlobals.PtpUploader.start()
             self.inner_run(None, **options)
 
+    def ssl_context(self):
+        if config.web.ssl.enabled:
+            if config.web.ssl.cert and config.web.ssl.key:
+                return (config.web.ssl.cert, config.web.ssl.key)
+            else:
+                return make_ssl_devcert(
+                    Path("~/.config/ptpuploader/ssl/").expanduser(), host="localhost"
+                )
+        else:
+            return None
+
     def inner_run(self, *args, **options):
         # If an exception was silenced in ManagementUtility.execute in order
         # to be raised in the child process, raise it now.
@@ -206,13 +218,13 @@ class Command(BaseCommand):
 
         try:
             handler = self.get_handler(*args, **options)
-            run(
+            run_simple(
                 self.addr,
                 int(self.port),
                 handler,
-                ipv6=self.use_ipv6,
-                threading=threading,
-                server_cls=self.server_cls,
+                threaded=threading,
+                request_handler=WSGIRequestHandler,
+                ssl_context=self.ssl_context(),
             )
         except OSError as e:
             # Use helpful error messages instead of ugly tracebacks.
