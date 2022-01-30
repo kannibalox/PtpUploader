@@ -12,6 +12,8 @@ from django.shortcuts import get_object_or_404, render
 from django.templatetags.static import static
 from django.urls import reverse
 from django.utils import timezone
+from django.core.exceptions import PermissionDenied
+from django.views.decorators.csrf import csrf_exempt
 
 from PtpUploader import Ptp
 from PtpUploader.Helper import SizeToText, TimeDifferenceToText
@@ -301,6 +303,17 @@ def stop_job(_, r_id: int):
 
     MyGlobals.PtpUploader.add_message(PtpUploaderMessageStopJob(r_id))
     return HttpResponse("OK")
+
+
+@csrf_exempt
+def create(request):
+    if (
+        request.method != "POST"
+        or "password" not in request.POST
+        or request.POST["password"] != config.web.api_key
+    ):
+        raise PermissionDenied
+    releaseInfo = ReleaseInfo()
 
 
 @login_required
