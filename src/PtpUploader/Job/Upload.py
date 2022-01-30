@@ -467,7 +467,7 @@ class Upload(WorkerBase):
 
         # Rehost the image only if not already on an image hoster.
         url = self.ReleaseInfo.CoverArtUrl
-        if url.find("ptpimg.me") != -1 or url.find("picload.org") != -1:
+        if "ptpimg.me" in url or "imgbb.co" in url or "catbox.moe" in url:
             return
 
         self.logger.info("Rehosting poster from '%s'.", url)

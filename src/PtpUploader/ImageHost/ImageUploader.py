@@ -1,5 +1,6 @@
 from PtpUploader.ImageHost.PtpImg import PtpImg
 from PtpUploader.ImageHost.ImgBB import ImgBB
+from PtpUploader.ImageHost.Catbox import CatboxMoe
 from PtpUploader.PtpUploaderException import PtpUploaderException
 from PtpUploader.Settings import config
 
@@ -24,6 +25,8 @@ class ImageUploader:
             host = PtpImg(logger)
         elif config.image_host.use == "imgbb":
             host = ImgBB(logger)
+        elif config.image_host.use == "catbox":
+            host = CatboxMoe(logger)
         else:
             raise PtpUploaderException(
                 "Unknown image host: '%s'." % config.image_host.use

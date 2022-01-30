@@ -74,6 +74,7 @@ image_host:
     api_key:
   imgbb:
     api_key:
+  catbox: # Needs no configuration
 source:
   # Anything set in _default is applied to all sources (including file) unless overridden in the source-specific section.
   _default:
