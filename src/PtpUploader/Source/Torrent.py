@@ -2,6 +2,8 @@ from PtpUploader.PtpUploaderException import PtpUploaderException
 from PtpUploader.ReleaseNameParser import ReleaseNameParser
 from PtpUploader.Source.SourceBase import SourceBase
 
+import bencode
+
 
 class Torrent(SourceBase):
     def __init__(self):
@@ -19,7 +21,10 @@ class Torrent(SourceBase):
         # TODO: support for new movies without IMDB id
         if (not releaseInfo.ImdbId) and (not releaseInfo.PtpId):
             raise PtpUploaderException("Doesn't contain IMDb ID.")
-
+        if not releaseInfo.ReleaseName:
+            with open(releaseInfo.SourceTorrentFilePath, "rb") as fh:
+                meta = bencode.decode(fh.read())
+                releaseInfo.ReleaseName = meta["info"]["name"]
         releaseNameParser = ReleaseNameParser(releaseInfo.ReleaseName)
         releaseNameParser.GetSourceAndFormat(releaseInfo)
         if releaseNameParser.Scene:
