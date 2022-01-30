@@ -51,10 +51,10 @@
 
 // Set the URL of your PtpUploader in the following link.
 // E.g.: http://myhost.com:5500
-var ptpUploaderUrl = "http://<address>:<port>";
+var ptpUploaderUrl = "https://uploader.smuth.me";
 
-// The GreasemonkeyTorrentSenderPassword set in your Settings.ini.
-var ptpUploaderTorrentSenderPassword = "password";
+// The web.api_key set in your config.yml.
+var ptpUploaderTorrentSenderPassword = "test";
 
 // Set this "true" (without the quotes) to open PTP and PtpUploader in a new tab, instead of the current tab
 // when clicking on the PTP or the Up link.
@@ -66,9 +66,9 @@ function SendTorrentToPtpUploader(rawTorrentData, imdbUrl, sendToLink, sendPageC
     var uploadUrl = ptpUploaderUrl + "/ajax/create";
 
     var formData = new FormData();
-    formData.append("Password", ptpUploaderTorrentSenderPassword);
-    formData.append("Torrent", rawTorrentData);
-    formData.append("ImdbUrl", imdbUrl);
+    formData.append("password", ptpUploaderTorrentSenderPassword);
+    formData.append("torrent", rawTorrentData);
+    formData.append("imdbUrl", imdbUrl);
 
     if (sendPageContent) {
         formData.append("SourceUrl", window.location.href);
@@ -91,7 +91,7 @@ function SendTorrentToPtpUploader(rawTorrentData, imdbUrl, sendToLink, sendPageC
                         return false;
                     };
 
-                    var editJobUrl = ptpUploaderUrl + "/job/" + jsonResponse.jobId + "/edit/";
+                    var editJobUrl = ptpUploaderUrl + "/job/" + jsonResponse.jobId + "/edit";
                     if (openPtpAndPtpUploaderInNewTab) window.open(editJobUrl);
                     else window.location = editJobUrl;
                 } else {
