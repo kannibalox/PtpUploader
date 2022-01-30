@@ -15,7 +15,7 @@ from django.utils.regex_helper import _lazy_re_compile
 
 from PtpUploader.Job import Supervisor
 from PtpUploader.MyGlobals import MyGlobals
-from PtpUploader.Settings import Settings
+from PtpUploader.Settings import Settings, config
 
 
 naiveip_re = _lazy_re_compile(
@@ -106,12 +106,11 @@ class Command(BaseCommand):
 
         Settings.LoadSettings()
 
-        call_command('migrate')
+        call_command("migrate")
 
         MyGlobals.InitializeGlobals(Settings.WorkingPath)
         MyGlobals.SourceFactory = SourceFactory()
         MyGlobals.Logger.info("Initializing database.")
-
 
         # Reset any possibling interrupted jobs
         for releaseInfo in ReleaseInfo.objects.filter(
@@ -134,6 +133,8 @@ class Command(BaseCommand):
         if self.use_ipv6 and not socket.has_ipv6:
             raise CommandError("Your Python does not support IPv6.")
         self._raw_ipv6 = False
+        if not options["addrport"] and config.web.address:
+            options["addrport"] = config.web.address
         if not options["addrport"]:
             self.addr = ""
             self.port = self.default_port

@@ -11,6 +11,7 @@ web:
   api_key:
   # Allows controlling
   file_selector_root:
+  address:
 # Settings for the upload forms and workers
 uploader:
   # Files that are explicitly video
