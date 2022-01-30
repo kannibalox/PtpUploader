@@ -158,6 +158,8 @@ class Upload(WorkerBase):
                 raise PtpUploaderException("MP4 only allowed for HDTV sources")
         elif mediaInfo.IsVob():
             container = "VOB IFO"
+        elif mediaInfo.Container == "bdav":
+            container = "m2ts"
 
         if self.ReleaseInfo.Container:
             if container != self.ReleaseInfo.Container:
@@ -173,7 +175,7 @@ class Upload(WorkerBase):
                         "Container is set to '%s', detected MediaInfo container is '%s' ('%s')."
                         % (self.ReleaseInfo.Container, container, mediaInfo.Container)
                     )
-        elif len(container) > 0:
+        elif container:
             self.ReleaseInfo.Container = container
         else:
             raise PtpUploaderException(
@@ -209,7 +211,7 @@ class Upload(WorkerBase):
             codec = "VC-1"
         elif mediaInfo.IsMpeg2Codec():
             codec = "MPEG-2"
-        elif self.ReleaseInfo.IsDvdImage():
+        elif self.ReleaseInfo.IsDvdImage() or self.ReleaseInfo.IsBlurayImage():
             # Codec type DVD5 and DVD9 can't be figured out from MediaInfo.
             codec = self.ReleaseInfo.Codec
 

@@ -236,6 +236,9 @@ class ReleaseInfo(models.Model):
     def IsDvdImage(self):
         return self.Codec in ["DVD5", "DVD9"]
 
+    def IsBlurayImage(self):
+        return str(self.Codec).startswith("BD")
+
     def SetOverrideScreenshots(self, override: bool):
         self.OverrideScreenshots = override
 

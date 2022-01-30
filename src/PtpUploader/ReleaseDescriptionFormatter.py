@@ -1,11 +1,11 @@
 import logging
-import os
 
 from pathlib import Path
 
-from PtpUploader.PtpUploaderException import *
-from PtpUploader.Settings import Settings, config
+from PtpUploader.PtpUploaderException import PtpUploaderException
+from PtpUploader.Settings import config
 from PtpUploader.Tool.MediaInfo import MediaInfo, MediaInfoException
+from PtpUploader.Tool import BdInfo
 from PtpUploader.Tool.ScreenshotMaker import ScreenshotMaker
 
 
@@ -13,10 +13,11 @@ logger = logging.getLogger(__name__)
 
 
 class ReleaseDescriptionVideoEntry:
-    def __init__(self, mediaInfo, numberOfScreenshotsToTake=None):
+    def __init__(self, info, numberOfScreenshotsToTake=None, bdinfo=None):
         if numberOfScreenshotsToTake is None:
             numberOfScreenshotsToTake = config.uploader.max_screenshots
-        self.MediaInfo = mediaInfo
+        self.MediaInfo = info
+        self.BdInfo = bdinfo
         self.NumberOfScreenshotsToTake = numberOfScreenshotsToTake
         self.Screenshots = []
         self.ScaleSize = None
@@ -26,7 +27,10 @@ class ReleaseDescriptionVideoEntry:
 
     def ToReleaseDescription(self):
         releaseDescription = ""
-        releaseDescription += self.MediaInfo.FormattedMediaInfo
+        if self.BdInfo:
+            releaseDescription += self.BdInfo
+        else:
+            releaseDescription += self.MediaInfo.FormattedMediaInfo
 
         if self.HaveScreenshots():
             for screenshot in self.Screenshots:
@@ -103,6 +107,36 @@ class ReleaseDescriptionFormatter:
         )
         self.VideoEntries.append(ReleaseDescriptionVideoEntry(vobMediaInfo))
 
+    def __GetMediaInfoHandleBlurayImage(self):
+        # Get all m2ts streams
+        m2ts = []
+        for file in self.VideoFiles:
+            file = Path(file)
+            if file.suffix == ".m2ts":
+                try:
+                    mediaInfo = MediaInfo(
+                        logger,
+                        file,
+                        self.ReleaseInfo.GetReleaseUploadPath(),
+                    )
+                    m2ts.append(mediaInfo)
+                except MediaInfoException:
+                    # Discard any non-movie mediainfos
+                    pass
+
+        # Use the longest by duration.
+        m2ts = sorted(m2ts, key=lambda x: x.DurationInSec, reverse=True)[0]
+        if m2ts.DurationInSec <= 0:
+            raise PtpUploaderException("None of the M2TSs have duration.")
+        self.MainMediaInfo = m2ts
+        self.VideoEntries.append(
+            ReleaseDescriptionVideoEntry(
+                m2ts,
+                config.uploader.max_screenshots,
+                bdinfo=BdInfo.run(self.ReleaseInfo.GetReleaseUploadPath()),
+            )
+        )
+
     def __GetMediaInfoHandleNonDvdImage(self):
         self.VideoFiles = ScreenshotMaker.SortVideoFiles(self.VideoFiles)
         mediaInfos = MediaInfo.ReadAndParseMediaInfos(
@@ -128,6 +162,8 @@ class ReleaseDescriptionFormatter:
     def __GetMediaInfo(self):
         if self.ReleaseInfo.IsDvdImage():
             self.__GetMediaInfoHandleDvdImage()
+        elif self.ReleaseInfo.IsBlurayImage():
+            self.__GetMediaInfoHandleBlurayImage()
         else:
             self.__GetMediaInfoHandleNonDvdImage()
 

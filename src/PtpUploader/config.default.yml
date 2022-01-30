@@ -14,9 +14,9 @@ web:
 # Settings for the upload forms and workers
 uploader:
   # Files that are explicitly video
-  video_files: [avi, divx, mkv, mp4, vob]
+  video_files: [avi, divx, mkv, mp4, vob, m2ts]
   # Additional files wanted but not technically videos
-  additional_files: [bup, idx, ifo, srt, sub]
+  additional_files: [bup, idx, ifo, srt, sub, bdmc, mpls, clpi]
   ignore_files: ['.*sample.*', '.*d-z0n3\.assistant\.rar']
   # Controls the default settings for checkboxes on the upload form. Able to be overridden on a per-job basis.
   override_screenshots: false
@@ -53,6 +53,8 @@ tools:
   mediainfo:
     path: mediainfo
     timeout: 60
+  bdinfo:
+    path: # Needs to be set for Bluray support
   # Entirely optional, but useful for losslessly compressing screenshots
   imagemagick:
     path: convert

@@ -15,6 +15,7 @@ from PtpUploader.ReleaseInfo import ReleaseInfo
 from PtpUploader.Settings import Settings
 from PtpUploader.Tool import Mktor
 
+
 class ReleaseInfoMaker:
     def __init__(self, path):
         self.Path = path
@@ -72,14 +73,19 @@ class ReleaseInfoMaker:
 
                 return
 
+    def MarkAsBlurayImageIfNeeded(self, releaseInfo):
+        if "BDMV" in os.listdir(self.Path):
+            releaseInfo.Codec = "BD25"
+
     def SaveReleaseDescriptionFile(
         self, logger, releaseDescriptionFilePath, createScreens
     ):
         releaseInfo = ReleaseInfo()
         releaseInfo.Logger = logger
         releaseInfo.ReleaseName = self.ReleaseName
-        releaseInfo.SetReleaseUploadPath = self.TorrentDataPath
+        releaseInfo.ReleaseUploadPath = self.TorrentDataPath
         self.MarkAsDvdImageIfNeeded(releaseInfo)
+        self.MarkAsBlurayImageIfNeeded(releaseInfo)
 
         outputImageDirectory = self.WorkingDirectory
         releaseDescriptionFormatter = ReleaseDescriptionFormatter(
