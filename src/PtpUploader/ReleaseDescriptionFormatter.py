@@ -88,6 +88,8 @@ class ReleaseDescriptionFormatter:
         vobMediaInfo = None
         for vob in sorted(ifo.Path.parent.glob(str(ifo.Path.name[:-5]) + "*.VOB")):
             # Get the next VOB and try to parse its mediainfo
+            if str(vob).endswith("0.VOB"):
+                continue
             try:
                 vobMediaInfo = MediaInfo(
                     logger, vob, self.ReleaseInfo.GetReleaseUploadPath()
