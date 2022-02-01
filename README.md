@@ -33,7 +33,7 @@ pip3 install PtpUploader
 3. Create the config file:
 ```bash
 mkdir -pv ~/.config/ptpuploader/
-wget https://github.com/kannibalox/PtpUploader/blob/main/src/PtpUploader/config.default.yml -O ~/.config/ptpuploader/config.yml
+wget https://raw.githubusercontent.com/kannibalox/PtpUploader/main/src/PtpUploader/config.default.yml -O ~/.config/ptpuploader/config.yml
 nano ~/.config/ptpuploader/config.yml # Edit config file as needed
 ```
 4. Start the process:
@@ -56,7 +56,7 @@ cd PtpUploader/
 2. Create the config file
 ```
 mkdir -pv ~/.config/ptpuploader/
-wget https://github.com/kannibalox/PtpUploader/blob/main/src/PtpUploader/config.default.yml -O ~/.config/ptpuploader/config.yml
+wget https://raw.githubusercontent.com/kannibalox/PtpUploader/main/src/PtpUploader/config.default.yml -O ~/.config/ptpuploader/config.yml
 nano ~/.config/ptpuploader/config.yml # Edit config file as needed
 ```
 When running in docker, be sure to enter the address to rTorrent's SCGI port (**not** a ruTorrent port).
