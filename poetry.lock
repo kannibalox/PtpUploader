@@ -54,7 +54,6 @@ description = "Python package to access the IMDb's database"
 category = "main"
 optional = false
 python-versions = "*"
-develop = false
 
 [package.dependencies]
 lxml = "*"
@@ -64,12 +63,6 @@ SQLAlchemy = "*"
 dev = ["flake8", "flake8-isort", "readme-renderer"]
 doc = ["sphinx", "sphinx-rtd-theme"]
 test = ["pytest", "pytest-cov", "pytest-profiling"]
-
-[package.source]
-type = "git"
-url = "https://github.com/cinemagoer/cinemagoer.git"
-reference = "master"
-resolved_reference = "ab7c6b10bf3acaadc11d78d8599fae854a20a901"
 
 [[package]]
 name = "django"
@@ -362,7 +355,7 @@ testing = ["pytest (>=6)", "pytest-checkdocs (>=2.4)", "pytest-flake8", "pytest-
 [metadata]
 lock-version = "1.1"
 python-versions = ">3.7,<4.0"
-content-hash = "62aa3c24f4c1b2cf16f09008110bc46ea366b466c63183ad7a6ed8a37caadae0"
+content-hash = "3ead366bfb784647108fe0415bf7e90efb56dc7c97265a0c0ee0116a12392dca"
 
 [metadata.files]
 asgiref = [
@@ -385,7 +378,10 @@ charset-normalizer = [
     {file = "charset-normalizer-2.0.11.tar.gz", hash = "sha256:98398a9d69ee80548c762ba991a4728bfc3836768ed226b3945908d1a688371c"},
     {file = "charset_normalizer-2.0.11-py3-none-any.whl", hash = "sha256:2842d8f5e82a1f6aa437380934d5e1cd4fcf2003b06fed6940769c164a480a45"},
 ]
-cinemagoer = []
+cinemagoer = [
+    {file = "cinemagoer-2022.1.26-py3-none-any.whl", hash = "sha256:d69a30f2361663c34c76a47ca30498a5f5fdb85535a1a417413e673ede354a30"},
+    {file = "cinemagoer-2022.1.26.tar.gz", hash = "sha256:802ec0ce832ff0d78591cf22112f935e07f6db56dcb985f1335e3d2940ba0423"},
+]
 django = [
     {file = "Django-3.2.12-py3-none-any.whl", hash = "sha256:9b06c289f9ba3a8abea16c9c9505f25107809fb933676f6c891ded270039d965"},
     {file = "Django-3.2.12.tar.gz", hash = "sha256:9772e6935703e59e993960832d66a614cf0233a1c5123bc6224ecc6ad69e41e2"},

@@ -30,8 +30,8 @@ guessit = "^3.3.1"
 pyrosimple = "^1.1.0"
 dynaconf = "^3.1.7"
 Unidecode = "^1.3.2"
-cinemagoer = {git = "https://github.com/cinemagoer/cinemagoer.git"}
 Werkzeug = "^2.0.2"
+cinemagoer = "^2022.1.26"
 
 [tool.poetry.scripts]
 PtpUploader = "PtpUploader.manage:run"
