@@ -6,13 +6,28 @@ authors = ["kannibalox <kannibalox@gmail.com>"]
 packages = [
   { include = "PtpUploader", from = "src" }
 ]
+repository = "https://github.com/kannibalox/PtpUploader"
+classifiers = [
+        "Development Status :: 4 - Beta",
+        "Environment :: Web Environment",
+        "Natural Language :: English",
+        "Operating System :: POSIX",
+        "Programming Language :: Python :: 3 :: Only",
+        "Programming Language :: Python :: 3.7",
+        "Programming Language :: Python :: 3.8",
+        "Programming Language :: Python :: 3.9",
+        "Programming Language :: Python :: 3.10",
+        "Programming Language :: Python :: 3.11",
+        "Topic :: Utilities",
+]
+
 
 [tool.poetry.dependencies]
 python = ">3.7,<4.0"
 requests = "^2.26.0"
 Django = "^3.2.8"
 guessit = "^3.3.1"
-pyrosimple = {git = "https://github.com/kannibalox/pyrosimple.git", tag = "v1.1.0"}
+pyrosimple = "^1.1.0"
 dynaconf = "^3.1.7"
 Unidecode = "^1.3.2"
 cinemagoer = {git = "https://github.com/cinemagoer/cinemagoer.git"}
