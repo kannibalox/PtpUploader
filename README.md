@@ -28,14 +28,12 @@ sudo apt install python3 mpv imagemagick mediainfo
 # sudo apt install python3-venv
 # virtualenv ~/.venv/ptpuploader/
 # source ~/.venv/ptpuploader/bin/activate
-git clone https://github.com/kannibalox/PtpUploader.git
-cd PtpUploader/
-pip3 install .
+pip3 install PtpUploader
 ```
 3. Create the config file:
 ```bash
 mkdir -pv ~/.config/ptpuploader/
-cp src/PtpUploader/config.default.yml ~/.config/ptpuploader/config.yml
+wget https://github.com/kannibalox/PtpUploader/blob/main/src/PtpUploader/config.default.yml -O ~/.config/ptpuploader/config.yml
 nano ~/.config/ptpuploader/config.yml # Edit config file as needed
 ```
 4. Start the process:
@@ -58,7 +56,7 @@ cd PtpUploader/
 2. Create the config file
 ```
 mkdir -pv ~/.config/ptpuploader/
-cp src/PtpUploader/config.default.yml ~/.config/ptpuploader/config.yml
+wget https://github.com/kannibalox/PtpUploader/blob/main/src/PtpUploader/config.default.yml -O ~/.config/ptpuploader/config.yml
 nano ~/.config/ptpuploader/config.yml # Edit config file as needed
 ```
 When running in docker, be sure to enter the address to rTorrent's SCGI port (**not** a ruTorrent port).
@@ -84,7 +82,7 @@ Support is provided on [PTP](https://passthepopcorn.me/forums.php?action=viewthr
 
 ## Changelog
 
-Many things have changed in version 1.0. Most importantly, only python 3.7+ is supported.
+Many things have changed in preparation for version 1.0. Most importantly, only python 3.7+ is supported.
 
 Non-exhaustive list of other changes:
 - Reduce login sessions by write to a cookie file
