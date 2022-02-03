@@ -207,7 +207,7 @@ class ReleaseDescriptionFormatter:
             )
 
         if len(self.ReleaseInfo.ReleaseNotes) > 0:
-            releaseDescription += "\n\n%s" % self.ReleaseInfo.ReleaseNotes
+            releaseDescription += "%s\n\n" % self.ReleaseInfo.ReleaseNotes
 
         for i, entry in enumerate(self.VideoEntries):
             if i > 0:
