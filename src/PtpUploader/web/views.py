@@ -328,6 +328,7 @@ def create(request):
     if source is not None:
         release.AnnouncementSourceName = source.Name
         release.AnnouncementId = source_id
+    release.JobStartMode = JobStartMode.Manual
     release.save()
     response = JsonResponse({"result": "OK", "jobId": release.Id})
     response["Access-Control-Allow-Origin"] = "*"
