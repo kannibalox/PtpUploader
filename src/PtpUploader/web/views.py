@@ -329,6 +329,7 @@ def create(request):
         release.AnnouncementSourceName = source.Name
         release.AnnouncementId = source_id
     release.JobStartMode = JobStartMode.Manual
+    release.StopBeforeUploading = True
     release.save()
     response = JsonResponse({"result": "OK", "jobId": release.Id})
     response["Access-Control-Allow-Origin"] = "*"

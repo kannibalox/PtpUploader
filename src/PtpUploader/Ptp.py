@@ -199,6 +199,9 @@ def __UploadMovieGetParamsCommon(releaseInfo, releaseDescription):
         "trumpable[]": releaseInfo.Trumpable,
     }
 
+    if releaseInfo.Source == "Other":
+        paramList["other_source"]: releaseInfo.SourceOther
+
     # personal rip only needed if it is specified
     if releaseInfo.PersonalRip:
         paramList.update({"internalrip": "on"})

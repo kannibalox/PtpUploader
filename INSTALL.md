@@ -63,8 +63,13 @@ Optional external programs:
 
 ## Upgrading
 
-For both installation methods, you can simply update the repo, stop the daemon and follow
-the installation instructions again.
+### Pip
+
+```bash
+pip install -U PtpUploader
+```
+
+### Docker
 
 When stopping the daemon in docker, be sure to fully remove the existing container:
 ```bash

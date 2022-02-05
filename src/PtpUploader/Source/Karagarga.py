@@ -128,7 +128,11 @@ class Karagarga(SourceBase):
             untouched_fail = "modified video"
         if "audio: untouched" not in ripSpecs.lower():
             untouched_fail = "modified audio"
-        if "menus: " in ripSpecs.lower() and "menus: untouched" not in ripSpecs.lower():
+        if (
+            "menus: " in ripSpecs.lower()
+            and "menus: untouched" not in ripSpecs.lower()
+            and "menus: n/a" not in ripSpecs.lower()
+        ):
             untouched_fail = "modified menus"
         if (
             "dvd extras: " in ripSpecs.lower()
