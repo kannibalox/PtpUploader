@@ -1,7 +1,8 @@
-import os
 import argparse
+import os
 
 import django
+
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "PtpUploader.web.settings")
 django.setup()

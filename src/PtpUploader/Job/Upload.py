@@ -6,13 +6,12 @@ import threading
 
 from django.template import engines
 
-from PtpUploader import Ptp
+from PtpUploader import ImageHost, Ptp
 from PtpUploader.Helper import GetIdxSubtitleLanguages, TimeDifferenceToText
-from PtpUploader import ImageHost
 from PtpUploader.Job.FinishedJobPhase import FinishedJobPhase
 from PtpUploader.Job.JobRunningState import JobRunningState
-from PtpUploader.Job.WorkerBase import WorkerBase
 from PtpUploader.Job.JobStartMode import JobStartMode
+from PtpUploader.Job.WorkerBase import WorkerBase
 from PtpUploader.MyGlobals import MyGlobals
 from PtpUploader.PtpSubtitle import PtpSubtitleId
 from PtpUploader.PtpUploaderException import *

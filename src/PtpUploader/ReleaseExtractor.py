@@ -2,6 +2,7 @@ import fnmatch
 import os
 
 from pathlib import Path
+
 from unidecode import unidecode
 
 from PtpUploader.MyGlobals import MyGlobals

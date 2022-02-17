@@ -1,6 +1,6 @@
-from PtpUploader.ImageHost.PtpImg import PtpImg
-from PtpUploader.ImageHost.ImgBB import ImgBB
 from PtpUploader.ImageHost.Catbox import CatboxMoe
+from PtpUploader.ImageHost.ImgBB import ImgBB
+from PtpUploader.ImageHost.PtpImg import PtpImg
 from PtpUploader.PtpUploaderException import PtpUploaderException
 from PtpUploader.Settings import config
 

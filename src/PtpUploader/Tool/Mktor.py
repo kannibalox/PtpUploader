@@ -1,6 +1,7 @@
 import os
 
 import bencode
+
 from pyrosimple.util import metafile
 
 from PtpUploader.Settings import Settings

@@ -4,8 +4,8 @@ from pathlib import Path
 
 from PtpUploader.PtpUploaderException import PtpUploaderException
 from PtpUploader.Settings import config
-from PtpUploader.Tool.MediaInfo import MediaInfo, MediaInfoException
 from PtpUploader.Tool import BdInfo
+from PtpUploader.Tool.MediaInfo import MediaInfo, MediaInfoException
 from PtpUploader.Tool.ScreenshotMaker import ScreenshotMaker
 
 

@@ -1,7 +1,7 @@
 import logging
 import os
-import urllib
 import time
+import urllib
 
 from datetime import datetime
 from pathlib import Path
@@ -10,12 +10,12 @@ from typing import Any, Dict
 import dynaconf
 
 from django.contrib.auth.decorators import login_required
+from django.core.exceptions import PermissionDenied
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.shortcuts import get_object_or_404, render
 from django.templatetags.static import static
 from django.urls import reverse
 from django.utils import timezone
-from django.core.exceptions import PermissionDenied
 from django.views.decorators.csrf import csrf_exempt
 
 from PtpUploader import Ptp
@@ -141,29 +141,31 @@ def settings(request):
     if request.method == "POST":
         form = forms.SettingsForm(request.POST)
         if form.is_valid():
-            config.image_host.use = form.cleaned_data['image_host_use']
-            config.ptp.username = form.cleaned_data['ptp_username']
-            config.ptp.password = form.cleaned_data['ptp_password']
-            config.ptp.announce_url = form.cleaned_data['ptp_announce_url']
-            dynaconf.loaders.yaml_loader.write(Path("~/.config/ptpuploader/config.yml").expanduser(), {
-                'ptp': {
-                    'username': form.cleaned_data['ptp_username'],
-                    'password': form.cleaned_data['ptp_password'],
-                    'announce_url': form.cleaned_data['ptp_announce_url'],
-                },
-                'client': {
-                    'use': form.cleaned_data['client_use'],
-                    form.cleaned_data['client_use']:{
-                        'address': form.cleaned_data['client_address']
+            config.image_host.use = form.cleaned_data["image_host_use"]
+            config.ptp.username = form.cleaned_data["ptp_username"]
+            config.ptp.password = form.cleaned_data["ptp_password"]
+            config.ptp.announce_url = form.cleaned_data["ptp_announce_url"]
+            dynaconf.loaders.yaml_loader.write(
+                Path("~/.config/ptpuploader/config.yml").expanduser(),
+                {
+                    "ptp": {
+                        "username": form.cleaned_data["ptp_username"],
+                        "password": form.cleaned_data["ptp_password"],
+                        "announce_url": form.cleaned_data["ptp_announce_url"],
                     },
+                    "client": {
+                        "use": form.cleaned_data["client_use"],
+                        form.cleaned_data["client_use"]: {
+                            "address": form.cleaned_data["client_address"]
+                        },
+                    },
+                    "image_host": {"use": form.cleaned_data["image_host_use"]},
                 },
-                'image_host': {
-                    'use': form.cleaned_data['image_host_use']
-                }
-            })
+            )
     else:
         form = forms.SettingsForm()
     return render(request, "settings.html", {"form": form})
+
 
 @login_required
 def bulk_upload(request):

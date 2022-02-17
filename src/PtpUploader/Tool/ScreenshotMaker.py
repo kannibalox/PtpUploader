@@ -12,6 +12,7 @@ from PtpUploader.Tool.ImageMagick import ImageMagick
 from PtpUploader.Tool.Mplayer import Mplayer
 from PtpUploader.Tool.Mpv import Mpv
 
+
 # Blatantly stolen from https://stackoverflow.com/a/57701186
 @contextlib.contextmanager
 def temporary_filename(suffix=None):

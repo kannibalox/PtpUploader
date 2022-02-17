@@ -2,8 +2,10 @@
 # http://docs.python.org/tutorial/modules.html
 from PtpUploader.ImageHost.ImageUploader import ImageUploader
 
+
 def list_hosts():
-    return ['ptpimg', 'catbox', 'imgbb']
+    return ["ptpimg", "catbox", "imgbb"]
+
 
 def upload(logger, imagePath=None, imageUrl=None):
     return ImageUploader.Upload(logger, imagePath, imageUrl)

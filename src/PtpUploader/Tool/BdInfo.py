@@ -1,13 +1,15 @@
-import subprocess
-import re
 import logging
+import re
 import shlex
-from typing import Optional, List
+import subprocess
+
 from pathlib import Path
 from tempfile import TemporaryDirectory
+from typing import List, Optional
 
-from PtpUploader.Settings import config
 from PtpUploader.PtpUploaderException import PtpUploaderException
+from PtpUploader.Settings import config
+
 
 logger = logging.getLogger(__name__)
 

@@ -112,7 +112,7 @@ class Rtorrent:
             completed = self.proxy.d.complete(infoHash)
             return completed == 1
         except xmlrpc.HashNotFound as e:
-            raise e # Raise this up to the web UI
+            raise e  # Raise this up to the web UI
         except Exception as e:
             logger.exception(
                 "Got exception while trying to check torrent's completion status. hash: '%s', error: '%s'",

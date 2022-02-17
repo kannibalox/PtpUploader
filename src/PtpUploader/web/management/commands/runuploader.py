@@ -3,9 +3,9 @@ import os
 import re
 import socket
 import sys
-from pathlib import Path
 
 from datetime import datetime
+from pathlib import Path
 
 from django.conf import settings
 from django.contrib.staticfiles.handlers import StaticFilesHandler
@@ -13,10 +13,8 @@ from django.core.management.base import BaseCommand, CommandError
 from django.core.servers.basehttp import WSGIServer, get_internal_wsgi_application
 from django.utils import autoreload
 from django.utils.regex_helper import _lazy_re_compile
-
 from werkzeug import run_simple
-from werkzeug.serving import make_ssl_devcert
-from werkzeug.serving import WSGIRequestHandler
+from werkzeug.serving import WSGIRequestHandler, make_ssl_devcert
 
 from PtpUploader.Job import Supervisor
 from PtpUploader.MyGlobals import MyGlobals

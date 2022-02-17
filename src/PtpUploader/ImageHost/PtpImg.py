@@ -1,7 +1,7 @@
 import requests
 
-from PtpUploader.PtpUploaderException import PtpUploaderException
 from PtpUploader.ImageHost.Base import ImageSite
+from PtpUploader.PtpUploaderException import PtpUploaderException
 
 
 class PtpImg(ImageSite):

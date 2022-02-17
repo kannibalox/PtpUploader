@@ -1,8 +1,8 @@
+import bencode
+
 from PtpUploader.PtpUploaderException import PtpUploaderException
 from PtpUploader.ReleaseNameParser import ReleaseNameParser
 from PtpUploader.Source.SourceBase import SourceBase
-
-import bencode
 
 
 class Torrent(SourceBase):
