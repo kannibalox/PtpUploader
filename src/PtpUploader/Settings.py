@@ -18,7 +18,7 @@ config = Dynaconf(
     settings_files=[
         Path(Path(__file__).parent, "config.default.yml"),
         Path("~/.config/ptpuploader/config.yml").expanduser(),
-        ".secrets.yaml",
+        ".secrets.yml",
     ],
     environments=False,
     load_dotenv=True,
@@ -100,7 +100,9 @@ class Settings:
     @staticmethod
     def LoadSettings():
         # TODO: These aren't actually required for ReleaseMaker, make it so
-        if not (config.ptp.announce_url and config.ptp.username and config.ptp.password):
+        if not (
+            config.ptp.announce_url and config.ptp.username and config.ptp.password
+        ):
             raise PtpUploaderException(
                 "Make sure the username, password and announce URL are set in the config!"
             )
@@ -116,7 +118,6 @@ class Settings:
         Settings.PtpUserName = config.ptp.username
         Settings.PtpPassword = config.ptp.password
 
-        Settings.ImageHost = config.image_host.use
         Settings.PtpImgApiKey = config.image_host.ptpimg.api_key
         Settings.OnSuccessfulUpload = config.hook.on_upload
 
@@ -177,19 +178,29 @@ class Settings:
         Settings.GetTemporaryPath().mkdir(parents=True, exist_ok=True)
 
     @staticmethod
+    def CreateClient():
+        use = config.client.use.lower()
+        # Hack to let env var take precedence
+        address = (
+            config["client"][config.client.use.upper()]["ADDRESS"]
+            or config["client"][config.client.use]["address"]
+        )
+        if use == "transmission":
+            from PtpUploader.Tool.Transmission import Transmission
+
+            Settings.TorrentClient = Transmission(
+                address.split(":")[0],
+                address.split(":")[1],
+            )
+        else:
+            from PtpUploader.Tool.Rtorrent import Rtorrent
+
+            Settings.TorrentClient = Rtorrent(address)
+
+    @staticmethod
     def GetTorrentClient():
         if Settings.TorrentClient is None:
-            if Settings.TorrentClientName.lower() == "transmission":
-                from PtpUploader.Tool.Transmission import Transmission
-
-                Settings.TorrentClient = Transmission(
-                    Settings.TorrentClientAddress.split(":")[0],
-                    Settings.TorrentClientAddress.split(":")[1],
-                )
-            else:
-                from PtpUploader.Tool.Rtorrent import Rtorrent
-
-                Settings.TorrentClient = Rtorrent(Settings.TorrentClientAddress)
+            Settings.CreateClient()
         return Settings.TorrentClient
 
     @staticmethod
