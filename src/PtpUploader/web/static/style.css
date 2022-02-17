@@ -76,7 +76,7 @@ html#uploader, body#uploader, table#jobs th, #jobs.table.is-striped tbody, td.la
     text-align: right;
 }
 
-input[type="text"], input[type="search"], textarea, button, select, textarea, span.select2, span.select2-selection--multiple.select2-selection {
+input[type="text"], input[type="password"], input[type="search"], textarea, button, select, textarea, span.select2, span.select2-selection--multiple.select2-selection {
     background-color : #363636;
     border: thin solid #30373d;
     border-radius: 3px;

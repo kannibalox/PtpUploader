@@ -10,18 +10,28 @@ from django.forms import (
     MultipleChoiceField,
     Textarea,
     TextInput,
+    PasswordInput,
 )
 
+from PtpUploader import ImageHost
 from PtpUploader.Job.JobStartMode import JobStartMode
 from PtpUploader.PtpSubtitle import PtpSubtitleId
 from PtpUploader.ReleaseInfo import ReleaseInfo
+from PtpUploader.Settings import config
 
+class SettingsForm(Form):
+    image_host_use = ChoiceField(choices=[(x,x) for x in ImageHost.list_hosts()], initial=config.image_host.use, label="Host")
+    ptp_username = CharField(initial=config.ptp.username, label="Username")
+    ptp_password = CharField(initial=config.ptp.password, label="Password", widget=TextInput(attrs={'type': 'password'}))
+    ptp_announce_url = CharField(initial=config.ptp.announce_url, label="Announce URL")
+    client_use = ChoiceField(choices=[(x,x) for x in ["rtorrent", "transmission"]], initial=config.client.use, label="Use")
+    client_address = CharField(initial=config.client[config.client.use].address, label="Address", help_text="Automatically determined if not set", required=False)
 
 class BulkReleaseForm(Form):
     Links = CharField(widget=Textarea(attrs={"placeholder": "Links"}), required=False)
     Paths = CharField(widget=Textarea(attrs={"placeholder": "Paths"}), required=False)
     Files = FileField(
-        widget=ClearableFileInput(attrs={"class": "file-input"}), required=False
+        widget=ClearableFileInput(attrs={"class": "file-input", 'multiple': 'multiple', 'accept': 'application/x-bittorrent'}), required=False
     )
 
 

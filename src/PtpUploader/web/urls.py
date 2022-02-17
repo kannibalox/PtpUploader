@@ -13,6 +13,7 @@ urlpatterns = [
     path("ajax/getlatest", views.jobs_get_latest, name="jobs_get_latest"),
     path("ajax/create", views.create, name="ajax_create"),
     path("upload", views.edit_job, name="upload"),
+    path("settings", views.settings, name="settings"),
     path("upload/bulk", views.bulk_upload, name="bulk_upload"),
     path("movieAvailabilityCheck", views.jobs, name="movieAvailabilityCheck"),
     path("quit", views.jobs, name="quit"),

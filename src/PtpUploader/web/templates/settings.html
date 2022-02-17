@@ -1,0 +1,61 @@
+﻿{% extends "layout.html" %}
+
+{% load static %}
+
+{% block head %}
+  <title>Settings - PtpUploader</title>
+{% endblock %}
+
+{% block body %}
+  <div class="columns is-centered">
+    <div class="column is-half">
+      <br/>
+      <form action="{% url "settings" %}" method="post">
+        {% csrf_token %}
+        {# Include the hidden fields #}
+        <table class="border" border="0" cellpadding="3" cellspacing="3">
+          <tbody>
+            {% for hidden in form.hidden_fields %}
+              {{ hidden }}
+            {% endfor %}
+            {# Include the visible fields #}
+            <tr><td class="label">Image Hosts</td></tr>
+            <tr>
+              {{ form.image_host_use.errors }}
+              <td>{{ form.image_host_use.label_tag }}</td>
+              <td>{{ form.image_host_use }}</td>
+            </tr>
+            <tr><td class="label">PTP</td></tr>
+            <tr>
+              {{ form.ptp_username.errors }}
+              <td>{{ form.ptp_username.label_tag }}</td>
+              <td>{{ form.ptp_username }}</td>
+            </tr>
+            <tr>
+              {{ form.ptp_password.errors }}
+              <td>{{ form.ptp_password.label_tag }}</td>
+              <td>{{ form.ptp_password }}</td>
+            </tr>
+            <tr>
+              {{ form.ptp_announce_url.errors }}
+              <td>{{ form.ptp_announce_url.label_tag }}</td>
+              <td>{{ form.ptp_announce_url }}</td>
+            </tr>
+            <tr><td class="label">Client</td></tr>
+            <tr>
+              {{ form.client_use.errors }}
+              <td>{{ form.client_use.label_tag }}</td>
+              <td>{{ form.client_use }}</td>
+            </tr>
+            <tr>
+              {{ form.client_address.errors }}
+              <td>{{ form.client_address.label_tag }}</td>
+              <td>{{ form.client_address }}</td>
+            </tr>
+          </tbody>
+        </table>
+        <input class="is-primary is-centered button is-dark is-light" id="post" name="post" type="submit" value="Save"/>
+      </form>
+    </div>
+  </div>
+{% endblock %}
