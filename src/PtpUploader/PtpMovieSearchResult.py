@@ -142,9 +142,9 @@ class PtpMovieSearchResult:
             if t["Size"] == release.Size:
                 return t
 
-            # Find any really close duplicates
+            # Find any really close duplicates (within 3%)
             if t["Source"] == release.Source and t["Codec"] == release.Codec:
-                if abs((release.Size / t["Size"]) - 1) * 100 < 3:
+                if abs((release.Size / int(t["Size"])) - 1) * 100 < 3:
                     return t
 
             # Two slots are available, first check if we can coexist with any of them

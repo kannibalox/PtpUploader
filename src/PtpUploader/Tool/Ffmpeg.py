@@ -32,10 +32,10 @@ class Ffmpeg:
         if match is None:
             return
 
-        width = int(match.group(1))
-        height = int(match.group(2))
-        darX = int(match.group(3))
-        darY = int(match.group(4))
+        width: int = int(match.group(1))
+        height: int = int(match.group(2))
+        darX: int = int(match.group(3))
+        darY: int = int(match.group(4))
         # We ignore invalid resolutions, invalid aspect ratios and aspect ratio 1:1.
         if (
             width <= 0
