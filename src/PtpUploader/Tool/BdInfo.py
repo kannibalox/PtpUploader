@@ -50,7 +50,7 @@ def get_longest_playlist(path: Path) -> str:
     longest_len: int = 0
     for line in proc.stdout.decode().split("\n"):
         if ".MPLS" in line:
-            length_str = line.split(" ")[14].split(":")
+            length_str = line[26:34].split(':')
             length_sec = sum(
                 [int(x[1]) * (60 ** (2 - x[0])) for x in enumerate(length_str)]
             )
