@@ -153,7 +153,7 @@ class PtpMovieSearchResult:
                 and t["Quality"] == "Standard Definition"
             ):
                 if (
-                    abs((release.Size / t["Size"]) - 1) * 100 < 40
+                    abs((release.Size / int(t["Size"])) - 1) * 100 < 40
                 ):  # 4.1.1.1 40% size difference to be able to coexist
                     return t
             if release.ResolutionType == "576p" and t["Resolution"] == "576p":
