@@ -75,7 +75,7 @@ class ReleaseInfoMaker:
                 return
 
     def MarkAsBlurayImageIfNeeded(self, releaseInfo):
-        if "BDMV" in os.listdir(self.Path):
+        if os.path.isdir(self.Path) and "BDMV" in os.listdir(self.Path):
             releaseInfo.Codec = "BD25"
 
     def SaveReleaseDescriptionFile(
