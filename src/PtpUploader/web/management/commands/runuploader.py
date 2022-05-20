@@ -16,6 +16,7 @@ from django.utils.regex_helper import _lazy_re_compile
 from werkzeug import run_simple
 from werkzeug.serving import WSGIRequestHandler, make_ssl_devcert
 
+from PtpUploader import Ptp
 from PtpUploader.Job import Supervisor
 from PtpUploader.MyGlobals import MyGlobals
 from PtpUploader.Settings import Settings, config
@@ -109,7 +110,7 @@ class Command(BaseCommand):
 
         MyGlobals.InitializeGlobals(Settings.WorkingPath)
         MyGlobals.SourceFactory = SourceFactory()
-        MyGlobals.Logger.info("Initializing database.")
+        MyGlobals.Logger.info("Initializing database...")
 
         # Reset any possibling interrupted jobs
         for releaseInfo in ReleaseInfo.objects.filter(
@@ -166,6 +167,7 @@ class Command(BaseCommand):
         if use_reloader:
             autoreload.run_with_reloader(self.inner_run, **options)
         else:
+            Ptp.Login()
             MyGlobals.PtpUploader = Supervisor.JobSupervisor()
             MyGlobals.PtpUploader.start()
             self.inner_run(None, **options)

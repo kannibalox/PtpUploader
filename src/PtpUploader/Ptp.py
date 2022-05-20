@@ -6,7 +6,7 @@ import traceback
 from PtpUploader.MyGlobals import MyGlobals
 from PtpUploader.PtpMovieSearchResult import PtpMovieSearchResult
 from PtpUploader.PtpUploaderException import *
-from PtpUploader.Settings import Settings
+from PtpUploader.Settings import Settings, config
 
 
 def __LoginInternal():
@@ -32,14 +32,20 @@ def __LoginInternal():
     passKey = passKey.group(1)
 
     MyGlobals.Logger.info("Logging in to PTP.")
+    logged_in = False
+    try:
+        if "passthepopcorn.me" in MyGlobals.session.cookies.list_domains():
+            response = MyGlobals.session.get("https://passthepopcorn.me/upload.php")
+            CheckIfLoggedInFromResponse(response, response.text)
+            Settings.AntiCsrfToken = re.search(
+                r'data-AntiCsrfToken="(.*)"', response.text
+            ).group(1)
+            logged_in = True
+    except PtpUploaderException:
+        pass
 
-    if "passthepopcorn.me" in MyGlobals.session.cookies.list_domains():
-        response = MyGlobals.session.get("https://passthepopcorn.me/upload.php")
-        CheckIfLoggedInFromResponse(response, response.text)
-        Settings.AntiCsrfToken = re.search(
-            r'data-AntiCsrfToken="(.*)"', response.text
-        ).group(1)
-    else:
+    
+    if not logged_in:
         postData = {
             "username": Settings.PtpUserName,
             "password": Settings.PtpPassword,
@@ -50,6 +56,7 @@ def __LoginInternal():
             "https://passthepopcorn.me/ajax.php?action=login", data=postData
         ).text
 
+        print(response)
         jsonLoad = None
         try:
             jsonLoad = json.loads(response)
@@ -65,12 +72,24 @@ def __LoginInternal():
                 % response
             )
 
-        if jsonLoad["Result"] != "Ok":
+        if jsonLoad["Result"] == "TfaRequired":
+            postData["TfaCode"] = input("Enter 2FA auth code:")
+            postData["TfaType"] = "normal"
+            response = MyGlobals.session.post(
+                "https://passthepopcorn.me/ajax.php?action=login", data=postData
+            ).text
+            jsonLoad = json.loads(response)
+            if jsonLoad["Result"] != "Ok":
+                raise PtpUploaderInvalidLoginException(
+                    "Failed to login to PTP. Probably due to a bad 2FA auth code. Response: '%s'." % jsonLoad
+                )
+            Settings.AntiCsrfToken = jsonLoad["AntiCsrfToken"]
+        elif jsonLoad["Result"] != "Ok":
             raise PtpUploaderInvalidLoginException(
-                "Failed to login to PTP. Probably due to the bad user name, password or pass key."
+                "Failed to login to PTP. Probably due to the bad user name, password or pass key. Response: '%s'." % jsonLoad
             )
-
-        Settings.AntiCsrfToken = jsonLoad["Settings.AntiCsrfToken"]
+        else:
+            Settings.AntiCsrfToken = jsonLoad["Settings.AntiCsrfToken"]
         MyGlobals.SaveCookies()
 
 
@@ -92,12 +111,12 @@ def Login():
 
 
 def __CheckIfLoggedInFromResponseLogResponse(result, responseBody: str):
-    MyGlobals.Logger.info("MSG: %s" % result.reason)
-    MyGlobals.Logger.info("CODE: %s" % result.status_code)
-    MyGlobals.Logger.info("URL: %s" % result.url)
-    MyGlobals.Logger.info("HEADERS: %s" % result.headers)
-    MyGlobals.Logger.info("STACK: %s" % traceback.format_stack())
-    MyGlobals.Logger.info("RESPONSE BODY: %s" % responseBody)
+    MyGlobals.Logger.debug("MSG: %s" % result.reason)
+    MyGlobals.Logger.debug("CODE: %s" % result.status_code)
+    MyGlobals.Logger.debug("URL: %s" % result.url)
+    MyGlobals.Logger.debug("HEADERS: %s" % result.headers)
+    MyGlobals.Logger.debug("STACK: %s" % traceback.format_stack())
+    MyGlobals.Logger.debug("RESPONSE BODY: %s" % responseBody)
 
 
 def CheckIfLoggedInFromResponse(result, responseBody: str):
