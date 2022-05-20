@@ -44,7 +44,6 @@ def __LoginInternal():
     except PtpUploaderException:
         pass
 
-    
     if not logged_in:
         postData = {
             "username": Settings.PtpUserName,
@@ -81,12 +80,14 @@ def __LoginInternal():
             jsonLoad = json.loads(response)
             if jsonLoad["Result"] != "Ok":
                 raise PtpUploaderInvalidLoginException(
-                    "Failed to login to PTP. Probably due to a bad 2FA auth code. Response: '%s'." % jsonLoad
+                    "Failed to login to PTP. Probably due to a bad 2FA auth code. Response: '%s'."
+                    % jsonLoad
                 )
             Settings.AntiCsrfToken = jsonLoad["AntiCsrfToken"]
         elif jsonLoad["Result"] != "Ok":
             raise PtpUploaderInvalidLoginException(
-                "Failed to login to PTP. Probably due to the bad user name, password or pass key. Response: '%s'." % jsonLoad
+                "Failed to login to PTP. Probably due to the bad user name, password or pass key. Response: '%s'."
+                % jsonLoad
             )
         else:
             Settings.AntiCsrfToken = jsonLoad["Settings.AntiCsrfToken"]
