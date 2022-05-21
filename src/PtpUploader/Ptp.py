@@ -200,7 +200,6 @@ def GetMoviePageOnPtpByImdbId(logger, imdbId):
 
 def __UploadMovieGetParamsCommon(releaseInfo, releaseDescription):
     paramList = {
-        "submit": "true",
         "type": releaseInfo.Type,
         "remaster_year": releaseInfo.RemasterYear,
         "remaster_title": releaseInfo.RemasterTitle,
