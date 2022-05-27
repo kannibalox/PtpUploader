@@ -103,7 +103,7 @@ source:
     stop_if_synopsis_missing: false
 
     # FiCO is here because they release a quite a few adult(ish) movies that are miscategorized on IMDb.
-    ignore_release_group: [aXXo, CrEwSaDe, DNL, EVO, FaNGDiNG0, FiCO, HDTime, iPlanet, KiNGDOM, nHD, nSD, NhaNc3, PRODJi, SANTi, ViSION, WAF, YIFY]
+    ignore_release_group: [aXXo, BRrip, CM8, CrEwSaDe, CTFOH, DNL, FaNGDiNG0, HD2DVD, HDTime, ION10, iPlanet, KiNGDOM, mHD, mSD, nHD, nikt0, nSD, NhaNc3, OFT, PRODJi, SANTi, STUTTERSHIT, ViSION, VXT, WAF, x0r, YIFY]
     allow_tags: ''
     ignore_tags: ''
   ## Example of site-specific configurations
