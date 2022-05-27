@@ -32,7 +32,12 @@ class ReleaseNameParser:
             allowed_codecs = ["XviD", "DivX", "x264", "x265", "H.264", "H.265"]
             for a in allowed_codecs:
                 if self.guess["video_codec"][0].lower() == a.lower():
-                    releaseInfo.Codec = a
+                    if a == "H.264" and "x264" in releaseInfo.ReleaseName.lower():
+                        releaseInfo.Codec = "x264"
+                    elif a == "H.265" and "x265" in releaseInfo.ReleaseName.lower():
+                        releaseInfo.Codec = "x265"
+                    else:
+                        releaseInfo.Codec = a
                     break
         else:
             raise PtpUploaderException(
@@ -42,8 +47,8 @@ class ReleaseNameParser:
 
         if releaseInfo.Source:
             logger.info(
-                "Source '%s' is already set, not getting from release name."
-                % releaseInfo.Source
+                "Source '%s' is already set, not getting from release name.",
+                releaseInfo.Source,
             )
         elif "source" in self.guess and len(self.guess["source"]) == 1:
             allowed_sources = ["DVD", "Blu-ray", "HDTV", "VHS", "TV", "WEB", "HD-DVD"]
@@ -59,8 +64,8 @@ class ReleaseNameParser:
 
         if releaseInfo.ResolutionType:
             logger.info(
-                "Resolution type '%s' is already set, not getting from release name."
-                % releaseInfo.ResolutionType
+                "Resolution type '%s' is already set, not getting from release name.",
+                releaseInfo.ResolutionType,
             )
         elif "screen_size" in self.guess and len(self.guess["screen_size"]) == 1:
             allowed_res = ["576p", "720p", "480p", "1080p", "1080i", "2160p"]
@@ -75,6 +80,18 @@ class ReleaseNameParser:
                         break
         else:
             releaseInfo.ResolutionType = "Other"
+
+        if releaseInfo.Container:
+            logger.info(
+                "Container '%s' is already set, not getting from release name.",
+                releaseInfo.Container,
+            )
+        elif "container" in self.guess and len(self.guess["container"]) == 1:
+            allowed_container = ["AVI", "MKV", "MP4", "VOB IFO", "ISO", "m2ts"]
+            for c in allowed_container:
+                if c.lower() == self.guess["container"][0].lower():
+                    releaseInfo.Container = c
+                    break
 
         if (
             not releaseInfo.RemasterTitle
