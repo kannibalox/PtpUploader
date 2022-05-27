@@ -50,7 +50,7 @@
 // START OF SETTINGS
 
 // Set the URL of your PtpUploader in the following link.
-// E.g.: http://myhost.com:5500
+// E.g.: http://myhost.com:8000
 var ptpUploaderUrl = "";
 
 // The web.api_key set in your config.yml.
