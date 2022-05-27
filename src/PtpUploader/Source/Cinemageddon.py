@@ -45,9 +45,9 @@ class Cinemageddon(SourceBase):
             logger.debug("Re-using Cinemageddon cookies.")
 
     def __CheckIfLoggedInFromResponse(self, response: bytes):
-        if response.find(b'action="takelogin.php"') != -1 or response.find(b'Login failed!') != -1:
+        if b'action="takelogin.php"' in response or b"Login failed!" in response:
             raise PtpUploaderException(
-                "Looks like you are not logged in to Cinemageddon. Probably due to the bad user name or password in settings."
+                f"Looks like you are not logged in to Cinemageddon. Probably due to the bad user name or password in settings. Response: {response.decode()}"
             )
 
     def __ParsePage(
