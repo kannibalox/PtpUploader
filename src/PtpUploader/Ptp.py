@@ -180,7 +180,7 @@ def GetMoviePageOnPtpByImdbId(logger, imdbId):
         ptpId = match.group(1)
         url = result.url
         url = url.replace("&json=1", "")
-        logger.info("Movie with IMDb id '%s' exists on PTP at '%s'." % (imdbId, url))
+        logger.info(f"Movie with IMDb id '{imdbId}' exists on PTP at '{url}'.")
         return PtpMovieSearchResult(ptpId, response)
     elif (
         response.find("<h2>Error 404</h2>") != -1

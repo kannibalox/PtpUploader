@@ -212,7 +212,7 @@ class ReleaseExtractor:
         topLevelDirectoriesToIgnore=[],
     ):
         logger.info(
-            "Extracting directory '%s' to '%s'." % (sourcePath, destinationPath)
+            f"Extracting directory '{sourcePath}' to '{destinationPath}'."
         )
 
         releaseExtractor = ReleaseExtractorInternal(

@@ -317,7 +317,7 @@ class Cinemageddon(SourceBase):
         if len(releaseInfo.Year) <= 0:
             raise PtpUploaderException("Can't rename release because year is empty.")
 
-        name = "%s (%s) %s %s" % (
+        name = "{} ({}) {} {}".format(
             releaseInfo.InternationalTitle,
             releaseInfo.Year,
             releaseInfo.Source,

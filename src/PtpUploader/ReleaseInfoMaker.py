@@ -41,7 +41,7 @@ class ReleaseInfoMaker:
                 throwExceptionForUnsupportedFiles=False,
             )
             if len(self.VideoFiles) <= 0:
-                print(("Path '%s' doesn't contain any videos!" % self.Path))
+                print("Path '%s' doesn't contain any videos!" % self.Path)
                 return False
 
             # We use the parent directory of the path as the working directory.
@@ -57,7 +57,7 @@ class ReleaseInfoMaker:
             self.ReleaseName, _ = os.path.splitext(self.ReleaseName)
             self.TorrentDataPath = self.WorkingDirectory
         else:
-            print(("Path '%s' doesn't exist!" % self.Path))
+            print("Path '%s' doesn't exist!" % self.Path)
             return False
 
         return True
@@ -115,17 +115,15 @@ class ReleaseInfoMaker:
         )
         if os.path.exists(releaseDescriptionFilePath):
             print(
-                (
                     "Can't create release description because '%s' already exists!"
                     % releaseDescriptionFilePath
-                )
             )
             return
 
         torrentName = "PTP " + self.ReleaseName + ".torrent"
         torrentPath = os.path.join(self.WorkingDirectory, torrentName)
         if createTorrent and os.path.exists(torrentPath):
-            print(("Can't create torrent because '%s' already exists!" % torrentPath))
+            print("Can't create torrent because '%s' already exists!" % torrentPath)
             return
 
         # Save the release description.

@@ -73,7 +73,7 @@ def log(request, r_id: int):
     logFilePath = os.path.join(Settings.GetJobLogPath(), str(r_id))
 
     if os.path.isfile(logFilePath):
-        with open(logFilePath, "r") as fh:
+        with open(logFilePath) as fh:
             log_msg = fh.read()
     else:
         log_msg = "Log file '%s' doesn't exists!" % logFilePath

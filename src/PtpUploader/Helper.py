@@ -20,7 +20,7 @@ def GetIdxSubtitleLanguages(path: str):
     languageRe = re.compile(r"id: ([a-z][a-z]), index: \d+$", re.IGNORECASE)
 
     # U is needed for "universal" newline support: to handle \r\n as \n.
-    with open(path, "rU") as pathHandle:
+    with open(path) as pathHandle:
         for line in pathHandle.readlines():
             match = languageRe.match(line)
             if match is not None:
@@ -123,7 +123,7 @@ def GetPathSize(path) -> int:
     if path.is_file():
         return path.stat().st_size
 
-    return sum([p.stat().st_size for p in path.rglob("*")])
+    return sum(p.stat().st_size for p in path.rglob("*"))
 
 
 # Always uses / as path separator.

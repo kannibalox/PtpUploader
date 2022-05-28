@@ -27,7 +27,7 @@ class ImgBB(ImageSite):
             return rjson["data"]["url"]
         except (ValueError, KeyError):
             self.logger.exception(
-                "Got an exception while loading JSON response from imgbb. Response: '{0}'.".format(
+                "Got an exception while loading JSON response from imgbb. Response: '{}'.".format(
                     response
                 )
             )

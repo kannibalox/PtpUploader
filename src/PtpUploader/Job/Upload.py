@@ -252,7 +252,7 @@ class Upload(WorkerBase):
         if self.ReleaseInfo.IsStandardDefinition() and (
             not self.ReleaseInfo.IsDvdImage()
         ):
-            resolution = "%sx%s" % (mediaInfo.Width, mediaInfo.Height)
+            resolution = f"{mediaInfo.Width}x{mediaInfo.Height}"
 
         if len(self.ReleaseInfo.Resolution) > 0:
             if resolution != self.ReleaseInfo.Resolution:

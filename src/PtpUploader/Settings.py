@@ -90,7 +90,7 @@ class Settings:
     @staticmethod
     def __LoadSceneGroups(path):
         groups = []
-        with open(path, "r") as handle:
+        with open(path) as handle:
             for line in handle.readlines():
                 groupName = line.strip().lower()
                 if groupName:

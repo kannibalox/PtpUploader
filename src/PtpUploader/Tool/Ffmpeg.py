@@ -74,7 +74,7 @@ class Ffmpeg:
             if (newWidth % 2) != 0:
                 newWidth += 1
 
-            self.ScaleSize = "%sx%s" % (newWidth, height)
+            self.ScaleSize = f"{newWidth}x{height}"
         else:
             # Resize height
             newHeight = (width * darY) / darX
@@ -86,7 +86,7 @@ class Ffmpeg:
             if (newHeight % 2) != 0:
                 newHeight += 1
 
-            self.ScaleSize = "%sx%s" % (width, newHeight)
+            self.ScaleSize = f"{width}x{newHeight}"
 
     def MakeScreenshotInPng(self, timeInSeconds, outputPngPath):
         self.Logger.info(

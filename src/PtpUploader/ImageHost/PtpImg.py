@@ -25,10 +25,10 @@ class PtpImg(ImageSite):
         response.raise_for_status()
         try:
             rjson = response.json()[0]
-            return "https://ptpimg.me/{0}.{1}".format(rjson["code"], rjson["ext"])
+            return "https://ptpimg.me/{}.{}".format(rjson["code"], rjson["ext"])
         except (ValueError, KeyError):
             self.logger.exception(
-                "Got an exception while loading JSON response from ptpimg.me. Response: '{0}'.".format(
+                "Got an exception while loading JSON response from ptpimg.me. Response: '{}'.".format(
                     str(response.text())
                 )
             )

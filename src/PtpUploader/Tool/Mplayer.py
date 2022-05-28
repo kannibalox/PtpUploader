@@ -71,7 +71,7 @@ class Mplayer:
             raise PtpUploaderException("Can't read video size from MPlayer's output.")
 
         if outputWidth != width or outputHeight != height:
-            self.ScaleSize = "%sx%s" % (outputWidth, outputHeight)
+            self.ScaleSize = f"{outputWidth}x{outputHeight}"
 
     def MakeScreenshotInPng(self, timeInSeconds, outputPngPath):
         self.Logger.info(

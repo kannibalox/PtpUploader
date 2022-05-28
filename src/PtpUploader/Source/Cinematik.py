@@ -84,7 +84,7 @@ class Cinematik(SourceBase):
         codec = DecodeHtmlEntities(matches.group(4)).strip()
         container = DecodeHtmlEntities(matches.group(5)).strip()
 
-        releaseName = "%s (%s) %s %s" % (title, year, resolutionType, codec)
+        releaseName = f"{title} ({year}) {resolutionType} {codec}"
         releaseInfo.ReleaseName = RemoveDisallowedCharactersFromPath(releaseName)
 
         # Get IMDb id.
@@ -242,7 +242,7 @@ class Cinematik(SourceBase):
         if len(releaseInfo.Year) <= 0:
             raise PtpUploaderException("Can't rename release because year is empty.")
 
-        name = "%s (%s) %s %s" % (
+        name = "{} ({}) {} {}".format(
             releaseInfo.InternationalTitle,
             releaseInfo.Year,
             releaseInfo.ResolutionType,
