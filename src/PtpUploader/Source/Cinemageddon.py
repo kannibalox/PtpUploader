@@ -28,7 +28,7 @@ class Cinemageddon(SourceBase):
     def LoadSettings(self, _):
         super().LoadSettings(_)
         self.Username = self.settings.username
-        self.Password = self.settings.username
+        self.Password = self.settings.password
 
     def Login(self):
         logger.info("Logging in to Cinemageddon.")
