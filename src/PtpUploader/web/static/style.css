@@ -83,6 +83,10 @@ input[type="text"], input[type="password"], input[type="search"], textarea, butt
     color: white;
 }
 
+#search_filter.input::placeholder {
+    color: rgb(255, 255, 255);
+}
+
 span.select2-selection__choice__display, span.select2-dropdown, #uploader li.select2-selection__choice {
     background-color: #242424;
 }

@@ -60,14 +60,18 @@
    $(document).ready(function() {
      jobsTable = $('#jobs').DataTable({
        "pageLength": 50,
+       "dom": "<'columns is-gapless is-multiline'" +
+	      "<'column is-half'l>" +
+	      "<'column is-half'>" +
+	      "<'column is-full'tr>" +
+	      "<'column is-half'i>" +
+	      "<'column is-half'p>" +
+	      ">",
        "ajax": "/ajax/jobs",
        "lengthChange": false,
        "order": [
          [4, "desc"]
        ],
-       "searchBuilder": {
-         "columns": [2]
-       },
        "columns": [{
          "data": "JobRunningState",
          "type": "num",
@@ -159,6 +163,12 @@
          }
        }
      );
+     $("#search_filter").on(
+       "input",
+       function (e) {
+         jobsTable.columns(1).search($("#search_filter").val()).draw();
+       }
+     );
      $.contextMenu({
        selector: '.delete_job_context_menu',
        trigger: 'left',
@@ -190,16 +200,23 @@
 
 {% block body %}
   <div class="column dt-bulma is-10 is-offset-1">
-    <div class="columns">
-      <div class="column is-half">
-        <select multiple=multiple class="select2" id="state_filter">
-          {% for key, val in state %}
-            <option value="{{key}}">{{val}}</option>
-          {% endfor %}
-        </select>
+    <nav class="level">
+      <div class="level-left">
+        <div class="level-item">
+          <input class="input" type="text" id="search_filter" placeholder="Search" value="" autocomplete="off"/>
+        </div>
       </div>
-      <div class="column is-half"></div>
-    </div>
+      <div class="level-right">
+        <div class="level-item">
+          <select multiple=multiple class="select2" id="state_filter">
+            {% for key, val in state %}
+              <option value="{{key}}">{{val}}</option>
+            {% endfor %}
+          </select>
+        </div>
+      </div>
+    </nav>
+
     <table id="jobs" class="jobs table is-hoverable is-striped
                is-fullwidth" border="0" cellpadding="3" cellspacing="1">
       <thead>
