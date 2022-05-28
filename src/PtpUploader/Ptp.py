@@ -6,7 +6,7 @@ import traceback
 from PtpUploader.MyGlobals import MyGlobals
 from PtpUploader.PtpMovieSearchResult import PtpMovieSearchResult
 from PtpUploader.PtpUploaderException import *
-from PtpUploader.Settings import Settings, config
+from PtpUploader.Settings import Settings
 
 
 def __LoginInternal():
@@ -112,12 +112,12 @@ def Login():
 
 
 def __CheckIfLoggedInFromResponseLogResponse(result, responseBody: str):
-    MyGlobals.Logger.debug("MSG: %s" % result.reason)
-    MyGlobals.Logger.debug("CODE: %s" % result.status_code)
-    MyGlobals.Logger.debug("URL: %s" % result.url)
-    MyGlobals.Logger.debug("HEADERS: %s" % result.headers)
-    MyGlobals.Logger.debug("STACK: %s" % traceback.format_stack())
-    MyGlobals.Logger.debug("RESPONSE BODY: %s" % responseBody)
+    MyGlobals.Logger.debug("MSG: %s", result.reason)
+    MyGlobals.Logger.debug("CODE: %s", result.status_code)
+    MyGlobals.Logger.debug("URL: %s", result.url)
+    MyGlobals.Logger.debug("HEADERS: %s", result.headers)
+    MyGlobals.Logger.debug("STACK: %s", traceback.format_stack())
+    MyGlobals.Logger.debug("RESPONSE BODY: %s", responseBody)
 
 
 def CheckIfLoggedInFromResponse(result, responseBody: str):
