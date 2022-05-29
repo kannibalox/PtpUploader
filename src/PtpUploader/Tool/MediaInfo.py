@@ -1,7 +1,9 @@
 import re
 import subprocess
+from pathlib import Path
 
 from PtpUploader.PtpUploaderException import PtpUploaderException
+from PtpUploader.Helper import GetSizeFromText
 from PtpUploader.Settings import Settings
 
 
@@ -18,6 +20,11 @@ class MediaInfo:
         self.DurationInSec = 0
         self.Container = ""
         self.Codec = ""
+        # Mediainfo can possibly return a larger file size than
+        # the one actually being read. RealFileSize reflects the
+        # size on disk, while FileSize is parsed from the output.
+        self.FileSize: int = 0
+        self.RealFileSize: int = 0
         self.Width: int = 0
         self.Height: int = 0
         self.DAR: str = ""
@@ -40,6 +47,7 @@ class MediaInfo:
             capture_output=True,
             check=True,
         )
+        self.RealFileSize = Path(self.Path).stat().st_size
         return proc.stdout.decode("utf-8", "ignore")
 
     # removePathFromCompleteName: see MediaInfo's constructor
@@ -63,6 +71,7 @@ class MediaInfo:
     # Matches duration in the following format. All units and spaces are optional.
     # 1h 2min 3s
     # 1h2mn3s
+    # 900 ms
     @staticmethod
     def __GetDurationInSec(duration):
         # Nice regular expression. :)
@@ -74,7 +83,11 @@ class MediaInfo:
         if not match:
             return 0
 
-        duration = 0
+        # It's returned milliseconds, but we're dealing in seconds
+        if duration.endswith("ms"):
+            duration = 1
+        else:
+            duration = 0
         if match.group(1):
             duration += int(match.group(1)) * 60 * 60
         if match.group(2):
@@ -125,6 +138,8 @@ class MediaInfo:
                         self.DurationInSec = MediaInfo.__GetDurationInSec(
                             mediaPropertyValue
                         )
+                    elif mediaPropertyName == "File size":
+                        self.FileSize = GetSizeFromText(mediaPropertyValue)
                 elif section == "Video":
                     if mediaPropertyName == "Codec ID":
                         self.Codec = mediaPropertyValue.lower()

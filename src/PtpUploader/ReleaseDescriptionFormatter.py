@@ -126,10 +126,9 @@ class ReleaseDescriptionFormatter:
                     # Discard any non-movie mediainfos
                     pass
 
-        # Use the longest by duration.
-        m2ts = sorted(m2ts, key=lambda x: x.DurationInSec, reverse=True)[0]
-        if m2ts.DurationInSec <= 0:
-            raise PtpUploaderException("None of the M2TSs have duration.")
+        # Use the largest by real size. Mediainfo gets funky with duration/size for
+        # m2ts files.
+        m2ts = sorted(m2ts, key=lambda x: x.RealFileSize, reverse=True)[0]
         self.MainMediaInfo = m2ts
         self.VideoEntries.append(
             ReleaseDescriptionVideoEntry(
