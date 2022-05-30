@@ -15,9 +15,9 @@ from PtpUploader.Settings import config
 log = logging.getLogger(__name__)
 
 
-def parse_directory(releaseInfo):
+def parse_directory(release_info):
     """Split the release upload path into video and non-video files"""
-    path = Path(releaseInfo.GetReleaseUploadPath())
+    path = Path(release_info.GetReleaseUploadPath())
     video_files = []
     addtl_files = []
     for child in path.rglob("*"):
@@ -33,9 +33,10 @@ def extract_release(release_info):
     """This function essentially just configures all the variables to be passed to extract_files,
     purely to provide separation of concerns"""
     ignored_top_dirs: List[str] = []
-    allow_exts: List[str] = [
+    allow_exts: List[str] = (
         config.uploader.video_files + config.uploader.additional_files
-    ]
+    )
+
     source = Path(release_info.GetReleaseDownloadPath())
     dest = Path(release_info.GetReleaseUploadPath())
     handle_scene_folders = False
@@ -62,7 +63,14 @@ def extract_release(release_info):
     ):
         ignored_top_dirs = ["PTP"]
     log.info("Extracting release from '%s' to '%s'", source, dest)
-    extract_files(source, dest, allow_exts, ignored_top_dirs, handle_scene_folders)
+    try:
+        extract_files(source, dest, allow_exts, ignored_top_dirs, handle_scene_folders)
+    except Exception:
+        # Clean up the directory if it's empty
+        try:
+            dest.rmdir()
+        except OSError:
+            pass
 
 
 def extract_files(
