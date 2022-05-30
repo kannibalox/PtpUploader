@@ -9,7 +9,7 @@ from PtpUploader.IncludedFileList import IncludedFileList
 from PtpUploader.Job.FinishedJobPhase import FinishedJobPhase
 from PtpUploader.NfoParser import NfoParser
 from PtpUploader.PtpUploaderException import PtpUploaderException
-from PtpUploader.ReleaseExtractor import ReleaseExtractor, parse_directory
+from PtpUploader.release_extractor import parse_directory
 from PtpUploader.Settings import Settings, config
 
 
@@ -126,20 +126,6 @@ class SourceBase:
         releaseInfo.Nfo = NfoParser.FindAndReadNfoFileToUnicode(
             releaseInfo.GetReleaseDownloadPath()
         )
-
-    # Must return with a tuple consisting of the list of video files and the list of additional files.
-    def ValidateExtractedRelease(self, releaseInfo, includedFileList):
-        videoFiles, additionalFiles = parse_directory(releaseInfo)
-        ReleaseExtractor.ValidateDirectory(
-            logger, releaseInfo.GetReleaseUploadPath(), includedFileList
-        )
-        if len(videoFiles) < 1:
-            raise PtpUploaderException(
-                "Upload path '%s' doesn't contain any video files."
-                % releaseInfo.GetReleaseUploadPath()
-            )
-
-        return videoFiles, additionalFiles
 
     def GetIncludedFileList(self, releaseInfo):
         includedFileList = IncludedFileList()

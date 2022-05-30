@@ -17,7 +17,7 @@ from PtpUploader.MyGlobals import MyGlobals
 from PtpUploader.PtpSubtitle import PtpSubtitleId
 from PtpUploader.PtpUploaderException import *
 from PtpUploader.ReleaseDescriptionFormatter import ReleaseDescriptionFormatter
-from PtpUploader.release_extractor import extract_release
+from PtpUploader.release_extractor import extract_release, parse_directory
 from PtpUploader.ReleaseInfo import ReleaseInfo
 from PtpUploader.Settings import Settings
 from PtpUploader.Tool import Mktor
@@ -36,7 +36,6 @@ class Upload(WorkerBase):
             self.__CreateUploadPath,
             self.__MakeIncludedFileList,
             self.__ExtractRelease,
-            self.__ValidateExtractedRelease,
             self.__MakeReleaseDescription,
             self.__DetectSubtitles,
             self.__MakeTorrent,
@@ -129,19 +128,18 @@ class Upload(WorkerBase):
             self.ReleaseInfo.logger().info(
                 "Extract release phase has been reached previously, not extracting release again."
             )
+            self.VideoFiles, self.AdditionalFiles = parse_directory(self.ReleaseInfo)
             return
 
         extract_release(self.ReleaseInfo)
+        self.VideoFiles, self.AdditionalFiles = parse_directory(self.ReleaseInfo)
+        if not self.VideoFiles:
+            raise PtpUploaderException(
+                "Upload path '%s' doesn't contain any video files."
+                % self.ReleaseInfo.GetReleaseUploadPath()
+            )
         self.ReleaseInfo.SetJobPhaseFinished(FinishedJobPhase.Upload_ExtractRelease)
         self.ReleaseInfo.save()
-
-    def __ValidateExtractedRelease(self):
-        (
-            self.VideoFiles,
-            self.AdditionalFiles,
-        ) = self.ReleaseInfo.AnnouncementSource.ValidateExtractedRelease(
-            self.ReleaseInfo, self.IncludedFileList
-        )
 
     def __GetMediaInfoContainer(self, mediaInfo):
         container = ""
