@@ -58,18 +58,6 @@ class File(SourceBase):
         if not releaseInfo.SourceIsAFile():
             SourceBase.CreateUploadDirectory(self, releaseInfo)
 
-    def ExtractRelease(self, _logger, releaseInfo, includedFileList):
-        if not releaseInfo.SourceIsAFile():
-            # Add the top level PTP directory to the ignore list because that is where we extract the release.
-            topLevelDirectoriesToIgnore = [File.UploadDirectoryName.lower()]
-            ReleaseExtractor.Extract(
-                logger,
-                releaseInfo.GetReleaseDownloadPath(),
-                releaseInfo.GetReleaseUploadPath(),
-                includedFileList,
-                topLevelDirectoriesToIgnore,
-            )
-
     def ReadNfo(self, releaseInfo):
         if releaseInfo.SourceIsAFile():
             # Try to read the NFO with the same name as the video file but with nfo extension.

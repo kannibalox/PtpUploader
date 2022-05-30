@@ -122,14 +122,6 @@ class SourceBase:
 
         os.makedirs(uploadDirectory)
 
-    def ExtractRelease(self, _, releaseInfo, includedFileList):
-        ReleaseExtractor.Extract(
-            logger,
-            releaseInfo.GetReleaseDownloadPath(),
-            releaseInfo.GetReleaseUploadPath(),
-            includedFileList,
-        )
-
     def ReadNfo(self, releaseInfo):
         releaseInfo.Nfo = NfoParser.FindAndReadNfoFileToUnicode(
             releaseInfo.GetReleaseDownloadPath()
