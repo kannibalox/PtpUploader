@@ -12,7 +12,7 @@ def LoadNotifierSettings():
     configParser.optionxform = str  # Make option names case sensitive.
 
     # Load Notifier.ini from the same directory where PtpUploader is.
-    settingsDirectory, moduleFilename = os.path.split(
+    settingsDirectory, _ = os.path.split(
         __file__
     )  # __file__ contains the full path of the current running module
     settingsPath = os.path.join(settingsDirectory, "Notifier.ini")
@@ -22,8 +22,6 @@ def LoadNotifierSettings():
 
 
 def Notify(releaseName, uploadedTorrentUrl):
-    logger = MyGlobals.Logger
-
     userId = LoadNotifierSettings()
     userId = userId.strip()
     if not userId.isdigit():

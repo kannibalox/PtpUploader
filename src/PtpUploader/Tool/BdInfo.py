@@ -31,7 +31,7 @@ def run(path: Path, mpls=None, extra_args=None) -> str:
         args: List[str] = bdinfo_cmd() + [str(path), tempdir, "-m", mpls]
         if extra_args:
             args.append(extra_args)
-        proc = subprocess.run(args, check=True)
+        subprocess.run(args, check=True)
         for child in Path(tempdir).glob("*"):
             with child.open("r") as fh:
                 text = fh.read()

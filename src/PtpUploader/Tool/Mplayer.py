@@ -25,10 +25,7 @@ class Mplayer:
             return
 
         args = [Settings.MplayerPath, "-noautosub"]
-        proc = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        stdout, stderr = proc.communicate()
-        errorCode = proc.wait()
-        Mplayer.NoAutoSubParameterSupported = errorCode == 0
+        Mplayer.NoAutoSubParameterSupported = subprocess.run(args).returncode == 0
 
     # We could get this info when making the first screenshot, but ScaleSize is not stored in the database and screenshots are not made again when resuming a job.
     def __CalculateSizeAccordingToAspectRatio(self):

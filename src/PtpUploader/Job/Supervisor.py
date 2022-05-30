@@ -188,7 +188,7 @@ class JobSupervisor(threading.Thread):
                 self.add_message(PtpUploaderMessageQuit())
             except Exception as e:
                 print(traceback.print_exc())
-                logger.info("Received exception, attempting to continue")
+                logger.info("Received exception %s, attempting to continue", e)
 
     def cleanup_futures(self):
         pass
