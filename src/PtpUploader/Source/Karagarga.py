@@ -28,7 +28,7 @@ class Karagarga(SourceBase):
 
         self.AutoUploadDvdImage = self.settings.get("auto_upload_dvd", False)
         self.Username = self.settings.username
-        self.Password = self.settings.username
+        self.Password = self.settings.password
 
     def Login(self):
         if len(self.Username) <= 0:

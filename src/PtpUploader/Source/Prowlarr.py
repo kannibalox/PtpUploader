@@ -8,10 +8,10 @@ from urllib.parse import urlparse
 
 import requests
 
+import PtpUploader.release_extractor
 from PtpUploader.IncludedFileList import IncludedFileList
 from PtpUploader.NfoParser import NfoParser
 from PtpUploader.PtpUploaderException import PtpUploaderException
-from PtpUploader.ReleaseExtractor import ReleaseExtractor
 from PtpUploader.ReleaseNameParser import ReleaseNameParser
 from PtpUploader.Settings import Settings
 from PtpUploader.Source.SourceBase import SourceBase
@@ -131,7 +131,7 @@ class Prowlarr(SourceBase):
 
     # Must returns with a tuple consisting of the list of video files and the list of additional files.
     def ValidateExtractedRelease(self, releaseInfo, includedFileList):
-        videoFiles, additionalFiles = ReleaseExtractor.ValidateDirectory(
+        videoFiles, additionalFiles = release_extractor.parse_directory(
             logger, releaseInfo.GetReleaseUploadPath(), includedFileList
         )
         if len(videoFiles) < 1:

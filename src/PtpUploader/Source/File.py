@@ -8,7 +8,6 @@ from PtpUploader.Helper import GetPathSize
 from PtpUploader.IncludedFileList import IncludedFileList
 from PtpUploader.NfoParser import NfoParser
 from PtpUploader.PtpUploaderException import PtpUploaderException
-from PtpUploader.ReleaseExtractor import ReleaseExtractor
 from PtpUploader.ReleaseNameParser import ReleaseNameParser
 from PtpUploader.Source.SourceBase import SourceBase
 
@@ -52,7 +51,9 @@ class File(SourceBase):
         if releaseInfo.SourceIsAFile():
             # In case of single files the parent directory of the file will be the upload directory.
             return os.path.split(path)[0]
-        return os.path.join(path, File.UploadDirectoryName, unidecode(releaseInfo.ReleaseName))
+        return os.path.join(
+            path, File.UploadDirectoryName, unidecode(releaseInfo.ReleaseName)
+        )
 
     def CreateUploadDirectory(self, releaseInfo):
         if not releaseInfo.SourceIsAFile():
