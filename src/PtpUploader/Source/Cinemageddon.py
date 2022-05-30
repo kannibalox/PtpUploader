@@ -298,21 +298,20 @@ class Cinemageddon(SourceBase):
         # TODO: if the user forced a release name, then let it upload by that name.
         if releaseInfo.ImdbId == "0":
             raise PtpUploaderException(
-                "Uploading to CG with zero IMDb ID is not yet supported."
+                "Uploading from CG with zero IMDb ID is not yet supported."
             )
 
         # If the movie already exists on PTP then the IMDb info is not populated in ReleaseInfo.
-        if len(releaseInfo.InternationalTitle) <= 0 or len(releaseInfo.Year) <= 0:
+        if not releaseInfo.InternationalTitle or not releaseInfo.Year:
             imdbInfo = Imdb.GetInfo(logger, releaseInfo.ImdbId)
-            if len(releaseInfo.InternationalTitle) <= 0:
+            if not releaseInfo.InternationalTitle:
                 releaseInfo.InternationalTitle = imdbInfo.Title
-            if len(releaseInfo.Year) <= 0:
+            if not releaseInfo.Year:
                 releaseInfo.Year = imdbInfo.Year
+            releaseInfo.save()
 
-        if len(releaseInfo.InternationalTitle) <= 0:
-            raise PtpUploaderException(
-                "Can't rename release because international title is empty."
-            )
+        if not releaseInfo.ReleaseTitle and not releaseInfo.InternationalTitle:
+            raise PtpUploaderException("No titles found, cannot rename.")
 
         if len(releaseInfo.Year) <= 0:
             raise PtpUploaderException("Can't rename release because year is empty.")
