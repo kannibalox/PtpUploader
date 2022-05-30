@@ -37,6 +37,10 @@ cinemagoer = "^2022.1.26"
 PtpUploader = "PtpUploader.manage:run"
 ReleaseInfoMaker = "PtpUploader.ReleaseInfoMaker:run"
 
+[tool.pylint]
+[tool.pylint.'MESSAGES CONTROL']
+disable="locally-disabled, superfluous-parens, no-else-return, too-many-arguments,logging-not-lazy, logging-format-interpolation, too-few-public-methods, protected-access, duplicate-code, consider-using-f-string, fixme, invalid-name, line-too-long, design, missing-module-docstring, missing-class-docstring, missing-function-docstring"
+
 [tool.isort]
 profile = "black"
 force_single_line = false
