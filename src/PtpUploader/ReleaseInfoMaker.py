@@ -115,8 +115,8 @@ class ReleaseInfoMaker:
         )
         if os.path.exists(releaseDescriptionFilePath):
             print(
-                    "Can't create release description because '%s' already exists!"
-                    % releaseDescriptionFilePath
+                "Can't create release description because '%s' already exists!"
+                % releaseDescriptionFilePath
             )
             return
 

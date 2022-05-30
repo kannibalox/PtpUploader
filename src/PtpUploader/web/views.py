@@ -102,7 +102,9 @@ def GetPtpOrImdbId(releaseInfo, text):
             ptpIdList = params.get("id")
             if ptpIdList is not None:
                 releaseInfo.PtpId = ptpIdList[0]
-                releaseInfo.ImdbId = Ptp.GetMoviePageOnPtp(logger, releaseInfo.PtpId).ImdbId
+                releaseInfo.ImdbId = Ptp.GetMoviePageOnPtp(
+                    logger, releaseInfo.PtpId
+                ).ImdbId
 
 
 @login_required
