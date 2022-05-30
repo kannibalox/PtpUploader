@@ -8,15 +8,12 @@ from pathlib import Path
 
 import requests
 
-from PtpUploader.PtpSubtitle import PtpSubtitle
-
 
 class MyGlobalsClass:
     def __init__(self):
         self.Logger = None
         self.PtpUploader = None
         self.SourceFactory = None
-        self.PtpSubtitle = None
         self.TorrentClient = None
 
         self.session = requests.session()
@@ -38,7 +35,6 @@ class MyGlobalsClass:
         from PtpUploader.Settings import config
 
         self.InitializeLogger(workingPath)
-        self.PtpSubtitle = PtpSubtitle()
         self.cookie_file: Path = Path(workingPath).joinpath("cookies.pickle")
         self.cookie_file: Path = Path(config.cookie_file).expanduser()
         if self.cookie_file.exists() and self.cookie_file.is_file():

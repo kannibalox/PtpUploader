@@ -14,7 +14,7 @@ from PtpUploader.Job.JobRunningState import JobRunningState
 from PtpUploader.Job.JobStartMode import JobStartMode
 from PtpUploader.Job.WorkerBase import WorkerBase
 from PtpUploader.MyGlobals import MyGlobals
-from PtpUploader.PtpSubtitle import PtpSubtitleId
+from PtpUploader import ptp_subtitle
 from PtpUploader.PtpUploaderException import *
 from PtpUploader.ReleaseDescriptionFormatter import ReleaseDescriptionFormatter
 from PtpUploader.release_extractor import extract_release, parse_directory
@@ -304,7 +304,7 @@ class Upload(WorkerBase):
 
     # Returns with true if failed to detect the language.
     def __DetectSubtitlesAddOne(self, subtitleIds, languageName):
-        s_id = MyGlobals.PtpSubtitle.GetId(languageName)
+        s_id = ptp_subtitle.get_id(languageName)
         if s_id is None:
             # TODO: show warning on the WebUI
             self.ReleaseInfo.logger().warning(
@@ -366,7 +366,8 @@ class Upload(WorkerBase):
         if subtitleIds:
             self.ReleaseInfo.SetSubtitles(subtitleIds)
         elif not containsUnknownSubtitle:
-            self.ReleaseInfo.SetSubtitles([str(PtpSubtitleId.NoSubtitle)])
+            # ID for no subs
+            self.ReleaseInfo.SetSubtitles(["44"])
 
         if not self.ReleaseInfo.GetSubtitles():
             raise PtpUploaderException(

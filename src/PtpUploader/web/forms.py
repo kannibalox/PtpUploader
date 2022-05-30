@@ -15,7 +15,7 @@ from django.forms import (
 
 from PtpUploader import ImageHost
 from PtpUploader.Job.JobStartMode import JobStartMode
-from PtpUploader.PtpSubtitle import PtpSubtitleId
+from PtpUploader import ptp_subtitle
 from PtpUploader.ReleaseInfo import ReleaseInfo
 from PtpUploader.Settings import config
 
@@ -72,9 +72,7 @@ class ReleaseForm(ModelForm):
         choices=ReleaseInfo.ResolutionChoices.choices, required=False
     )
     Subtitles = MultipleChoiceField(
-        choices=[
-            (v, k) for k, v in PtpSubtitleId.__dict__.items() if not k.startswith("_")
-        ],
+        choices=[(str(k), v[0].title()) for k, v in ptp_subtitle.subtitle_ids.items()],
         required=False,
     )
     Tags = MultipleChoiceField(

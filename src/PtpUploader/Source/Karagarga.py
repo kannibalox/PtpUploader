@@ -6,6 +6,7 @@ from html import unescape
 from PtpUploader.Helper import GetSizeFromText, ValidateTorrentFile
 from PtpUploader.Job.JobRunningState import JobRunningState
 from PtpUploader.MyGlobals import MyGlobals
+from PtpUploader import ptp_subtitle
 from PtpUploader.PtpUploaderException import (
     PtpUploaderException,
     PtpUploaderInvalidLoginException,
@@ -274,7 +275,7 @@ class Karagarga(SourceBase):
         subtitleTexts = subtitlesText.split(",")
         for language in subtitleTexts:
             language = language.strip()
-            id = MyGlobals.PtpSubtitle.GetId(language)
+            id = ptp_subtitle.get_id(language)
             if id is None:
                 continue
 
