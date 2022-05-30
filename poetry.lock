@@ -217,6 +217,14 @@ optional = false
 python-versions = "*"
 
 [[package]]
+name = "rarfile"
+version = "4.0"
+description = "RAR archive reader for Python"
+category = "main"
+optional = false
+python-versions = "*"
+
+[[package]]
 name = "rebulk"
 version = "3.1.0"
 description = "Rebulk - Define simple search patterns in bulk to perform advanced matching on any string."
@@ -359,7 +367,7 @@ testing = ["pytest (>=6)", "pytest-checkdocs (>=2.4)", "pytest-flake8", "pytest-
 [metadata]
 lock-version = "1.1"
 python-versions = ">3.7,<4.0"
-content-hash = "3ead366bfb784647108fe0415bf7e90efb56dc7c97265a0c0ee0116a12392dca"
+content-hash = "c50a5a315f29267e5514edb5b8b5e7ca7337c86e77fd792f808eb67f8e618b0d"
 
 [metadata.files]
 asgiref = [
@@ -536,6 +544,10 @@ python-dateutil = [
 pytz = [
     {file = "pytz-2022.1-py2.py3-none-any.whl", hash = "sha256:e68985985296d9a66a881eb3193b0906246245294a881e7c8afe623866ac6a5c"},
     {file = "pytz-2022.1.tar.gz", hash = "sha256:1e760e2fe6a8163bc0b3d9a19c4f84342afa0a2affebfaa84b01b978a02ecaa7"},
+]
+rarfile = [
+    {file = "rarfile-4.0-py3-none-any.whl", hash = "sha256:1094869119012f95c31a6f22cc3a9edbdca61861b805241116adbe2d737b68f8"},
+    {file = "rarfile-4.0.tar.gz", hash = "sha256:67548769229c5bda0827c1663dce3f54644f9dbfba4ae86d4da2b2afd3e602a1"},
 ]
 rebulk = [
     {file = "rebulk-3.1.0-py3-none-any.whl", hash = "sha256:e56550ae25a822111bff8c8f5eeea14cb44f406e9a9ce67ad4e350253b2fff6c"},
