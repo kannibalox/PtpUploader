@@ -130,23 +130,16 @@ class Upload(WorkerBase):
             )
             return
 
-        if self.ReleaseInfo.AnnouncementSource.Name == "file":
-            if not self.ReleaseInfo.SourceIsAFile():
-                topLevelDirectoriesToIgnore = ["PTP"]
-                ReleaseExtractor.Extract(
-                logger,
-                self.ReleaseInfo.GetReleaseDownloadPath(),
-                self.ReleaseInfo.GetReleaseUploadPath(),
-                self.IncludedFileList,
-                topLevelDirectoriesToIgnore,
-            )
-        else:
-            ReleaseExtractor.Extract(
-                self.logger,
-                self.ReleaseInfo.GetReleaseDownloadPath(),
-                self.ReleaseInfo.GetReleaseUploadPath(),
-                self.IncludedFileList,
-            )
+        topLevelDirectoriesToIgnore = []
+        if self.ReleaseInfo.AnnouncementSource.Name == "file" and not self.ReleaseInfo.SourceIsAFile():
+            topLevelDirectoriesToIgnore = ["PTP"]
+        ReleaseExtractor.Extract(
+            self.logger,
+            self.ReleaseInfo.GetReleaseDownloadPath(),
+            self.ReleaseInfo.GetReleaseUploadPath(),
+            self.IncludedFileList,
+            topLevelDirectoriesToIgnore,
+        )
 
         self.ReleaseInfo.SetJobPhaseFinished(FinishedJobPhase.Upload_ExtractRelease)
         self.ReleaseInfo.save()
