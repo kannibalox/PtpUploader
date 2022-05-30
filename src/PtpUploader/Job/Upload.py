@@ -3,6 +3,7 @@ import logging
 import os
 import subprocess
 import threading
+from typing import List
 
 from django.template import engines
 
@@ -16,7 +17,7 @@ from PtpUploader.MyGlobals import MyGlobals
 from PtpUploader.PtpSubtitle import PtpSubtitleId
 from PtpUploader.PtpUploaderException import *
 from PtpUploader.ReleaseDescriptionFormatter import ReleaseDescriptionFormatter
-from PtpUploader.ReleaseExtractor import ReleaseExtractor
+from PtpUploader.release_extractor import extract_release
 from PtpUploader.ReleaseInfo import ReleaseInfo
 from PtpUploader.Settings import Settings
 from PtpUploader.Tool import Mktor
@@ -51,8 +52,8 @@ class Upload(WorkerBase):
 
         self.TorrentClient = Settings.GetTorrentClient()
         self.IncludedFileList = None
-        self.VideoFiles = []
-        self.AdditionalFiles = []
+        self.VideoFiles: List = []
+        self.AdditionalFiles: List = []
         self.MainMediaInfo = None
         self.ReleaseDescription = ""
 
@@ -130,17 +131,7 @@ class Upload(WorkerBase):
             )
             return
 
-        topLevelDirectoriesToIgnore = []
-        if self.ReleaseInfo.AnnouncementSource.Name == "file" and not self.ReleaseInfo.SourceIsAFile():
-            topLevelDirectoriesToIgnore = ["PTP"]
-        ReleaseExtractor.Extract(
-            self.logger,
-            self.ReleaseInfo.GetReleaseDownloadPath(),
-            self.ReleaseInfo.GetReleaseUploadPath(),
-            self.IncludedFileList,
-            topLevelDirectoriesToIgnore,
-        )
-
+        extract_release(self.ReleaseInfo)
         self.ReleaseInfo.SetJobPhaseFinished(FinishedJobPhase.Upload_ExtractRelease)
         self.ReleaseInfo.save()
 
@@ -270,15 +261,17 @@ class Upload(WorkerBase):
                         self.ReleaseInfo.Resolution,
                         resolution,
                         mediaInfo.Width,
-                        mediaInfo.Height
+                        mediaInfo.Height,
                     )
                 else:
                     raise PtpUploaderException(
-                        "Resolution is set to '%s', detected MediaInfo resolution is '%s' ('%sx%s')." %
-                        (self.ReleaseInfo.Resolution,
-                        resolution,
-                        mediaInfo.Width,
-                        mediaInfo.Height)
+                        "Resolution is set to '%s', detected MediaInfo resolution is '%s' ('%sx%s')."
+                        % (
+                            self.ReleaseInfo.Resolution,
+                            resolution,
+                            mediaInfo.Width,
+                            mediaInfo.Height,
+                        )
                     )
         else:
             self.ReleaseInfo.Resolution = resolution
