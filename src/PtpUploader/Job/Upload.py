@@ -16,6 +16,7 @@ from PtpUploader.MyGlobals import MyGlobals
 from PtpUploader.PtpSubtitle import PtpSubtitleId
 from PtpUploader.PtpUploaderException import *
 from PtpUploader.ReleaseDescriptionFormatter import ReleaseDescriptionFormatter
+from PtpUploader.ReleaseExtractor import ReleaseExtractor
 from PtpUploader.ReleaseInfo import ReleaseInfo
 from PtpUploader.Settings import Settings
 from PtpUploader.Tool import Mktor
@@ -129,9 +130,23 @@ class Upload(WorkerBase):
             )
             return
 
-        self.ReleaseInfo.AnnouncementSource.ExtractRelease(
-            self.logger, self.ReleaseInfo, self.IncludedFileList
-        )
+        if self.ReleaseInfo.AnnouncementSource.Name == "file":
+            if not self.ReleaseInfo.SourceIsAFile():
+                topLevelDirectoriesToIgnore = ["PTP"]
+                ReleaseExtractor.Extract(
+                logger,
+                self.ReleaseInfo.GetReleaseDownloadPath(),
+                self.ReleaseInfo.GetReleaseUploadPath(),
+                self.IncludedFileList,
+                topLevelDirectoriesToIgnore,
+            )
+        else:
+            ReleaseExtractor.Extract(
+                self.logger,
+                self.ReleaseInfo.GetReleaseDownloadPath(),
+                self.ReleaseInfo.GetReleaseUploadPath(),
+                self.IncludedFileList,
+            )
 
         self.ReleaseInfo.SetJobPhaseFinished(FinishedJobPhase.Upload_ExtractRelease)
         self.ReleaseInfo.save()
@@ -182,9 +197,9 @@ class Upload(WorkerBase):
             )
 
     @staticmethod
-    def __CanIgnoreDetectedAndSetCodecDifference(detected, set):
-        return (detected == "x264" and set == "H.264") or (
-            detected == "H.264" and set == "x264"
+    def __CanIgnoreDetectedAndSetCodecDifference(detected, given):
+        return (detected == "x264" and given == "H.264") or (
+            detected == "H.264" and given == "x264"
         )
 
     def __GetMediaInfoCodec(self, mediaInfo):
@@ -262,15 +277,15 @@ class Upload(WorkerBase):
                         self.ReleaseInfo.Resolution,
                         resolution,
                         mediaInfo.Width,
-                        mediaInfo.Height,
+                        mediaInfo.Height
                     )
                 else:
                     raise PtpUploaderException(
-                        "Resolution is set to '%s', detected MediaInfo resolution is '%s' ('%sx%s').",
-                        self.ReleaseInfo.Resolution,
+                        "Resolution is set to '%s', detected MediaInfo resolution is '%s' ('%sx%s')." %
+                        (self.ReleaseInfo.Resolution,
                         resolution,
                         mediaInfo.Width,
-                        mediaInfo.Height,
+                        mediaInfo.Height)
                     )
         else:
             self.ReleaseInfo.Resolution = resolution
@@ -476,7 +491,7 @@ class Upload(WorkerBase):
     def __StopBeforeUploading(self):
         if self.ReleaseInfo.StopBeforeUploading:
             raise PtpUploaderException("Stopping before uploading.")
-        elif (
+        if (
             self.ReleaseInfo.JobStartMode == JobStartMode.Automatic
             and self.ReleaseInfo.AnnouncementSource.StopAutomaticJob
         ):

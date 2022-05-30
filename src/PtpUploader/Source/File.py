@@ -28,11 +28,11 @@ class File(SourceBase):
     def IsEnabled(self) -> bool:
         return True
 
-    def PrepareDownload(self, logger, releaseInfo):
+    def PrepareDownload(self, _logger, releaseInfo):
         path = releaseInfo.GetReleaseDownloadPath()
 
         if not os.path.exists(path):
-            raise PtpUploaderException("Source '%s' doesn't exist." % path)
+            raise PtpUploaderException(f"Source '{path}' doesn't exist.")
 
         releaseInfo.Size = GetPathSize(path)
 
@@ -44,10 +44,10 @@ class File(SourceBase):
     def CheckFileList(self, *_):
         pass
 
-    def IsDownloadFinished(self, logger, releaseInfo):
+    def IsDownloadFinished(self, _logger, releaseInfo):
         return True
 
-    def GetCustomUploadPath(self, logger, releaseInfo):
+    def GetCustomUploadPath(self, _logger, releaseInfo):
         path = releaseInfo.GetReleaseDownloadPath()
         if releaseInfo.SourceIsAFile():
             # In case of single files the parent directory of the file will be the upload directory.
@@ -58,7 +58,7 @@ class File(SourceBase):
         if not releaseInfo.SourceIsAFile():
             SourceBase.CreateUploadDirectory(self, releaseInfo)
 
-    def ExtractRelease(self, logger, releaseInfo, includedFileList):
+    def ExtractRelease(self, _logger, releaseInfo, includedFileList):
         if not releaseInfo.SourceIsAFile():
             # Add the top level PTP directory to the ignore list because that is where we extract the release.
             topLevelDirectoriesToIgnore = [File.UploadDirectoryName.lower()]

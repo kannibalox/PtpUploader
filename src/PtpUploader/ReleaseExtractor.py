@@ -5,13 +5,13 @@ from pathlib import Path
 
 from unidecode import unidecode
 
-from PtpUploader.MyGlobals import MyGlobals
 from PtpUploader.PtpUploaderException import PtpUploaderException
 from PtpUploader.Settings import Settings
 from PtpUploader.Tool.Unrar import Unrar
 
 
-def validate_directory(releaseInfo):
+def parse_directory(releaseInfo):
+    """Split the release upload path into video and non-video files"""
     path = Path(releaseInfo.GetReleaseUploadPath())
     video_files = []
     addtl_files = []
@@ -33,14 +33,14 @@ class ReleaseExtractorInternal:
         relativeSourcePath,
         destinationPath,
         includedFileList,
-        topLevelDirectoriesToIgnore=[],
+        topLevelDirectoriesToIgnore=None,
         handleSceneFolders=False,
     ):
         self.SourcePath = sourcePath
         self.RelativeSourcePath = relativeSourcePath  # Must be separated with "/".
         self.DestinationPath = destinationPath
         self.IncludedFileList = includedFileList
-        self.TopLevelDirectoriesToIgnore = topLevelDirectoriesToIgnore  # Used only for PTP directory when extracting inplace (for File source).
+        self.TopLevelDirectoriesToIgnore = topLevelDirectoriesToIgnore or []  # Used only for PTP directory when extracting inplace (for File source).
         self.HandleSceneFolders = handleSceneFolders
         self.DestinationPathCreated = False
 
@@ -90,10 +90,7 @@ class ReleaseExtractorInternal:
         entryLower = entryName.lower()
         if self.HandleSceneFolders and (
             fnmatch.fnmatch(entryLower, "cd*")
-            or entryLower == "sub"
-            or entryLower == "subs"
-            or entryLower == "subtitle"
-            or entryLower == "subtitles"
+            or entryLower in ["sub", "subs", "subtitle", "subtitles"]
         ):
             # Special scene folders in the root will be extracted without making a directory for them in the destination.
             releaseExtractor = ReleaseExtractorInternal(
@@ -209,8 +206,10 @@ class ReleaseExtractor:
         sourcePath,
         destinationPath,
         includedFileList,
-        topLevelDirectoriesToIgnore=[],
+        topLevelDirectoriesToIgnore=None,
     ):
+        if topLevelDirectoriesToIgnore is None:
+            topLevelDirectoriesToIgnore = []
         logger.info(
             f"Extracting directory '{sourcePath}' to '{destinationPath}'."
         )
