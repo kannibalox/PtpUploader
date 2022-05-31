@@ -135,6 +135,10 @@
   {% if job.id > 0 and not job.CanEdited %}
     <div class="column">
       <h2 style="color: red; font-weight: bold;">The job is currently running and can't be edited!</h2>
+      {% if job.StopBeforeUploading %}
+        <p>This job will be stopped before uploading.</p>
+      {% endif %}
+      <p>
     </div>
   {% endif %}
 

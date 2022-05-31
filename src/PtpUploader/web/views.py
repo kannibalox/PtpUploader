@@ -454,6 +454,7 @@ def edit_job(request, r_id: int = -1):
             job["SourceUrl"] = source.GetUrlFromId(release.AnnouncementId)
         job["SkipDuplicateCheckingButton"] = release.DuplicateCheckCanIgnore
         job["CanEdited"] = release.CanEdited
+        job["StopBeforeUploading"] = release.StopBeforeUploading
         job["Status"] = release.get_JobRunningState_display()
         if release.ErrorMessage:
             job["Status"] += f" - {release.ErrorMessage}"
