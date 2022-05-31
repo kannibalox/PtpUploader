@@ -1,19 +1,10 @@
 from PtpUploader.MyGlobals import MyGlobals
 from PtpUploader.Settings import Settings
-from PtpUploader.Source.AlphaRatio import AlphaRatio
 from PtpUploader.Source.Cinemageddon import Cinemageddon
-from PtpUploader.Source.Cinematik import Cinematik
-from PtpUploader.Source.DigitalHive import DigitalHive
 from PtpUploader.Source.File import File
-from PtpUploader.Source.FunFile import FunFile
-from PtpUploader.Source.Gft import Gft
-from PtpUploader.Source.HDBits import HDBits
-from PtpUploader.Source.HDTorrents import HDTorrents
 from PtpUploader.Source.Karagarga import Karagarga
 from PtpUploader.Source.Prowlarr import Prowlarr
 from PtpUploader.Source.Torrent import Torrent
-from PtpUploader.Source.TorrentBytes import TorrentBytes
-from PtpUploader.Source.TorrentLeech import TorrentLeech
 
 
 class SourceFactory:
@@ -23,17 +14,8 @@ class SourceFactory:
         self.__AddSource(File())
         self.__AddSource(Torrent())
 
-        # self.__AddSource(AlphaRatio())
         self.__AddSource(Cinemageddon())
-        # self.__AddSource(Cinematik())
-        # self.__AddSource(DigitalHive())
-        # self.__AddSource(FunFile())
-        # self.__AddSource(Gft())
-        # self.__AddSource(HDBits())
-        # self.__AddSource(HDTorrents())
         self.__AddSource(Karagarga())
-        # self.__AddSource(TorrentBytes())
-        # self.__AddSource(TorrentLeech())
         self.__AddSource(Prowlarr())
 
         MyGlobals.Logger.info("Sources initialized.")
