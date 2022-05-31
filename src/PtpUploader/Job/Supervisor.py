@@ -16,7 +16,6 @@ holder.
 It's called the JobSupervisor because supervisors are better than managers.
 """
 
-import datetime
 import logging
 import queue
 import threading
@@ -25,9 +24,9 @@ import traceback
 from concurrent import futures
 from typing import Dict, List
 
-from django.db.models import Q
-from django.utils import timezone
-from pyrosimple.util import xmlrpc
+from django.db.models import Q  # type: ignore
+from django.utils import timezone  # type: ignore
+from pyrosimple.util import xmlrpc  # type: ignore
 
 from PtpUploader.Job import LoadFile
 from PtpUploader.Job.CheckAnnouncement import CheckAnnouncement
@@ -77,7 +76,7 @@ class JobSupervisor(threading.Thread):
                 release.save()
                 continue
             if (
-                release.Id not in self.futures.keys()
+                release.Id not in self.futures
                 and release.AnnouncementSource.IsDownloadFinished(logger, release)
             ):
                 logger.info("Launching upload job for %s", release.Id)
@@ -98,7 +97,7 @@ class JobSupervisor(threading.Thread):
             logger.warning("Unknown message '%s'", message)
 
     def delete_job(self, r_id, mode):
-        if r_id in self.futures.keys():
+        if r_id in self.futures:
             return  # Don't muck with an active job
         worker_stop_flag = threading.Event()
         worker = Delete(release_id=r_id, mode=mode, stop_requested=worker_stop_flag)
@@ -116,7 +115,7 @@ class JobSupervisor(threading.Thread):
                 & Q(JobRunningState=ReleaseInfo.JobState.Scheduled)
             )
         ):
-            if release.Id not in self.futures.keys():
+            if release.Id not in self.futures:
                 logger.info("Launching check job for %s", release.Id)
                 worker_stop_flag = threading.Event()
                 worker = CheckAnnouncement(
@@ -132,9 +131,9 @@ class JobSupervisor(threading.Thread):
         self.load_announcements()
         self.scan_db()
 
-    def stop_future(self, releaseId):
-        release = ReleaseInfo.objects.get(Id=releaseId)
-        if release.Id in self.futures.keys():
+    def stop_future(self, release_id):
+        release = ReleaseInfo.objects.get(Id=release_id)
+        if release.Id in self.futures:
             pass
         elif release.JobRunningState in [
             ReleaseInfo.JobState.InDownload,
@@ -155,7 +154,7 @@ class JobSupervisor(threading.Thread):
 
     def work(self):
         if self.futures.keys():
-            logger.info(self.__repr__())
+            logger.info(repr(self))
         try:
             message = self.message_queue.get(timeout=3)
             if isinstance(message, PtpUploaderMessageStopJob):

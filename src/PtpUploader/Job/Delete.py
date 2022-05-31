@@ -1,9 +1,9 @@
+"""Handle deletion of jobs when requested by user"""
 import logging
 import threading
 
 from PtpUploader.Job.WorkerBase import WorkerBase
 from PtpUploader.MyGlobals import MyGlobals
-from PtpUploader.ReleaseInfo import ReleaseInfo
 from PtpUploader.Settings import Settings
 
 
@@ -11,6 +11,8 @@ logger = logging.getLogger(__name__)
 
 
 class Delete(WorkerBase):
+    """Create a simple worker with a single phase"""
+
     def __init__(self, release_id: int, mode: str, stop_requested: threading.Event):
         super().__init__(release_id, stop_requested)
         self.Phases = [self.__delete]
@@ -19,24 +21,24 @@ class Delete(WorkerBase):
     def __delete(self):
         if not self.ReleaseInfo.CanDeleted():
             logger.error("The job is currently running and can't be deleted!")
-            return
+            return "Error"
 
-        deleteMode = self.mode.lower()
-        deleteSourceData = deleteMode in ["job_source", "job_all"]
-        deleteUploadData = deleteMode in ["job_upload", "job_all"]
+        delete_mode = self.mode.lower()
+        delete_source_data = delete_mode in ["job_source", "job_all"]
+        delete_upload_data = delete_mode in ["job_upload", "job_all"]
 
-        announcementSource = self.ReleaseInfo.AnnouncementSource
-        if announcementSource is None:
-            announcementSource = MyGlobals.SourceFactory.GetSource(
+        announcement_source = self.ReleaseInfo.AnnouncementSource
+        if announcement_source is None:
+            announcement_source = MyGlobals.SourceFactory.GetSource(
                 self.ReleaseInfo.AnnouncementSourceName
             )
 
-        if announcementSource is not None:  # Still possibly not there
-            announcementSource.Delete(
+        if announcement_source is not None:  # Still possibly not there
+            announcement_source.Delete(
                 self.ReleaseInfo,
                 Settings.GetTorrentClient(),
-                deleteSourceData,
-                deleteUploadData,
+                delete_source_data,
+                delete_upload_data,
             )
 
         self.ReleaseInfo.delete()
