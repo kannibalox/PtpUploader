@@ -23,8 +23,11 @@ from PtpUploader.Helper import SizeToText, TimeDifferenceToText
 from PtpUploader.Job.JobRunningState import JobRunningState
 from PtpUploader.Job.JobStartMode import JobStartMode
 from PtpUploader.MyGlobals import MyGlobals
-from PtpUploader.NfoParser import NfoParser
-from PtpUploader.PtpUploaderMessage import *
+from PtpUploader import nfo_parser
+from PtpUploader.PtpUploaderMessage import (
+    PtpUploaderMessageStartJob,
+    PtpUploaderMessageDeleteJob,
+)
 from PtpUploader.ReleaseInfo import ReleaseInfo
 from PtpUploader.Settings import Settings, config
 
@@ -84,7 +87,7 @@ def log(request, r_id: int):
 
 
 def GetPtpOrImdbId(releaseInfo, text):
-    imdbId = NfoParser.GetImdbId(text)
+    imdbId = nfo_parser.get_imdb_id(text)
     if len(imdbId) > 0:
         releaseInfo.ImdbId = imdbId
     elif text in ["0", "-"]:
@@ -405,14 +408,14 @@ def edit_job(request, r_id: int = -1):
             release.JobRunningState = JobRunningState.WaitingForStart
             if r_id < 0:
                 if request.POST["TorrentLink"]:
-                    source, id = MyGlobals.SourceFactory.GetSourceAndIdByUrl(
+                    source, source_id = MyGlobals.SourceFactory.GetSourceAndIdByUrl(
                         request.POST["TorrentLink"]
                     )
                     if source is None:
                         return False
 
                     release.AnnouncementSourceName = source.Name
-                    release.AnnouncementId = id
+                    release.AnnouncementId = source_id
                 elif request.POST["LocalFile"]:
                     path = Path(request.POST["LocalFile"])
                     release.AnnouncementSourceName = "file"
@@ -440,10 +443,10 @@ def edit_job(request, r_id: int = -1):
         job["Screenshots"] = {}
         if release.Screenshots:
             for f, shots in release.Screenshots.items():
-                path = str(Path(f).name)
-                job["Screenshots"][path] = ""
+                name = str(Path(f).name)
+                job["Screenshots"][name] = ""
                 for s in shots:
-                    job["Screenshots"][path] += f'<img src="{s}"/>'
+                    job["Screenshots"][name] += f'<img src="{s}"/>'
         source = MyGlobals.SourceFactory.GetSource(release.AnnouncementSourceName)
         if source is not None:
             filename = "source_icon/%s.ico" % release.AnnouncementSourceName
