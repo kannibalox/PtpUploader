@@ -7,7 +7,7 @@ from pathlib import Path
 
 from PtpUploader.IncludedFileList import IncludedFileList
 from PtpUploader.Job.FinishedJobPhase import FinishedJobPhase
-from PtpUploader.NfoParser import NfoParser
+from PtpUploader import nfo_parser
 from PtpUploader.PtpUploaderException import PtpUploaderException
 from PtpUploader.release_extractor import parse_directory
 from PtpUploader.Settings import Settings, config
@@ -123,7 +123,7 @@ class SourceBase:
         os.makedirs(uploadDirectory)
 
     def ReadNfo(self, releaseInfo):
-        releaseInfo.Nfo = NfoParser.FindAndReadNfoFileToUnicode(
+        releaseInfo.Nfo = nfo_parser.find_and_read_nfo(
             releaseInfo.GetReleaseDownloadPath()
         )
 

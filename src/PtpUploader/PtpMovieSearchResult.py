@@ -3,7 +3,6 @@ import json
 import logging
 
 from PtpUploader.Helper import SizeToText, TimeDifferenceToText
-from PtpUploader.NfoParser import NfoParser
 from PtpUploader.PtpUploaderException import PtpUploaderException
 from PtpUploader.ReleaseInfo import ReleaseInfo
 

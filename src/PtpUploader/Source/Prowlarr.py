@@ -8,9 +8,8 @@ from urllib.parse import urlparse
 
 import requests
 
-import PtpUploader.release_extractor
+from PtpUploader import release_extractor
 from PtpUploader.IncludedFileList import IncludedFileList
-from PtpUploader.NfoParser import NfoParser
 from PtpUploader.PtpUploaderException import PtpUploaderException
 from PtpUploader.ReleaseNameParser import ReleaseNameParser
 from PtpUploader.Settings import Settings

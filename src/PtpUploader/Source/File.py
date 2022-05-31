@@ -6,7 +6,7 @@ from unidecode import unidecode
 
 from PtpUploader.Helper import GetPathSize
 from PtpUploader.IncludedFileList import IncludedFileList
-from PtpUploader.NfoParser import NfoParser
+from PtpUploader import nfo_parser
 from PtpUploader.PtpUploaderException import PtpUploaderException
 from PtpUploader.ReleaseNameParser import ReleaseNameParser
 from PtpUploader.Source.SourceBase import SourceBase
@@ -66,7 +66,7 @@ class File(SourceBase):
             fileName, _ = os.path.splitext(fileName)
             nfoPath = os.path.join(basePath, fileName) + ".nfo"
             if os.path.isfile(nfoPath):
-                releaseInfo.Nfo = NfoParser.ReadNfo(nfoPath)
+                releaseInfo.Nfo = nfo_parser.read_nfo(nfoPath)
         else:
             SourceBase.ReadNfo(self, releaseInfo)
 
