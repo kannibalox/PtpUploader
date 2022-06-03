@@ -9,7 +9,7 @@ IMDB_TITLE_RE = re.compile(r"imdb\.com/[Tt]itle/tt(\d+)")
 
 
 def get_imdb_id(nfo_text: str) -> str:
-    match = re.search(r"imdb.com/title/tt(\d+)", nfo_text)
+    match = IMDB_TITLE_RE.search(nfo_text)
     if match:
         return match.group(1)
     return ""
