@@ -3,6 +3,8 @@ import logging
 import os
 import re
 
+from guessit import guessit
+
 from PtpUploader.Helper import (
     GetSizeFromText,
     RemoveDisallowedCharactersFromPath,
@@ -294,7 +296,7 @@ class Cinemageddon(SourceBase):
 
     # Because some of the releases on CG do not contain the full name of the movie, we have to rename them because of the uploading rules on PTP.
     # The new name will be formatted like this: Movie Name Year
-    def GetCustomUploadPath(self, _, releaseInfo):
+    def GetCustomUploadPath(self, _, releaseInfo) -> str:
         # TODO: if the user forced a release name, then let it upload by that name.
         if releaseInfo.ImdbId == "0":
             raise PtpUploaderException(
@@ -304,14 +306,21 @@ class Cinemageddon(SourceBase):
         # If the movie already exists on PTP then the IMDb info is not populated in ReleaseInfo.
         if not releaseInfo.InternationalTitle or not releaseInfo.Year:
             imdbInfo = Imdb.GetInfo(logger, releaseInfo.ImdbId)
+            # If the release name matches IMDb, preserve the name
+            guess = guessit(releaseInfo.ReleaseName, {"enforce_list": True})
+            if "title" in guess and imdbInfo.Title in guess["title"]:
+                return releaseInfo.GetReleaseUploadPath()
             if not releaseInfo.InternationalTitle:
                 releaseInfo.InternationalTitle = imdbInfo.Title
             if not releaseInfo.Year:
                 releaseInfo.Year = imdbInfo.Year
             releaseInfo.save()
 
-        if not releaseInfo.ReleaseTitle and not releaseInfo.InternationalTitle:
-            raise PtpUploaderException("No titles found, cannot rename.")
+        if not releaseInfo.InternationalTitle:
+            raise PtpUploaderException("No title found, cannot rename.")
+
+        if not releaseInfo.Year:
+            raise PtpUploaderException("No year found, cannot rename.")
 
         if len(releaseInfo.Year) <= 0:
             raise PtpUploaderException("Can't rename release because year is empty.")
