@@ -128,19 +128,6 @@ class Prowlarr(SourceBase):
                 releaseInfo.SetSceneRelease()
                 break
 
-    # Must returns with a tuple consisting of the list of video files and the list of additional files.
-    def ValidateExtractedRelease(self, releaseInfo, includedFileList):
-        videoFiles, additionalFiles = release_extractor.parse_directory(
-            logger, releaseInfo.GetReleaseUploadPath(), includedFileList
-        )
-        if len(videoFiles) < 1:
-            raise PtpUploaderException(
-                "Upload path '%s' doesn't contain any video files."
-                % releaseInfo.GetReleaseUploadPath()
-            )
-
-        return videoFiles, additionalFiles
-
     def GetIncludedFileList(self, releaseInfo):
         includedFileList = IncludedFileList()
 

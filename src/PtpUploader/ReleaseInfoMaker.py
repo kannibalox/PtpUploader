@@ -7,14 +7,13 @@ import django
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "PtpUploader.web.settings")
 django.setup()
 
-from PtpUploader.IncludedFileList import IncludedFileList
 from PtpUploader.MyGlobals import MyGlobals
-from PtpUploader.PtpUploaderException import *
+from PtpUploader.PtpUploaderException import PtpUploaderException
 from PtpUploader.ReleaseDescriptionFormatter import ReleaseDescriptionFormatter
-from PtpUploader.ReleaseExtractor import ReleaseExtractor
 from PtpUploader.ReleaseInfo import ReleaseInfo
 from PtpUploader.Settings import Settings
 from PtpUploader.Tool import Mktor
+from PtpUploader import release_extractor
 
 
 class ReleaseInfoMaker:
@@ -33,12 +32,11 @@ class ReleaseInfoMaker:
             # Make sure that path doesn't ends with a trailing slash or else os.path.split would return with wrong values.
             self.Path = self.Path.rstrip("\\/")
 
-            includedFileList = IncludedFileList()
-            self.VideoFiles, self.AdditionalFiles = ReleaseExtractor.ValidateDirectory(
-                MyGlobals.Logger,
+            (
+                self.VideoFiles,
+                self.AdditionalFiles,
+            ) = release_extractor.find_allowed_files(
                 self.Path,
-                includedFileList,
-                throwExceptionForUnsupportedFiles=False,
             )
             if len(self.VideoFiles) <= 0:
                 print("Path '%s' doesn't contain any videos!" % self.Path)

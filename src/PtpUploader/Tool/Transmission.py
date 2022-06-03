@@ -1,13 +1,11 @@
-import transmissionrpc
+import logging
 
-from PtpUploader.MyGlobals import MyGlobals
-from PtpUploader.PtpUploaderException import PtpUploaderException
-from PtpUploader.Settings import Settings
+import transmissionrpc
 
 
 class Transmission:
     def __init__(self, address, port):
-        MyGlobals.Logger.info("Initializing transmissionrpc.")
+        logging.getLogger(__name__).info("Initializing transmissionrpc.")
         self.transmission = transmissionrpc.Client(address, port)
 
     # downloadPath is the final path. Suggested directory name from torrent won't be added to it.

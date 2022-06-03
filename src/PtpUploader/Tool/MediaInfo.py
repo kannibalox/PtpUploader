@@ -199,30 +199,24 @@ class MediaInfo:
         return self.Container == "mpeg-ps"
 
     def IsDivx(self):
-        return self.Codec == "divx" or self.Codec == "dx50" or self.Codec == "div3"
+        return self.Codec in ["divx", "dx50", "div3"]
 
     def IsXvid(self):
         return self.Codec == "xvid"
 
     def IsX264(self):
         return self.Codec == "x264" or (
-            (
-                self.Codec == "v_mpeg4/iso/avc"
-                or self.Codec == "avc1"
-                or self.Codec == "h264"
-            )
+            (self.Codec in ["v_mpeg4/iso/avc", "avc1", "h264"])
             and self.VideoWritingLibrary.find("x264 core") == 0
         )
 
     def IsH264(self):
         return (
-            self.Codec == "v_mpeg4/iso/avc"
-            or self.Codec == "avc1"
-            or self.Codec == "h264"
+            self.Codec in ["v_mpeg4/iso/avc", "avc1", "h264"]
         ) and self.VideoWritingLibrary.find("x264 core") == -1
 
     def IsVc1(self):
-        return self.Codec == "wvc1" or self.Codec == "v_ms/vfw/fourcc / wvc1"
+        return self.Codec in ["wvc1", "v_ms/vfw/fourcc / wvc1"]
 
     def IsMpeg2Codec(self):
         return self.Codec == "v_mpeg2"

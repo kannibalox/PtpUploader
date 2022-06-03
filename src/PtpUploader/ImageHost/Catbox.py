@@ -1,7 +1,6 @@
 import requests
 
 from PtpUploader.ImageHost.Base import ImageSite
-from PtpUploader.PtpUploaderException import PtpUploaderException
 
 
 class CatboxMoe(ImageSite):

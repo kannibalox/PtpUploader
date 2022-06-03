@@ -18,6 +18,10 @@ log = logging.getLogger(__name__)
 def parse_directory(release_info):
     """Split the release upload path into video and non-video files"""
     path = Path(release_info.GetReleaseUploadPath())
+    return find_allowed_files(path)
+
+
+def find_allowed_files(path: Path):
     video_files = []
     addtl_files = []
     for child in path.rglob("*"):

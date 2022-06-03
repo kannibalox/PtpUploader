@@ -69,7 +69,7 @@ def jobs(request):
 
 
 @login_required
-def log(request, r_id: int):
+def log(_request, r_id: int):
     get_object_or_404(ReleaseInfo, Id=r_id)
 
     log_msg = ""

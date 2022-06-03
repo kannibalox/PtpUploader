@@ -100,7 +100,7 @@ class Mplayer:
             args.append("-noautosub")
         args.append(self.InputVideoPath)
 
-        errorCode = subprocess.call(args, cwd=outputDirectory)
+        errorCode = subprocess.call(args, cwd=Path(outputPngPath).parent)
         if errorCode != 0:
             raise PtpUploaderException(
                 "Process execution '%s' returned with error code '%s'."

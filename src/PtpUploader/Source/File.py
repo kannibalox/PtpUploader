@@ -70,14 +70,6 @@ class File(SourceBase):
         else:
             SourceBase.ReadNfo(self, releaseInfo)
 
-    def ValidateExtractedRelease(self, releaseInfo, includedFileList):
-        if releaseInfo.SourceIsAFile():
-            return [releaseInfo.GetReleaseDownloadPath()], []
-        else:
-            return SourceBase.ValidateExtractedRelease(
-                self, releaseInfo, includedFileList
-            )
-
     def GetIncludedFileList(self, releaseInfo):
         includedFileList = IncludedFileList()
 
