@@ -99,45 +99,33 @@ class Ffmpeg:
         # There is no way to set PNG compression level. :(
         args = []
         time = str(int(timeInSeconds))
-        if self.ScaleSize is None:
-            args = [
-                Settings.FfmpegPath,
-                "-an",
-                "-sn",
-                "-ss",
-                time,
-                "-i",
-                self.InputVideoPath,
-                "-vcodec",
-                "png",
-                "-vframes",
-                "1",
-                "-y",
-                outputPngPath,
-            ]
-        else:
+        args = [
+            Settings.FfmpegPath,
+            "-an",
+            "-sn",
+            "-ss",
+            time,
+            "-i",
+            self.InputVideoPath,
+            "-vcodec",
+            "png",
+            "-vframes",
+            "1",
+            "-pix_fmt",
+            "rbg24",
+            "-y",
+            outputPngPath,
+        ]
+        if self.ScaleSize is not None:
             self.Logger.info(
                 "Pixel aspect ratio wasn't 1:1, scaling video to resolution: '%s'."
                 % self.ScaleSize
             )
-            args = [
-                Settings.FfmpegPath,
-                "-an",
-                "-sn",
-                "-ss",
-                time,
-                "-i",
-                self.InputVideoPath,
-                "-vcodec",
-                "png",
-                "-vframes",
-                "1",
+            args += [
                 "-s",
                 self.ScaleSize,
-                "-y",
-                outputPngPath,
             ]
-
+        args += ["-y", outputPngPath]
         errorCode = subprocess.call(args)
         if errorCode != 0:
             raise PtpUploaderException(
