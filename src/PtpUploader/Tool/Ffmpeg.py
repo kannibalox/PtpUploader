@@ -112,9 +112,7 @@ class Ffmpeg:
             "-vframes",
             "1",
             "-pix_fmt",
-            "rbg24",
-            "-y",
-            outputPngPath,
+            "rgb24",
         ]
         if self.ScaleSize is not None:
             self.Logger.info(
