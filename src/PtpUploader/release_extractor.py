@@ -81,6 +81,9 @@ def extract_files(
     handle_scene_folders: bool = False,
     dry_run: bool = False,  # Exists for testing purposes
 ):
+    """This is the method to actually extract files. That usually means just hardlinking any allowed files into the same
+    tree structure, but there is some logic to handle things like RARs. Importantly, though, this function has
+    no concept of what the release object looks like. This helps to separate out the 'business logic'."""
     if source.is_file() and (
         source.suffix.lower().strip(".") in allow_exts or allow_exts == ["*"]
     ):

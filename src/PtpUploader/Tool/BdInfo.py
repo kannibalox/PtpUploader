@@ -5,7 +5,7 @@ import subprocess
 
 from pathlib import Path
 from tempfile import TemporaryDirectory
-from typing import List, Optional
+from typing import List, Optional, Tuple
 
 from PtpUploader.PtpUploaderException import PtpUploaderException
 from PtpUploader.Settings import config
@@ -25,7 +25,7 @@ def bdinfo_cmd() -> List[str]:
 
 def run(path: Path, mpls=None, extra_args=None) -> str:
     if mpls is None:
-        mpls = get_longest_playlist(path)
+        mpls, _ = get_longest_playlist(path)
     logger.info(f"Building bdinfo for path '{path}' and playlist '{mpls}'")
     with TemporaryDirectory() as tempdir:
         args: List[str] = bdinfo_cmd() + [str(path), tempdir, "-m", mpls]
@@ -41,7 +41,7 @@ def run(path: Path, mpls=None, extra_args=None) -> str:
     raise PtpUploaderException(f"Could not find BDInfo output for path '{path}'")
 
 
-def get_longest_playlist(path: Path) -> str:
+def get_longest_playlist(path: Path) -> Tuple[str, int]:
     logger.info(f"Scanning '{path}' for playlists")
     proc = subprocess.run(
         bdinfo_cmd() + [str(path), "-l"], check=True, capture_output=True
@@ -58,7 +58,7 @@ def get_longest_playlist(path: Path) -> str:
                 longest_len = length_sec
                 longest_mpls = line.split(" ")[9]
     if longest_mpls:
-        return longest_mpls
+        return longest_mpls, longest_len
     else:
         logger.error("Could not parse output: %s", proc.stdout.decode())
         raise PtpUploaderException(f"Could not find playlist from path '{path}'")
