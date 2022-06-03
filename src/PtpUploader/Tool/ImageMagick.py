@@ -47,7 +47,3 @@ class ImageMagick:
             logger.info("Optimized PNG is %s bytes smaller." % (gainedBytes))
         else:
             os.remove(outputImagePath)
-
-    @staticmethod
-    def IsEnabled():
-        return len(Settings.ImageMagickConvertPath) > 0
