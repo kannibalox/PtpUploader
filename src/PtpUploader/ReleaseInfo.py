@@ -153,6 +153,9 @@ class ReleaseInfo(models.Model):
     ReleaseUploadPath = models.TextField(blank=True, default="")
     ReleaseNotes = models.TextField(blank=True, default="")
     Screenshots = models.JSONField(blank=True, default=dict)
+    # Mediainfo is pretty quick even for large files, BDInfo can be much rougher (and
+    # produces less data), so let's cache it.
+    BdInfo = models.JSONField(blank=True, default=dict)
     LastModificationTime = models.DateTimeField(auto_now=True)
     Size = models.BigIntegerField(default=0)
     Subtitles = models.JSONField(blank=True, default=list)  # CSV of subtitle IDs

@@ -47,6 +47,7 @@ class Upload(WorkerBase):
             self.__StartTorrent,
             self.__UploadMovie,
             self.__ExecuteCommandOnSuccessfulUpload,
+            self.__CleanFields,
         ]
 
         self.TorrentClient = Settings.GetTorrentClient()
@@ -565,3 +566,8 @@ class Upload(WorkerBase):
                 e,
                 command,
             )
+
+    def __CleanFields(self):
+        # Takes up a decent amount of space and can always be recreated if somehow needed later
+        self.ReleaseInfo.BdInfo = {}
+        self.ReleaseInfo.save()
