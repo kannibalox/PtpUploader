@@ -1,6 +1,7 @@
 ## [Unreleased]
 ### Changed
 - Update CSS/JS dependencies
+- Move blu-ray support out of experimental support
 ### Fixed
 - Improve CG failed login handling
 - Improve x264/x265 detection from filenames
