@@ -320,7 +320,7 @@ class Upload(WorkerBase):
         return False
 
     def __DetectSubtitles(self):
-        subtitleIds = self.ReleaseInfo.GetSubtitles()
+        subtitleIds = self.ReleaseInfo.Subtitles
         if subtitleIds:
             self.ReleaseInfo.logger().info(
                 "Subtitle list is not empty. Skipping subtitle detection."
@@ -370,7 +370,7 @@ class Upload(WorkerBase):
             # ID for no subs
             self.ReleaseInfo.SetSubtitles(["44"])
 
-        if not self.ReleaseInfo.GetSubtitles():
+        if not self.ReleaseInfo.Subtitles:
             raise PtpUploaderException(
                 "Unable to automatically detect subtitles, please select them manually"
             )

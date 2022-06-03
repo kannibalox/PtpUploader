@@ -234,7 +234,7 @@ class Karagarga(SourceBase):
 
     def __DownloadNfoParseSubtitles(self, releaseInfo, description):
         # Only detect subtitles if they are not specified.
-        if len(releaseInfo.GetSubtitles()) > 0:
+        if releaseInfo.Subtitles:
             return
 
         # <td class="heading" align="right" valign="top">Subtitles</td><td colspan="2" align="left" valign="top">included: English<hr>

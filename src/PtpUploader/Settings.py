@@ -136,7 +136,6 @@ class Settings:
         Settings.IgnoreReleaseTag = Settings.MakeListOfListsFromString(
             config.source._default.ignore_tags
         )
-        Settings.IgnoreReleaserGroup = config.source._default.ignore_release_group
 
         scene_file = Path(
             os.path.expanduser("~/.config/ptpuploader"), "scene_groups.txt"

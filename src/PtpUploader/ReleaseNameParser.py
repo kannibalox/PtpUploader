@@ -3,7 +3,7 @@ import logging
 from guessit import guessit
 
 from PtpUploader.PtpUploaderException import PtpUploaderException
-from PtpUploader.Settings import Settings
+from PtpUploader.Settings import Settings, config
 
 
 logger = logging.getLogger(__name__)
@@ -118,7 +118,7 @@ class ReleaseNameParser:
         return (x for y in self.guess.values() for x in y)
 
     def IsAllowed(self):
-        if self.group in Settings.IgnoreReleaserGroup:
+        if self.group in config.source._default.ignore_release_group:
             return "Group '%s' is in your ignore list." % self.group
 
         if len(Settings.AllowReleaseTag) > 0:

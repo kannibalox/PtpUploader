@@ -328,7 +328,7 @@ def start_job(_, r_id):
         releaseInfo.JobStartMode = JobStartMode.Manual
 
     # Resume the job normally.
-    releaseInfo.SetStopBeforeUploading(False)
+    releaseInfo.StopBeforeUploading = False
 
     releaseInfo.save()
     MyGlobals.PtpUploader.add_message(PtpUploaderMessageStartJob(r_id))

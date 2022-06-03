@@ -209,14 +209,8 @@ class ReleaseInfo(models.Model):
 
         self.Directors = ", ".join(names)
 
-    def GetSubtitles(self):
-        return self.Subtitles
-
     def SetSubtitles(self, sub_ids: Iterator[int]):
         self.Subtitles = sub_ids
-
-    def SetPersonalRip(self):
-        self.PersonalRip = True
 
     def IsSceneRelease(self):
         return self.SceneRelease
@@ -241,13 +235,6 @@ class ReleaseInfo(models.Model):
 
     def IsBlurayImage(self):
         return str(self.Codec).startswith("BD")
-
-    def SetOverrideScreenshots(self, override: bool):
-        self.OverrideScreenshots = override
-
-    # See the description at the flag.
-    def SetStopBeforeUploading(self, stop: bool):
-        self.StopBeforeUploading = stop
 
     def CanEdited(self):
         return self.JobRunningState not in [
@@ -304,9 +291,6 @@ class ReleaseInfo(models.Model):
         return os.path.join(
             self.GetReleaseRootPath(), "upload", unidecode(self.ReleaseName)
         )
-
-    def IsTorrentNeedsDuplicateChecking(self, torrentId):
-        return torrentId > self.DuplicateCheckCanIgnore
 
     def IsZeroImdbId(self):
         return self.ImdbId == "0"

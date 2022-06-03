@@ -214,7 +214,7 @@ def __UploadMovieGetParamsCommon(releaseInfo, releaseDescription):
         "release_desc": releaseDescription,
         "nfo_text": releaseInfo.Nfo,
         "AntiCsrfToken": Settings.AntiCsrfToken,
-        "subtitles[]": releaseInfo.GetSubtitles(),
+        "subtitles[]": releaseInfo.Subtitles,
         "trumpable[]": releaseInfo.Trumpable,
     }
 
