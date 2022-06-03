@@ -130,11 +130,15 @@ class ReleaseDescriptionFormatter:
         # m2ts files.
         m2ts = sorted(m2ts, key=lambda x: x.RealFileSize, reverse=True)[0]
         self.MainMediaInfo = m2ts
+        path = self.ReleaseInfo.GetReleaseUploadPath()
+        if path not in self.ReleaseInfo.BdInfo:
+            self.ReleaseInfo.BdInfo[path] = BdInfo.run(path)
+
         self.VideoEntries.append(
             ReleaseDescriptionVideoEntry(
                 m2ts,
                 config.uploader.max_screenshots,
-                bdinfo=BdInfo.run(self.ReleaseInfo.GetReleaseUploadPath()),
+                bdinfo=self.ReleaseInfo.BdInfo[path],
             )
         )
 
@@ -170,6 +174,29 @@ class ReleaseDescriptionFormatter:
 
     def __TakeAndUploadScreenshots(self):
         if not self.MakeScreenshots:
+            return
+
+        # Mediainfo will never return the right duration without more
+        # magic than it's worth implementing, we'll just use BDInfo
+        if self.ReleaseInfo.IsBlurayImage():
+            for videoEntry in self.VideoEntries:
+                path = str(videoEntry.MediaInfo.Path)
+                _, duration = BdInfo.get_longest_playlist(
+                    self.ReleaseInfo.GetReleaseUploadPath()
+                )
+                screenshotMaker = ScreenshotMaker(logger, path)
+                videoEntry.ScaleSize = screenshotMaker.GetScaleSize()
+                if (
+                    path not in self.ReleaseInfo.Screenshots
+                    or not self.ReleaseInfo.Screenshots[path]
+                ):
+                    self.ReleaseInfo.Screenshots[
+                        path
+                    ] = screenshotMaker.TakeAndUploadScreenshots(
+                        self.OutputImageDirectory,
+                        duration,
+                        videoEntry.NumberOfScreenshotsToTake,
+                    )
             return
 
         for videoEntry in self.VideoEntries:
