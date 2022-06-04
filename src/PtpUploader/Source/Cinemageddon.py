@@ -317,9 +317,11 @@ class Cinemageddon(SourceBase):
             releaseInfo.save()
 
         if not releaseInfo.InternationalTitle:
+            print(imdbInfo.Raw)
             raise PtpUploaderException("No title found, cannot rename.")
 
         if not releaseInfo.Year:
+            print(imdbInfo.Raw)
             raise PtpUploaderException("No year found, cannot rename.")
 
         if len(releaseInfo.Year) <= 0:

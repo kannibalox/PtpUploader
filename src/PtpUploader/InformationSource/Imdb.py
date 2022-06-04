@@ -10,6 +10,7 @@ class ImdbInfo:
         self.IsSeries: bool = False
         self.ImdbRating: str = ""
         self.ImdbVoteCount: str = ""
+        self.Raw = None
 
 
 class Imdb:
@@ -22,6 +23,7 @@ class Imdb:
         try:
             ia = IMDb()
             movie = ia.get_movie(imdbId.strip("t"))
+            self.Raw = movie
             if "title" in movie:
                 imdbInfo.Title = movie["title"]
             if "year" in movie:
