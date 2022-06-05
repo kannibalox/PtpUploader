@@ -55,6 +55,11 @@ use_parentheses = true
 #include = '\.py$'
 extend-include = "migrations"
 
+[tool.mypy]
+[[tool.mypy.overrides]]
+module = ['django.*']
+ignore_missing_imports = true
+
 [build-system]
 requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
