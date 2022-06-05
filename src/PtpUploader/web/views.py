@@ -27,6 +27,7 @@ from PtpUploader import nfo_parser
 from PtpUploader.PtpUploaderMessage import (
     PtpUploaderMessageStartJob,
     PtpUploaderMessageDeleteJob,
+    PtpUploaderMessageStopJob
 )
 from PtpUploader.ReleaseInfo import ReleaseInfo
 from PtpUploader.Settings import Settings, config
