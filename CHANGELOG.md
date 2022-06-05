@@ -1,4 +1,4 @@
-## [Unreleased]
+## [0.10.0] - 2022-06-04
 ### Changed
 - Update CSS/JS dependencies
 - Move blu-ray support out of experimental support
