@@ -90,7 +90,7 @@ def __LoginInternal():
                 % jsonLoad
             )
         else:
-            Settings.AntiCsrfToken = jsonLoad["Settings.AntiCsrfToken"]
+            Settings.AntiCsrfToken = jsonLoad["AntiCsrfToken"]
         MyGlobals.SaveCookies()
 
 
