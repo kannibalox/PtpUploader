@@ -23,7 +23,7 @@ class Imdb:
         try:
             ia = IMDb()
             movie = ia.get_movie(imdbId.strip("t"))
-            self.Raw = movie
+            imdbInfo.Raw = movie
             if "title" in movie:
                 imdbInfo.Title = movie["title"]
             if "year" in movie:
