@@ -1,3 +1,7 @@
+## [Unreleased]
+### Fixed
+- Two bugs from refactoring/linting efforts (#27, #28)
+
 ## [0.10.0] - 2022-06-04
 ### Changed
 - Update CSS/JS dependencies
