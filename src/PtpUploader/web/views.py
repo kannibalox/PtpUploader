@@ -360,7 +360,7 @@ def create(request):
     release = ReleaseInfo()
     release.SourceTorrentFilePath = dest_path
     release.AnnouncementSourceName = "torrent"
-    release.ImdbId = request.POST["imdbUrl"]
+    release.ImdbId = f'https://www.imdb.com/title/tt{nfo_parser.get_imdb_id(request.POST["imdbUrl"])}'
     source, source_id = MyGlobals.SourceFactory.GetSourceAndIdByUrl(
         request.POST["SourceUrl"]
     )
