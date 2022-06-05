@@ -111,7 +111,7 @@ def extract_files(
         if len(child.parent.parts) == 0:
             top_dir = "."
         else:
-            top_dir = child.parent.parts[0]
+            top_dir = child.relative_to(source).parts[0]
         if top_dir in ignored_top_dirs:
             continue
         child_dest = Path(dest, unidecode(str(child.relative_to(source))))
