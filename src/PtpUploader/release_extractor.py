@@ -40,8 +40,16 @@ def extract_release(release_info):
     allow_exts: List[str] = (
         config.uploader.video_files + config.uploader.additional_files
     )
-
     source = Path(release_info.GetReleaseDownloadPath())
+    if release_info.SourceIsAFile():
+        if source.suffix.lower().strip(".") in config.uploader.video_files:
+            log.info("Source is a single file, skipping extraction")
+            return
+        else:
+            raise PtpUploaderException(
+                f"Single file {source} is not a known video extension ({config.uploader.video_files})"
+            )
+
     dest = Path(release_info.GetReleaseUploadPath())
     handle_scene_folders = False
     # Allow an existing directory only if it's empty
