@@ -1,5 +1,6 @@
-## [Unreleased]
+## [0.10.1]
 ### Fixed
+- Properly ignore PTP directory when extracting releases from directories
 - Two bugs from refactoring/linting efforts (#27, #28)
 
 ## [0.10.0] - 2022-06-04
