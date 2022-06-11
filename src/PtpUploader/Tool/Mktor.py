@@ -12,7 +12,7 @@ def Make(logger, path, torrentPath):
         meta["info"]["source"] = "PTP"
 
     logger.info("Making torrent from '%s' to '%s'." % (path, torrentPath))
-    torrent = metafile.Metafile(torrentPath, datapath=path)
+    torrent = metafile.Metafile(torrentPath, datapath=str(path))
 
     if os.path.exists(torrentPath):
         # We should be safe to allow the existing torrent to be used,
@@ -27,7 +27,7 @@ def Make(logger, path, torrentPath):
     else:
         logger.info("Making torrent from '%s' to '%s'.", path, torrentPath)
         torrent.create(
-            path,
+            str(path),
             Settings.PtpAnnounceUrl,
             created_by="PtpUploader",
             private=True,
