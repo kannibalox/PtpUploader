@@ -4,6 +4,7 @@ import os
 import re
 
 from guessit import guessit
+import unidecode
 
 from PtpUploader.Helper import (
     GetSizeFromText,
@@ -343,7 +344,7 @@ class Cinemageddon(SourceBase):
 
         newUploadPath = releaseInfo.GetReleaseUploadPath()
         newUploadPath = os.path.dirname(newUploadPath)
-        newUploadPath = os.path.join(newUploadPath, name)
+        newUploadPath = os.path.join(newUploadPath, unidecode.unidecode(name))
         return newUploadPath
 
     def IncludeReleaseNameInReleaseDescription(self):
