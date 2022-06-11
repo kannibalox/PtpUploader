@@ -17,6 +17,8 @@ log = logging.getLogger(__name__)
 
 def parse_directory(release_info):
     """Split the release upload path into video and non-video files"""
+    if release_info.SourceIsAFile():
+        return [release_info.GetReleaseDownloadPath()], []
     path = Path(release_info.GetReleaseUploadPath())
     return find_allowed_files(path)
 
