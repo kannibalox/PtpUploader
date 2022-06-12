@@ -4,6 +4,7 @@ import os
 import subprocess
 import threading
 from typing import List
+from pathlib import Path
 
 from django.template import engines
 
@@ -20,7 +21,7 @@ from PtpUploader.ReleaseDescriptionFormatter import ReleaseDescriptionFormatter
 from PtpUploader.release_extractor import extract_release, parse_directory
 from PtpUploader.ReleaseInfo import ReleaseInfo
 from PtpUploader.Settings import Settings
-from PtpUploader.Tool import Mktor
+from PtpUploader.Tool import Mktor, MediaInfo
 
 
 logger = logging.getLogger(__name__)
@@ -329,13 +330,23 @@ class Upload(WorkerBase):
 
         self.ReleaseInfo.logger().info("Detecting subtitles.")
 
-        # We can't do anything with DVD images.
-        if self.ReleaseInfo.IsDvdImage():
-            raise PtpUploaderException(
-                "Unable to automatically detect DVD subtitles, please select them manually"
-            )
-
         containsUnknownSubtitle = False
+
+        # With DVD images, check if IFO has subtitle language set, if not
+        # it becomes much harder to do any detection magic.
+        if self.ReleaseInfo.IsDvdImage():
+            ifo_path = Path(str(self.MainMediaInfo.Path)[:-5] + "0.IFO")
+            if ifo_path.is_file():
+                for language in MediaInfo.MediaInfo(
+                    self.ReleaseInfo.logger(), ifo_path, ""
+                ).Subtitles:
+                    containsUnknownSubtitle |= self.__DetectSubtitlesAddOne(
+                        subtitleIds, language
+                    )
+            if not subtitleIds or containsUnknownSubtitle:
+                raise PtpUploaderException(
+                    "Unable to automatically detect DVD subtitles, please select them manually"
+                )
 
         # Read from MediaInfo.
         for language in self.MainMediaInfo.Subtitles:
