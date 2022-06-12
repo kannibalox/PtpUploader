@@ -1,3 +1,8 @@
+## [Unreleased]
+### Added
+- Config option to disable recursive deletes
+- Remove accented characters from CG folders
+
 ## [0.10.1]
 ### Fixed
 - Properly ignore PTP directory when extracting releases from directories
