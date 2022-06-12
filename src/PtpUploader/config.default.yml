@@ -23,7 +23,7 @@ uploader:
   # Additional files wanted but not technically videos
   additional_files: [bup, idx, ifo, srt, sub, bdmv, mpls, clpi]
   ignore_files: ['.*sample.*', '.*d-z0n3\.assistant\.rar']
-  # Controls the default settings for checkboxes on the upload form. Able to be overridden on a per-job basis.
+  # Controls the default settings for checkboxes on the upload form. Can always be overridden on a per-job basis.
   override_screenshots: false
   force_directoryless_single_file: false
   is_personal: false
@@ -31,6 +31,11 @@ uploader:
   release_notes: ''
   # Maximum number of screenshots to take per file
   max_screenshots: 5
+  # Since PtpUploader can't know exactly which trees are under it's control,
+  # it has to blindly do a recursive delete for the "remove job + data" functionality.
+  # Since that's a little dangerous even behind two mouse clicks, there's a flag
+  # to let people turn it off.
+  allow_recursive_delete: true
 workers:
   threads: 1 # With more than 1 thread, you may encounter database locks in sqlite
   # Switching to mysql or postgres will fix those issues.
@@ -99,7 +104,7 @@ source:
     # Possible values: false (don't stop, but it will stil throw an error before uploading due to PTP's rules), before_downloading
     stop_if_art_missing: false
 
-    # Possible values: false (don't stop), before_downloading
+    # Possible values: false (don't stop), before_downloading, before_uploading
     stop_if_synopsis_missing: false
 
     # FiCO is here because they release a quite a few adult(ish) movies that are miscategorized on IMDb.

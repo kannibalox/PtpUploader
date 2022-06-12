@@ -144,7 +144,9 @@ class SourceBase:
             for _ in fileNames:
                 return
 
-        shutil.rmtree(path)
+        # Avoid shutil.rmtree because it's scary
+        for (root, _, _) in os.walk(path, topdown=False):
+            os.rmdir(root)
 
     def Delete(self, releaseInfo, torrentClient, deleteSourceData, deleteUploadData):
         # Only delete if the release directory has been created by this job.
@@ -153,6 +155,13 @@ class SourceBase:
             FinishedJobPhase.Download_CreateReleaseDirectory
         ):
             return
+
+        if (
+            deleteSourceData or deleteUploadData
+        ) and not config.uploader.allow_recursive_delete:
+            raise PtpUploaderException(
+                "Recursive delete requested but functionality is disabled by uploader.allow_recursive_delete setting"
+            )
 
         if deleteSourceData:
             # Delete the source torrent file.

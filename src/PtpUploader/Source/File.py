@@ -84,6 +84,11 @@ class File(SourceBase):
         if not os.path.isdir(path):
             return
 
+        if not config.uploader.allow_recursive_delete:
+            raise PtpUploaderException(
+                "Recursive delete requested but functionality is disabled by uploader.allow_recursive_delete setting"
+            )
+
         entries = os.listdir(path)
         for entry in entries:
             if entry == File.UploadDirectoryName:
@@ -105,6 +110,13 @@ class File(SourceBase):
             sourceIsAFile = False
         elif os.path.isfile(path):
             sourceIsAFile = True
+
+        if (
+            deleteSourceData or deleteUploadData
+        ) and not config.uploader.allow_recursive_delete:
+            raise PtpUploaderException(
+                "Recursive delete requested but functionality is disabled by uploader.allow_recursive_delete setting"
+            )
 
         # Delete source folder without the PTP directory.
         if deleteSourceData:
