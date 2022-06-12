@@ -4,11 +4,13 @@ import os
 from pathlib import Path
 from typing import List
 
-from unidecode import unidecode
 import rarfile  # type: ignore
+
+from unidecode import unidecode
 
 from PtpUploader.PtpUploaderException import PtpUploaderException
 from PtpUploader.Settings import config
+
 
 # from PtpUploader.ReleaseInfo import ReleaseInfo
 

@@ -5,9 +5,9 @@ import shutil
 
 from pathlib import Path
 
+from PtpUploader import nfo_parser
 from PtpUploader.IncludedFileList import IncludedFileList
 from PtpUploader.Job.FinishedJobPhase import FinishedJobPhase
-from PtpUploader import nfo_parser
 from PtpUploader.PtpUploaderException import PtpUploaderException
 from PtpUploader.release_extractor import parse_directory
 from PtpUploader.Settings import Settings, config

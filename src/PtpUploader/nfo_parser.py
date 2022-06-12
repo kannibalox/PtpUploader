@@ -5,6 +5,7 @@ from pathlib import Path
 
 from PtpUploader.Helper import GetFileListFromTorrent
 
+
 IMDB_TITLE_RE = re.compile(r"imdb\.com/[Tt]itle/tt(\d+)")
 
 

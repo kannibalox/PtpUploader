@@ -3,10 +3,10 @@ import re
 
 from html import unescape
 
+from PtpUploader import ptp_subtitle
 from PtpUploader.Helper import GetSizeFromText, ValidateTorrentFile
 from PtpUploader.Job.JobRunningState import JobRunningState
 from PtpUploader.MyGlobals import MyGlobals
-from PtpUploader import ptp_subtitle
 from PtpUploader.PtpUploaderException import (
     PtpUploaderException,
     PtpUploaderInvalidLoginException,

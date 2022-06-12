@@ -3,25 +3,25 @@ import logging
 import os
 import subprocess
 import threading
-from typing import List
+
 from pathlib import Path
+from typing import List
 
 from django.template import engines
 
-from PtpUploader import ImageHost, Ptp
+from PtpUploader import ImageHost, Ptp, ptp_subtitle
 from PtpUploader.Helper import GetIdxSubtitleLanguages, TimeDifferenceToText
 from PtpUploader.Job.FinishedJobPhase import FinishedJobPhase
 from PtpUploader.Job.JobRunningState import JobRunningState
 from PtpUploader.Job.JobStartMode import JobStartMode
 from PtpUploader.Job.WorkerBase import WorkerBase
 from PtpUploader.MyGlobals import MyGlobals
-from PtpUploader import ptp_subtitle
 from PtpUploader.PtpUploaderException import *
-from PtpUploader.ReleaseDescriptionFormatter import ReleaseDescriptionFormatter
 from PtpUploader.release_extractor import extract_release, parse_directory
+from PtpUploader.ReleaseDescriptionFormatter import ReleaseDescriptionFormatter
 from PtpUploader.ReleaseInfo import ReleaseInfo
 from PtpUploader.Settings import Settings
-from PtpUploader.Tool import Mktor, MediaInfo
+from PtpUploader.Tool import MediaInfo, Mktor
 
 
 logger = logging.getLogger(__name__)

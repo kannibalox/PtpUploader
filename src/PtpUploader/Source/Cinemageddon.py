@@ -3,8 +3,9 @@ import logging
 import os
 import re
 
-from guessit import guessit
 import unidecode
+
+from guessit import guessit
 
 from PtpUploader.Helper import (
     GetSizeFromText,

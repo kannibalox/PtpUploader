@@ -18,15 +18,14 @@ from django.urls import reverse
 from django.utils import timezone
 from django.views.decorators.csrf import csrf_exempt
 
-from PtpUploader import Ptp
+from PtpUploader import Ptp, nfo_parser
 from PtpUploader.Helper import SizeToText, TimeDifferenceToText
 from PtpUploader.Job.JobRunningState import JobRunningState
 from PtpUploader.Job.JobStartMode import JobStartMode
 from PtpUploader.MyGlobals import MyGlobals
-from PtpUploader import nfo_parser
 from PtpUploader.PtpUploaderMessage import (
-    PtpUploaderMessageStartJob,
     PtpUploaderMessageDeleteJob,
+    PtpUploaderMessageStartJob,
     PtpUploaderMessageStopJob,
 )
 from PtpUploader.ReleaseInfo import ReleaseInfo

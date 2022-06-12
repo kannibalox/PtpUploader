@@ -7,13 +7,13 @@ import django
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "PtpUploader.web.settings")
 django.setup()
 
+from PtpUploader import release_extractor
 from PtpUploader.MyGlobals import MyGlobals
 from PtpUploader.PtpUploaderException import PtpUploaderException
 from PtpUploader.ReleaseDescriptionFormatter import ReleaseDescriptionFormatter
 from PtpUploader.ReleaseInfo import ReleaseInfo
 from PtpUploader.Settings import Settings
 from PtpUploader.Tool import Mktor
-from PtpUploader import release_extractor
 
 
 class ReleaseInfoMaker:

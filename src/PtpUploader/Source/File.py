@@ -4,9 +4,9 @@ import shutil
 
 from unidecode import unidecode
 
+from PtpUploader import nfo_parser
 from PtpUploader.Helper import GetPathSize
 from PtpUploader.IncludedFileList import IncludedFileList
-from PtpUploader import nfo_parser
 from PtpUploader.PtpUploaderException import PtpUploaderException
 from PtpUploader.ReleaseNameParser import ReleaseNameParser
 from PtpUploader.Source.SourceBase import SourceBase

@@ -1,9 +1,10 @@
 import re
 import subprocess
+
 from pathlib import Path
 
-from PtpUploader.PtpUploaderException import PtpUploaderException
 from PtpUploader.Helper import GetSizeFromText
+from PtpUploader.PtpUploaderException import PtpUploaderException
 from PtpUploader.Settings import Settings
 
 

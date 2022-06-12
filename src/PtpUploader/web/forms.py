@@ -13,9 +13,8 @@ from django.forms import (
     TextInput,
 )
 
-from PtpUploader import ImageHost
+from PtpUploader import ImageHost, ptp_subtitle
 from PtpUploader.Job.JobStartMode import JobStartMode
-from PtpUploader import ptp_subtitle
 from PtpUploader.ReleaseInfo import ReleaseInfo
 from PtpUploader.Settings import config
 
