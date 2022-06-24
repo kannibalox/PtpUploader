@@ -1,4 +1,4 @@
-## [Unreleased]
+## [0.10.2]
 ### Added
 - Config option to disable recursive deletes
 - Remove accented characters from CG folders
