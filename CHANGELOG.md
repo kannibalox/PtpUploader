@@ -1,5 +1,5 @@
 ## [0.10.2]
-### Added
+### Fixed
 - Config option to disable recursive deletes
 - Remove accented characters from CG folders
 - Use IFO to detect DVD subtitles when possible
