@@ -27,6 +27,7 @@ uploader:
   override_screenshots: false
   force_directoryless_single_file: false
   is_personal: false
+  is_scene: false
   skip_duplicate_checking: false
   release_notes: ''
   # Maximum number of screenshots to take per file

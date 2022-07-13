@@ -3,9 +3,11 @@ from django.forms import (
     CharField,
     ChoiceField,
     ClearableFileInput,
+    CheckboxInput,
     FileField,
     Form,
     HiddenInput,
+    IntegerField,
     ModelForm,
     MultipleChoiceField,
     PasswordInput,
@@ -67,12 +69,24 @@ class ReleaseForm(ModelForm):
         choices=ReleaseInfo.ContainerChoices.choices, required=False
     )
     Source = ChoiceField(choices=ReleaseInfo.SourceChoices.choices, required=False)
+    SceneRelease = BooleanField(
+        initial=config.uploader.is_scene,
+        widget=CheckboxInput(attrs={"checked": config.uploader.is_scene}),
+    )
     ResolutionType = ChoiceField(
         choices=ReleaseInfo.ResolutionChoices.choices, required=False
     )
     Subtitles = MultipleChoiceField(
         choices=[(str(k), v[0].title()) for k, v in ptp_subtitle.subtitle_ids.items()],
         required=False,
+    )
+    if config.uploader.skip_duplicate_checking:
+        init = 0
+    else:
+        init = None
+    DuplicateCheckCanIgnore = IntegerField(
+        initial=init,
+        widget=HiddenInput(),
     )
     Tags = MultipleChoiceField(
         required=False,
