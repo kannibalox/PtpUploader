@@ -1,4 +1,7 @@
 import logging
+from pathlib import Path
+
+import requests
 
 from guessit import guessit
 
@@ -19,8 +22,21 @@ class ReleaseNameParser:
         self.group = ""
         if "release_group" in self.guess:
             self.group = " ".join(self.guess["release_group"])
-
         self.Scene = self.group in Settings.SceneReleaserGroup
+        if not self.Scene and config.uploader.srrdb_screne_check:
+            try:
+                base = Path(name)
+                if base.suffix.lstrip(".") in config.uploader.video_files:
+                    base = base.stem
+                result = requests.get(
+                    f"https://api.srrdb.com/v1/search/r:{base}"
+                ).json()
+                print(result)
+                if result["resultsCount"] > 0:
+                    self.Scene = True
+            except Exception as e:
+                logger.debug("srrdb.com result: %s", result)
+                logger.error("Failed scene from srrdb.com: %s", e)
 
     def GetSourceAndFormat(self, releaseInfo):
         if releaseInfo.Codec:

@@ -37,6 +37,10 @@ uploader:
   # Since that's a little dangerous even behind two mouse clicks, there's a flag
   # to let people turn it off.
   allow_recursive_delete: true
+  # Experimental feature to check srrdb.com to see if a release is
+  # from the scene. Since this introduces an external dependency, it
+  # can be disabled for those who don't need it.
+  srrdb_screne_check: true
 workers:
   threads: 1 # With more than 1 thread, you may encounter database locks in sqlite
   # Switching to mysql or postgres will fix those issues.

@@ -72,6 +72,7 @@ class ReleaseForm(ModelForm):
     SceneRelease = BooleanField(
         initial=config.uploader.is_scene,
         widget=CheckboxInput(attrs={"checked": config.uploader.is_scene}),
+        required=False,
     )
     ResolutionType = ChoiceField(
         choices=ReleaseInfo.ResolutionChoices.choices, required=False
