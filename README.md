@@ -44,7 +44,7 @@ PtpUploader runuploader
 ```bash
 PtpUploader createsuperuser
 ```
-6. Navigate to [http://localhost:8000/jobs] and enter the admin credentials.
+6. Navigate to http://localhost:8000/jobs and enter the admin credentials.
 
 ### Docker
 
@@ -72,7 +72,7 @@ sudo docker run --name ptpuploader -d \
 ```bash
 sudo docker exec -it ptpuploader PtpUploader createsuperuser
 ```
-4. Navigate to [http://localhost:8000/jobs] and enter the admin credentials.
+4. Navigate to http://localhost:8000/jobs and enter the admin credentials.
 
 ## Next Steps and Help
 

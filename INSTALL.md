@@ -1,13 +1,51 @@
-﻿# Usage
+﻿# Installation details
+
+PtpUploader needs Python 3.7+, as well as a couple other programs.
+The docker image contains all these images by default, and most distrubutions
+provide easy-to-install packages.
+
+Required external programs:
+- rTorrent or transmission
+  - if transmission is being used, the `transmissionrpc` package must be installed
+- One of: mpv (preferred), ffmpeg, mplayer
+- Mediainfo
+
+Optional external programs:
+- ImageMagick: Highly recommended for losslessly compressing PNG screenshots
+- FlexGet: Can be used to write announce files
+- autodl-irssi: Can	be used	to write announce files
+
+## Upgrading
+
+### Pip
+
+```bash
+pip install -U PtpUploader
+```
+
+### Docker
+
+When stopping the daemon in docker, be sure to fully remove the existing container:
+```bash
+sudo docker rm ptpuploader
+```
+
+```bash
+cd PtpUploader
+git pull
+# Re-do installation steps
+```
+
+# Usage
 
 ## Uploading
 
-To start your first upload, go to `localhost:8000/upload`, and use the form to fill out as much
+To start your first upload, go to http://localhost:8000/upload, and use the form to fill out as much
 information as possible about your upload. One of the first three fields (link, local path, or file)
 must be filled out, but anything else can be left blank, and PtpUploader will alert you if anything
 is missing.
 
-Once the job is submitted, it can viewed on the jobs page at `localhost:8000/jobs`.
+Once the job is submitted, it can viewed on the jobs page at http://localhost:8000/jobs.
 
 ## Automatic announcing
 
@@ -42,44 +80,6 @@ DATABASES:
     PASSWORD: '&PtPuPlOaDeR!'
     HOST: 'sql.example.com'
     PORT: ''
-```
-
-# Installation details
-
-PtpUploader needs Python 3.7+, as well as a couple other programs.
-The docker image contains all these images by default, and most distrubutions
-provide easy-to-install packages.
-
-Required external programs:
-- rTorrent or transmission
-  - if transmission is being used, the transmissionrpc package must be installed
-- One of: mpv (preferred), ffmpeg, mplayer
-- Mediainfo
-
-Optional external programs:
-- ImageMagick: Highly recommended for losslessly compressing PNG screenshots
-- FlexGet: Can be used to write announce files
-- autodl-irssi: Can	be used	to write announce files
-
-## Upgrading
-
-### Pip
-
-```bash
-pip install -U PtpUploader
-```
-
-### Docker
-
-When stopping the daemon in docker, be sure to fully remove the existing container:
-```bash
-sudo docker rm ptpuploader
-```
-
-```bash
-cd PtpUploader
-git pull
-# Re-do installation steps
 ```
 
 # Command line only usage
