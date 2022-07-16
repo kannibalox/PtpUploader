@@ -452,7 +452,14 @@ def edit_job(request, r_id: int = -1):
             filename = "source_icon/%s.ico" % release.AnnouncementSourceName
             job["SourceIcon"] = static(filename)
             job["SourceUrl"] = source.GetUrlFromId(release.AnnouncementId)
-        job["SkipDuplicateCheckingButton"] = release.DuplicateCheckCanIgnore
+        if config.uploader.skip_duplicate_checking:
+            release.DuplicateCheckCanIgnore = (
+                999999  # Reaching this limit would be one of them good problems
+            )
+        if release.DuplicateCheckCanIgnore > 0:
+            job["SkipDuplicateCheckingButton"] = release.DuplicateCheckCanIgnore
+        else:
+            job["SkipDuplicateCheckingButton"] = 0
         job["CanEdited"] = release.CanEdited
         job["StopBeforeUploading"] = release.StopBeforeUploading
         job["Status"] = release.get_JobRunningState_display()
