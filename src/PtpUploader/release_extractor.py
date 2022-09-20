@@ -28,7 +28,7 @@ def parse_directory(release_info):
 def find_allowed_files(path: Path):
     video_files = []
     addtl_files = []
-    for child in path.rglob("*"):
+    for child in Path(path).rglob("*"):
         if child.is_file():
             if child.suffix.lower().strip(".") in config.uploader.video_files:
                 video_files.append(child)
