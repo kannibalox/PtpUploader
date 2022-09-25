@@ -62,7 +62,7 @@ class ReleaseInfoMaker:
 
     def MarkAsDvdImageIfNeeded(self, releaseInfo):
         for file in self.AdditionalFiles:
-            if file.lower().endswith(".ifo"):
+            if str(file).lower().endswith(".ifo"):
                 releaseInfo.Codec = "DVD5"
                 # Make sure that ReleaseDescriptionFormatter will recognize this as a DVD image.
                 if not releaseInfo.IsDvdImage():
