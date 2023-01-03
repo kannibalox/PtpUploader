@@ -3,10 +3,10 @@ import shutil
 import time
 import xmlrpc.client as xmlrpc_client
 
-import bencode
+import pyrosimple
 
-from pyrosimple import config
-from pyrosimple.util import load_config, metafile, xmlrpc
+from pyrosimple.util.metafile import Metafile
+from pyrosimple.util.rpc import HashNotFound
 
 from PtpUploader.MyGlobals import MyGlobals
 from PtpUploader.PtpUploaderException import PtpUploaderException
@@ -16,14 +16,10 @@ class Rtorrent:
     def __init__(self, address):
         MyGlobals.Logger.info("Initializing PyroScope.")
         if address:
-            proxy = xmlrpc.RTorrentProxy(address)
+            engine = pyrosimple.connect(address)
         else:
-            # Hacky singleton
-            proxy = config.engine.open()
-            if proxy is None:
-                load_config.ConfigLoader().load()
-                proxy = config.engine.open()
-        self.proxy = proxy
+            engine = pyrosimple.connect()
+        self.proxy = engine.open()
 
     # downloadPath is the final path. Suggested directory name from torrent won't be added to it.
     # Returns with the info hash of the torrent.
@@ -33,13 +29,11 @@ class Rtorrent:
             % (torrentPath, downloadPath)
         )
 
-        with open(torrentPath, "rb") as fh:
-            data = fh.read()
-            contents = xmlrpc_client.Binary(data)
-            torrentData = bencode.decode(data)
+        metafile = Metafile.from_file(torrentPath)
+        metafile.check_meta()
 
-        metafile.check_meta(torrentData)
-        infoHash = metafile.info_hash(torrentData)
+        contents = xmlrpc_client.Binary(metafile.bencode())
+        infoHash = metafile.info_hash()
 
         self.proxy.load.raw_start(
             "",
@@ -55,7 +49,7 @@ class Rtorrent:
             try:
                 self.proxy.d.hash(infoHash)
                 break
-            except xmlrpc.HashNotFound:
+            except HashNotFound:
                 if maximumTries > 1:
                     maximumTries -= 1
                     time.sleep(2)  # Two seconds.
@@ -86,11 +80,9 @@ class Rtorrent:
 
         shutil.copyfile(torrentPath, destinationTorrentPath)
 
-        with open(destinationTorrentPath, "rb") as fh:
-            metainfo = bencode.decode(fh.read())
-        metafile.add_fast_resume(metainfo, downloadPath)
-        with open(destinationTorrentPath, "wb") as fh:
-            fh.write(bencode.encode(metainfo))
+        metafile = Metafile.from_file(destinationTorrentPath)
+        metafile.add_fast_resume(downloadPath)
+        metafile.save(destinationTorrentPath)
 
         infoHash = ""
         try:
@@ -109,9 +101,8 @@ class Rtorrent:
         try:
             # TODO: not the most sophisticated way.
             # Even a watch dir with Pyinotify would be better probably. rTorrent could write the info hash to a directory watched by us.
-            completed = self.proxy.d.complete(infoHash)
-            return completed == 1
-        except xmlrpc.HashNotFound as e:
+            return self.proxy.d.complete(infoHash) == 1
+        except HashNotFound as e:
             raise e  # Raise this up to the web UI
         except Exception as e:
             logger.exception(
@@ -138,8 +129,6 @@ class Rtorrent:
     def CleanTorrentFile(self, logger, torrentPath):
         logger.info("Cleaning torrent file '%s'." % torrentPath)
 
-        with open(torrentPath, "rb") as fh:
-            metainfo = bencode.decode(fh.read())
-        metafile.clean_meta(metainfo, including_info=False, logger=logger.info)
-        with open(torrentPath, "wb") as fh:
-            fh.write(bencode.encode(metainfo))
+        metafile = Metafile.from_file(torrentPath)
+        metafile.clean_meta()
+        metafile.save(torrentPath)

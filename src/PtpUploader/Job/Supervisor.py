@@ -26,7 +26,7 @@ from typing import Dict, List
 
 from django.db.models import Q  # type: ignore
 from django.utils import timezone  # type: ignore
-from pyrosimple.util import xmlrpc  # type: ignore
+from pyrosimple.util.rpc import HashNotFound
 
 from PtpUploader.Job import LoadFile
 from PtpUploader.Job.CheckAnnouncement import CheckAnnouncement
@@ -70,7 +70,7 @@ class JobSupervisor(threading.Thread):
         ):
             try:
                 release.AnnouncementSource.IsDownloadFinished(logger, release)
-            except xmlrpc.HashNotFound as e:
+            except HashNotFound as e:
                 release.ErrorMessage = str(e)
                 release.JobRunningState = ReleaseInfo.JobState.Failed
                 release.save()
