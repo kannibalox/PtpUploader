@@ -58,7 +58,7 @@ use_parentheses = true
 
 [tool.black]
 #include = '\.py$'
-extend-include = "migrations"
+extend-exclude = "/migrations/"
 
 [tool.mypy]
 [[tool.mypy.overrides]]
