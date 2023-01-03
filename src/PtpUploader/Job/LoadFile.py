@@ -37,10 +37,6 @@ def load_json_release(path: Path):
     path.unlink()
 
 
-def load_torrent_release(path: Path):
-    pass
-
-
 def scan_dir():
     path = Path(Settings.GetAnnouncementWatchPath())
     for child in path.iterdir():

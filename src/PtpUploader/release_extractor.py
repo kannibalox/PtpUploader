@@ -57,7 +57,7 @@ def extract_release(release_info):
     dest = Path(release_info.GetReleaseUploadPath())
     handle_scene_folders = False
     # Allow an existing directory only if it's empty
-    if dest.exists() and len(list(dest.iterdir())):
+    if dest.exists() and list(dest.iterdir()):
         raise PtpUploaderException(
             f"Can't make destination directory '{dest}' because path exists and is not empty."
         )

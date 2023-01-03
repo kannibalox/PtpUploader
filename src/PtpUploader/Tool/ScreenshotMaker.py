@@ -64,7 +64,7 @@ class ScreenshotMaker:
         return self.InternalScreenshotMaker.ScaleSize
 
     # Returns with the URL of the uploaded image.
-    def __TakeAndUploadScreenshot(self, timeInSeconds, outputImageDirectory):
+    def __TakeAndUploadScreenshot(self, timeInSeconds):
         with temporary_filename(".png") as outputPngPath:
             self.InternalScreenshotMaker.MakeScreenshotInPng(
                 timeInSeconds, outputPngPath
@@ -91,11 +91,7 @@ class ScreenshotMaker:
 
         for i in range(numberOfScreenshotsToTake):
             position = 0.10 + (i * 0.05)
-            urls.append(
-                self.__TakeAndUploadScreenshot(
-                    int(durationInSec * position), outputImageDirectory
-                )
-            )
+            urls.append(self.__TakeAndUploadScreenshot(int(durationInSec * position)))
 
         return urls
 
