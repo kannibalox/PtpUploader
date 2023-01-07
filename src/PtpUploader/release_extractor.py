@@ -88,6 +88,7 @@ def extract_release(release_info):
             dest.rmdir()
         except OSError:
             pass
+        raise
 
 
 def extract_files(
@@ -98,9 +99,14 @@ def extract_files(
     handle_scene_folders: bool = False,
     dry_run: bool = False,  # Exists for testing purposes
 ):
-    """This is the method to actually extract files. That usually means just hardlinking any allowed files into the same
-    tree structure, but there is some logic to handle things like RARs. Importantly, though, this function has
-    no concept of what the release object looks like. This helps to separate out the 'business logic'."""
+    """This is the method to actually extract files. That usually
+    means just hardlinking any allowed files into the same tree
+    structure, but there is some logic to handle things like
+    RARs. Importantly, though, this function has no concept of what
+    the release object looks like. This helps to separate out the
+    'business logic'.
+
+    """
     if source.is_file() and (
         source.suffix.lower().strip(".") in allow_exts or allow_exts == ["*"]
     ):
@@ -130,19 +136,21 @@ def extract_files(
                 child_dest = Path(dest, child.name)
         # Extract any RARs
         if child.suffix == ".rar":
-            for f in rarfile.RarFile(child).infolist():
+            try:
+                rar = rarfile.RarFile(child)
+                rar.infolist()
+            except Exception as e:
+                log.error("Cannot unrar file %s: %s", child, e)
+                continue
+            for f in rar.infolist():
                 if f.is_file and (
                     Path(f.filename).suffix.lower().strip(".") in allow_exts
                     or "*" in allow_exts
                 ):
-                    child_dest = Path(dest, f.filename)
-                    if dry_run:
-                        print(f"unrar {f.filename} from {child} -> {child_dest}")
-                    else:
-                        child_dest.parent.mkdir(parents=True, exist_ok=True)
-                        with child_dest.open("wb") as fh:
-                            with f.open() as rh:
-                                fh.write(rh.read())
+                    log.info(f"unrar {f.filename} from {child} -> {dest}")
+                    if not dry_run:
+                        dest.mkdir(parents=True, exist_ok=True)
+                        rar.extract(f, dest)
         # Or just hard link
         elif child.suffix.lower().strip(".") in allow_exts or "*" in allow_exts:
             if dry_run:
