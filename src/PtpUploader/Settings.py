@@ -22,6 +22,7 @@ config = Dynaconf(
     ],
     environments=False,
     load_dotenv=True,
+    validators=[Validator("uploader.srrdb_screne_check", default=False)],
 )
 
 
