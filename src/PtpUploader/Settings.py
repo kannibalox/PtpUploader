@@ -84,10 +84,6 @@ class Settings:
         return Path(config.work_dir, "temporary")
 
     @staticmethod
-    def GetDatabaseFilePath() -> Path:
-        return Path(config.work_dir, "database.sqlite")
-
-    @staticmethod
     def __LoadSceneGroups(path):
         groups = []
         with open(path) as handle:
