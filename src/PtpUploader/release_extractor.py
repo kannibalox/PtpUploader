@@ -147,10 +147,12 @@ def extract_files(
                     Path(f.filename).suffix.lower().strip(".") in allow_exts
                     or "*" in allow_exts
                 ):
-                    log.info(f"unrar {f.filename} from {child} -> {dest}")
+                    child_dest = Path(dest, unidecode(f.filename))
+                    log.info(f"unrar {f.filename} from {child} -> {child_dest}")
                     if not dry_run:
                         dest.mkdir(parents=True, exist_ok=True)
-                        rar.extract(f, dest)
+                        with child_dest.open("wb") as fh:
+                            fh.write(rar.open(f).readall())
         # Or just hard link
         elif child.suffix.lower().strip(".") in allow_exts or "*" in allow_exts:
             if dry_run:
@@ -158,3 +160,4 @@ def extract_files(
             else:
                 child_dest.parent.mkdir(parents=True, exist_ok=True)
                 os.link(child, child_dest)
+    raise PtpUploaderException("nice")
