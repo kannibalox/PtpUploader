@@ -16,6 +16,7 @@ from django.shortcuts import get_object_or_404, render
 from django.templatetags.static import static
 from django.urls import reverse
 from django.utils import timezone
+from django.utils.html import escape as html_escape
 from django.views.decorators.csrf import csrf_exempt
 
 from PtpUploader import Ptp, nfo_parser
@@ -289,6 +290,7 @@ def jobs_json(_):
                 agoText="",
                 noDifferenceText="just a moment",
             )
+        entry["ErrorMessage"] = html_escape(entry["ErrorMessage"])
 
     return JsonResponse({"data": entries, "settings": settings})
 
