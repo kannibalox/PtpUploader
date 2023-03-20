@@ -135,7 +135,7 @@ class ReleaseForm(ModelForm):
             )
         ],
     )
-    # Fields that don't map the release object
+    # Fields that don't map to the release object
     ForceUpload = BooleanField(required=False, initial=False)
     TrumpableNoEnglish = BooleanField(required=False, initial=False)
     TrumpableHardSubs = BooleanField(required=False, initial=False)
@@ -168,6 +168,7 @@ class ReleaseForm(ModelForm):
             "ReleaseNotes": Textarea(attrs={"cols": "60", "rows": "8"}),
             "ReleaseName": TextInput(attrs={"size": "60"}),
             "DuplicateCheckCanIgnore": HiddenInput(),
+            "IncludedFileList": HiddenInput(),
             "SourceOther": TextInput(attrs={"size": "5"}),
             "Resolution": TextInput(attrs={"size": "8"}),
             "ContainerOther": TextInput(attrs={"size": "5"}),

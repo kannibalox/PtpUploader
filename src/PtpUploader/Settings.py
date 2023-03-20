@@ -111,6 +111,9 @@ class Settings:
             raise PtpUploaderException(
                 "Make sure the work directory is set in the config!"
             )
+        config.uploader.video_files = [v.lower() for v in config.uploader.video_files]
+        config.uploader.additional_files = [a.lower() for a in config.uploader.additional_files]
+        config.uploader.ignore_dirs = [d.lower() for d in config.uploader.ignore_dirs]
         Settings.VideoExtensionsToUpload = config.uploader.video_files
         Settings.AdditionalExtensionsToUpload = config.uploader.additional_files
         Settings.TorrentClient = None

@@ -1,5 +1,6 @@
 import logging
 import os
+import json
 import time
 import urllib
 
@@ -313,6 +314,42 @@ def local_dir(request):
         val.append(c)
     return JsonResponse(val, safe=False)  # It's just a list, probably safe
 
+@login_required
+def file_list(request):
+    releaseInfo = ReleaseInfo.objects.get(Id=request.GET['releaseId'])
+    source = Path(releaseInfo.GetReleaseUploadPath())
+    if not source.exists():
+        return JsonResponse([{"title": f"Upload directory does not exist: {source}", "children": []}], safe=False)
+    tree = []
+    files = [f for f in source.rglob('*') if f.is_file()]
+    for f in files:
+        subroot = tree
+        f = f.relative_to(source)
+        for p in f.parts[:-1]:
+            path_match = [c for c in subroot if c["title"] == p]
+            if not path_match:
+                subroot.append({"title": p, "folder": True, "children": []})
+                path_match = [c for c in subroot if c["title"] == p]
+            subroot = path_match[0]["children"]
+        subroot.append({"title": f.name, "key": str(f), "selected": str(f) in releaseInfo.IncludedFileList})
+    return JsonResponse(tree, safe=False)
+    d: Path
+    if "dir" not in request.GET:
+        d = source
+    else:
+        d = Path(request.GET["dir"])
+    val = []
+    for child in sorted(d.iterdir()):
+        c = {"title": child.name, "key": str(child)}
+        if child.is_dir():
+            c["folder"] = True
+            c["lazy"] = True
+        elif child.suffix.lower() in [".mkv", ".avi", ".mp4", ".vob", ".ifo", ".bup"]:
+            c["icon"] = "film"
+        val.append(c)
+    return JsonResponse(val, safe=False)  # It's just a list, probably safe
+
+
 
 @login_required
 def start_job(_, r_id):
@@ -435,8 +472,11 @@ def edit_job(request, r_id: int = -1):
             if "post_stop_before" in request.POST:
                 release.StopBeforeUploading = True
             else:
-                release.StopBeforeUploading = False
+                release.StopBeforeUploading = False                
             GetPtpOrImdbId(release, release.ImdbId)
+            # Re-run torrent creation if filelist changes
+            if "IncludedFileList" in form.changed_data:
+                release.resetTorrentCreated()
             release.save()
             MyGlobals.PtpUploader.add_message(PtpUploaderMessageStartJob(release.Id))
             return HttpResponseRedirect("/jobs")
@@ -465,6 +505,7 @@ def edit_job(request, r_id: int = -1):
         job["CanEdited"] = release.CanEdited
         job["StopBeforeUploading"] = release.StopBeforeUploading
         job["Status"] = release.get_JobRunningState_display()
+        job["IncludedFileList"] = json.dumps(release.IncludedFileList)
         if release.ErrorMessage:
             job["Status"] += f" - {release.ErrorMessage}"
 
