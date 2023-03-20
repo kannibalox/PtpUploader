@@ -27,6 +27,10 @@ class ImageMagick:
         args = [
             Settings.ImageMagickConvertPath,
             sourceImagePath,
+            "-define",
+            "png:exclude-chunk=gAMA",
+            "-define",
+            "png:exclude-chunk=cHRM",
             "-quality",
             "99",
             outputImagePath,
