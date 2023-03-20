@@ -7,6 +7,7 @@ import tempfile
 from PtpUploader import ImageHost
 from PtpUploader.PtpUploaderException import PtpUploaderException
 from PtpUploader.Settings import Settings, config
+from PtpUploader.Tool import Oxipng
 from PtpUploader.Tool.Ffmpeg import Ffmpeg
 from PtpUploader.Tool.ImageMagick import ImageMagick
 from PtpUploader.Tool.Mplayer import Mplayer
@@ -70,7 +71,9 @@ class ScreenshotMaker:
                 timeInSeconds, outputPngPath
             )
 
-            if Settings.ImageMagickConvertPath and shutil.which(
+            if config.tools.oxipng.path and shutil.which(config.tools.oxipng.path):
+                Oxipng.optimize_png(outputPngPath)
+            elif Settings.ImageMagickConvertPath and shutil.which(
                 Settings.ImageMagickConvertPath
             ):
                 ImageMagick.OptimizePng(self.Logger, outputPngPath)
