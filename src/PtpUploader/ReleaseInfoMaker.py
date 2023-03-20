@@ -1,8 +1,11 @@
 import argparse
+import re
 import os
+from typing import Optional
 
 import django
-
+import requests
+from pyrosimple.util import metafile
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "PtpUploader.web.settings")
 django.setup()
@@ -99,7 +102,12 @@ class ReleaseInfoMaker:
         with open(releaseDescriptionFilePath, "w") as handle:
             handle.write(releaseDescription)
 
-    def MakeReleaseInfo(self, createTorrent=True, createScreens=True):
+    def MakeReleaseInfo(
+        self,
+        createTorrent=True,
+        createScreens=True,
+        setDescription: Optional[str] = None,
+    ):
         logger = MyGlobals.Logger
 
         if not self.CollectVideoFiles():
@@ -129,6 +137,17 @@ class ReleaseInfoMaker:
             logger, releaseDescriptionFilePath, createScreens
         )
 
+        if setDescription is not None:
+            tID = None
+            if os.path.exists(setDescription):
+                meta = metafile.Metafile.from_file(setDescription)
+                setDescription = meta["comment"]
+            if "torrentid=" in setDescription:
+                tID = re.search("torrentid=(\d+)", setDescription).group(1)
+            with open(releaseDescriptionFilePath, "r") as fh:
+                requests.post("setdescr.php", params={"description": fh.read(), 'id': tID})
+            os.unlink(releaseDescriptionFilePath)
+
         # Create the torrent
         if createTorrent:
             Mktor.Make(logger, self.Path, torrentPath)
@@ -150,6 +169,8 @@ def run():
         action="store_true",
         help="skip creating and uploading screenshots",
     )
+    # Hidden stub option to upload description directly to PTP
+    parser.add_argument("--set-description", help=argparse.SUPPRESS, default=None)
     parser.add_argument("path", nargs=1, help="The file or directory to use")
 
     args = parser.parse_args()
@@ -159,7 +180,9 @@ def run():
 
     releaseInfoMaker = ReleaseInfoMaker(args.path[0])
     releaseInfoMaker.MakeReleaseInfo(
-        createTorrent=(not args.notorrent), createScreens=(not args.noscreens)
+        createTorrent=(not args.notorrent),
+        createScreens=(not args.noscreens),
+        setDescription=args.set_description,
     )
 
 
