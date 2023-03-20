@@ -145,7 +145,16 @@ class ReleaseInfoMaker:
             if "torrentid=" in setDescription:
                 tID = re.search("torrentid=(\d+)", setDescription).group(1)
             with open(releaseDescriptionFilePath, "r") as fh:
-                requests.post("setdescr.php", params={"description": fh.read(), 'id': tID})
+                requests.post(
+                    "reportsv2.php?action=takereport",
+                    data={
+                        "extra": fh.read(),
+                        "torrentid": tID,
+                        "categoryid": "1",
+                        "submit": "true",
+                        "AntiCsrfToken": Settings.AntiCsrfToken,
+                    },
+                )
             os.unlink(releaseDescriptionFilePath)
 
         # Create the torrent
