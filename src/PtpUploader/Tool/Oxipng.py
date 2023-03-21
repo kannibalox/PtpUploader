@@ -9,7 +9,7 @@ logger = logging.getLogger(__name__)
 
 
 def optimize_png(sourceImagePath: os.PathLike):
-    logger.info("Optimizing PNG '%s' with oxiping." % (sourceImagePath))
+    logger.info("Optimizing PNG '%s' with oxipng." % (sourceImagePath))
     if not os.path.isfile(sourceImagePath):
         raise PtpUploaderException(
             "Can't read source image '%s' for PNG optimization." % sourceImagePath
