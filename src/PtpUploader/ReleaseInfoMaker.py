@@ -2,6 +2,7 @@ import argparse
 import re
 import os
 from typing import Optional
+from pathlib import Path
 
 import django
 import requests
@@ -10,7 +11,7 @@ from pyrosimple.util import metafile
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "PtpUploader.web.settings")
 django.setup()
 
-from PtpUploader import release_extractor
+from PtpUploader import release_extractor, Ptp, MyGlobals
 from PtpUploader.MyGlobals import MyGlobals
 from PtpUploader.PtpUploaderException import PtpUploaderException
 from PtpUploader.ReleaseDescriptionFormatter import ReleaseDescriptionFormatter
@@ -104,6 +105,7 @@ class ReleaseInfoMaker:
 
     def MakeReleaseInfo(
         self,
+        args,
         createTorrent=True,
         createScreens=True,
         setDescription: Optional[str] = None,
@@ -119,7 +121,7 @@ class ReleaseInfoMaker:
             self.WorkingDirectory,
             "PTP " + self.ReleaseName + ".release description.txt",
         )
-        if os.path.exists(releaseDescriptionFilePath):
+        if os.path.exists(releaseDescriptionFilePath) and not args.force:
             print(
                 "Can't create release description because '%s' already exists!"
                 % releaseDescriptionFilePath
@@ -140,22 +142,27 @@ class ReleaseInfoMaker:
         if setDescription is not None:
             tID = None
             if os.path.exists(setDescription):
-                meta = metafile.Metafile.from_file(setDescription)
+                meta = metafile.Metafile.from_file(Path(setDescription))
                 setDescription = meta["comment"]
-            if "torrentid=" in setDescription:
+            if setDescription and "torrentid=" in setDescription:
                 tID = re.search("torrentid=(\d+)", setDescription).group(1)
+            Ptp.Login()
+            logger.info("Uploading description as a report to %s", tID)
+            if not Settings.AntiCsrfToken:
+                raise PtpUploaderException("No AntiCsrfToken found")
             with open(releaseDescriptionFilePath, "r") as fh:
-                requests.post(
-                    "reportsv2.php?action=takereport",
+                r = MyGlobals.session.post(
+                    "https://passthepopcorn.me/reportsv2.php?action=takereport",
                     data={
                         "extra": fh.read(),
                         "torrentid": tID,
                         "categoryid": "1",
+                        "type": "replacement description",
                         "submit": "true",
                         "AntiCsrfToken": Settings.AntiCsrfToken,
                     },
                 )
-            os.unlink(releaseDescriptionFilePath)
+                r.raise_for_status()
 
         # Create the torrent
         if createTorrent:
@@ -174,6 +181,11 @@ def run():
         "--notorrent", action="store_true", help="skip creating and seeding the torrent"
     )
     parser.add_argument(
+        "--force",
+        action="store_true",
+        help="overwrite the description file if it already exists",
+    )
+    parser.add_argument(
         "--noscreens",
         action="store_true",
         help="skip creating and uploading screenshots",
@@ -189,6 +201,7 @@ def run():
 
     releaseInfoMaker = ReleaseInfoMaker(args.path[0])
     releaseInfoMaker.MakeReleaseInfo(
+        args=args,
         createTorrent=(not args.notorrent),
         createScreens=(not args.noscreens),
         setDescription=args.set_description,
