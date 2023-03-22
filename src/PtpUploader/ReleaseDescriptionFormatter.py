@@ -197,6 +197,7 @@ class ReleaseDescriptionFormatter:
                         duration,
                         videoEntry.NumberOfScreenshotsToTake,
                     )
+                    videoEntry.Screenshots = self.ReleaseInfo.Screenshots[path]
             return
 
         for videoEntry in self.VideoEntries:
