@@ -100,6 +100,7 @@ class ReleaseInfoMaker:
         )
         releaseDescription = releaseDescriptionFormatter.Format(includeReleaseName=True)
 
+        logger.info("Saving to description file %r", releaseDescriptionFilePath)
         with open(releaseDescriptionFilePath, "w") as handle:
             handle.write(releaseDescription)
 
