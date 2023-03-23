@@ -12,6 +12,7 @@ from PtpUploader.Tool.Ffmpeg import Ffmpeg
 from PtpUploader.Tool.ImageMagick import ImageMagick
 from PtpUploader.Tool.Mplayer import Mplayer
 from PtpUploader.Tool.Mpv import Mpv
+from PtpUploader.Tool.LibMpv import LibMpv
 
 
 # Blatantly stolen from https://stackoverflow.com/a/57701186
@@ -47,6 +48,8 @@ class ScreenshotMaker:
 
         if config.tools.screenshot_tool == "mpv":
             self.InternalScreenshotMaker = Mpv(logger, inputVideoPath)
+        elif config.tools.screenshot_tool == "libmpv":
+            self.InternalScreenshotMaker = LibMpv(logger, inputVideoPath)
         elif config.tools.screenshot_tool == "ffmpeg":
             self.InternalScreenshotMaker = Ffmpeg(logger, inputVideoPath)
         elif config.tools.screenshot_tool == "mplayer":
