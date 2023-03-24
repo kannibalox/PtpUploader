@@ -1,3 +1,14 @@
+## [Unreleased]
+### Added
+- Experimental libmpv screenshot tool. This is primarily to help with
+  keyframe-reliant codecs like VC1 that would other produce grey
+  screenshots, but has not been vetted as well as the mpv
+  CLI. Requires optional dependencies: `pip install pillow mpv`.
+### Fixed
+- Better blu-ray support
+### Changed
+- ReleaseInfoMaker improvements
+
 ## [0.10.2]
 ### Fixed
 - Config option to disable recursive deletes
