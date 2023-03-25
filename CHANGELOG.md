@@ -1,4 +1,4 @@
-## [Unreleased]
+## [0.11.0]
 ### Added
 - Experimental libmpv screenshot tool. This is primarily to help with
   keyframe-reliant codecs like VC1 that would other produce grey
