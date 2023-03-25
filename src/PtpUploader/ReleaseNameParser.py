@@ -24,6 +24,7 @@ class ReleaseNameParser:
             self.group = " ".join(self.guess["release_group"])
         self.Scene = self.group in Settings.SceneReleaserGroup
         if not self.Scene and config.uploader.srrdb_screne_check:
+            result = None
             try:
                 base = Path(name)
                 if base.suffix.lstrip(".") in config.uploader.video_files:
@@ -35,7 +36,8 @@ class ReleaseNameParser:
                 if result["resultsCount"] > 0:
                     self.Scene = True
             except Exception as e:
-                logger.debug("srrdb.com result: %s", result)
+                if result is not none:
+                    logger.debug("srrdb.com result: %s", result)
                 logger.error("Failed scene from srrdb.com: %s", e)
 
     def GetSourceAndFormat(self, releaseInfo):
