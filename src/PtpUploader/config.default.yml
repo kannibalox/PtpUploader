@@ -73,6 +73,8 @@ tools:
   # Entirely optional, but useful for losslessly compressing screenshots
   imagemagick:
     path: convert
+  oxipng:
+    path: oxipng
   unrar:
     path:
 image_host:
