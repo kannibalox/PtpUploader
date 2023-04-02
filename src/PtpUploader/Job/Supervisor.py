@@ -1,5 +1,4 @@
-"""
-Replaces the artisanal (but impressive) python 2 threading system
+"""Replaces the artisanal (but impressive) python 2 threading system
 This directly handles:
 - Loading announcement files
 - Scanning the DB for work
@@ -10,10 +9,11 @@ For WorkerBase actions, they get launched into a ThreadPoolExecutor, with an eve
 to allow for interrupting the work phases. This allows this class to check the status of
 any active futures when deciding how to handle start/stop requests.
 
-However, there is no direct locking of resources, as we can use the DB as more flexible thread-safe state
-holder.
+However, there is no direct locking of resources, as we can use the DB
+as more flexible thread-safe state holder.
 
 It's called the JobSupervisor because supervisors are better than managers.
+
 """
 
 import logging

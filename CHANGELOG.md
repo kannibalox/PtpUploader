@@ -1,3 +1,8 @@
+## [0.11.1]
+### Fixed
+- Ignore missing result during srrdb.com check
+- Update objects being passed to pyrosimple
+
 ## [0.11.0]
 ### Added
 - Experimental libmpv screenshot tool. This is primarily to help with
