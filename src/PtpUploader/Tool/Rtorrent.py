@@ -2,6 +2,7 @@ import os
 import shutil
 import time
 import xmlrpc.client as xmlrpc_client
+from pathlib import Path
 
 import pyrosimple
 
@@ -82,7 +83,7 @@ class Rtorrent:
 
         metafile = Metafile.from_file(destinationTorrentPath)
         metafile.add_fast_resume(downloadPath)
-        metafile.save(destinationTorrentPath)
+        metafile.save(Path(destinationTorrentPath))
 
         infoHash = ""
         try:
@@ -131,4 +132,4 @@ class Rtorrent:
 
         metafile = Metafile.from_file(torrentPath)
         metafile.clean_meta()
-        metafile.save(torrentPath)
+        metafile.save(Path(torrentPath))

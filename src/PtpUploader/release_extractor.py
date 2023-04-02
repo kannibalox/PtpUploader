@@ -160,4 +160,3 @@ def extract_files(
             else:
                 child_dest.parent.mkdir(parents=True, exist_ok=True)
                 os.link(child, child_dest)
-
