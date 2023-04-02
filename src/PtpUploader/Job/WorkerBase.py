@@ -42,7 +42,6 @@ class WorkerBase:
                 self.ReleaseInfo.save()
                 break
 
-            self.logger.debug("Working phase %s", phase)
             phase()
         self.stop_worker_logging()
 
