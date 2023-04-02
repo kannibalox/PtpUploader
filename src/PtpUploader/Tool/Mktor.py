@@ -30,4 +30,4 @@ def Make(logger, path: os.PathLike, torrentPath):
             progress=None,
         )
         metafile["info"]["source"] = "PTP"
-        metafile.save(torrentPath)
+        metafile.save(Path(torrentPath))
