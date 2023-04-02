@@ -1,11 +1,12 @@
 import os
+from pathlib import Path
 
 from pyrosimple.util.metafile import Metafile
 
-from PtpUploader.Settings import Settings
+from PtpUploader.Settings import config
 
 
-def Make(logger, path, torrentPath):
+def Make(logger, path: os.PathLike, torrentPath):
     logger.info("Making torrent from '%s' to '%s'." % (path, torrentPath))
 
     if os.path.exists(torrentPath):
@@ -22,8 +23,8 @@ def Make(logger, path, torrentPath):
     else:
         logger.info("Making torrent from '%s' to '%s'.", path, torrentPath)
         metafile = Metafile.from_path(
-            path,
-            Settings.PtpAnnounceUrl,
+            Path(path),
+            config.ptp.announce_url,
             created_by="PtpUploader",
             private=True,
             progress=None,
