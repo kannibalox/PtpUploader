@@ -1,3 +1,7 @@
+## [0.11.2]
+### Fixed
+- Typo in scene result check
+
 ## [0.11.1]
 ### Fixed
 - Ignore missing result during srrdb.com check

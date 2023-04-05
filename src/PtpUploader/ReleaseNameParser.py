@@ -36,7 +36,7 @@ class ReleaseNameParser:
                 if result["resultsCount"] > 0:
                     self.Scene = True
             except Exception as e:
-                if result is not none:
+                if result is not None:
                     logger.debug("srrdb.com result: %s", result)
                 logger.error("Failed scene from srrdb.com: %s", e)
 
