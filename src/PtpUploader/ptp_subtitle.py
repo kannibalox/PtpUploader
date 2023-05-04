@@ -47,6 +47,7 @@ subtitle_ids = {
     50: ["english - forced", "english (forced)"],
     51: ["english intertitles", "english (intertitles)", "english - intertitles"],
     52: ["persian", "fa", "far"],
+    54: ["malay", "my", "mys"],
 }
 
 
