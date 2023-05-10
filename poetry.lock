@@ -219,7 +219,7 @@ doc = ["sphinx", "sphinx_rtd_theme"]
 type = "git"
 url = "https://github.com/cinemagoer/cinemagoer"
 reference = "HEAD"
-resolved_reference = "7c7960aae4ac733144fc8725cbc6a50176a8b572"
+resolved_reference = "8326c9c9c224ee540ddfda1a460fa7e96baa1ea1"
 
 [[package]]
 name = "click"
