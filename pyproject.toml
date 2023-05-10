@@ -25,7 +25,7 @@ classifiers = [
 [tool.poetry.dependencies]
 python = ">3.7.2,<4.0"
 requests = "^2.26.0"
-Django = "^3.2.8"
+Django = "^3.2.19"
 guessit = "^3.3.1"
 pyrosimple = "^2.7.0"
 dynaconf = "^3.1.7"

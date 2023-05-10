@@ -266,14 +266,14 @@ graph = ["objgraph (>=1.7.2)"]
 
 [[package]]
 name = "django"
-version = "3.2.18"
+version = "3.2.19"
 description = "A high-level Python Web framework that encourages rapid development and clean, pragmatic design."
 category = "main"
 optional = false
 python-versions = ">=3.6"
 files = [
-    {file = "Django-3.2.18-py3-none-any.whl", hash = "sha256:4d492d9024c7b3dfababf49f94511ab6a58e2c9c3c7207786f1ba4eb77750706"},
-    {file = "Django-3.2.18.tar.gz", hash = "sha256:08208dfe892eb64fff073ca743b3b952311104f939e7f6dae954fe72dcc533ba"},
+    {file = "Django-3.2.19-py3-none-any.whl", hash = "sha256:21cc991466245d659ab79cb01204f9515690f8dae00e5eabde307f14d24d4d7d"},
+    {file = "Django-3.2.19.tar.gz", hash = "sha256:031365bae96814da19c10706218c44dff3b654cc4de20a98bd2d29b9bde469f0"},
 ]
 
 [package.dependencies]
@@ -1539,4 +1539,4 @@ testing = ["big-O", "flake8 (<5)", "jaraco.functools", "jaraco.itertools", "more
 [metadata]
 lock-version = "2.0"
 python-versions = ">3.7.2,<4.0"
-content-hash = "adb49fe35013b9ef826841542e7334a4fd9b70fed0764e2eaeffb98e743c41c1"
+content-hash = "5626a1243a54bcf96c316fbcea81993dc2f52338ce68d79424a47eaf4cbfa6f5"
