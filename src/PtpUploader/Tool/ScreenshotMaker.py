@@ -7,9 +7,8 @@ import tempfile
 from PtpUploader import ImageHost
 from PtpUploader.PtpUploaderException import PtpUploaderException
 from PtpUploader.Settings import Settings, config
-from PtpUploader.Tool import Oxipng
+from PtpUploader.Tool import Oxipng, ImageMagick
 from PtpUploader.Tool.Ffmpeg import Ffmpeg
-from PtpUploader.Tool.ImageMagick import ImageMagick
 from PtpUploader.Tool.Mplayer import Mplayer
 from PtpUploader.Tool.Mpv import Mpv
 from PtpUploader.Tool.LibMpv import LibMpv
@@ -74,12 +73,17 @@ class ScreenshotMaker:
                 timeInSeconds, outputPngPath
             )
 
+            # Always convert with imagemagick, even if it's not used for compression
+            imagemagick_exists = config.tools.imagemagick.path and shutil.which(
+                config.tools.imagemagick.path
+            )
+            if imagemagick_exists:
+                ImageMagick.convert_8bit(outputPngPath)
+
             if config.tools.oxipng.path and shutil.which(config.tools.oxipng.path):
                 Oxipng.optimize_png(outputPngPath)
-            elif Settings.ImageMagickConvertPath and shutil.which(
-                Settings.ImageMagickConvertPath
-            ):
-                ImageMagick.OptimizePng(self.Logger, outputPngPath)
+            elif imagemagick_exists:
+                ImageMagick.optimize_png(outputPngPath)
 
             imageUrl = ImageHost.upload(self.Logger, imagePath=outputPngPath)
 
