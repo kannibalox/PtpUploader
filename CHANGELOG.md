@@ -1,4 +1,11 @@
 ## [0.11.3]
+### Changed
+- Due to new restrictions for pypi, the cinemagoer package now uses
+  the newest version uploaded on pypi, as opposed to installing
+  directly from git (the recommended way to install by the
+  project). To use the recommended installation method, run `pip
+  install git+https://github.com/cinemagoer/cinemagoer` manually
+
 ### Fixed
 - Check if PNGs are 16-bit and downgrade the depth when imagemagick is
   present.
