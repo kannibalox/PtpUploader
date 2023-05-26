@@ -1,3 +1,13 @@
+## [0.11.3]
+### Fixed
+- Check if PNGs are 16-bit and downgrade the depth when imagemagick is
+  present.
+- Bypass "multiple" attribute exception in Django.
+- Disable scene check by default
+
+### Added
+- Malay subtitle option
+
 ## [0.11.2]
 ### Fixed
 - Typo in scene result check
