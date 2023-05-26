@@ -204,8 +204,10 @@ description = "Python package to access the IMDb's database"
 category = "main"
 optional = false
 python-versions = "*"
-files = []
-develop = false
+files = [
+    {file = "cinemagoer-2023.5.1-py3-none-any.whl", hash = "sha256:0c6bc00fbc56cbdd58bc3dbf00cf858770fc127929408460fb28ffe2ca99f83a"},
+    {file = "cinemagoer-2023.5.1.tar.gz", hash = "sha256:5ce1d77ae6546701618f11e5b1556a19d18edecad1b6d7d96973ec34941b18f2"},
+]
 
 [package.dependencies]
 lxml = "*"
@@ -213,13 +215,7 @@ SQLAlchemy = "*"
 
 [package.extras]
 dev = ["flake8", "flake8-isort", "pytest", "pytest-cov", "tox"]
-doc = ["sphinx", "sphinx_rtd_theme"]
-
-[package.source]
-type = "git"
-url = "https://github.com/cinemagoer/cinemagoer"
-reference = "HEAD"
-resolved_reference = "8326c9c9c224ee540ddfda1a460fa7e96baa1ea1"
+doc = ["sphinx", "sphinx-rtd-theme"]
 
 [[package]]
 name = "click"
@@ -1540,4 +1536,4 @@ testing = ["big-O", "flake8 (<5)", "jaraco.functools", "jaraco.itertools", "more
 [metadata]
 lock-version = "2.0"
 python-versions = ">3.7.2,<4.0"
-content-hash = "5626a1243a54bcf96c316fbcea81993dc2f52338ce68d79424a47eaf4cbfa6f5"
+content-hash = "a5d4f50ca385426f416bfab9631bc03d7148e438b22bbb310938d53dc94bfbbc"
