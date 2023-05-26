@@ -46,8 +46,10 @@ class SettingsForm(Form):
         required=False,
     )
 
+
 class MultipleFileInput(ClearableFileInput):
     allow_multiple_selected = True
+
 
 class BulkReleaseForm(Form):
     Links = CharField(widget=Textarea(attrs={"placeholder": "Links"}), required=False)

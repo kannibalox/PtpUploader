@@ -140,12 +140,12 @@ class SourceBase:
         if not os.path.isdir(path):
             return
 
-        for (_, _, fileNames) in os.walk(path):
+        for _, _, fileNames in os.walk(path):
             for _ in fileNames:
                 return
 
         # Avoid shutil.rmtree because it's scary
-        for (root, _, _) in os.walk(path, topdown=False):
+        for root, _, _ in os.walk(path, topdown=False):
             os.rmdir(root)
 
     def Delete(self, releaseInfo, torrentClient, deleteSourceData, deleteUploadData):
