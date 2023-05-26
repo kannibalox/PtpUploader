@@ -75,6 +75,7 @@ tools:
     path: convert
   oxipng:
     path: oxipng
+    args: "-o 3 --strip all"
   unrar:
     path:
 image_host:
