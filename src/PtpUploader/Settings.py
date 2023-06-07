@@ -24,6 +24,10 @@ config = Dynaconf(
     load_dotenv=True,
     validators=[
         Validator("uploader.srrdb_scene_check", default=False),
+        Validator(
+            "uploader.ignore_dirs",
+            default=["proof", "sample", "samples", "extra", "extras", "!sample"],
+        ),
         Validator("tools.oxipng.path", default="oxipng"),
         Validator("tools.oxipng.args", default="-o 3 --strip all"),
     ],
@@ -112,7 +116,9 @@ class Settings:
                 "Make sure the work directory is set in the config!"
             )
         config.uploader.video_files = [v.lower() for v in config.uploader.video_files]
-        config.uploader.additional_files = [a.lower() for a in config.uploader.additional_files]
+        config.uploader.additional_files = [
+            a.lower() for a in config.uploader.additional_files
+        ]
         config.uploader.ignore_dirs = [d.lower() for d in config.uploader.ignore_dirs]
         Settings.VideoExtensionsToUpload = config.uploader.video_files
         Settings.AdditionalExtensionsToUpload = config.uploader.additional_files
