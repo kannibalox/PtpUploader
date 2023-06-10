@@ -25,6 +25,7 @@ config = Dynaconf(
     validators=[
         Validator("uploader.srrdb_scene_check", default=False),
         Validator("tools.oxipng.path", default="oxipng"),
+        Validator("tools.oxipng.args", default="-o 3 --strip all"),
     ],
 )
 
