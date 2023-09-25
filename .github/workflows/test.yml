@@ -15,8 +15,8 @@ on:
       - '**.md'
 
 env:
-  BUILD_TAG: rtorrent-rutorrent:test
-  CONTAINER_NAME: rtorrent-rutorrent-cross-seed
+  BUILD_TAG: ptpuploader:test
+  CONTAINER_NAME: ptpuploader
 
 jobs:
   test:
