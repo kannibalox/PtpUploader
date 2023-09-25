@@ -1,5 +1,5 @@
 variable "DEFAULT_TAG" {
-  default = "ghcr.io/ac1dburnz/PtpUploader"
+  default = "ghcr.io/ac1dburnz/ptpuploader"
 }
 
 // Special target: https://github.com/docker/metadata-action#bake-definition
