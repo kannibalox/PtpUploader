@@ -12,9 +12,9 @@ WORKDIR /usr/src/app
 
 ENV PTPUP_WORKDIR /data
 
-EXPOSE 8000
+EXPOSE 80
 
 COPY . .
 
 RUN pip install --no-cache-dir .
-CMD [ "bash", "-c", "PtpUploader runuploader 0.0.0.0:8000"]
+CMD [ "bash", "-c", "PtpUploader runuploader 0.0.0.0:80"]
