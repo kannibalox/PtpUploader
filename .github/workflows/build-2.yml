@@ -39,7 +39,7 @@ jobs:
             ${{ env.DOCKERHUB_SLUG }}
             ${{ env.GHCR_SLUG }}
           tags: |
-            type=match,pattern=(.*)-r,group=1
+            type=match,pattern=(.*)
             type=ref,event=pr
             type=edge
           labels: |
