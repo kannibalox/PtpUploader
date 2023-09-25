@@ -1,0 +1,12 @@
+version: 2
+updates:
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "daily"
+      time: "12:15"
+      timezone: "America/Toronto"
+    labels:
+      - "kind/dependencies"
+      - "bot"
+ 
