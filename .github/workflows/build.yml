@@ -19,8 +19,9 @@ on:
       - '**.md'
 
 env:
-  DOCKERHUB_SLUG: ac1dburn/rtorrent-rutorrent-cross-seed
-  GHCR_SLUG: ghcr.io/ac1dburnz/rtorrent-rutorrent
+  DOCKERHUB_SLUG: ac1dburn/ptpuploader
+  GHCR_SLUG: ghcr.io/ac1dburnz/ptpuploader
+
 
 jobs:
   build:
