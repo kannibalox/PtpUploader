@@ -40,7 +40,7 @@ uploader:
   # Experimental feature to check srrdb.com to see if a release is
   # from the scene. Since this introduces an external dependency, it
   # is disabled by default.
-  srrdb_screne_check: false
+  srrdb_scene_check: false
 workers:
   threads: 1 # With more than 1 thread, you may encounter database locks in sqlite
   # Switching to mysql or postgres will fix those issues.

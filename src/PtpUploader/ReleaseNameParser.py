@@ -23,7 +23,7 @@ class ReleaseNameParser:
         if "release_group" in self.guess:
             self.group = " ".join(self.guess["release_group"])
         self.Scene = self.group in Settings.SceneReleaserGroup
-        if not self.Scene and config.uploader.srrdb_screne_check:
+        if not self.Scene and config.uploader.srrdb_scene_check:
             result = None
             try:
                 base = Path(name)
