@@ -13,7 +13,7 @@ from PtpUploader.Job.FinishedJobPhase import FinishedJobPhase
 from PtpUploader.Job.JobStartMode import JobStartMode
 from PtpUploader.MyGlobals import MyGlobals
 from PtpUploader.PtpUploaderException import PtpUploaderException
-from PtpUploader.Settings import Settings
+from PtpUploader.Settings import Settings, config
 from PtpUploader.release_extractor import find_allowed_files
 
 class ReleaseInfo(models.Model):
@@ -272,8 +272,28 @@ class ReleaseInfo(models.Model):
             return
         if self.IncludedFileList and not overwrite:
             return
-        vids, addtls = find_allowed_files(Path(self.GetReleaseUploadPath()))
-        self.IncludedFileList = vids + addtls
+        fileList = []
+        relPath = Path(self.GetReleaseUploadPath())
+        vids, addtls = find_allowed_files(relPath)
+        fileList.extend([str(v.relative_to(relPath)) for v in vids])
+        fileList.extend([str(a.relative_to(relPath)) for a in addtls])
+        self.IncludedFileList = fileList
+
+    def VideosFiles(self):
+        if self.SourceIsAFile():
+            return self.GetReleaseUploadPath()
+        self.SetIncludedFileList()
+        for f in self.IncludedFileList:
+            if Path(f).suffix.lower().strip(".") in config.uploader.video_files:
+                yield Path(self.GetReleaseUploadPath(), f)
+
+    def AdditionalFiles(self):
+        if self.SourceIsAFile():
+            return self.GetReleaseUploadPath()
+        self.SetIncludedFileList()
+        for f in self.IncludedFileList:
+            if Path(f).suffix.lower().strip(".") in config.uploader.additional_files:
+                yield Path(self.GetReleaseUploadPath(), f)
 
     def CanDeleted(self):
         return not self.CanStopped()
