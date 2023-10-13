@@ -29,7 +29,11 @@ def find_allowed_files(path: Path):
     video_files = []
     addtl_files = []
     for child in Path(path).rglob("*"):
+        if any([child.startswith(d) for d in config.uploader.ignore_dirs]):
+            continue
         if child.is_file():
+            if any([re.match(r, path.name) for r in config.uploader.ignore_files]):
+                continue
             if child.suffix.lower().strip(".") in config.uploader.video_files:
                 video_files.append(child)
             elif child.suffix.lower().strip(".") in config.uploader.additional_files:
