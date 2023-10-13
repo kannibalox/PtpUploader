@@ -9,4 +9,5 @@ def set_included_upload_files(release, overwrite=False):
         return
     if release.IncludedFileList and not overwrite:
         return
-    release.IncludedFileList = find_allowed_files(Path(release.GetReleaseUploadPath()))
+    vids, addtls = find_allowed_files(Path(release.GetReleaseUploadPath()))
+    release.IncludedFileList = vids + addtls
