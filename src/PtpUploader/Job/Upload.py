@@ -104,7 +104,7 @@ class Upload(WorkerBase):
         self.ReleaseInfo.save()
 
     def __MakeIncludedFileList(self):
-        set_included_upload_files(self.ReleaseInfo)
+        self.ReleaseInfo.SetIncludedFileList()
 
     def __ExtractRelease(self):
         if self.ReleaseInfo.IsJobPhaseFinished(FinishedJobPhase.Upload_ExtractRelease):

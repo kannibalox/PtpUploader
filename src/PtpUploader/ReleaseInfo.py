@@ -14,7 +14,7 @@ from PtpUploader.Job.JobStartMode import JobStartMode
 from PtpUploader.MyGlobals import MyGlobals
 from PtpUploader.PtpUploaderException import PtpUploaderException
 from PtpUploader.Settings import Settings
-
+from PtpUploader.release_extractor import find_allowed_files
 
 class ReleaseInfo(models.Model):
     # pylint: disable=too-many-public-methods, too-many-instance-attributes
@@ -266,6 +266,14 @@ class ReleaseInfo(models.Model):
             self.JobState.InDownload,
             self.JobState.InProgress,
         ]
+
+    def SetIncludedFileList(self, overwrite=False):
+        if self.SourceIsAFile():
+            return
+        if self.IncludedFileList and not overwrite:
+            return
+        vids, addtls = find_allowed_files(Path(self.GetReleaseUploadPath()))
+        self.IncludedFileList = vids + addtls
 
     def CanDeleted(self):
         return not self.CanStopped()
