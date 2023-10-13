@@ -53,7 +53,6 @@ class Upload(WorkerBase):
         ]
 
         self.TorrentClient = Settings.GetTorrentClient()
-        self.IncludedFileList = None
         self.VideoFiles: List = []
         self.AdditionalFiles: List = []
         self.MainMediaInfo = None
