@@ -14,10 +14,12 @@ def Make(logger, path, torrentPath, includedFileList: Optional[List[str]] = None
 
     ignore = []
     path = Path(path)
+
     def ptpup_walk(datapath: Path):
         for subpath in datapath.rglob("*"):
             if subpath.is_file() and str(subpath.relative_to(path)) in includedFileList:
                 yield subpath
+
     if os.path.exists(torrentPath):
         # We should be safe to allow the existing torrent to be used,
         # even when/if file selection is re-implemented, all the filesystem
@@ -37,7 +39,7 @@ def Make(logger, path, torrentPath, includedFileList: Optional[List[str]] = None
             created_by="PtpUploader",
             private=True,
             progress=None,
-            file_generator=ptpup_walk
+            file_generator=ptpup_walk,
         )
         metafile["info"]["source"] = "PTP"
         metafile.save(Path(torrentPath))

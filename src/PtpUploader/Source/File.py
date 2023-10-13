@@ -80,7 +80,7 @@ class File(SourceBase):
         return includedFileList
 
     def IterReleaseFiles(self, releaseInfo):
-        return Path(releaseInfo.GetReleaseDownloadPath()).rglob('*')
+        return Path(releaseInfo.GetReleaseDownloadPath()).rglob("*")
 
     @staticmethod
     def __DeleteDirectoryWithoutTheUploadDirectory(path):

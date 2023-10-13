@@ -396,7 +396,12 @@ class Upload(WorkerBase):
         else:  # Create the torrent including only the single video file.
             uploadTorrentCreatePath = self.MainMediaInfo.Path
 
-        Mktor.Make(self.logger, uploadTorrentCreatePath, uploadTorrentFilePath, self.ReleaseInfo.IncludedFileList)
+        Mktor.Make(
+            self.logger,
+            uploadTorrentCreatePath,
+            uploadTorrentFilePath,
+            self.ReleaseInfo.IncludedFileList,
+        )
 
         # Local variables are used temporarily to make sure that values only get stored in the database if MakeTorrent.Make succeeded.
         self.ReleaseInfo.UploadTorrentFilePath = uploadTorrentFilePath

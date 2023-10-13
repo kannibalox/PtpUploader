@@ -314,14 +314,18 @@ def local_dir(request):
         val.append(c)
     return JsonResponse(val, safe=False)  # It's just a list, probably safe
 
+
 @login_required
 def file_list(request):
-    releaseInfo = ReleaseInfo.objects.get(Id=request.GET['releaseId'])
+    releaseInfo = ReleaseInfo.objects.get(Id=request.GET["releaseId"])
     source = Path(releaseInfo.GetReleaseUploadPath())
     if not source.exists():
-        return JsonResponse([{"title": f"Upload directory does not exist: {source}", "children": []}], safe=False)
+        return JsonResponse(
+            [{"title": f"Upload directory does not exist: {source}", "children": []}],
+            safe=False,
+        )
     tree = []
-    files = [f for f in source.rglob('*') if f.is_file()]
+    files = [f for f in source.rglob("*") if f.is_file()]
     for f in files:
         subroot = tree
         f = f.relative_to(source)
@@ -331,7 +335,13 @@ def file_list(request):
                 subroot.append({"title": p, "folder": True, "children": []})
                 path_match = [c for c in subroot if c["title"] == p]
             subroot = path_match[0]["children"]
-        subroot.append({"title": f.name, "key": str(f), "selected": str(f) in releaseInfo.IncludedFileList})
+        subroot.append(
+            {
+                "title": f.name,
+                "key": str(f),
+                "selected": str(f) in releaseInfo.IncludedFileList,
+            }
+        )
     return JsonResponse(tree, safe=False)
 
 
@@ -456,7 +466,7 @@ def edit_job(request, r_id: int = -1):
             if "post_stop_before" in request.POST:
                 release.StopBeforeUploading = True
             else:
-                release.StopBeforeUploading = False                
+                release.StopBeforeUploading = False
             GetPtpOrImdbId(release, release.ImdbId)
             # Re-run torrent creation if filelist changes
             if "IncludedFileList" in form.changed_data:

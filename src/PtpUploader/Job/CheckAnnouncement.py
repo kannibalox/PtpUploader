@@ -476,9 +476,7 @@ class CheckAnnouncement(WorkerBase):
         if self.ReleaseInfo.SceneRelease:
             return
 
-        self.ReleaseInfo.AnnouncementSource.DetectSceneRelease(
-            self.ReleaseInfo
-        )
+        self.ReleaseInfo.AnnouncementSource.DetectSceneRelease(self.ReleaseInfo)
 
     def __DownloadTorrent(self):
         if len(self.ReleaseInfo.SourceTorrentInfoHash) > 0:

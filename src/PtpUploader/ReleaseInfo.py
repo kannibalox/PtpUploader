@@ -16,6 +16,7 @@ from PtpUploader.PtpUploaderException import PtpUploaderException
 from PtpUploader.Settings import Settings, config
 from PtpUploader.release_extractor import find_allowed_files
 
+
 class ReleaseInfo(models.Model):
     # pylint: disable=too-many-public-methods, too-many-instance-attributes
     class Meta:
@@ -159,7 +160,9 @@ class ReleaseInfo(models.Model):
     LastModificationTime = models.DateTimeField(auto_now=True)
     Size = models.BigIntegerField(default=0)
     Subtitles = models.JSONField(blank=True, default=list)  # CSV of subtitle IDs
-    IncludedFiles = models.TextField(blank=True, default="") # Deprecated, to be removed at a later date
+    IncludedFiles = models.TextField(
+        blank=True, default=""
+    )  # Deprecated, to be removed at a later date
     # A list of include files, relative to the upload path
     IncludedFileList = models.JSONField(blank=True, default=list)
     DuplicateCheckCanIgnore = models.IntegerField(default=0)
@@ -193,7 +196,7 @@ class ReleaseInfo(models.Model):
         self.ImdbRating = ""  # Not saved in the database.
         self.ImdbVoteCount = ""  # Not saved in the database.
         self.JobStartTimeUtc = datetime.datetime.utcnow()
-        self.__logger = None # Holds a dedicated logger when needed
+        self.__logger = None  # Holds a dedicated logger when needed
 
     def IsUserCreatedJob(self):
         return self.JobStartMode in [JobStartMode.Manual, JobStartMode.ManualForced]
