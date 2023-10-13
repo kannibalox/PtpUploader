@@ -30,7 +30,7 @@ def find_allowed_files(path: Path):
     video_files = []
     addtl_files = []
     for child in Path(path).rglob("*"):
-        if any([re.match(r, child.parent) for d in config.uploader.ignore_dirs]):
+        if any([re.match(d, child.parent) for d in config.uploader.ignore_dirs]):
             continue
         if child.is_file():
             if any([re.match(r, child.name) for r in config.uploader.ignore_files]):
