@@ -124,6 +124,7 @@ class Upload(WorkerBase):
         self.ReleaseInfo.save()
 
     def __GetMediaInfoContainer(self, mediaInfo):
+        self.ReleaseInfo.SetIncludedFileList()
         container = ""
 
         if mediaInfo.IsAvi():
