@@ -1,3 +1,7 @@
+## [0.12.2]
+### Fixed
+- Fix mediainfo error by ensuring IncludedFileList is set
+
 ## [0.12.1]
 ### Fixed
 - Allow loading .torrent files from the announce directory
