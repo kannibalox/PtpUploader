@@ -1,3 +1,7 @@
+## [0.12.1]
+### Fixed
+- Allow loading .torrent files from the announce directory
+
 ## [0.12.0]
 ### Changed
 - Allow selecting files manually
