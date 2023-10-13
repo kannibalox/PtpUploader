@@ -9,7 +9,6 @@ from urllib.parse import urlparse
 import requests
 
 from PtpUploader import release_extractor
-from PtpUploader.IncludedFileList import IncludedFileList
 from PtpUploader.PtpUploaderException import PtpUploaderException
 from PtpUploader.ReleaseNameParser import ReleaseNameParser
 from PtpUploader.Settings import Settings
@@ -96,45 +95,6 @@ class Prowlarr(SourceBase):
             raise PtpUploaderException("No download link found in prowlarr")
         with open(path, "wb") as fh:
             fh.write(self.session.get(html.unescape(link)).content)
-
-    # fileList must be an instance of IncludedFileList.
-    def CheckFileList(self, releaseInfo, fileList):
-        logger.info("Checking the contents of the release.")
-
-        if releaseInfo.IsDvdImage():
-            return
-
-        # Check if the release contains multiple non-ignored videos.
-        numberOfVideoFiles = 0
-        for file in fileList.Files:
-            if file.IsIncluded() and Settings.HasValidVideoExtensionToUpload(file.Name):
-                numberOfVideoFiles += 1
-
-        if numberOfVideoFiles > 1:
-            raise PtpUploaderException("Release contains multiple video files.")
-
-    # fileList must be an instance of IncludedFileList.
-    def DetectSceneReleaseFromFileList(self, releaseInfo, fileList):
-        rarRe = re.compile(r".+\.(?:rar|r\d+)$", re.IGNORECASE)
-        rarCount = 0
-
-        for file in fileList.Files:
-            if rarRe.match(file.Name) is None:
-                continue
-
-            # If there are multiple RAR files then it's likely a scene release.
-            rarCount += 1
-            if rarCount > 1:
-                releaseInfo.SetSceneRelease()
-                break
-
-    def GetIncludedFileList(self, releaseInfo):
-        includedFileList = IncludedFileList()
-
-        if os.path.isfile(releaseInfo.SourceTorrentFilePath):
-            includedFileList.FromTorrent(releaseInfo.SourceTorrentFilePath)
-
-        return includedFileList
 
     def GetTemporaryFolderForImagesAndTorrent(self, releaseInfo):
         return releaseInfo.GetReleaseRootPath()

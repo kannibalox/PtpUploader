@@ -87,6 +87,50 @@
          $("#SkipDuplicateCheckingMessage").html("");
        }
      });
+     // Customizing included files
+     $('#IncludedFilesToggle').click(function() {
+       $.confirm({
+         // theme: "material",
+         title: "Select Included Files",
+         content: "<div id='includetree'></div>",
+         escape: true,
+         useBootstrap: false,
+         onContentReady: function(){
+           $("#includetree").fancytree({
+             clickFolderMode: 2, // 1:activate, 2:expand, 3:activate and expand, 4:activate (dblclick expands
+             debugLevel: 4, // 0:quiet, 1:errors, 2:warnings, 3:infos, 4:debug
+             keyboard: false, // Support keyboard navigation
+             selectMode: 3, // 1:single, 2:multi, 3:multi-hier
+             tabindex: "", // Whole tree behaves as one single control
+             checkbox: true,
+             source: {url: "{% url "file_list" %}", cache: false, data: {releaseId: {{ job.id }}}},
+             lazyLoad: function(event, data){
+               var node = data.node;
+               // Load child nodes via Ajax GET
+               data.result = {
+                 url: "{% url "file_list" %}",
+                 data: {mode: "children", dir: node.key, releaseId: {{ job.id }}},
+                 cache: false
+               };
+             },
+             icon: function(event, data) {
+               if (data.node.icon) { return 'static/'+data.node.icon+'.png'; }
+             },
+           });
+         },
+         onAction: function(btnName){
+           var selNodes = $.ui.fancytree.getTree("#includetree").getSelectedNodes();
+           selPaths = $.map(selNodes, function(n){
+             if (n.children === null) {
+               return n.key;
+             }
+           });
+           if( btnName === "ok" ) {
+             $('#IncludedFileList').val(JSON.stringify(selPaths));
+           }
+         }
+       });
+     });     
      // Torrent file uploading.
      $('#DirectorySelectorToggle').click(function() {
        $.confirm({
@@ -209,9 +253,9 @@
             <td class="label">Included files</td>
             <td>
               <input type="button" id="IncludedFilesToggle" value="Select">
-              <input id="IncludedFilesCustomizedList" name="IncludedFilesCustomizedList" type="hidden" value="{{ job.IncludedFilesCustomizedList }}">
+              <input id="IncludedFileList" name="IncludedFileList" type="hidden" value="{{ job.IncludedFileList }}">
               <div id="IncludedFilesDialog">
-                <div id="IncludedFilesTree"></div>
+                 <div id="IncludedFilesTree"></div>
               </div>
             </td>
           </tr>

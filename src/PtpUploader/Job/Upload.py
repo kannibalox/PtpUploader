@@ -18,6 +18,7 @@ from PtpUploader.Job.WorkerBase import WorkerBase
 from PtpUploader.MyGlobals import MyGlobals
 from PtpUploader.PtpUploaderException import *
 from PtpUploader.release_extractor import extract_release, parse_directory
+from PtpUploader.included_file_list import set_included_upload_files
 from PtpUploader.ReleaseDescriptionFormatter import ReleaseDescriptionFormatter
 from PtpUploader.ReleaseInfo import ReleaseInfo
 from PtpUploader.Settings import Settings
@@ -35,8 +36,8 @@ class Upload(WorkerBase):
             self.__StopAutomaticJobBeforeExtracting,
             self.__StopAutomaticJobIfThereAreMultipleVideosBeforeExtracting,
             self.__CreateUploadPath,
-            self.__MakeIncludedFileList,
             self.__ExtractRelease,
+            self.__MakeIncludedFileList,
             self.__MakeReleaseDescription,
             self.__DetectSubtitles,
             self.__MakeTorrent,
@@ -52,7 +53,6 @@ class Upload(WorkerBase):
         ]
 
         self.TorrentClient = Settings.GetTorrentClient()
-        self.IncludedFileList = None
         self.VideoFiles: List = []
         self.AdditionalFiles: List = []
         self.MainMediaInfo = None
@@ -80,12 +80,7 @@ class Upload(WorkerBase):
         ):
             return
 
-        includedFileList = self.ReleaseInfo.AnnouncementSource.GetIncludedFileList(
-            self.ReleaseInfo
-        )
-        self.ReleaseInfo.AnnouncementSource.CheckFileList(
-            self.ReleaseInfo, includedFileList
-        )
+        self.ReleaseInfo.AnnouncementSource.CheckForMultipleFiles()
 
     def __CreateUploadPath(self):
         if self.ReleaseInfo.IsJobPhaseFinished(
@@ -108,22 +103,7 @@ class Upload(WorkerBase):
         self.ReleaseInfo.save()
 
     def __MakeIncludedFileList(self):
-        self.IncludedFileList = self.ReleaseInfo.AnnouncementSource.GetIncludedFileList(
-            self.ReleaseInfo
-        )
-
-        if len(self.ReleaseInfo.IncludedFiles) > 0:
-            self.ReleaseInfo.logger().info(
-                "There are %s files in the file list. Customized: '%s'.",
-                len(self.IncludedFileList.Files),
-                self.ReleaseInfo.IncludedFiles,
-            )
-        else:
-            self.ReleaseInfo.logger().info(
-                "There are %s files in the file list.", len(self.IncludedFileList.Files)
-            )
-
-        self.IncludedFileList.ApplyCustomizationFromJson(self.ReleaseInfo.IncludedFiles)
+        self.ReleaseInfo.SetIncludedFileList()
 
     def __ExtractRelease(self):
         if self.ReleaseInfo.IsJobPhaseFinished(FinishedJobPhase.Upload_ExtractRelease):
@@ -416,7 +396,12 @@ class Upload(WorkerBase):
         else:  # Create the torrent including only the single video file.
             uploadTorrentCreatePath = self.MainMediaInfo.Path
 
-        Mktor.Make(self.logger, uploadTorrentCreatePath, uploadTorrentFilePath)
+        Mktor.Make(
+            self.logger,
+            uploadTorrentCreatePath,
+            uploadTorrentFilePath,
+            self.ReleaseInfo.IncludedFileList,
+        )
 
         # Local variables are used temporarily to make sure that values only get stored in the database if MakeTorrent.Make succeeded.
         self.ReleaseInfo.UploadTorrentFilePath = uploadTorrentFilePath
@@ -513,6 +498,7 @@ class Upload(WorkerBase):
 
     def __UploadMovie(self):
         # This is not possible because finished jobs can't be restarted.
+        raise PtpUploaderException("Not uploading, just testing")
         if self.ReleaseInfo.IsJobPhaseFinished(FinishedJobPhase.Upload_UploadMovie):
             self.logger.info(
                 "Upload movie phase has been reached previously, not uploading it again."

@@ -13,7 +13,8 @@ from PtpUploader.Job.FinishedJobPhase import FinishedJobPhase
 from PtpUploader.Job.JobStartMode import JobStartMode
 from PtpUploader.MyGlobals import MyGlobals
 from PtpUploader.PtpUploaderException import PtpUploaderException
-from PtpUploader.Settings import Settings
+from PtpUploader.Settings import Settings, config
+from PtpUploader.release_extractor import find_allowed_files
 
 
 class ReleaseInfo(models.Model):
@@ -159,7 +160,11 @@ class ReleaseInfo(models.Model):
     LastModificationTime = models.DateTimeField(auto_now=True)
     Size = models.BigIntegerField(default=0)
     Subtitles = models.JSONField(blank=True, default=list)  # CSV of subtitle IDs
-    IncludedFiles = models.TextField(blank=True, default="")
+    IncludedFiles = models.TextField(
+        blank=True, default=""
+    )  # Deprecated, to be removed at a later date
+    # A list of include files, relative to the upload path
+    IncludedFileList = models.JSONField(blank=True, default=list)
     DuplicateCheckCanIgnore = models.IntegerField(default=0)
     ScheduleTime = models.DateTimeField(
         default=datetime.datetime.fromtimestamp(0, timezone.get_default_timezone()),
@@ -171,9 +176,12 @@ class ReleaseInfo(models.Model):
     SpecialRelease = models.BooleanField(default=False)
     # Release made by a scene group.
     SceneRelease = models.BooleanField(default=False)
-    # If set, then it overrides the value returned by SourceBase.IsSingleFileTorrentNeedsDirectory.
+    # If set, then it overrides the value returned by
+    # SourceBase.IsSingleFileTorrentNeedsDirectory
     ForceDirectorylessSingleFileTorrent = models.BooleanField(default=False)
-    # If this is set then the job will be the next processed job and the download will start regardless the number of maximum parallel downloads set for the source.
+    # If this is set then the job will be the next processed job and
+    # the download will start regardless the number of maximum
+    # parallel downloads set for the source.
     StartImmediately = models.BooleanField(default=False)
     # Job will be stopped before uploading.
     StopBeforeUploading = models.BooleanField(default=False)
@@ -188,6 +196,7 @@ class ReleaseInfo(models.Model):
         self.ImdbRating = ""  # Not saved in the database.
         self.ImdbVoteCount = ""  # Not saved in the database.
         self.JobStartTimeUtc = datetime.datetime.utcnow()
+        self.__logger = None  # Holds a dedicated logger when needed
 
     def IsUserCreatedJob(self):
         return self.JobStartMode in [JobStartMode.Manual, JobStartMode.ManualForced]
@@ -261,6 +270,34 @@ class ReleaseInfo(models.Model):
             self.JobState.InProgress,
         ]
 
+    def SetIncludedFileList(self, overwrite=False):
+        if self.SourceIsAFile():
+            return
+        if self.IncludedFileList and not overwrite:
+            return
+        fileList = []
+        relPath = Path(self.GetReleaseUploadPath())
+        vids, addtls = find_allowed_files(relPath)
+        fileList.extend([str(v.relative_to(relPath)) for v in vids])
+        fileList.extend([str(a.relative_to(relPath)) for a in addtls])
+        self.IncludedFileList = fileList
+
+    def VideosFiles(self):
+        if self.SourceIsAFile():
+            return self.GetReleaseUploadPath()
+        self.SetIncludedFileList()
+        for f in self.IncludedFileList:
+            if Path(f).suffix.lower().strip(".") in config.uploader.video_files:
+                yield Path(self.GetReleaseUploadPath(), f)
+
+    def AdditionalFiles(self):
+        if self.SourceIsAFile():
+            return self.GetReleaseUploadPath()
+        self.SetIncludedFileList()
+        for f in self.IncludedFileList:
+            if Path(f).suffix.lower().strip(".") in config.uploader.additional_files:
+                yield Path(self.GetReleaseUploadPath(), f)
+
     def CanDeleted(self):
         return not self.CanStopped()
 
@@ -292,6 +329,13 @@ class ReleaseInfo(models.Model):
             self.GetReleaseRootPath(), "upload", unidecode(self.ReleaseName)
         )
 
+    def resetTorrentCreated(self):
+        tfile = Path(self.UploadTorrentFilePath)
+        if tfile.is_file():
+            tfile.unlink()
+        self.UploadTorrentFilePath = ""
+        self.UploadTorrentCreatePath = ""
+
     def IsZeroImdbId(self):
         return self.ImdbId == "0"
 
@@ -300,7 +344,8 @@ class ReleaseInfo(models.Model):
         return MyGlobals.SourceFactory.GetSource(self.AnnouncementSourceName)
 
     def logger(self, logger=None):
-        if logger is None:
-            logger = logging.getLogger(f"PtpUploader.ReleaseInfo.Release{self.Id}")
-        logger_with_id = logging.LoggerAdapter(logger, {"release_id": self.Id})
-        return logger_with_id
+        if self.__logger is None:
+            if logger is None:
+                logger = logging.getLogger(f"PtpUploader.ReleaseInfo.Release{self.Id}")
+            self.__logger = logging.LoggerAdapter(logger, {"release_id": self.Id})
+        return self.__logger

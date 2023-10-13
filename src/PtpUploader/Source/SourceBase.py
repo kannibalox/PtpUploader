@@ -6,11 +6,11 @@ import shutil
 from pathlib import Path
 
 from PtpUploader import nfo_parser
-from PtpUploader.IncludedFileList import IncludedFileList
 from PtpUploader.Job.FinishedJobPhase import FinishedJobPhase
 from PtpUploader.PtpUploaderException import PtpUploaderException
 from PtpUploader.release_extractor import parse_directory
 from PtpUploader.Settings import Settings, config
+from PtpUploader.Helper import GetFileListFromTorrent
 
 
 logger = logging.getLogger(__name__)
@@ -72,36 +72,30 @@ class SourceBase:
     def DownloadTorrent(self, _, releaseInfo, path):
         pass
 
-    # fileList must be an instance of IncludedFileList.
-    def CheckFileList(self, releaseInfo, fileList):
-        logger.info("Checking the contents of the release.")
+    def IterReleaseFiles(self, releaseInfo):
+        return GetFileListFromTorrent(releaseInfo.SourceTorrentFilePath)
 
-        if releaseInfo.IsDvdImage():
+    def CheckForMultipleFiles(self, releaseInfo):
+        if releaseInfo.IsDvdImage() or release.IsBlurayImage():
             return
+        found_file = False
+        for filepath in self.IterReleaseFiles(releaseInfo):
+            if Settings.HasValidVideoExtensionToUpload(Path(filepath).name):
+                # If this is the second file found...
+                if found_file:
+                    raise PtpUploaderException("Release contains multiple video files")
+                found_file = True
 
-        # Check if the release contains multiple non-ignored videos.
-        numberOfVideoFiles = 0
-        for file in fileList.Files:
-            if file.IsIncluded() and Settings.HasValidVideoExtensionToUpload(file.Name):
-                numberOfVideoFiles += 1
+    def DetectSceneRelease(self, releaseInfo):
+        rar_re = re.compile(r".+\.(?:rar|r\d+)$", re.IGNORECASE)
+        rar_found = False
 
-        if numberOfVideoFiles > 1:
-            raise PtpUploaderException("Release contains multiple video files.")
-
-    # fileList must be an instance of IncludedFileList.
-    def DetectSceneReleaseFromFileList(self, releaseInfo, fileList):
-        rarRe = re.compile(r".+\.(?:rar|r\d+)$", re.IGNORECASE)
-        rarCount = 0
-
-        for file in fileList.Files:
-            if rarRe.match(file.Name) is None:
-                continue
-
-            # If there are multiple RAR files then it's likely a scene release.
-            rarCount += 1
-            if rarCount > 1:
-                releaseInfo.SetSceneRelease()
-                break
+        for filepath in self.IterReleaseFiles(releaseInfo):
+            if rar_re.match(Path(filepath).name):
+                # If this is the second rar found...
+                if rar_found:
+                    releaseInfo.SetSceneRelease()
+                rar_found = True
 
     def IsDownloadFinished(self, _, releaseInfo):
         return Settings.GetTorrentClient().IsTorrentFinished(
@@ -126,14 +120,6 @@ class SourceBase:
         releaseInfo.Nfo = nfo_parser.find_and_read_nfo(
             releaseInfo.GetReleaseDownloadPath()
         )
-
-    def GetIncludedFileList(self, releaseInfo):
-        includedFileList = IncludedFileList()
-
-        if os.path.isfile(releaseInfo.SourceTorrentFilePath):
-            includedFileList.FromTorrent(releaseInfo.SourceTorrentFilePath)
-
-        return includedFileList
 
     @staticmethod
     def __DeleteDirectoryIfEmpyOrContainsOnlyEmptyDirectories(path):
