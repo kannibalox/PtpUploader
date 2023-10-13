@@ -1,3 +1,9 @@
+## [0.12.0]
+### Changed
+- Allow selecting files manually
+### Fixed
+- Respect the ignore_files config setting properly
+
 ## [0.11.3]
 ### Changed
 - Due to new restrictions for pypi, the cinemagoer package now uses
