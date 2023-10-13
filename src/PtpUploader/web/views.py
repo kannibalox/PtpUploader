@@ -333,22 +333,6 @@ def file_list(request):
             subroot = path_match[0]["children"]
         subroot.append({"title": f.name, "key": str(f), "selected": str(f) in releaseInfo.IncludedFileList})
     return JsonResponse(tree, safe=False)
-    d: Path
-    if "dir" not in request.GET:
-        d = source
-    else:
-        d = Path(request.GET["dir"])
-    val = []
-    for child in sorted(d.iterdir()):
-        c = {"title": child.name, "key": str(child)}
-        if child.is_dir():
-            c["folder"] = True
-            c["lazy"] = True
-        elif child.suffix.lower() in [".mkv", ".avi", ".mp4", ".vob", ".ifo", ".bup"]:
-            c["icon"] = "film"
-        val.append(c)
-    return JsonResponse(val, safe=False)  # It's just a list, probably safe
-
 
 
 @login_required
