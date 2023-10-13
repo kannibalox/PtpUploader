@@ -142,7 +142,7 @@ class ReleaseDescriptionFormatter:
             )
         )
 
-    def __GetMediaInfoHandleNonDvdImage(self):
+    def __GetMediaInfoHandleOther(self):
         self.VideoFiles = ScreenshotMaker.SortVideoFiles(self.VideoFiles)
         mediaInfos = MediaInfo.ReadAndParseMediaInfos(
             logger,
@@ -170,7 +170,7 @@ class ReleaseDescriptionFormatter:
         elif self.ReleaseInfo.IsBlurayImage():
             self.__GetMediaInfoHandleBlurayImage()
         else:
-            self.__GetMediaInfoHandleNonDvdImage()
+            self.__GetMediaInfoHandleOther()
 
     def __TakeAndUploadScreenshots(self):
         if not self.MakeScreenshots:
