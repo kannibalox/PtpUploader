@@ -22,7 +22,8 @@ uploader:
   video_files: [avi, divx, mkv, mp4, vob, m2ts]
   # Additional files wanted but not technically videos
   additional_files: [bup, idx, ifo, srt, sub, bdmv, mpls, clpi]
-  ignore_files: ['.*sample.*', '.*d-z0n3\.assistant\.rar']
+  ignore_files: ['.*sample.*', '.*d-z0n3\.assistant\.rar'] # Uses a regex
+  ignore_dirs: [] # Uses a regex
   # Controls the default settings for checkboxes on the upload form. Can always be overridden on a per-job basis.
   override_screenshots: false
   force_directoryless_single_file: false
