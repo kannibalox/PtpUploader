@@ -18,7 +18,6 @@ from PtpUploader.Job.WorkerBase import WorkerBase
 from PtpUploader.MyGlobals import MyGlobals
 from PtpUploader.PtpUploaderException import *
 from PtpUploader.release_extractor import extract_release, parse_directory
-from PtpUploader.included_file_list import set_included_upload_files
 from PtpUploader.ReleaseDescriptionFormatter import ReleaseDescriptionFormatter
 from PtpUploader.ReleaseInfo import ReleaseInfo
 from PtpUploader.Settings import Settings
@@ -499,7 +498,6 @@ class Upload(WorkerBase):
 
     def __UploadMovie(self):
         # This is not possible because finished jobs can't be restarted.
-        raise PtpUploaderException("Not uploading, just testing")
         if self.ReleaseInfo.IsJobPhaseFinished(FinishedJobPhase.Upload_UploadMovie):
             self.logger.info(
                 "Upload movie phase has been reached previously, not uploading it again."

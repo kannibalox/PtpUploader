@@ -33,48 +33,19 @@ config = Dynaconf(
     ],
 )
 
+def make_list_from_extensions(extensions: str):
+    # Eg.: "A B, C, D E" will become [ [ "A", "B" ], [ "C" ], [ "D", "E" ] ]
+    # Make sure everything is in lower case in the settings.
+    return [e.split() for e in [i.strip().lower() for i in extensions.split(",")]]
 
 class Settings:
     @staticmethod
-    def MakeListFromExtensionString(extensions: str):
-        # Make sure everything is in lower case in the settings.
-        return [i.strip().lower() for i in extensions.split(",")]
-
-    # This makes a list of TagList.
-    # Eg.: "A B, C, D E" will become [ [ "A", "B" ], [ "C" ], [ "D", "E" ] ]
-    @staticmethod
-    def MakeListOfListsFromString(extensions: str):
-        return [i.split(" ") for i in Settings.MakeListFromExtensionString(extensions)]
-
-    @staticmethod
-    def __HasValidExtensionToUpload(path, extensions):
-        tempPath = path.lower()
-        for extension in extensions:
-            if fnmatch.fnmatch(tempPath, "*." + extension):
-                return True
-
-        return False
-
-    @staticmethod
     def HasValidVideoExtensionToUpload(path):
-        return Settings.__HasValidExtensionToUpload(
-            path, Settings.VideoExtensionsToUpload
-        )
+        return any([fnmatch.fnmatch(str(path).lower(), ext) for ext in Settings.VideoExtensionsToUpload])
 
     @staticmethod
     def HasValidAdditionalExtensionToUpload(path):
-        return Settings.__HasValidExtensionToUpload(
-            path, Settings.AdditionalExtensionsToUpload
-        )
-
-    @staticmethod
-    def IsFileOnIgnoreList(path):
-        path = os.path.basename(path)  # We only filter the filenames.
-        path = path.lower()
-        for ignoreFile in Settings.IgnoreFile:
-            if re.match(ignoreFile, path) is not None:
-                return True
-        return False
+        return any([fnmatch.fnmatch(str(path).lower(), ext) for ext in Settings.AdditionalExtensionsToUpload])
 
     @staticmethod
     def GetAnnouncementWatchPath() -> Path:
@@ -140,10 +111,10 @@ class Settings:
 
         Settings.WorkingPath = config.work_dir
 
-        Settings.AllowReleaseTag = Settings.MakeListOfListsFromString(
+        Settings.AllowReleaseTag = make_list_from_extensions(
             config.source._default.allow_tags
         )
-        Settings.IgnoreReleaseTag = Settings.MakeListOfListsFromString(
+        Settings.IgnoreReleaseTag = make_list_from_extensions(
             config.source._default.ignore_tags
         )
 
