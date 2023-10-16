@@ -150,7 +150,10 @@ class ReleaseDescriptionFormatter:
             self.VideoFiles,
             self.ReleaseInfo.GetReleaseUploadPath(),
         )
-        self.MainMediaInfo = mediaInfos[0]
+        try:
+            self.MainMediaInfo = mediaInfos[0]
+        except IndexError:
+            raise PtpUploaderException("Could not find any video file mediainfos, check included files")
 
         # Make less screenshots if there are more than one videos.
         mediaInfoCount = len(mediaInfos)
