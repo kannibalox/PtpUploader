@@ -52,8 +52,6 @@ class Upload(WorkerBase):
         ]
 
         self.TorrentClient = Settings.GetTorrentClient()
-        self.VideoFiles: List = []
-        self.AdditionalFiles: List = []
         self.MainMediaInfo = None
         self.ReleaseDescription = ""
 
@@ -109,12 +107,10 @@ class Upload(WorkerBase):
             self.ReleaseInfo.logger().info(
                 "Extract release phase has been reached previously, not extracting release again."
             )
-            self.VideoFiles, self.AdditionalFiles = parse_directory(self.ReleaseInfo)
             return
 
         extract_release(self.ReleaseInfo)
-        self.VideoFiles, self.AdditionalFiles = parse_directory(self.ReleaseInfo)
-        if not self.VideoFiles:
+        if not list(self.ReleaseInfo.VideosFiles()):
             raise PtpUploaderException(
                 "Upload path '%s' doesn't contain any video files."
                 % self.ReleaseInfo.GetReleaseUploadPath()
@@ -350,7 +346,7 @@ class Upload(WorkerBase):
 
         # If everything went successfully so far, then check if there are any SRT files in the release.
         if not containsUnknownSubtitle:
-            for file in self.AdditionalFiles:
+            for file in self.ReleaseInfo.AdditionalFiles():
                 if str(file).lower().endswith(".srt"):
                     # TODO: show warning on the WebUI
                     containsUnknownSubtitle = True
@@ -386,7 +382,7 @@ class Upload(WorkerBase):
         uploadTorrentCreatePath = ""
 
         # Make torrent with the parent directory's name included if there is more than one file or requested by the source (it is a scene release).
-        totalFileCount = len(self.VideoFiles) + len(self.AdditionalFiles)
+        totalFileCount = len(list(self.ReleaseInfo.VideosFiles()) + list(self.ReleaseInfo.AdditionalFiles()))
         if totalFileCount > 1 or (
             self.ReleaseInfo.AnnouncementSource.IsSingleFileTorrentNeedsDirectory(
                 self.ReleaseInfo
@@ -395,7 +391,7 @@ class Upload(WorkerBase):
         ):
             uploadTorrentCreatePath = self.ReleaseInfo.GetReleaseUploadPath()
         else:  # Create the torrent including only the single video file.
-            uploadTorrentCreatePath = self.MainMediaInfo.Path
+            uploadTorrentCreatePath = self.ReleaseInfo.GetReleaseDownloadPath()
 
         Mktor.Make(
             self.logger,
