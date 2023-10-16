@@ -257,6 +257,7 @@ class Upload(WorkerBase):
             self.ReleaseInfo.Resolution = resolution
 
     def __MakeReleaseDescription(self):
+        self.ReleaseInfo.SetIncludedFileList()
         self.ReleaseInfo.AnnouncementSource.ReadNfo(self.ReleaseInfo)
 
         includeReleaseName = (
@@ -269,8 +270,8 @@ class Upload(WorkerBase):
         )
         releaseDescriptionFormatter = ReleaseDescriptionFormatter(
             self.ReleaseInfo,
-            self.VideoFiles,
-            self.AdditionalFiles,
+            self.ReleaseInfo.VideosFiles(),
+            self.ReleaseInfo.AdditionalFiles(),
             outputImageDirectory,
             not self.ReleaseInfo.OverrideScreenshots,
         )

@@ -285,7 +285,7 @@ class ReleaseInfo(models.Model):
 
     def VideosFiles(self):
         if self.SourceIsAFile():
-            return self.GetReleaseUploadPath()
+            yield self.GetReleaseDownloadPath()
         self.SetIncludedFileList()
         for f in self.IncludedFileList:
             if Path(f).suffix.lower().strip(".") in config.uploader.video_files:
@@ -293,7 +293,8 @@ class ReleaseInfo(models.Model):
 
     def AdditionalFiles(self):
         if self.SourceIsAFile():
-            return self.GetReleaseUploadPath()
+            yield
+            return
         self.SetIncludedFileList()
         for f in self.IncludedFileList:
             if Path(f).suffix.lower().strip(".") in config.uploader.additional_files:
