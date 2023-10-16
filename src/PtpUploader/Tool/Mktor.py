@@ -11,14 +11,19 @@ from PtpUploader.Settings import config
 
 def Make(logger, path, torrentPath, includedFileList: Optional[List[str]] = None):
     logger.info("Making torrent from '%s' to '%s'." % (path, torrentPath))
+    if includedFileList:
+        logger.info("Only including %s in torrent", includedFileList)
 
     ignore = []
     path = Path(path)
 
     def ptpup_walk(datapath: Path):
-        for subpath in datapath.rglob("*"):
-            if subpath.is_file() and str(subpath.relative_to(path)) in includedFileList:
-                yield subpath
+        if datapath.is_dir():
+            for subpath in datapath.rglob("*"):
+                if subpath.is_file() and str(subpath.relative_to(path)) in includedFileList:
+                    yield subpath
+        else:
+            yield datapath
 
     if os.path.exists(torrentPath):
         # We should be safe to allow the existing torrent to be used,
