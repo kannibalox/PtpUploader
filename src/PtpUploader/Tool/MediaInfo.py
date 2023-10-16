@@ -64,10 +64,7 @@ class MediaInfo:
 
     @staticmethod
     def __ParseSize(mediaPropertyValue):
-        mediaPropertyValue = mediaPropertyValue.replace("pixels", "")
-        mediaPropertyValue = mediaPropertyValue.replace(" ", "")
-        # Resolution may contain space, so remove. Eg.: 1 280
-        return int(mediaPropertyValue)
+        return int(mediaPropertyValue.replace("pixels", "").replace(" ", ""))
 
     # Matches duration in the following format. All units and spaces are optional.
     # 1h 2min 3s

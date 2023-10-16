@@ -40,12 +40,12 @@ def make_list_from_extensions(extensions: str):
 
 class Settings:
     @staticmethod
-    def HasValidVideoExtensionToUpload(path):
-        return any([fnmatch.fnmatch(str(path).lower(), ext) for ext in Settings.VideoExtensionsToUpload])
+    def HasValidVideoExtensionToUpload(path: os.PathLike) -> bool:
+        return any([fnmatch.fnmatch(str(path).lower(), ext) for ext in config.uploader.video_files])
 
     @staticmethod
-    def HasValidAdditionalExtensionToUpload(path):
-        return any([fnmatch.fnmatch(str(path).lower(), ext) for ext in Settings.AdditionalExtensionsToUpload])
+    def HasValidAdditionalExtensionToUpload(path: os.PathLike) -> bool:
+        return any([fnmatch.fnmatch(str(path).lower(), ext) for ext in config.uploader.additional_files])
 
     @staticmethod
     def GetAnnouncementWatchPath() -> Path:
