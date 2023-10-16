@@ -51,7 +51,6 @@ class ReleaseDescriptionFormatter:
         self.ReleaseInfo = releaseInfo
         self.VideoFiles = list(self.ReleaseInfo.VideosFiles())
         self.AdditionalFiles = list(self.ReleaseInfo.AdditionalFiles())
-        print(self.VideoFiles, self.AdditionalFiles)
         self.OutputImageDirectory = outputImageDirectory
         self.MakeScreenshots = makeScreenshots
         self.VideoEntries = []
