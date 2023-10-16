@@ -272,6 +272,7 @@ class ReleaseInfo(models.Model):
 
     def SetIncludedFileList(self, overwrite=False):
         if self.SourceIsAFile():
+            self.IncludedFileList = [self.GetReleaseUploadPath()]
             return
         if self.IncludedFileList and not overwrite:
             return
