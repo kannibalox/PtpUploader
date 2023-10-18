@@ -5,7 +5,7 @@ from pathlib import Path
 
 from PtpUploader.Helper import GetSizeFromText
 from PtpUploader.PtpUploaderException import PtpUploaderException
-from PtpUploader.Settings import Settings
+from PtpUploader.Settings import Settings, config
 
 
 class MediaInfoException(PtpUploaderException):
@@ -32,7 +32,7 @@ class MediaInfo:
         self.VideoWritingLibrary = ""
         self.Subtitles = []
 
-        self.MediaInfoArgs = [Settings.MediaInfoPath, self.Path]
+        self.MediaInfoArgs = [config.tools.mediainfo.path, self.Path]
 
         self.__ParseMediaInfo(logger)
         self.__ValidateParsedMediaInfo()
@@ -44,7 +44,7 @@ class MediaInfo:
         # MediaInfo is buggy on some videos and takes a lot of time to finish. We limit this time to the user specified maximum.
         proc = subprocess.run(
             self.MediaInfoArgs,
-            timeout=Settings.MediaInfoTimeOut,
+            timeout=config.tools.mediainfo.timeout,
             capture_output=True,
             check=True,
         )
@@ -96,7 +96,7 @@ class MediaInfo:
         return duration
 
     def __MakeCompleteNameRelative(self, path):
-        if len(self.RemovePathFromCompleteName) > 0:
+        if self.RemovePathFromCompleteName:
             removePathFromCompleteName = self.RemovePathFromCompleteName.replace(
                 "\\", "/"
             )
