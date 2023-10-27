@@ -227,9 +227,14 @@ class Upload(WorkerBase):
         if self.ReleaseInfo.IsStandardDefinition() and (
             not self.ReleaseInfo.IsDvdImage()
         ):
-            resolution = f"{mediaInfo.Width}x{mediaInfo.Height}"
+            if mediaInfo.Width == 1024 and mediaInfo.Height == 576:
+                resolution = "576p"
+            elif mediaInfo.Width == 854 and mediaInfo.Height == 480:
+                resolution = "480p"
+            else:
+                resolution = f"{mediaInfo.Width}x{mediaInfo.Height}"
 
-        if len(self.ReleaseInfo.Resolution) > 0:
+        if self.ReleaseInfo.Resolution:
             if resolution != self.ReleaseInfo.Resolution:
                 if self.ReleaseInfo.IsForceUpload():
                     self.ReleaseInfo.logger().info(
