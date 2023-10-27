@@ -52,8 +52,8 @@ def scan_dir():
             try:
                 load_json_release(child)
                 continue
-            except json.decoder.JSONDecodeError:
-                logger.debug("Cannot load %r as JSON, attempting .torrent check", child)
+            except (json.decoder.JSONDecodeError, UnicodeDecodeError) as exc:
+                logger.debug("Cannot load %r as JSON (%s), attempting .torrent check", child, exc)
             try:
                 load_torrent_release(child)
                 continue
