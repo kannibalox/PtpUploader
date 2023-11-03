@@ -1,12 +1,12 @@
 import logging
 import os
 import shutil
+from pathlib import Path
 
 from unidecode import unidecode
 
 from PtpUploader import nfo_parser
 from PtpUploader.Helper import GetPathSize
-from PtpUploader.IncludedFileList import IncludedFileList
 from PtpUploader.PtpUploaderException import PtpUploaderException
 from PtpUploader.ReleaseNameParser import ReleaseNameParser
 from PtpUploader.Source.SourceBase import SourceBase
@@ -78,6 +78,9 @@ class File(SourceBase):
             includedFileList.FromDirectory(path)
 
         return includedFileList
+
+    def IterReleaseFiles(self, releaseInfo):
+        return Path(releaseInfo.GetReleaseDownloadPath()).rglob("*")
 
     @staticmethod
     def __DeleteDirectoryWithoutTheUploadDirectory(path):

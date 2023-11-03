@@ -49,8 +49,8 @@ class ReleaseDescriptionFormatter:
         makeScreenshots=True,
     ):
         self.ReleaseInfo = releaseInfo
-        self.VideoFiles = videoFiles
-        self.AdditionalFiles = additionalFiles
+        self.VideoFiles = list(self.ReleaseInfo.VideosFiles())
+        self.AdditionalFiles = list(self.ReleaseInfo.AdditionalFiles())
         self.OutputImageDirectory = outputImageDirectory
         self.MakeScreenshots = makeScreenshots
         self.VideoEntries = []
@@ -142,14 +142,17 @@ class ReleaseDescriptionFormatter:
             )
         )
 
-    def __GetMediaInfoHandleNonDvdImage(self):
+    def __GetMediaInfoHandleOther(self):
         self.VideoFiles = ScreenshotMaker.SortVideoFiles(self.VideoFiles)
         mediaInfos = MediaInfo.ReadAndParseMediaInfos(
             logger,
             self.VideoFiles,
             self.ReleaseInfo.GetReleaseUploadPath(),
         )
-        self.MainMediaInfo = mediaInfos[0]
+        try:
+            self.MainMediaInfo = mediaInfos[0]
+        except IndexError:
+            raise PtpUploaderException("Could not find any video file mediainfos, check included files")
 
         # Make less screenshots if there are more than one videos.
         mediaInfoCount = len(mediaInfos)
@@ -170,7 +173,7 @@ class ReleaseDescriptionFormatter:
         elif self.ReleaseInfo.IsBlurayImage():
             self.__GetMediaInfoHandleBlurayImage()
         else:
-            self.__GetMediaInfoHandleNonDvdImage()
+            self.__GetMediaInfoHandleOther()
 
     def __TakeAndUploadScreenshots(self):
         if not self.MakeScreenshots:

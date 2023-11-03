@@ -1,13 +1,29 @@
 import os
 from pathlib import Path
+import re
+from pathlib import Path
+from typing import List, Optional
 
 from pyrosimple.util.metafile import Metafile
 
 from PtpUploader.Settings import config
 
 
-def Make(logger, path: os.PathLike, torrentPath):
+def Make(logger, path, torrentPath, includedFileList: Optional[List[str]] = None):
     logger.info("Making torrent from '%s' to '%s'." % (path, torrentPath))
+    if includedFileList:
+        logger.info("Only including %s in torrent", includedFileList)
+
+    ignore = []
+    path = Path(path)
+
+    def ptpup_walk(datapath: Path):
+        if datapath.is_dir():
+            for subpath in datapath.rglob("*"):
+                if subpath.is_file() and str(subpath.relative_to(path)) in includedFileList:
+                    yield subpath
+        else:
+            yield datapath
 
     if os.path.exists(torrentPath):
         # We should be safe to allow the existing torrent to be used,
@@ -28,6 +44,7 @@ def Make(logger, path: os.PathLike, torrentPath):
             created_by="PtpUploader",
             private=True,
             progress=None,
+            file_generator=ptpup_walk,
         )
         metafile["info"]["source"] = "PTP"
         metafile.save(Path(torrentPath))

@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "PtpUploader"
-version = "0.11.3"
+version = "0.12.2"
 description = "A small uploader for a mildly popular movie site"
 authors = ["kannibalox <kannibalox@gmail.com>"]
 packages = [

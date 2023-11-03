@@ -1,5 +1,6 @@
 import logging
 import os
+import json
 import time
 import urllib
 
@@ -315,6 +316,36 @@ def local_dir(request):
 
 
 @login_required
+def file_list(request):
+    releaseInfo = ReleaseInfo.objects.get(Id=request.GET["releaseId"])
+    source = Path(releaseInfo.GetReleaseUploadPath())
+    if not source.exists():
+        return JsonResponse(
+            [{"title": f"Upload directory does not exist: {source}", "children": []}],
+            safe=False,
+        )
+    tree = []
+    files = [f for f in source.rglob("*") if f.is_file()]
+    for f in files:
+        subroot = tree
+        f = f.relative_to(source)
+        for p in f.parts[:-1]:
+            path_match = [c for c in subroot if c["title"] == p]
+            if not path_match:
+                subroot.append({"title": p, "folder": True, "children": []})
+                path_match = [c for c in subroot if c["title"] == p]
+            subroot = path_match[0]["children"]
+        subroot.append(
+            {
+                "title": f.name,
+                "key": str(f),
+                "selected": str(f) in releaseInfo.IncludedFileList,
+            }
+        )
+    return JsonResponse(tree, safe=False)
+
+
+@login_required
 def start_job(_, r_id):
     # TODO: This is very far from perfect. There is no guarantee that the job didn't start meanwhile.
     # Probably only the WorkerThread should change the running state.
@@ -437,6 +468,9 @@ def edit_job(request, r_id: int = -1):
             else:
                 release.StopBeforeUploading = False
             GetPtpOrImdbId(release, release.ImdbId)
+            # Re-run torrent creation if filelist changes
+            if "IncludedFileList" in form.changed_data:
+                release.resetTorrentCreated()
             release.save()
             MyGlobals.PtpUploader.add_message(PtpUploaderMessageStartJob(release.Id))
             return HttpResponseRedirect("/jobs")
@@ -465,6 +499,7 @@ def edit_job(request, r_id: int = -1):
         job["CanEdited"] = release.CanEdited
         job["StopBeforeUploading"] = release.StopBeforeUploading
         job["Status"] = release.get_JobRunningState_display()
+        job["IncludedFileList"] = json.dumps(release.IncludedFileList)
         if release.ErrorMessage:
             job["Status"] += f" - {release.ErrorMessage}"
 

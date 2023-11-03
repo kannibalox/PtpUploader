@@ -470,23 +470,13 @@ class CheckAnnouncement(WorkerBase):
         ):
             return
 
-        includedFileList = self.ReleaseInfo.AnnouncementSource.GetIncludedFileList(
-            self.ReleaseInfo
-        )
-        self.ReleaseInfo.AnnouncementSource.CheckFileList(
-            self.ReleaseInfo, includedFileList
-        )
+        self.ReleaseInfo.AnnouncementSource.CheckForMultipleFiles(self.ReleaseInfo)
 
     def __DetectSceneReleaseFromFileList(self):
         if self.ReleaseInfo.SceneRelease:
             return
 
-        includedFileList = self.ReleaseInfo.AnnouncementSource.GetIncludedFileList(
-            self.ReleaseInfo
-        )
-        self.ReleaseInfo.AnnouncementSource.DetectSceneReleaseFromFileList(
-            self.ReleaseInfo, includedFileList
-        )
+        self.ReleaseInfo.AnnouncementSource.DetectSceneRelease(self.ReleaseInfo)
 
     def __DownloadTorrent(self):
         if len(self.ReleaseInfo.SourceTorrentInfoHash) > 0:

@@ -35,8 +35,8 @@ class Upload(WorkerBase):
             self.__StopAutomaticJobBeforeExtracting,
             self.__StopAutomaticJobIfThereAreMultipleVideosBeforeExtracting,
             self.__CreateUploadPath,
-            self.__MakeIncludedFileList,
             self.__ExtractRelease,
+            self.__MakeIncludedFileList,
             self.__MakeReleaseDescription,
             self.__DetectSubtitles,
             self.__MakeTorrent,
@@ -52,9 +52,6 @@ class Upload(WorkerBase):
         ]
 
         self.TorrentClient = Settings.GetTorrentClient()
-        self.IncludedFileList = None
-        self.VideoFiles: List = []
-        self.AdditionalFiles: List = []
         self.MainMediaInfo = None
         self.ReleaseDescription = ""
 
@@ -80,12 +77,7 @@ class Upload(WorkerBase):
         ):
             return
 
-        includedFileList = self.ReleaseInfo.AnnouncementSource.GetIncludedFileList(
-            self.ReleaseInfo
-        )
-        self.ReleaseInfo.AnnouncementSource.CheckFileList(
-            self.ReleaseInfo, includedFileList
-        )
+        self.ReleaseInfo.AnnouncementSource.CheckForMultipleFiles()
 
     def __CreateUploadPath(self):
         if self.ReleaseInfo.IsJobPhaseFinished(
@@ -108,34 +100,17 @@ class Upload(WorkerBase):
         self.ReleaseInfo.save()
 
     def __MakeIncludedFileList(self):
-        self.IncludedFileList = self.ReleaseInfo.AnnouncementSource.GetIncludedFileList(
-            self.ReleaseInfo
-        )
-
-        if len(self.ReleaseInfo.IncludedFiles) > 0:
-            self.ReleaseInfo.logger().info(
-                "There are %s files in the file list. Customized: '%s'.",
-                len(self.IncludedFileList.Files),
-                self.ReleaseInfo.IncludedFiles,
-            )
-        else:
-            self.ReleaseInfo.logger().info(
-                "There are %s files in the file list.", len(self.IncludedFileList.Files)
-            )
-
-        self.IncludedFileList.ApplyCustomizationFromJson(self.ReleaseInfo.IncludedFiles)
+        self.ReleaseInfo.SetIncludedFileList()
 
     def __ExtractRelease(self):
         if self.ReleaseInfo.IsJobPhaseFinished(FinishedJobPhase.Upload_ExtractRelease):
             self.ReleaseInfo.logger().info(
                 "Extract release phase has been reached previously, not extracting release again."
             )
-            self.VideoFiles, self.AdditionalFiles = parse_directory(self.ReleaseInfo)
             return
 
         extract_release(self.ReleaseInfo)
-        self.VideoFiles, self.AdditionalFiles = parse_directory(self.ReleaseInfo)
-        if not self.VideoFiles:
+        if not list(self.ReleaseInfo.VideosFiles()):
             raise PtpUploaderException(
                 "Upload path '%s' doesn't contain any video files."
                 % self.ReleaseInfo.GetReleaseUploadPath()
@@ -144,6 +119,7 @@ class Upload(WorkerBase):
         self.ReleaseInfo.save()
 
     def __GetMediaInfoContainer(self, mediaInfo):
+        self.ReleaseInfo.SetIncludedFileList()
         container = ""
 
         if mediaInfo.IsAvi():
@@ -251,9 +227,14 @@ class Upload(WorkerBase):
         if self.ReleaseInfo.IsStandardDefinition() and (
             not self.ReleaseInfo.IsDvdImage()
         ):
-            resolution = f"{mediaInfo.Width}x{mediaInfo.Height}"
+            if mediaInfo.Width == 1024 and mediaInfo.Height == 576:
+                resolution = "576p"
+            elif mediaInfo.Width == 854 and mediaInfo.Height == 480:
+                resolution = "480p"
+            else:
+                resolution = f"{mediaInfo.Width}x{mediaInfo.Height}"
 
-        if len(self.ReleaseInfo.Resolution) > 0:
+        if self.ReleaseInfo.Resolution:
             if resolution != self.ReleaseInfo.Resolution:
                 if self.ReleaseInfo.IsForceUpload():
                     self.ReleaseInfo.logger().info(
@@ -277,6 +258,7 @@ class Upload(WorkerBase):
             self.ReleaseInfo.Resolution = resolution
 
     def __MakeReleaseDescription(self):
+        self.ReleaseInfo.SetIncludedFileList()
         self.ReleaseInfo.AnnouncementSource.ReadNfo(self.ReleaseInfo)
 
         includeReleaseName = (
@@ -289,8 +271,8 @@ class Upload(WorkerBase):
         )
         releaseDescriptionFormatter = ReleaseDescriptionFormatter(
             self.ReleaseInfo,
-            self.VideoFiles,
-            self.AdditionalFiles,
+            self.ReleaseInfo.VideosFiles(),
+            self.ReleaseInfo.AdditionalFiles(),
             outputImageDirectory,
             not self.ReleaseInfo.OverrideScreenshots,
         )
@@ -369,7 +351,7 @@ class Upload(WorkerBase):
 
         # If everything went successfully so far, then check if there are any SRT files in the release.
         if not containsUnknownSubtitle:
-            for file in self.AdditionalFiles:
+            for file in self.ReleaseInfo.AdditionalFiles():
                 if str(file).lower().endswith(".srt"):
                     # TODO: show warning on the WebUI
                     containsUnknownSubtitle = True
@@ -405,7 +387,7 @@ class Upload(WorkerBase):
         uploadTorrentCreatePath = ""
 
         # Make torrent with the parent directory's name included if there is more than one file or requested by the source (it is a scene release).
-        totalFileCount = len(self.VideoFiles) + len(self.AdditionalFiles)
+        totalFileCount = len(list(self.ReleaseInfo.VideosFiles()) + list(self.ReleaseInfo.AdditionalFiles()))
         if totalFileCount > 1 or (
             self.ReleaseInfo.AnnouncementSource.IsSingleFileTorrentNeedsDirectory(
                 self.ReleaseInfo
@@ -414,9 +396,14 @@ class Upload(WorkerBase):
         ):
             uploadTorrentCreatePath = self.ReleaseInfo.GetReleaseUploadPath()
         else:  # Create the torrent including only the single video file.
-            uploadTorrentCreatePath = self.MainMediaInfo.Path
+            uploadTorrentCreatePath = self.ReleaseInfo.GetReleaseDownloadPath()
 
-        Mktor.Make(self.logger, uploadTorrentCreatePath, uploadTorrentFilePath)
+        Mktor.Make(
+            self.logger,
+            uploadTorrentCreatePath,
+            uploadTorrentFilePath,
+            self.ReleaseInfo.IncludedFileList,
+        )
 
         # Local variables are used temporarily to make sure that values only get stored in the database if MakeTorrent.Make succeeded.
         self.ReleaseInfo.UploadTorrentFilePath = uploadTorrentFilePath

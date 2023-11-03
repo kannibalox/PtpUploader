@@ -1,17 +1,20 @@
 import argparse
-import re
 import os
-from typing import Optional
+import re
+
 from pathlib import Path
+from typing import Optional
 
 import django
 import requests
+
 from pyrosimple.util import metafile
+
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "PtpUploader.web.settings")
 django.setup()
 
-from PtpUploader import release_extractor, Ptp, MyGlobals
+from PtpUploader import MyGlobals, Ptp, release_extractor
 from PtpUploader.MyGlobals import MyGlobals
 from PtpUploader.PtpUploaderException import PtpUploaderException
 from PtpUploader.ReleaseDescriptionFormatter import ReleaseDescriptionFormatter
@@ -21,156 +24,99 @@ from PtpUploader.Tool import Mktor
 
 
 class ReleaseInfoMaker:
-    def __init__(self, path):
-        self.Path = path
-        self.ReleaseName = None
-        self.WorkingDirectory = None
-        self.TorrentDataPath = None
-        self.VideoFiles = []
-        self.AdditionalFiles = []
+    def __init__(self, path: os.PathLike):
+        self.path = Path(path)
+        self.release_info = ReleaseInfo()
+        self.release_info.ReleaseDownloadPath = str(self.path)
+        self.release_info.ReleaseUploadPath = str(self.path)
+        self.release_info.ReleaseName = self.path.stem
+        self.release_info.Logger = MyGlobals.Logger
 
-    def CollectVideoFiles(self):
-        self.Path = os.path.abspath(self.Path)
+    def collect_files(self):
+        self.release_info.SetIncludedFileList()
+        self.detect_images()
 
-        if os.path.isdir(self.Path):
-            # Make sure that path doesn't ends with a trailing slash or else os.path.split would return with wrong values.
-            self.Path = self.Path.rstrip("\\/")
-
-            (
-                self.VideoFiles,
-                self.AdditionalFiles,
-            ) = release_extractor.find_allowed_files(
-                self.Path,
-            )
-            if len(self.VideoFiles) <= 0:
-                print("Path '%s' doesn't contain any videos!" % self.Path)
-                return False
-
-            # We use the parent directory of the path as the working directory.
-            # Release name will be the directory's name. Eg. it will be "anything" for "/something/anything"
-            self.WorkingDirectory, self.ReleaseName = os.path.split(self.Path)
-            self.TorrentDataPath = self.Path
-        elif os.path.isfile(self.Path):
-            self.VideoFiles.append(self.Path)
-
-            # We use same the directory where the file is as the working directory.
-            # Release name will be the file's name without extension.
-            self.WorkingDirectory, self.ReleaseName = os.path.split(self.Path)
-            self.ReleaseName, _ = os.path.splitext(self.ReleaseName)
-            self.TorrentDataPath = self.WorkingDirectory
-        else:
-            print("Path '%s' doesn't exist!" % self.Path)
-            return False
-
-        return True
-
-    def MarkAsDvdImageIfNeeded(self, releaseInfo):
-        for file in self.AdditionalFiles:
+    def detect_images(self):
+        for file in self.release_info.AdditionalFiles():
             if str(file).lower().endswith(".ifo"):
-                releaseInfo.Codec = "DVD5"
-                # Make sure that ReleaseDescriptionFormatter will recognize this as a DVD image.
-                if not releaseInfo.IsDvdImage():
-                    raise PtpUploaderException(
-                        "Codec is set to DVD5, yet release info says that this is not a DVD image."
-                    )
-
+                self.release_info.Codec = "DVD5"
                 return
+        if self.path.is_dir() and "BDMV" in list([f.name for f in self.path.iterdir()]):
+            self.release_info.Codec = "BD25"
 
-    def MarkAsBlurayImageIfNeeded(self, releaseInfo):
-        if os.path.isdir(self.Path) and "BDMV" in os.listdir(self.Path):
-            releaseInfo.Codec = "BD25"
-
-    def SaveReleaseDescriptionFile(
-        self, logger, releaseDescriptionFilePath, createScreens
-    ):
-        releaseInfo = ReleaseInfo()
-        releaseInfo.Logger = logger
-        releaseInfo.ReleaseName = self.ReleaseName
-        releaseInfo.ReleaseUploadPath = self.TorrentDataPath
-        self.MarkAsDvdImageIfNeeded(releaseInfo)
-        self.MarkAsBlurayImageIfNeeded(releaseInfo)
-
-        outputImageDirectory = self.WorkingDirectory
-        releaseDescriptionFormatter = ReleaseDescriptionFormatter(
-            releaseInfo,
-            self.VideoFiles,
-            self.AdditionalFiles,
-            outputImageDirectory,
-            createScreens,
+    def save_description(self, output_path: os.PathLike, create_screens: bool):
+        output_path = Path(output_path)
+        formatter = ReleaseDescriptionFormatter(
+            self.release_info, [], [], self.path.parent, create_screens
         )
-        releaseDescription = releaseDescriptionFormatter.Format(includeReleaseName=True)
+        description = formatter.Format(includeReleaseName=True)
+        self.release_info.Logger.info("Saving to description file %r", str(output_path))
+        with output_path.open("w") as handle:
+            handle.write(description)
 
-        logger.info("Saving to description file %r", releaseDescriptionFilePath)
-        with open(releaseDescriptionFilePath, "w") as handle:
-            handle.write(releaseDescription)
-
-    def MakeReleaseInfo(
+    def make_release_info(
         self,
-        args,
-        createTorrent=True,
-        createScreens=True,
+        create_torrent=True,
+        create_screens=True,
+        overwrite=False,
         setDescription: Optional[str] = None,
     ):
-        logger = MyGlobals.Logger
-
-        if not self.CollectVideoFiles():
-            return
-
-        # Make sure the files we are generating are not present.
-
-        releaseDescriptionFilePath = os.path.join(
-            self.WorkingDirectory,
-            "PTP " + self.ReleaseName + ".release description.txt",
+        self.collect_files()
+        description_path = Path(
+            self.path.parent,
+            "PTP " + self.release_info.ReleaseName + ".release description.txt",
         )
-        if os.path.exists(releaseDescriptionFilePath) and not args.force:
-            print(
-                "Can't create release description because '%s' already exists!"
-                % releaseDescriptionFilePath
+        if description_path.exists() and not overwrite:
+            raise Exception(
+                "Can't create release description because %r already exists!"
+                % str(description_path)
             )
-            return
-
-        torrentName = "PTP " + self.ReleaseName + ".torrent"
-        torrentPath = os.path.join(self.WorkingDirectory, torrentName)
-        if createTorrent and os.path.exists(torrentPath):
-            print("Can't create torrent because '%s' already exists!" % torrentPath)
-            return
-
-        # Save the release description.
-        self.SaveReleaseDescriptionFile(
-            logger, releaseDescriptionFilePath, createScreens
+        torrent_path = Path(
+            self.path.parent, "PTP " + self.release_info.ReleaseName + ".torrent"
         )
-
-        if setDescription is not None:
-            tID = None
-            if os.path.exists(setDescription):
-                meta = metafile.Metafile.from_file(Path(setDescription))
-                setDescription = meta["comment"]
-            if setDescription and "torrentid=" in setDescription:
-                tID = re.search("torrentid=(\d+)", setDescription).group(1)
-            Ptp.Login()
-            logger.info("Uploading description as a report to %s", tID)
-            if not Settings.AntiCsrfToken:
-                raise PtpUploaderException("No AntiCsrfToken found")
-            with open(releaseDescriptionFilePath, "r") as fh:
-                r = MyGlobals.session.post(
-                    "https://passthepopcorn.me/reportsv2.php?action=takereport",
-                    data={
-                        "extra": fh.read(),
-                        "torrentid": tID,
-                        "categoryid": "1",
-                        "type": "replacement description",
-                        "submit": "true",
-                        "AntiCsrfToken": Settings.AntiCsrfToken,
-                    },
+        self.save_description(description_path, create_screens)
+        if create_torrent:
+            if torrent_path.exists() and not overwrite:
+                raise Exception(
+                    "Can't create torrent because %r already exists!" % str(torrentPath)
                 )
-                r.raise_for_status()
-
-        # Create the torrent
-        if createTorrent:
-            Mktor.Make(logger, self.Path, torrentPath)
-            MyGlobals.GetTorrentClient().AddTorrentSkipHashCheck(
-                logger, torrentPath, self.TorrentDataPath
+                return
+            Mktor.Make(MyGlobals.Logger, self.path, torrent_path)
+            base_dir = (
+                self.path.parent if self.release_info.SourceIsAFile() else self.path
             )
+            MyGlobals.GetTorrentClient().AddTorrentSkipHashCheck(
+                MyGlobals.Logger, torrent_path, base_dir
+            )
+
+    def set_description(self, target: str):
+        tID = None
+        if os.path.exists(target):
+            meta = metafile.Metafile.from_file(Path(target))
+            target = meta["comment"]
+        if target and "torrentid=" in target:
+            tID = re.search("torrentid=(\d+)", target).group(1)
+        Ptp.Login()
+        self.release_info.Logger.info("Uploading description as a report to %s", tID)
+        if not Settings.AntiCsrfToken:
+            raise PtpUploaderException("No AntiCsrfToken found")
+        description_path = Path(
+            self.path.parent,
+            "PTP " + self.release_info.ReleaseName + ".release description.txt",
+        )
+        with open(description_path, "r") as fh:
+            r = MyGlobals.session.post(
+                "https://passthepopcorn.me/reportsv2.php?action=takereport",
+                data={
+                    "extra": fh.read(),
+                    "torrentid": tID,
+                    "categoryid": "1",
+                    "type": "replacement description",
+                    "submit": "true",
+                    "AntiCsrfToken": Settings.AntiCsrfToken,
+                },
+            )
+            r.raise_for_status()
 
 
 def run():
@@ -201,12 +147,14 @@ def run():
     MyGlobals.InitializeGlobals(Settings.WorkingPath)
 
     releaseInfoMaker = ReleaseInfoMaker(args.path[0])
-    releaseInfoMaker.MakeReleaseInfo(
-        args=args,
-        createTorrent=(not args.notorrent),
-        createScreens=(not args.noscreens),
+    releaseInfoMaker.make_release_info(
+        overwrite=args.force,
+        create_torrent=(not args.notorrent),
+        create_screens=(not args.noscreens),
         setDescription=args.set_description,
     )
+    if args.set_description:
+        releaseInfoMaker.set_description(args.set_description)
 
 
 if __name__ == "__main__":

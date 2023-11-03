@@ -1,3 +1,17 @@
+## [0.12.2]
+### Fixed
+- Fix mediainfo error by ensuring IncludedFileList is set
+
+## [0.12.1]
+### Fixed
+- Allow loading .torrent files from the announce directory
+
+## [0.12.0]
+### Changed
+- Allow selecting files manually
+### Fixed
+- Respect the ignore_files config setting properly
+
 ## [0.11.3]
 ### Changed
 - Due to new restrictions for pypi, the cinemagoer package now uses
@@ -27,7 +41,7 @@
 ## [0.11.0]
 ### Added
 - Experimental libmpv screenshot tool. This is primarily to help with
-  keyframe-reliant codecs like VC1 that would other produce grey
+  keyframe-reliant codecs like VC1 that would otherwise produce grey
   screenshots, but has not been vetted as well as the mpv
   CLI. Requires optional dependencies: `pip install pillow mpv`.
 ### Fixed

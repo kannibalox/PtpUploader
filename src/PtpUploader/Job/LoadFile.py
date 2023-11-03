@@ -12,7 +12,8 @@ logger = logging.getLogger(__name__)
 
 
 def load_json_release(path: Path):
-    data: Dict = json.load(path.open())
+    with path.open() as fh:
+        data: Dict = json.load(fh)
     release = ReleaseInfo()
     allowed_fields: List[str] = [
         "ImdbId",
@@ -36,6 +37,13 @@ def load_json_release(path: Path):
     release.save()
     path.unlink()
 
+def load_torrent_release(path: Path):
+    release = ReleaseInfo()
+    release.AnnouncementSourceName = "torrent"
+    release.SourceTorrentFilePath = path
+    release.JobRunningState = ReleaseInfo.JobState.WaitingForStart
+    release.save()
+    path.unlink()
 
 def scan_dir():
     path = Path(Settings.GetAnnouncementWatchPath())
@@ -44,8 +52,8 @@ def scan_dir():
             try:
                 load_json_release(child)
                 continue
-            except json.decoder.JSONDecodeError:
-                pass
+            except (json.decoder.JSONDecodeError, UnicodeDecodeError) as exc:
+                logger.debug("Cannot load %r as JSON (%s), attempting .torrent check", child, exc)
             try:
                 load_torrent_release(child)
                 continue
